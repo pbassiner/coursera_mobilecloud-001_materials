@@ -1,0 +1,892 @@
+1
+00:00:00,000 --> 00:00:09,243
+[MUSIC]
+
+2
+00:00:09,243 --> 00:00:13,990
+When you create controllers, they're
+magically instantiated by Spring.
+
+3
+00:00:13,990 --> 00:00:17,720
+It automatically discovers the controllers
+as we've seen.
+
+4
+00:00:17,720 --> 00:00:21,080
+Looks at all of the annotations on those
+controllers and
+
+5
+00:00:21,080 --> 00:00:24,480
+then figures out what requests to map to
+the controller.
+
+6
+00:00:24,480 --> 00:00:26,590
+But often our controllers are going to
+depend
+
+7
+00:00:26,590 --> 00:00:29,880
+upon a bunch of other objects that we
+define.
+
+8
+00:00:29,880 --> 00:00:34,790
+And we would probably not necessarily like
+to define exactly how
+
+9
+00:00:34,790 --> 00:00:38,955
+we instantiate and create our controller
+completely in the controller itself.
+
+10
+00:00:38,955 --> 00:00:41,700
+We'd like to be able to configure it
+different ways,
+
+11
+00:00:41,700 --> 00:00:45,170
+depending on the situations in, which it
+is being used.
+
+12
+00:00:45,170 --> 00:00:51,571
+So for example, let's say we have a
+controller, @controller, and
+
+13
+00:00:51,571 --> 00:00:58,526
+we're going to call this public class and
+we'll make this our video service.
+
+14
+00:00:58,526 --> 00:01:02,463
+[BLANK_AUDIO]
+
+15
+00:01:02,463 --> 00:01:05,436
+We now have a simple Spring controller,
+and let's say that
+
+16
+00:01:05,436 --> 00:01:09,360
+we would like to have different storage
+options for our videos.
+
+17
+00:01:09,360 --> 00:01:15,570
+So, somewhere else, we go and define an
+interface called storage system.
+
+18
+00:01:15,570 --> 00:01:21,687
+So, we have a member variable,
+
+19
+00:01:21,687 --> 00:01:26,460
+called StorageSystem.
+
+20
+00:01:26,460 --> 00:01:28,860
+And we'll call this storage.
+
+21
+00:01:31,570 --> 00:01:35,950
+So we now have a member variable, that's
+of type StorageSystem.
+
+22
+00:01:35,950 --> 00:01:39,620
+And StorageSystem is a interface that
+we've defined somewhere else.
+
+23
+00:01:39,620 --> 00:01:42,650
+So maybe in our storage system we have
+different implementations.
+
+24
+00:01:42,650 --> 00:01:44,970
+We might have, for example, a
+
+25
+00:01:44,970 --> 00:01:48,190
+implementation that stores things in
+Amazon S3.
+
+26
+00:01:48,190 --> 00:01:54,648
+[SOUND] And we call that AmazonS3Storage.
+
+27
+00:01:54,648 --> 00:01:57,090
+Or maybe we have one that stores things
+locally.
+
+28
+00:01:57,090 --> 00:01:57,590
+And
+
+29
+00:01:59,460 --> 00:02:02,140
+we'll call that local storage and these
+will be
+
+30
+00:02:02,140 --> 00:02:07,410
+different classes that would implement the
+storage system interface.
+
+31
+00:02:08,430 --> 00:02:11,290
+So we'd like our controller, our video
+service controller to
+
+32
+00:02:11,290 --> 00:02:14,219
+be able to operate on either type of
+storage system.
+
+33
+00:02:15,460 --> 00:02:17,991
+Now one way we could do this is we could
+simply say
+
+34
+00:02:17,991 --> 00:02:22,310
+equals and then instantiate this specific
+storage system that we wanted to use.
+
+35
+00:02:22,310 --> 00:02:25,348
+So we could say storage equals
+AmazonS3Storage
+
+36
+00:02:25,348 --> 00:02:27,793
+and create a new one, or storage equals
+
+37
+00:02:27,793 --> 00:02:30,459
+new local storage, but then that's
+going to
+
+38
+00:02:30,459 --> 00:02:33,670
+make it so that this video service object.
+
+39
+00:02:33,670 --> 00:02:36,980
+Every time we want to change the type of
+storage system we're using for
+
+40
+00:02:36,980 --> 00:02:39,360
+it, we're going to have to go
+
+41
+00:02:39,360 --> 00:02:42,930
+and rewrite the code itself, recompile the
+application.
+
+42
+00:02:42,930 --> 00:02:44,890
+And that's not what we'd like to do.
+
+43
+00:02:44,890 --> 00:02:46,560
+What we'd like to do is be able to, when
+
+44
+00:02:46,560 --> 00:02:50,440
+we start up the application in a
+particular configuration, we'd like
+
+45
+00:02:50,440 --> 00:02:55,020
+to have this automatically paramaterized
+and injected into the controller, the
+
+46
+00:02:55,020 --> 00:02:59,270
+appropriate storage system that we want
+for that particular use case.
+
+47
+00:03:00,310 --> 00:03:01,920
+And Spring gives us a way to do
+
+48
+00:03:01,920 --> 00:03:05,000
+this, through a process known as
+dependency injection.
+
+49
+00:03:06,030 --> 00:03:08,790
+So what dependency injection is, is we can
+
+50
+00:03:08,790 --> 00:03:14,370
+define, objects, that a particular class
+depends on.
+
+51
+00:03:14,370 --> 00:03:20,590
+So, a video service depends on having a
+storage system object provided to it.
+
+52
+00:03:20,590 --> 00:03:25,730
+That is the storage system is a dependency
+that the video service needs.
+
+53
+00:03:25,730 --> 00:03:28,440
+And the injection part in dependency
+injection
+
+54
+00:03:28,440 --> 00:03:31,740
+means that spring can automatically fill
+in and
+
+55
+00:03:31,740 --> 00:03:34,650
+provide an object that implements the
+storage
+
+56
+00:03:34,650 --> 00:03:38,640
+system interface, without us having to
+construct it.
+
+57
+00:03:38,640 --> 00:03:43,020
+Now the way that we do this and this is
+going to seem like magic at first, is we
+
+58
+00:03:43,020 --> 00:03:49,540
+go and we add a special annotation to this
+memory variable called at AutoWired.
+
+59
+00:03:50,800 --> 00:03:55,660
+Whoops, dot AutoWired, and what this says
+
+60
+00:03:55,660 --> 00:04:01,810
+is, whenever you go and instantiate a
+video service,
+
+61
+00:04:01,810 --> 00:04:06,290
+Spring, you must also find a storage
+system
+
+62
+00:04:06,290 --> 00:04:11,790
+object that can be automatically wired or
+injected into this variable.
+
+63
+00:04:11,790 --> 00:04:14,690
+So, what Spring is going to do, is
+
+64
+00:04:14,690 --> 00:04:17,710
+it's going to look through the
+configuration that's
+
+65
+00:04:17,710 --> 00:04:20,080
+provided to it, and it's going to try to
+
+66
+00:04:20,080 --> 00:04:26,060
+find an implementation of storage system
+in that configuration.
+
+67
+00:04:26,060 --> 00:04:29,330
+And if it can find a configuration, some,
+
+68
+00:04:29,330 --> 00:04:33,440
+in that configuration a implementation of
+storage system.
+
+69
+00:04:33,440 --> 00:04:37,220
+Then it's going to automatically take and
+create an instance
+
+70
+00:04:37,220 --> 00:04:40,910
+of that object or reuse an existing
+implementation that's already
+
+71
+00:04:40,910 --> 00:04:44,760
+been created and inject it or
+automatically set the
+
+72
+00:04:44,760 --> 00:04:49,670
+storage system, or the storage member
+variable, to that value.
+
+73
+00:04:49,670 --> 00:04:52,301
+So, it automatically looks at this video
+
+74
+00:04:52,301 --> 00:04:55,770
+service needs an implementation of storage
+system.
+
+75
+00:04:55,770 --> 00:04:58,060
+It automatically finds an implementation
+for
+
+76
+00:04:58,060 --> 00:05:00,750
+it that you've defined in your
+configuration.
+
+77
+00:05:00,750 --> 00:05:03,620
+And then it automatically sets your member
+variable
+
+78
+00:05:03,620 --> 00:05:06,582
+to the value that was defined in your
+configuration.
+
+79
+00:05:06,582 --> 00:05:09,650
+And so this is really nice, because we can
+create
+
+80
+00:05:09,650 --> 00:05:14,010
+a video service that depends on any number
+of other objects.
+
+81
+00:05:14,010 --> 00:05:21,130
+So for example, we might have another
+dependent object that's you know, User
+
+82
+00:05:22,290 --> 00:05:27,200
+Manager, that is defined in interface
+somewhere else.
+
+83
+00:05:27,200 --> 00:05:28,440
+And we'll call this users.
+
+84
+00:05:28,440 --> 00:05:32,299
+And then we can just say @AutoWired for
+it.
+
+85
+00:05:32,299 --> 00:05:35,670
+[BLANK_AUDIO]
+
+86
+00:05:35,670 --> 00:05:39,289
+And Spring, will automatically, for every
+single one of these
+
+87
+00:05:39,289 --> 00:05:43,580
+dependencies that we define by adding
+AutoWired, it will automatically go
+
+88
+00:05:43,580 --> 00:05:47,535
+and look through the configuration, find
+an appropriate object that
+
+89
+00:05:47,535 --> 00:05:52,250
+implements the interface that we've
+defined here, that we depend upon.
+
+90
+00:05:52,250 --> 00:05:55,820
+And then get that object and set our
+member variable to it.
+
+91
+00:05:55,820 --> 00:05:59,940
+So it goes and automatically instantiates
+and configures whole
+
+92
+00:05:59,940 --> 00:06:05,420
+hierarchies of objects, through dependency
+injection to build our application.
+
+93
+00:06:05,420 --> 00:06:08,310
+And we can control how all of this done,
+
+94
+00:06:08,310 --> 00:06:11,879
+is done by providing different
+configuration objects to spring.
+
+95
+00:06:12,990 --> 00:06:16,030
+To populate the different AutoWired
+properties of
+
+96
+00:06:16,030 --> 00:06:18,110
+our objects, we need a way of
+
+97
+00:06:18,110 --> 00:06:21,340
+telling the dependency injection mechanism
+in Spring,
+
+98
+00:06:21,340 --> 00:06:24,170
+how to map to these individual interfaces.
+
+99
+00:06:24,170 --> 00:06:26,430
+Their class is expected to be in
+AutoWired.
+
+100
+00:06:26,430 --> 00:06:30,610
+And the way that we do that is with a
+configuration object.
+
+101
+00:06:30,610 --> 00:06:34,160
+So in Spring, we can create a class that
+defines
+
+102
+00:06:35,720 --> 00:06:39,020
+the mappings between the actual concrete
+implementations of the different
+
+103
+00:06:39,020 --> 00:06:43,710
+interfaces, that our controllers and other
+objects depend upon, and
+
+104
+00:06:43,710 --> 00:06:48,520
+the actual specific class that we want to
+use for that interface.
+
+105
+00:06:48,520 --> 00:06:54,738
+So, to do this, we can simply create, a
+class,
+
+106
+00:06:54,738 --> 00:07:00,506
+we'll call this VideoConf, and we annotate
+
+107
+00:07:00,506 --> 00:07:05,993
+it with the @Configuration annotation.
+
+108
+00:07:05,993 --> 00:07:08,796
+[BLANK_AUDIO]
+
+109
+00:07:08,796 --> 00:07:12,649
+And what that tells Spring and the
+dependency injection is
+
+110
+00:07:12,649 --> 00:07:16,500
+that go and look at this class, VideoConf,
+and construct
+
+111
+00:07:16,500 --> 00:07:19,329
+an instance of it, and look inside of it
+for
+
+112
+00:07:19,329 --> 00:07:24,710
+the mappings to some of these AutoWired
+dependencies that we need.
+
+113
+00:07:24,710 --> 00:07:27,077
+And then in order to fill something like
+the
+
+114
+00:07:27,077 --> 00:07:30,251
+storage system, we could simply add a
+method, public.
+
+115
+00:07:30,251 --> 00:07:33,187
+[BLANK_AUDIO]
+
+116
+00:07:33,187 --> 00:07:38,398
+Storage system, and then we’ll
+
+117
+00:07:38,398 --> 00:07:43,800
+call this method storage system.
+
+118
+00:07:48,190 --> 00:07:50,285
+And then in the method we could simply
+say.
+
+119
+00:07:50,285 --> 00:07:58,179
+Return new LocalStorage.
+
+120
+00:07:58,179 --> 00:08:02,550
+[BLANK_AUDIO]
+
+121
+00:08:02,550 --> 00:08:06,397
+So, in this class, in this configuration
+class, we've created
+
+122
+00:08:06,397 --> 00:08:10,311
+a method that's called StorageSystem, and
+when you invoke it, it
+
+123
+00:08:10,311 --> 00:08:14,640
+gives you the actual implementation, in
+this case, LocalStorage, that
+
+124
+00:08:14,640 --> 00:08:19,620
+we would like to use for this auto-wired
+storage system dependency.
+
+125
+00:08:19,620 --> 00:08:27,780
+And then all we need to do is add @Beam as
+an annotation to this method.
+
+126
+00:08:27,780 --> 00:08:31,760
+And so what'll happen is, at runtime,
+Spring will
+
+127
+00:08:31,760 --> 00:08:36,130
+go and create an instance of your
+VideoConf object.
+
+128
+00:08:36,130 --> 00:08:37,620
+And then it will look for all of the
+
+129
+00:08:37,620 --> 00:08:42,770
+methods annotated with @Beam and then it
+will automatically call
+
+130
+00:08:42,770 --> 00:08:46,700
+them to get the appropriate class that you
+want to
+
+131
+00:08:46,700 --> 00:08:51,480
+implement each of the interfaces defined
+by the return type.
+
+132
+00:08:51,480 --> 00:08:54,274
+So, in this case, if we say, @beam
+StorageSystem.
+
+133
+00:08:54,274 --> 00:08:58,980
+What that means is, is that we're going to
+create an instance of LocalStorage.
+
+134
+00:08:58,980 --> 00:09:04,280
+And then everywhere in our code that we
+have a member variable that's
+
+135
+00:09:04,280 --> 00:09:09,070
+of type StorageSystem that has @AutoWired,
+Spring is automatically
+
+136
+00:09:09,070 --> 00:09:12,130
+going to go and take the value that it got
+back
+
+137
+00:09:12,130 --> 00:09:17,310
+from this method and set the appropriate
+member variable with that value.
+
+138
+00:09:17,310 --> 00:09:21,450
+So, we're completely decoupling how our
+objects
+
+139
+00:09:21,450 --> 00:09:25,100
+get constructed and configured from the
+configurations.
+
+140
+00:09:25,100 --> 00:09:27,670
+All we have to do is create a class that
+has
+
+141
+00:09:27,670 --> 00:09:33,300
+@AutoWired on the various dependencies or
+other objects that it depends on.
+
+142
+00:09:33,300 --> 00:09:38,210
+And we define those dependencies by having
+an interface that abstracts away the
+
+143
+00:09:38,210 --> 00:09:44,380
+details of the different implementations
+like S3 storage versus local storage.
+
+144
+00:09:44,380 --> 00:09:49,720
+And then in order to define for a
+particular application use case, how
+
+145
+00:09:49,720 --> 00:09:53,150
+we map those different implementations of
+storage
+
+146
+00:09:53,150 --> 00:09:57,250
+system, we create an @Configuration
+annotated class.
+
+147
+00:09:57,250 --> 00:10:01,270
+And would create methods with @Beam
+annotation
+
+148
+00:10:01,270 --> 00:10:05,060
+to define and create the actual
+implementations.
+
+149
+00:10:05,060 --> 00:10:08,090
+Now, this may seem really complicated, and
+at first, it's a
+
+150
+00:10:08,090 --> 00:10:11,980
+huge leap to sort of wrap your head around
+what's going on.
+
+151
+00:10:11,980 --> 00:10:13,710
+But, once you understand how this
+
+152
+00:10:13,710 --> 00:10:16,550
+dependency injection mechanism works, it's
+a really
+
+153
+00:10:16,550 --> 00:10:21,220
+powerful part of Spring that allows you to
+write more modular, and reusable code.
+
+154
+00:10:22,250 --> 00:10:26,840
+So, what's going on at runtime is when,
+Spring instantiates your
+
+155
+00:10:26,840 --> 00:10:31,780
+video service, it goes and it reads, and
+it sees @AutoWired.
+
+156
+00:10:31,780 --> 00:10:34,018
+It then goes and says, what type do I
+need?
+
+157
+00:10:34,018 --> 00:10:43,760
+And, it looks, at the type of the member
+variable that's being AutoWired.
+
+158
+00:10:43,760 --> 00:10:46,230
+And then what it does is it goes through
+
+159
+00:10:46,230 --> 00:10:48,920
+and it looks in the configuration object
+and it
+
+160
+00:10:48,920 --> 00:10:53,020
+says, is there a method that's annotated
+with @Beam
+
+161
+00:10:53,020 --> 00:10:57,820
+that returns the appropriate type that I'm
+looking for?
+
+162
+00:10:57,820 --> 00:11:01,490
+If yes, I need to call it and get the
+return
+
+163
+00:11:01,490 --> 00:11:06,570
+value from it and use that to plug into
+this member variable.
+
+164
+00:11:06,570 --> 00:11:09,270
+Now, one of the things that's really
+useful to know is
+
+165
+00:11:09,270 --> 00:11:13,890
+by default in Spring, it's only going to
+call this method once.
+
+166
+00:11:13,890 --> 00:11:16,880
+So it's going to call and create one
+instance
+
+167
+00:11:16,880 --> 00:11:21,920
+of LocalStorage, and then every other
+class that is
+
+168
+00:11:21,920 --> 00:11:25,060
+using that same storage system and has
+@AutoWired, they
+
+169
+00:11:25,060 --> 00:11:29,050
+will all get a reference to exactly the
+same object.
+
+170
+00:11:29,050 --> 00:11:30,250
+That's the default behavior.
+
+171
+00:11:30,250 --> 00:11:35,530
+Now, you can change it, so that each time
+it sees @AutoWired, it will call
+
+172
+00:11:35,530 --> 00:11:40,480
+this method and get a new instance of that
+object that should be plugged in.
+
+173
+00:11:40,480 --> 00:11:44,900
+But by default, and usually this is what
+you want in many cases, you want every
+
+174
+00:11:44,900 --> 00:11:47,920
+single place where you're using a storage
+system
+
+175
+00:11:47,920 --> 00:11:51,170
+to get a reference to the same storage
+system.
+
+176
+00:11:51,170 --> 00:11:55,220
+And so, very quickly you can do singleton
+like behavior where you have
+
+177
+00:11:55,220 --> 00:11:59,210
+a single object that is plugged in to a
+whole bunch of different classes.
+
+178
+00:11:59,210 --> 00:12:02,480
+And you don't have to figure out
+complicated mechanisms for passing
+
+179
+00:12:02,480 --> 00:12:06,220
+that object around to all of the places
+that it's actually needed.
+
+180
+00:12:06,220 --> 00:12:09,200
+Spring can automatically figure out what
+your
+
+181
+00:12:09,200 --> 00:12:12,490
+dependencies are based on @AutoWired, go
+and look
+
+182
+00:12:12,490 --> 00:12:15,140
+in your configuration object and match up
+
+183
+00:12:15,140 --> 00:12:18,610
+the return types of the @Beam annotated
+methods.
+
+184
+00:12:18,610 --> 00:12:24,090
+And then do all of the wiring to take this
+object that's returned, and plug it in to
+
+185
+00:12:24,090 --> 00:12:29,720
+all the places that reference a storage
+system and have @AutoWired on it.
+
+186
+00:12:29,720 --> 00:12:32,040
+So it's a very, very powerful mechanism in
+Spring.
+

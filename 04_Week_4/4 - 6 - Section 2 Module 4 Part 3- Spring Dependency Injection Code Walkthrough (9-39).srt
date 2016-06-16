@@ -1,0 +1,691 @@
+1
+00:00:00,503 --> 00:00:08,918
+[MUSIC]
+
+2
+00:00:08,918 --> 00:00:10,743
+So far we've seen that we can use
+
+3
+00:00:10,743 --> 00:00:15,160
+Spring to automatically configure and
+launch our application.
+
+4
+00:00:15,160 --> 00:00:17,050
+But one of the questions we haven't answer
+is,
+
+5
+00:00:17,050 --> 00:00:20,690
+how does Spring know how to construct our
+application?
+
+6
+00:00:20,690 --> 00:00:24,820
+What if our video service has some
+dependency on another object
+
+7
+00:00:24,820 --> 00:00:27,060
+that we would like to be able to configure
+when we
+
+8
+00:00:27,060 --> 00:00:30,300
+launch the application, so that we could
+provide for example an
+
+9
+00:00:30,300 --> 00:00:35,140
+interface to the different ways that we
+store videos in memory.
+
+10
+00:00:35,140 --> 00:00:39,260
+Or potentially even store them on disk,
+and then plug in different
+
+11
+00:00:39,260 --> 00:00:44,030
+classes that implement that interface into
+the video service depending on our needs.
+
+12
+00:00:45,030 --> 00:00:47,420
+Spring supports a facility called
+
+13
+00:00:47,420 --> 00:00:49,840
+Dependency Injection, that we've talked
+about.
+
+14
+00:00:49,840 --> 00:00:52,760
+That can automatically provide the
+
+15
+00:00:52,760 --> 00:00:55,100
+bindings between the actual implementation
+of
+
+16
+00:00:55,100 --> 00:00:59,960
+an interface and the usage of that
+interface in our various controllers.
+
+17
+00:00:59,960 --> 00:01:02,740
+We're other other classes, so let's take a
+look in
+
+18
+00:01:02,740 --> 00:01:06,430
+this example of how we can use this to our
+advantage.
+
+19
+00:01:07,460 --> 00:01:10,630
+So in this version, if you open up the
+video
+
+20
+00:01:10,630 --> 00:01:16,210
+service again, we'll see that we've added
+a new concept.
+
+21
+00:01:16,210 --> 00:01:20,240
+And that is rather than using a direct
+list of videos that we're
+
+22
+00:01:20,240 --> 00:01:22,490
+going to store in memory, instead we've
+
+23
+00:01:22,490 --> 00:01:26,740
+created an abstraction called a video
+repository.
+
+24
+00:01:26,740 --> 00:01:29,690
+And if you'll look down here a little
+lower, we'll see
+
+25
+00:01:29,690 --> 00:01:34,000
+that this video repository has similar
+methods to what we had before.
+
+26
+00:01:34,000 --> 00:01:38,240
+It has a method to add a video, and it
+had, it has
+
+27
+00:01:38,240 --> 00:01:40,940
+a method to get the list of videos that
+have currently been added.
+
+28
+00:01:41,980 --> 00:01:46,210
+So if we go, and actually look at this
+video repository.
+
+29
+00:01:46,210 --> 00:01:48,090
+We'll see that it's just a simple Java
+
+30
+00:01:48,090 --> 00:01:51,480
+interface that provides this functionality
+that we would
+
+31
+00:01:51,480 --> 00:01:56,140
+expect of some storage system for storing
+videos
+
+32
+00:01:56,140 --> 00:01:58,470
+may be it in memory or somewhere else.
+
+33
+00:01:59,480 --> 00:02:02,880
+So once we've defined this interface, we
+
+34
+00:02:02,880 --> 00:02:07,090
+can plug different implementations of the
+interface
+
+35
+00:02:07,090 --> 00:02:09,860
+into the video service and not have
+
+36
+00:02:09,860 --> 00:02:13,400
+to change how video service operates
+directly.
+
+37
+00:02:13,400 --> 00:02:17,340
+Instead, if we wanted to provide an
+implementation that does something
+
+38
+00:02:17,340 --> 00:02:22,640
+different, for example, one version might
+allow duplicate videos to be stored.
+
+39
+00:02:22,640 --> 00:02:26,260
+Whereas, another version may not allow
+duplicate videos to be stored.
+
+40
+00:02:26,260 --> 00:02:28,640
+It may only store one copy.
+
+41
+00:02:28,640 --> 00:02:30,700
+So if we want to be able to provide
+
+42
+00:02:30,700 --> 00:02:35,230
+those different implementations of that
+interface, we can use
+
+43
+00:02:35,230 --> 00:02:38,390
+the interface here in the video service,
+and then
+
+44
+00:02:38,390 --> 00:02:42,590
+add and get the videos directly using that
+interface.
+
+45
+00:02:42,590 --> 00:02:46,090
+Now if you see this, this brings up a
+question,
+
+46
+00:02:46,090 --> 00:02:52,170
+which is, we aren't directly instantiating
+our video service object.
+
+47
+00:02:52,170 --> 00:02:58,030
+Instead, we are asking sprain to go and
+launch a web container, and
+
+48
+00:02:58,030 --> 00:03:03,250
+to automatically discover our controllers
+and put them into the web container.
+
+49
+00:03:03,250 --> 00:03:06,690
+So if we aren't directly instantiating
+some implementation of
+
+50
+00:03:06,690 --> 00:03:10,530
+video service, and assigning it to this
+member variable.
+
+51
+00:03:10,530 --> 00:03:12,590
+How does Spring know what should be
+assigned
+
+52
+00:03:12,590 --> 00:03:16,420
+to this variable and how to fulfill this
+dependency?
+
+53
+00:03:16,420 --> 00:03:22,400
+Well, to answer that, we can look at the
+application class, which is where we do
+
+54
+00:03:22,400 --> 00:03:27,880
+the initial launch of our, our application
+and tell Spring to go and configure us.
+
+55
+00:03:27,880 --> 00:03:32,020
+And what we'll see here is that we've
+listed at
+
+56
+00:03:32,020 --> 00:03:36,790
+enable auto configuration and at component
+scam which as we've
+
+57
+00:03:36,790 --> 00:03:40,290
+talked about before tells Spring to go and
+look in
+
+58
+00:03:40,290 --> 00:03:45,890
+a particular package for all of our
+controllers when other components.
+
+59
+00:03:45,890 --> 00:03:47,330
+And then the at enable auto
+
+60
+00:03:47,330 --> 00:03:50,470
+configuration says, go, and automatically
+configure them.
+
+61
+00:03:50,470 --> 00:03:53,410
+And we talked a little bit about this
+before.
+
+62
+00:03:53,410 --> 00:03:57,910
+So what's going to happen is, when Spring
+goes and
+
+63
+00:03:57,910 --> 00:04:01,004
+scans our controller, in this case the
+video service,
+
+64
+00:04:01,004 --> 00:04:03,710
+oOne of the things it's going to see is
+
+65
+00:04:03,710 --> 00:04:07,780
+that this member variable has an at
+autowired annotation.
+
+66
+00:04:08,790 --> 00:04:14,340
+And what this at autowired annotation
+tells Spring is, this is a dependency that
+
+67
+00:04:14,340 --> 00:04:20,620
+I require that I want you to automatically
+provide for me when you construct me.
+
+68
+00:04:20,620 --> 00:04:22,890
+So Spring is going to have to figure out
+how
+
+69
+00:04:22,890 --> 00:04:27,000
+to resolve the dependency and find some
+object that
+
+70
+00:04:27,000 --> 00:04:30,380
+implements video service and automatically
+set the value of
+
+71
+00:04:30,380 --> 00:04:33,670
+this member variable to a reference to
+that object.
+
+72
+00:04:33,670 --> 00:04:37,550
+So if you go and then look in application,
+what
+
+73
+00:04:37,550 --> 00:04:41,990
+we see is that we have a method called
+video repository.
+
+74
+00:04:41,990 --> 00:04:45,080
+That's annotated with @being.
+
+75
+00:04:45,080 --> 00:04:50,320
+And what this method does, is it tells
+Spring, here
+
+76
+00:04:50,320 --> 00:04:56,320
+is the implementation that I want you to
+use for the video repository.
+
+77
+00:04:56,320 --> 00:04:58,610
+And so what Spring is going to do is when
+
+78
+00:04:58,610 --> 00:05:00,480
+it goes and looks at the video service,
+it's
+
+79
+00:05:00,480 --> 00:05:04,270
+going to see that it needs to have a
+
+80
+00:05:04,270 --> 00:05:10,190
+video repository implementation to
+@autowire into this member variable.
+
+81
+00:05:10,190 --> 00:05:11,430
+So it's then going to go look at the
+
+82
+00:05:11,430 --> 00:05:15,850
+application class which is the
+configuration of the application
+
+83
+00:05:15,850 --> 00:05:18,910
+and say are there any @ being annotative
+
+84
+00:05:18,910 --> 00:05:22,230
+methods that return an instance of a video
+repository.
+
+85
+00:05:22,230 --> 00:05:25,340
+And in this case, it's going to say this
+method
+
+86
+00:05:25,340 --> 00:05:29,890
+video repository will return an instance
+of a video repository.
+
+87
+00:05:29,890 --> 00:05:32,100
+So it's going to call this method.
+
+88
+00:05:32,100 --> 00:05:34,860
+It's going to get back the instance or the
+
+89
+00:05:34,860 --> 00:05:40,600
+specific implementation of the video
+repository that we create here.
+
+90
+00:05:40,600 --> 00:05:42,940
+And then, it's automatically going to take
+that
+
+91
+00:05:42,940 --> 00:05:46,440
+value and assign it to the video's member
+variable
+
+92
+00:05:46,440 --> 00:05:49,170
+and video service, and anywhere else that
+we
+
+93
+00:05:49,170 --> 00:05:54,190
+refer to video repository and annotate it
+with auto-wired.
+
+94
+00:05:54,190 --> 00:05:58,190
+Spring will automatically go and find
+those places
+
+95
+00:05:58,190 --> 00:06:01,172
+where we are expecting that video
+repository to be
+
+96
+00:06:01,172 --> 00:06:04,630
+at autowired and it will automatically
+assign those
+
+97
+00:06:04,630 --> 00:06:10,550
+member variables the repository
+implementation that we returned here.
+
+98
+00:06:10,550 --> 00:06:16,860
+So the way to think about this is that
+Spring is providing us a way to where
+
+99
+00:06:16,860 --> 00:06:22,050
+we can have an interface that is used by
+multiple class.
+
+100
+00:06:22,050 --> 00:06:24,210
+So, let's say that these are the users,
+
+101
+00:06:24,210 --> 00:06:30,270
+or the class users that depend upon our
+interface.
+
+102
+00:06:30,270 --> 00:06:35,370
+So we have a series of objects that depend
+upon
+
+103
+00:06:39,920 --> 00:06:45,260
+an interface or some object being provided
+to them.
+
+104
+00:06:45,260 --> 00:06:50,940
+And then our application where our
+configuration object 'cause it doesn't
+
+105
+00:06:50,940 --> 00:06:59,220
+have to be called application provides the
+actual implementation that gets used
+
+106
+00:07:01,990 --> 00:07:02,770
+at run time.
+
+107
+00:07:07,230 --> 00:07:12,470
+So, Spring goes and finds all of the users
+because the users
+
+108
+00:07:12,470 --> 00:07:17,690
+have @Autowired member variables that
+refer to the type.
+
+109
+00:07:17,690 --> 00:07:23,200
+So, if a particular member variable is
+@Autowired annotated.
+
+110
+00:07:23,200 --> 00:07:26,270
+Then Spring has to go and look in the
+configuration
+
+111
+00:07:26,270 --> 00:07:29,490
+objects that we provide to it, in this
+case, application.
+
+112
+00:07:29,490 --> 00:07:32,130
+It's going to find a method that
+
+113
+00:07:32,130 --> 00:07:35,960
+returns an implementation of that
+particular interface.
+
+114
+00:07:35,960 --> 00:07:38,500
+And then, it will automatically assign
+whatever
+
+115
+00:07:38,500 --> 00:07:41,380
+value is returned from that method to
+
+116
+00:07:41,380 --> 00:07:47,660
+all of our member variables are places
+where we refer to it in other classes.
+
+117
+00:07:47,660 --> 00:07:51,880
+So our class users have the autowire on
+the place
+
+118
+00:07:51,880 --> 00:07:56,300
+where they need a particular dependency
+like a video repository.
+
+119
+00:07:56,300 --> 00:08:00,160
+And then, our application provides the
+implementation of
+
+120
+00:08:00,160 --> 00:08:02,989
+all of those used interfaces that are at
+autowire.
+
+121
+00:08:04,210 --> 00:08:10,460
+And Spring automatically figures out how
+to solve the complex dependency
+
+122
+00:08:11,480 --> 00:08:16,470
+graph that we have to deal with in order
+to instantiate the various objects.
+
+123
+00:08:16,470 --> 00:08:18,760
+So it will automatically figure out what
+order
+
+124
+00:08:18,760 --> 00:08:23,610
+things need to be instantiated in, do that
+instantiation.
+
+125
+00:08:23,610 --> 00:08:28,555
+And then assign all of the actual
+implementations of an
+
+126
+00:08:28,555 --> 00:08:32,650
+autowired interface to all of the places
+it's referred to.
+
+127
+00:08:32,650 --> 00:08:34,390
+And if for some reason we have something
+
+128
+00:08:34,390 --> 00:08:36,870
+marked as @Autowired that doesn't show up
+in
+
+129
+00:08:36,870 --> 00:08:38,710
+your application, then when when you try
+to
+
+130
+00:08:38,710 --> 00:08:42,930
+startup, Spring is automatically going to
+throw an exception.
+
+131
+00:08:42,930 --> 00:08:46,570
+So, in this example here where we are
+
+132
+00:08:46,570 --> 00:08:50,800
+creating the actual implementation of the
+video repository.
+
+133
+00:08:50,800 --> 00:08:52,420
+If we want to simply change the
+
+134
+00:08:52,420 --> 00:08:55,100
+implementation that spring is going to
+use,
+
+135
+00:08:55,100 --> 00:08:57,210
+all have to do is change this
+
+136
+00:08:57,210 --> 00:09:02,090
+to a different implementation of video
+repository.
+
+137
+00:09:02,090 --> 00:09:05,700
+And when we start up our application,
+Spring is automatically
+
+138
+00:09:05,700 --> 00:09:09,510
+going to take this new implementation that
+we are creating here.
+
+139
+00:09:09,510 --> 00:09:16,100
+And bind it to all of the places where we
+refer to a video repository.
+
+140
+00:09:16,100 --> 00:09:19,434
+So, in order to have different
+configurations of your
+
+141
+00:09:19,434 --> 00:09:24,434
+application, you can create different
+classes that implement at configuration
+
+142
+00:09:24,434 --> 00:09:28,491
+and provide different values for the
+different dependencies that
+
+143
+00:09:28,491 --> 00:09:31,914
+are supposed to be at auto wired into your
+application.
+
+144
+00:09:31,914 --> 00:09:39,869
+[BLANK_AUDIO]
+

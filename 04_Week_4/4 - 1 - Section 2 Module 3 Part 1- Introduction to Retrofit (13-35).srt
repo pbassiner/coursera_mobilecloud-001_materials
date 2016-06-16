@@ -1,0 +1,821 @@
+1
+00:00:00,241 --> 00:00:08,092
+[MUSIC]
+
+2
+00:00:08,092 --> 00:00:10,884
+So far we've only talked about the server
+
+3
+00:00:10,884 --> 00:00:15,290
+side building cloud based services for
+mobile devices.
+
+4
+00:00:15,290 --> 00:00:17,230
+But an important part that we have to
+consider is
+
+5
+00:00:17,230 --> 00:00:22,530
+well, how does the mobile device
+communicate with the cloud service?
+
+6
+00:00:22,530 --> 00:00:24,940
+So, we're going to look now, at the
+Android
+
+7
+00:00:24,940 --> 00:00:27,950
+side of communicating and interacting with
+these services.
+
+8
+00:00:27,950 --> 00:00:32,295
+And we're going to use an open source
+library call Retrofit.
+
+9
+00:00:32,295 --> 00:00:37,890
+Retrofit is produced by Square, which
+produces these card stripe readers
+
+10
+00:00:37,890 --> 00:00:41,903
+that you maybe have seen on an iPad or
+another mobile device.
+
+11
+00:00:41,903 --> 00:00:46,750
+And what Retrofit allows you to do is to
+create
+
+12
+00:00:46,750 --> 00:00:51,138
+a strong interface in Java to your cloud
+based service.
+
+13
+00:00:51,138 --> 00:00:56,230
+And then Retrofit will take care of
+converting any parameters that
+
+14
+00:00:56,230 --> 00:01:01,930
+pass into interactions with that interface
+and the appropriate HTTP request.
+
+15
+00:01:01,930 --> 00:01:05,170
+Send those requests to the service, get
+the response
+
+16
+00:01:05,170 --> 00:01:09,700
+back and then convert the values back into
+Java types.
+
+17
+00:01:09,700 --> 00:01:15,230
+So it handles a lot of these complex
+conversion and checking
+
+18
+00:01:16,230 --> 00:01:20,770
+logic that we saw in the servlet, but it
+does it on the client side.
+
+19
+00:01:20,770 --> 00:01:25,560
+So let's take a look at what Retrofit
+looks like and how we interact with it.
+
+20
+00:01:25,560 --> 00:01:29,060
+And it will make a lot more sense as to
+what it's doing for us.
+
+21
+00:01:29,060 --> 00:01:31,280
+So let's say that we want to interact with
+
+22
+00:01:31,280 --> 00:01:34,420
+the video service that we just built in
+the servlet.
+
+23
+00:01:35,970 --> 00:01:40,897
+First we would do is create an interface
+in Java to
+
+24
+00:01:40,897 --> 00:01:49,960
+represent this service that we are going
+to interact with.
+
+25
+00:01:49,960 --> 00:01:52,910
+So we'll just call our interface video
+service.
+
+26
+00:01:54,160 --> 00:01:58,250
+The second thing we need to do, is we need
+to define what are
+
+27
+00:01:58,250 --> 00:02:02,300
+the methods that we can invoke on this
+service that lives in the cloud.
+
+28
+00:02:02,300 --> 00:02:04,560
+That's going to be handled and, and
+
+29
+00:02:04,560 --> 00:02:07,040
+implemented by this servlet that we just
+created.
+
+30
+00:02:08,050 --> 00:02:13,830
+Well, the first method is we need to be
+able to get a list of the videos.
+
+31
+00:02:13,830 --> 00:02:15,780
+So in this case we're just going to get
+the list of
+
+32
+00:02:15,780 --> 00:02:18,870
+videos as a string because that's how they
+were output by that servlet.
+
+33
+00:02:18,870 --> 00:02:21,880
+And we'll call this getVideos.
+
+34
+00:02:21,880 --> 00:02:29,400
+And this going to return the list of all
+videos that are currently on the server.
+
+35
+00:02:29,400 --> 00:02:34,980
+And second, what we want to do, is we want
+to add a method to
+
+36
+00:02:34,980 --> 00:02:41,830
+add a video.
+
+37
+00:02:41,830 --> 00:02:45,680
+And then we're going to need a couple
+parameters for this
+
+38
+00:02:45,680 --> 00:02:49,730
+then we're going to need a string
+parameter for the name.
+
+39
+00:02:51,400 --> 00:02:53,410
+We'll pass the URL as a string and
+
+40
+00:02:56,930 --> 00:03:02,210
+then finally we'll have a long which we
+know the servlet needs for the duration.
+
+41
+00:03:06,710 --> 00:03:12,580
+So, we've now defined a Java interface
+which tells us
+
+42
+00:03:12,580 --> 00:03:15,240
+about that service that we're going to be
+interacting with it.
+
+43
+00:03:15,240 --> 00:03:18,325
+And it, with, and it provides us a strong
+
+44
+00:03:18,325 --> 00:03:22,139
+interface, and strong Java typing for
+interacting with that service.
+
+45
+00:03:23,160 --> 00:03:27,750
+Now, how do we get from here to HTTP
+requests that we'd like to
+
+46
+00:03:27,750 --> 00:03:32,630
+send to the service, we would like to have
+some object that implements the video
+
+47
+00:03:32,630 --> 00:03:37,880
+service interface that we can call
+getVideos on and it will go and send the
+
+48
+00:03:37,880 --> 00:03:44,410
+HTTP request, convert the response back
+into a string and return it to us.
+
+49
+00:03:44,410 --> 00:03:48,480
+Similarly, we would like to have an object
+where if it, it implements
+
+50
+00:03:48,480 --> 00:03:51,900
+this interface and we can call addVideo
+and we can pass in name, URL
+
+51
+00:03:51,900 --> 00:03:55,270
+and duration and the object that
+implements
+
+52
+00:03:55,270 --> 00:03:58,920
+this interface will automatically convert
+that information
+
+53
+00:03:58,920 --> 00:04:05,220
+into an HTTP request, send it to our
+servlet and then get the response.
+
+54
+00:04:05,220 --> 00:04:11,380
+And, let our, our code know that this
+method has succeeded in being executed.
+
+55
+00:04:11,380 --> 00:04:15,375
+And this is where Retrofit fills in is it
+provides the magic behind
+
+56
+00:04:15,375 --> 00:04:19,770
+this interface that automatically converts
+this interface
+
+57
+00:04:19,770 --> 00:04:22,490
+into an object that implements the
+interface.
+
+58
+00:04:22,490 --> 00:04:24,920
+And can automatically do everything we
+just said.
+
+59
+00:04:24,920 --> 00:04:27,590
+It can, when you invoke the getVideos
+method on
+
+60
+00:04:27,590 --> 00:04:30,940
+it, automatically send the appropriate
+HTTP request to our service.
+
+61
+00:04:32,120 --> 00:04:37,540
+So, what we need to do for Retrofit is we
+need to tell it how to
+
+62
+00:04:37,540 --> 00:04:44,080
+convert a method call on this into an HTTP
+request on our servlet.
+
+63
+00:04:44,080 --> 00:04:46,760
+And the way we do that is with an
+annotation.
+
+64
+00:04:46,760 --> 00:04:52,650
+We add the annotation get in this case
+because we want to send a get request
+
+65
+00:04:52,650 --> 00:04:57,235
+and we know that our servlet was listening
+to the path /video.
+
+66
+00:04:58,610 --> 00:05:04,410
+So, whenever somebody goes and invokes
+getVideos, the
+
+67
+00:05:04,410 --> 00:05:10,960
+Retrofit library is going to look and see,
+I need to send this as a request,
+
+68
+00:05:10,960 --> 00:05:17,030
+as a get request because we're specifying
+the HTTP method, to the path/video.
+
+69
+00:05:17,030 --> 00:05:22,590
+And we'll see where the server and some
+other information comes in in a minute.
+
+70
+00:05:22,590 --> 00:05:24,860
+So here we're telling it, here is how
+
+71
+00:05:24,860 --> 00:05:27,610
+you convert a method calling this into a
+request.
+
+72
+00:05:27,610 --> 00:05:32,630
+It's going to be a get request on this
+particular path and then take
+
+73
+00:05:32,630 --> 00:05:35,960
+whatever you get back and turn it into a
+string and pass it back.
+
+74
+00:05:37,490 --> 00:05:40,070
+The addVideos gets a little bit more
+interesting.
+
+75
+00:05:40,070 --> 00:05:44,000
+We now are passing parameters to the
+servlet.
+
+76
+00:05:44,000 --> 00:05:47,005
+So first we need to tell it the correct
+method, so we're going to say this is an
+
+77
+00:05:47,005 --> 00:05:50,755
+@post, and this also going to be to the
+
+78
+00:05:50,755 --> 00:05:55,310
+/video path, which is where the servlet
+was listing.
+
+79
+00:05:56,420 --> 00:06:03,536
+Except we want this one to be
+@formURLEncoded
+
+80
+00:06:03,536 --> 00:06:09,000
+so we're telling it that we
+
+81
+00:06:09,000 --> 00:06:14,750
+want it to go encode the, the body of this
+post request using
+
+82
+00:06:14,750 --> 00:06:20,050
+URL encoding, so this is going to look
+like your submitting a form on a web page.
+
+83
+00:06:20,050 --> 00:06:21,770
+We then need to tell it how these
+
+84
+00:06:21,770 --> 00:06:28,590
+parameters map into the parameters in the
+HTTP request.
+
+85
+00:06:28,590 --> 00:06:32,015
+So we add @field.
+
+86
+00:06:32,015 --> 00:06:36,993
+[BLANK_AUDIO]
+
+87
+00:06:36,993 --> 00:06:38,416
+Name.
+
+88
+00:06:38,416 --> 00:06:47,408
+We add @fieldURL
+
+89
+00:06:47,408 --> 00:06:54,650
+and the we add @fieldDuration.
+
+90
+00:06:54,650 --> 00:06:55,150
+And
+
+91
+00:06:58,100 --> 00:07:01,730
+so now, we've not only created the method,
+but we've
+
+92
+00:07:01,730 --> 00:07:07,580
+annotated it, describing how you convert a
+method call on this.
+
+93
+00:07:07,580 --> 00:07:11,750
+In this case, when you invoke addVideo,
+Retrofit's going to go and
+
+94
+00:07:11,750 --> 00:07:16,260
+see this is supposed to be a post request,
+set to /video.
+
+95
+00:07:16,260 --> 00:07:20,420
+The body of it should be a form URL
+encoded body.
+
+96
+00:07:20,420 --> 00:07:25,590
+Then, each of these parameters should be
+inserted in to that body in URL encoding.
+
+97
+00:07:25,590 --> 00:07:27,440
+In this case the name, the value of
+
+98
+00:07:27,440 --> 00:07:29,930
+it should be inserted into the name
+parameter.
+
+99
+00:07:29,930 --> 00:07:32,960
+The URL should be inserted in to the URL
+parameter.
+
+100
+00:07:32,960 --> 00:07:37,610
+And the duration should be inserted, in to
+the duration parameter.
+
+101
+00:07:37,610 --> 00:07:43,280
+So we're basically creating a URL encoded
+form body, posting
+
+102
+00:07:43,280 --> 00:07:48,800
+it to /video and Retrofit is doing all of
+this for us behind the scenes.
+
+103
+00:07:48,800 --> 00:07:52,080
+It's automatically figuring out, based on
+our interface, how
+
+104
+00:07:52,080 --> 00:07:56,770
+to construct an object that can send these
+HTTP requests.
+
+105
+00:07:56,770 --> 00:08:02,580
+So, this is the first component of
+building a framework
+
+106
+00:08:02,580 --> 00:08:07,330
+to interact with that video service is
+building the interface to describe it
+
+107
+00:08:07,330 --> 00:08:11,750
+and then getting Retrofit enough
+information that it can go and translate
+
+108
+00:08:11,750 --> 00:08:16,700
+method calls in this interface into HTTP
+request on the actual service.
+
+109
+00:08:18,150 --> 00:08:23,710
+Once we've created this interface to
+describe our service in Java.
+
+110
+00:08:23,710 --> 00:08:26,970
+We can then use the Retrofit library to
+automatically
+
+111
+00:08:26,970 --> 00:08:31,130
+create an object that implements the
+interface and will translate
+
+112
+00:08:31,130 --> 00:08:34,560
+all the method calls on that interface
+into the
+
+113
+00:08:34,560 --> 00:08:39,900
+actual HTTP request that we described with
+the Retrofit annotations.
+
+114
+00:08:39,900 --> 00:08:46,980
+So let's look at how we go about creating
+that object that we're going to use to
+
+115
+00:08:46,980 --> 00:08:52,340
+implement the interface and translate our
+method calls into actual HTTP requests.
+
+116
+00:08:53,730 --> 00:08:59,371
+So to do that, what we need to do is
+create a retrofit RestAdapter.
+
+117
+00:09:02,750 --> 00:09:08,840
+And the Retrofit library provides a nice
+fluent API.
+
+118
+00:09:08,840 --> 00:09:11,620
+If you're not familiar with fluent APIs
+you can go and look it up, but you'll
+
+119
+00:09:11,620 --> 00:09:14,520
+probably quickly see the API coming
+forward as
+
+120
+00:09:14,520 --> 00:09:16,750
+I start showing you how to build a
+RestAdapter.
+
+121
+00:09:16,750 --> 00:09:26,750
+Now we say New RestAdapter.Builder.
+
+122
+00:09:29,240 --> 00:09:34,755
+Then we need to tell it where the server
+is by calling setEndpoint.
+
+123
+00:09:37,260 --> 00:09:39,882
+In this case, we're going to say something
+like local host
+
+124
+00:09:39,882 --> 00:09:48,125
+[BLANK_AUDIO]
+
+125
+00:09:48,125 --> 00:09:55,004
+And then we say, build, and this tells the
+underlying Retrofit library
+
+126
+00:09:55,004 --> 00:10:02,129
+actually going build the RestAdapter that
+has that particular endpoint.
+
+127
+00:10:03,180 --> 00:10:07,980
+Once we've got that adapter, then we can
+go and actually create an object that
+
+128
+00:10:07,980 --> 00:10:13,660
+implements our video service interface by
+doing this, we can say video
+
+129
+00:10:13,660 --> 00:10:20,590
+service and we'll call it service equals
+and then we can say adapt.
+
+130
+00:10:20,590 --> 00:10:22,979
+because that's our adapter.create.
+
+131
+00:10:24,810 --> 00:10:30,480
+And we pass in video class.
+
+132
+00:10:32,710 --> 00:10:36,660
+And this will actually go and construct an
+
+133
+00:10:36,660 --> 00:10:40,830
+object that implements our interface but
+in the background
+
+134
+00:10:40,830 --> 00:10:45,740
+uses Retrofit to automatically translate
+our calls on that
+
+135
+00:10:45,740 --> 00:10:50,190
+object and those particular interface
+methods into HTTP requests.
+
+136
+00:10:50,190 --> 00:10:52,170
+And then we could go and say something
+like this.
+
+137
+00:10:52,170 --> 00:10:56,740
+If we wanted to actually interact with the
+servlet and get the list of
+
+138
+00:10:56,740 --> 00:11:01,337
+videos, we can just say string videos
+equals
+
+139
+00:11:01,337 --> 00:11:10,800
+service.getVideos, and we know, because we
+understand how
+
+140
+00:11:10,800 --> 00:11:16,252
+HTTP works and we've seen on the server
+side in particular how much work it takes.
+
+141
+00:11:16,252 --> 00:11:20,880
+The Retrofit is actually the, the library
+is doing a huge amount of work for us.
+
+142
+00:11:20,880 --> 00:11:24,460
+It's going and taking this simple method
+call here.
+
+143
+00:11:24,460 --> 00:11:27,542
+And it's turning it into an HTTP request,
+sending
+
+144
+00:11:27,542 --> 00:11:30,768
+it across the network and then when the
+response comes
+
+145
+00:11:30,768 --> 00:11:34,783
+back it's automatically extracting the
+body of that response and
+
+146
+00:11:34,783 --> 00:11:38,660
+converting it into a string and returning
+it to us.
+
+147
+00:11:38,660 --> 00:11:40,187
+Similarly, we can go and call all the
+
+148
+00:11:40,187 --> 00:11:43,060
+other methods on our interface, in this
+case, addVideo.
+
+149
+00:11:43,060 --> 00:11:48,060
+We could also say service.addVideo and
+
+150
+00:11:50,090 --> 00:11:52,430
+we could pass in a name of our video.
+
+151
+00:11:54,560 --> 00:11:58,420
+We could pass in some URL and we could
+pass
+
+152
+00:11:58,420 --> 00:12:02,270
+in a duration if we had some duration for
+this video.
+
+153
+00:12:02,270 --> 00:12:07,060
+And again, Retrofit's going to go and see
+this method call.
+
+154
+00:12:07,060 --> 00:12:11,900
+It's going to automatically take these
+parameters, use the @field annotations
+
+155
+00:12:11,900 --> 00:12:17,610
+that we added to those parameters, convert
+the method call into an
+
+156
+00:12:17,610 --> 00:12:22,760
+HTTP request, URL encode those parameters
+into the body of that request,
+
+157
+00:12:22,760 --> 00:12:26,000
+send the request off to the server, and
+we're on our way.
+
+158
+00:12:26,000 --> 00:12:29,500
+So, we're doing a lot of work in our
+
+159
+00:12:29,500 --> 00:12:33,750
+Retrofit library that helps us to send a
+request
+
+160
+00:12:33,750 --> 00:12:37,650
+and interact with our servlets or the
+other technologies
+
+161
+00:12:37,650 --> 00:12:40,280
+that we're going to be using to build
+cloud services.
+
+162
+00:12:40,280 --> 00:12:45,590
+And these types of libraries help us
+tremendously because up here we are
+
+163
+00:12:45,590 --> 00:12:50,920
+going from Java all the way to Java.
+
+164
+00:12:51,920 --> 00:12:55,760
+And we're not doing any conversion
+ourselves, of our own.
+
+165
+00:12:55,760 --> 00:13:01,310
+So Retrofit, in the background, is
+actually going to
+
+166
+00:13:01,310 --> 00:13:07,490
+HTTP, and back when we call this getVideos
+method.
+
+167
+00:13:07,490 --> 00:13:13,660
+And it's going to HTTP and back, when we
+call the addVideo method.
+
+168
+00:13:13,660 --> 00:13:17,820
+So it's doing a whole lot of work for us
+that's very, very helpful.
+
+169
+00:13:17,820 --> 00:13:20,250
+And we'll talk about how it can get even
+more
+
+170
+00:13:20,250 --> 00:13:23,920
+helpful later on after we've talked about
+JSON and data marshaling.
+

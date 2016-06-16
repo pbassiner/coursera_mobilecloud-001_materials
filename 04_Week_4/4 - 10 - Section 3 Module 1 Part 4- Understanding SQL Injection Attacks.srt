@@ -1,0 +1,702 @@
+1
+00:00:00,088 --> 00:00:08,536
+[MUSIC]
+
+2
+00:00:08,536 --> 00:00:10,948
+>> So let's take a look at an example
+
+3
+00:00:10,948 --> 00:00:15,170
+of an SQL injection attack in the Video
+Service class.
+
+4
+00:00:15,170 --> 00:00:16,820
+Let's assume that we've written a method
+
+5
+00:00:16,820 --> 00:00:20,400
+that is vulnerable to an SQL injection
+attack.
+
+6
+00:00:20,400 --> 00:00:22,260
+And see what that looks like.
+
+7
+00:00:22,260 --> 00:00:23,860
+And one thing to note is that
+
+8
+00:00:23,860 --> 00:00:27,500
+although we're talking about SQL injection
+attacks, other
+
+9
+00:00:27,500 --> 00:00:29,930
+query languages that are operating on
+databases
+
+10
+00:00:29,930 --> 00:00:32,760
+are also vulnerable to this type of
+attack.
+
+11
+00:00:32,760 --> 00:00:36,550
+It's important to remember it's not just
+isolated to SQL, but it's
+
+12
+00:00:36,550 --> 00:00:40,830
+anything where you're going to execute
+logic on data that's in a database.
+
+13
+00:00:41,950 --> 00:00:45,600
+So let's assume that we've created a
+method to
+
+14
+00:00:45,600 --> 00:00:49,870
+allow users to go and search their own
+private videos.
+
+15
+00:00:49,870 --> 00:00:53,700
+So we've got a method called myVideos that
+takes in a
+
+16
+00:00:53,700 --> 00:00:57,420
+string for a name of a video that they're
+searching for.
+
+17
+00:00:57,420 --> 00:00:59,810
+And so the goal is, we're going to return
+all
+
+18
+00:00:59,810 --> 00:01:04,470
+the videos to a user that have a
+particular name.
+
+19
+00:01:04,470 --> 00:01:08,840
+Now, let's also assume that, the way that
+our service is set up,
+
+20
+00:01:08,840 --> 00:01:13,060
+users want to be able to have some private
+videos as well as public videos.
+
+21
+00:01:13,060 --> 00:01:17,170
+And this is going to go and search all of
+the videos that only belong to a user,
+
+22
+00:01:17,170 --> 00:01:20,750
+so it may include both private and public
+videos
+
+23
+00:01:20,750 --> 00:01:22,810
+in the results that we're returning back
+to that user.
+
+24
+00:01:23,840 --> 00:01:28,380
+So we've got our @controller, and request
+mapping annotations on this, we
+
+25
+00:01:28,380 --> 00:01:30,820
+don't see them here because we want to
+focus on just this code.
+
+26
+00:01:30,820 --> 00:01:35,870
+And the first thing we do is using some
+mechanism like Spring Security which we'll
+
+27
+00:01:35,870 --> 00:01:40,600
+talk about later, we go and get access to
+the current user that sent the request.
+
+28
+00:01:40,600 --> 00:01:45,910
+So somebody has logged in and we can get
+information about their user account.
+
+29
+00:01:45,910 --> 00:01:51,320
+So the next thing we do, is we decide to
+go and construct a query to search
+
+30
+00:01:51,320 --> 00:01:54,950
+the database for all of the videos that
+that
+
+31
+00:01:54,950 --> 00:01:58,859
+particular user has uploaded that meet the
+search criteria.
+
+32
+00:01:59,890 --> 00:02:05,300
+So we say, select star from video where
+owner equals, and we have a quote.
+
+33
+00:02:05,300 --> 00:02:08,150
+And we are doing this as a string.
+
+34
+00:02:08,150 --> 00:02:11,300
+And we are going to append with plus, the
+user
+
+35
+00:02:11,300 --> 00:02:14,360
+name, because we want to go and search for
+a particular user.
+
+36
+00:02:14,360 --> 00:02:19,930
+And then we say plus and we have another
+closing quote and our apostrophe.
+
+37
+00:02:19,930 --> 00:02:23,060
+And name equals, and then we're going to
+put
+
+38
+00:02:23,060 --> 00:02:26,690
+in the name and then we're going to close
+that.
+
+39
+00:02:26,690 --> 00:02:27,980
+Now, if you look at this code and
+
+40
+00:02:27,980 --> 00:02:30,650
+you think that this is secure code because
+we've
+
+41
+00:02:30,650 --> 00:02:33,740
+got the quotation marks here, that are
+going
+
+42
+00:02:33,740 --> 00:02:36,375
+to be indicating that this thing is a
+string.
+
+43
+00:02:36,375 --> 00:02:38,870
+So therefore anything that gets passed in
+here will
+
+44
+00:02:38,870 --> 00:02:42,460
+be interpreted as a string and there's no
+problem.
+
+45
+00:02:42,460 --> 00:02:44,740
+You'd been unfortunately very wrong.
+
+46
+00:02:44,740 --> 00:02:47,590
+This is a very insecure method.
+
+47
+00:02:47,590 --> 00:02:52,800
+Any time you see code like this, you
+should immediately try to get it fixed.
+
+48
+00:02:52,800 --> 00:02:54,683
+You don't ever want to write your own
+
+49
+00:02:54,683 --> 00:02:57,113
+code like this that directly takes data
+from the
+
+50
+00:02:57,113 --> 00:02:59,482
+client and then puts it into something
+that's
+
+51
+00:02:59,482 --> 00:03:02,110
+going to be logic, that's going to get
+executed.
+
+52
+00:03:02,110 --> 00:03:06,399
+You always have to be very very careful
+that the data that you are taking
+
+53
+00:03:06,399 --> 00:03:08,725
+from the client and mixing it with your
+
+54
+00:03:08,725 --> 00:03:12,081
+logic absolutely cannot be turned into
+logic itself.
+
+55
+00:03:12,081 --> 00:03:16,051
+So in this case, is there a way that we
+can take the name
+
+56
+00:03:16,051 --> 00:03:22,170
+data that the user or client is providing
+and cause it to change this logic?
+
+57
+00:03:22,170 --> 00:03:25,830
+The answer is yes, absolutely it's
+possible.
+
+58
+00:03:25,830 --> 00:03:29,140
+So let's take a look at how the client
+could provide data that
+
+59
+00:03:29,140 --> 00:03:32,020
+would change the logic that's being
+expressed
+
+60
+00:03:32,020 --> 00:03:34,410
+in this query that's being built up.
+
+61
+00:03:34,410 --> 00:03:39,880
+So, assume that the user provides a value
+that's not malicious.
+
+62
+00:03:39,880 --> 00:03:43,237
+And the user provides a value like, the
+owner is Coursera.
+
+63
+00:03:43,237 --> 00:03:49,155
+What we're going to end up with is a query
+string
+
+64
+00:03:49,155 --> 00:03:54,607
+that looks like select star from videos,
+
+65
+00:03:54,607 --> 00:04:00,058
+or video, where owner equals Coursera,
+
+66
+00:04:00,058 --> 00:04:04,742
+because let's assume it's Coursera.
+
+67
+00:04:04,742 --> 00:04:07,860
+And name.
+
+68
+00:04:10,050 --> 00:04:15,805
+And let's assume they're looking for SQL
+videos.
+
+69
+00:04:15,805 --> 00:04:21,500
+Now, in this case if they provided, the
+user name happened
+
+70
+00:04:21,500 --> 00:04:26,120
+to be up here was Coursera, and they
+provided the value SQL.
+
+71
+00:04:26,120 --> 00:04:27,210
+Everything should be fine.
+
+72
+00:04:27,210 --> 00:04:29,810
+It's going to only search through
+Coursera's videos
+
+73
+00:04:29,810 --> 00:04:33,720
+and it's going to search through name
+equals SQL.
+
+74
+00:04:33,720 --> 00:04:37,790
+Now, you can see in here how we're
+substituting, we're substituting
+
+75
+00:04:37,790 --> 00:04:42,200
+name in here, and we're substituting the
+user name in right here.
+
+76
+00:04:42,200 --> 00:04:49,809
+But, assume that the client provides
+
+77
+00:04:49,809 --> 00:04:56,711
+the value, foo, or, a equals a.
+
+78
+00:04:58,035 --> 00:05:03,340
+Now this looks like a strange string, so
+what happens if the client provides that?
+
+79
+00:05:04,410 --> 00:05:09,837
+Well, if you go and substitute
+
+80
+00:05:09,837 --> 00:05:15,890
+this in here, and let's assume,
+
+81
+00:05:15,890 --> 00:05:20,899
+let's say the owner is foo,
+
+82
+00:05:20,899 --> 00:05:26,743
+we get select star from video
+
+83
+00:05:26,743 --> 00:05:31,160
+where owner equals foo.
+
+84
+00:05:31,160 --> 00:05:35,751
+Now, things start to get more interesting
+and we say and.
+
+85
+00:05:35,751 --> 00:05:39,930
+Now, we need to go, and substitute in the
+rest of the strings.
+
+86
+00:05:39,930 --> 00:05:47,170
+We see and name equals, it has an
+apostrophe here.
+
+87
+00:05:47,170 --> 00:05:51,730
+Now we're going to add on this value right
+here.
+
+88
+00:05:51,730 --> 00:06:01,710
+And what we get is foo, or, a equals a.
+
+89
+00:06:01,710 --> 00:06:08,045
+And then we've got the closing quotation
+mark, or apostrophe.
+
+90
+00:06:08,045 --> 00:06:13,759
+Now, suddenly, the value that the attacker
+has provided
+
+91
+00:06:13,759 --> 00:06:19,400
+has changed this query and added
+additional logic.
+
+92
+00:06:19,400 --> 00:06:21,950
+This is new logic on this query.
+
+93
+00:06:24,220 --> 00:06:28,210
+And this is suddenly a serious problem.
+
+94
+00:06:28,210 --> 00:06:32,120
+Because, the designer of this query that's
+being
+
+95
+00:06:32,120 --> 00:06:34,520
+built up on the string is assuming that
+
+96
+00:06:34,520 --> 00:06:37,590
+the only logic that's being executed is
+the
+
+97
+00:06:37,590 --> 00:06:41,600
+select from video where owner equal and
+name equals.
+
+98
+00:06:41,600 --> 00:06:45,070
+They were not assuming that any additional
+logic
+
+99
+00:06:45,070 --> 00:06:47,540
+could be tacked onto the end of this
+query.
+
+100
+00:06:47,540 --> 00:06:49,250
+But because this is just simple string
+
+101
+00:06:49,250 --> 00:06:52,030
+manipulation, there's nothing to prevent
+the attacker
+
+102
+00:06:52,030 --> 00:07:00,000
+from taking additional data and using it
+to append logic to this SQL statement.
+
+103
+00:07:00,000 --> 00:07:01,430
+So suddenly we've got a big problem.
+
+104
+00:07:01,430 --> 00:07:08,080
+And the reason is, is because the a equals
+a part is always true.
+
+105
+00:07:08,080 --> 00:07:11,930
+And so what this means is, is when this
+database goes and interprets this it's
+
+106
+00:07:11,930 --> 00:07:14,670
+going to say I want to find any video
+
+107
+00:07:14,670 --> 00:07:20,040
+where, owner equals foo and name equals
+foo.
+
+108
+00:07:20,040 --> 00:07:22,940
+So this would actually be safe and would
+only search the
+
+109
+00:07:22,940 --> 00:07:28,370
+videos of that particular user that was
+sending in the data.
+
+110
+00:07:28,370 --> 00:07:31,920
+Or new logic here, a equals a.
+
+111
+00:07:31,920 --> 00:07:35,520
+So that means if a video matches this or
+
+112
+00:07:35,520 --> 00:07:39,050
+a video matches this second part, it
+should return it.
+
+113
+00:07:39,050 --> 00:07:42,590
+And in this case, a equals a will always
+be true.
+
+114
+00:07:42,590 --> 00:07:47,399
+So the attacker will get access to every
+video, regardless if
+
+115
+00:07:47,399 --> 00:07:51,120
+it's public or private and who owns it,
+and get it returned.
+
+116
+00:07:51,120 --> 00:07:54,170
+That entire list of videos will be
+returned.
+
+117
+00:07:54,170 --> 00:07:57,689
+And you can imagine that if you can insert
+new logic here, you
+
+118
+00:07:57,689 --> 00:08:01,765
+can insert arbitrary logic here that could
+do all kinds of bad things.
+
+119
+00:08:01,765 --> 00:08:06,368
+Like changing the data in the database, or
+deleting data in the database,
+
+120
+00:08:06,368 --> 00:08:11,277
+or getting access to sensitive data, or
+adding users, or all kinds of things.
+
+121
+00:08:11,277 --> 00:08:16,439
+So if you'd, aren't careful and you begin
+mixing logic with data in
+
+122
+00:08:16,439 --> 00:08:21,512
+an unsafe way, particularly with SQL
+statements, it's possible
+
+123
+00:08:21,512 --> 00:08:25,428
+to end up in a situation where the
+attacker can inject
+
+124
+00:08:25,428 --> 00:08:29,880
+new logic or do a SQL injection attack in
+this case.
+
+125
+00:08:29,880 --> 00:08:32,770
+And suddenly the code that you are running
+
+126
+00:08:32,770 --> 00:08:34,770
+in your server isn't just your own
+anymore.
+
+127
+00:08:34,770 --> 00:08:37,820
+It's your code plus the attacker's code.
+
+128
+00:08:37,820 --> 00:08:41,410
+The attacker's logic and commands are
+being executed
+
+129
+00:08:41,410 --> 00:08:45,610
+right beside yours, and beside your
+sensitive data.
+
+130
+00:08:45,610 --> 00:08:47,725
+So you need to be very, very careful
+
+131
+00:08:47,725 --> 00:08:51,111
+that when you are building queries, or
+you're building
+
+132
+00:08:51,111 --> 00:08:53,579
+any type of mechanism that's going to mix
+
+133
+00:08:53,579 --> 00:08:56,628
+some type of client data in with
+executable logic.
+
+134
+00:08:56,628 --> 00:08:59,110
+That you don't end up in a situation where
+the
+
+135
+00:08:59,110 --> 00:09:03,760
+client controls the logic that you're
+executing to some degree.
+
+136
+00:09:03,760 --> 00:09:09,120
+So, luckily, if you're building on top of
+Spring data or Spring data rest, and
+
+137
+00:09:09,120 --> 00:09:12,485
+you're just using the findBy methods or
+the
+
+138
+00:09:12,485 --> 00:09:16,020
+findAll or, or save or those other
+methods.
+
+139
+00:09:16,020 --> 00:09:18,870
+It's automatically constructing the
+queries for you, and
+
+140
+00:09:18,870 --> 00:09:21,140
+the SQL statements for you, and it's doing
+it
+
+141
+00:09:21,140 --> 00:09:23,870
+in a safe way that will guarantee that you
+
+142
+00:09:23,870 --> 00:09:28,260
+are immune to these types of SQL injection
+attacks.
+
+143
+00:09:28,260 --> 00:09:32,590
+However, if you drop down to the lower
+level and you begin manually creating
+
+144
+00:09:32,590 --> 00:09:37,290
+your queries as strings, you must be aware
+that this type of thing is possible.
+
+145
+00:09:37,290 --> 00:09:41,870
+And if you ever go in, and you're
+reviewing older code that
+
+146
+00:09:41,870 --> 00:09:47,200
+has these type of string based SQL
+statements in it, you should
+
+147
+00:09:47,200 --> 00:09:50,740
+be very, very careful and make sure that
+they are built in
+
+148
+00:09:50,740 --> 00:09:55,840
+a way that protects the application from
+having additional logic injected into it.
+

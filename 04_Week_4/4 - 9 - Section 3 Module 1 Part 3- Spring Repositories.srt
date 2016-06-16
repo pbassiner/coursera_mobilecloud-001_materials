@@ -1,0 +1,605 @@
+1
+00:00:00,000 --> 00:00:08,688
+[MUSIC]
+
+2
+00:00:08,688 --> 00:00:11,732
+Once you've created a series of classes
+that
+
+3
+00:00:11,732 --> 00:00:15,337
+are annotated with the @entity annotation
+and given
+
+4
+00:00:15,337 --> 00:00:20,860
+them IDs, or unique IDs of some sort, to
+reference them in the database, what you
+
+5
+00:00:20,860 --> 00:00:25,984
+need is a way to actually interact with
+the database through JPA and be able to
+
+6
+00:00:25,984 --> 00:00:28,546
+store and find and retrieve the data or
+
+7
+00:00:28,546 --> 00:00:32,190
+the objects that your persisting into the
+database.
+
+8
+00:00:33,290 --> 00:00:38,650
+The way that we do that in JPA or with
+Spring is by creating a repository.
+
+9
+00:00:38,650 --> 00:00:42,710
+So in Spring we can create an interface to
+a repository.
+
+10
+00:00:42,710 --> 00:00:44,750
+So let's create a video repository.
+
+11
+00:00:44,750 --> 00:00:47,218
+So we'll have a public interface.
+
+12
+00:00:47,218 --> 00:00:50,429
+[BLANK_AUDIO]
+
+13
+00:00:50,429 --> 00:00:54,790
+And we'll call this VideoRepo.
+
+14
+00:00:54,790 --> 00:00:59,480
+And we want it to extend, and
+
+15
+00:00:59,480 --> 00:01:04,284
+this is a really important part, is we're
+going to extend the other interface called
+
+16
+00:01:04,284 --> 00:01:09,920
+CrudRepository, and we have to
+
+17
+00:01:09,920 --> 00:01:16,060
+parametrize the CrudRepository with the
+types that we are doing.
+
+18
+00:01:16,060 --> 00:01:18,540
+So in this case it's going to be Video,
+
+19
+00:01:21,030 --> 00:01:21,610
+Long.
+
+20
+00:01:23,800 --> 00:01:29,010
+And I've just gone down on one line here
+where I'm parametrizing CrudRepository.
+
+21
+00:01:29,010 --> 00:01:33,540
+So this is our class, or actually our
+interface, and the reason that we do
+
+22
+00:01:33,540 --> 00:01:36,660
+this is all we're going to specify the
+interface
+
+23
+00:01:36,660 --> 00:01:42,950
+to saving updating, retrieving, our
+different video objects.
+
+24
+00:01:42,950 --> 00:01:45,830
+And the Spring framework is actually going
+to fill
+
+25
+00:01:45,830 --> 00:01:48,500
+in the details or the implementation of
+this interface.
+
+26
+00:01:48,500 --> 00:01:53,360
+This is one of the beautiful parts of this
+approach, is we have all of this complex
+
+27
+00:01:53,360 --> 00:01:56,540
+work that needs to happen to save these
+
+28
+00:01:56,540 --> 00:02:01,100
+classes annotated with entity, these
+instances, into the database.
+
+29
+00:02:01,100 --> 00:02:03,730
+And all we're going to do is define the
+interface that we
+
+30
+00:02:03,730 --> 00:02:06,920
+would like to have in order to save them
+and Spring
+
+31
+00:02:06,920 --> 00:02:10,810
+is automatically going to fill in the
+object that will be
+
+32
+00:02:10,810 --> 00:02:14,660
+implementing this interfacing and saving
+and retrieving the objects for us.
+
+33
+00:02:14,660 --> 00:02:16,130
+The interface just gives us a way of
+
+34
+00:02:16,130 --> 00:02:20,108
+interacting with that object through some
+nice mechanism.
+
+35
+00:02:20,108 --> 00:02:24,080
+Now what CrudRepository is, is it's an
+interface for a standard
+
+36
+00:02:25,340 --> 00:02:30,630
+repository that can save objets in the
+database.
+
+37
+00:02:30,630 --> 00:02:35,160
+And what CRUD stands for create, read,
+update, and delete.
+
+38
+00:02:35,160 --> 00:02:39,900
+So it's giving us the ability to create
+new entities in the database.
+
+39
+00:02:39,900 --> 00:02:43,860
+So we can create a new video object and
+store it in the database.
+
+40
+00:02:43,860 --> 00:02:48,420
+Read, because we can read existing stored
+video objects.
+
+41
+00:02:48,420 --> 00:02:51,600
+Update, because we can take an existing
+object, we can change
+
+42
+00:02:51,600 --> 00:02:55,640
+some of its properties, and update its
+representation in the database.
+
+43
+00:02:55,640 --> 00:02:59,559
+And then finally, delete in CRUD, because
+we can delete video objects.
+
+44
+00:03:00,740 --> 00:03:04,030
+So by default, we automatically get a
+series
+
+45
+00:03:04,030 --> 00:03:08,120
+of methods that are inherited from this
+CrudRepository.
+
+46
+00:03:08,120 --> 00:03:10,370
+We get save.
+
+47
+00:03:10,370 --> 00:03:14,480
+We can find objects we've stored by
+filling in
+
+48
+00:03:14,480 --> 00:03:17,620
+the unique ID that we assigned to that
+object.
+
+49
+00:03:17,620 --> 00:03:18,620
+And if you go and look
+
+50
+00:03:18,620 --> 00:03:22,200
+at how we're paramaterizing this
+CrudRepository interface
+
+51
+00:03:22,200 --> 00:03:25,450
+that we're extending, the second
+parameter, the
+
+52
+00:03:25,450 --> 00:03:28,350
+type we're providing is our ID type.
+
+53
+00:03:28,350 --> 00:03:31,298
+So, this is the type of our ID or our
+unique ID
+
+54
+00:03:31,298 --> 00:03:36,150
+that we're that we've included in our
+class as the ant entity annotation.
+
+55
+00:03:36,150 --> 00:03:39,940
+And this is the type that our repository
+is operating on.
+
+56
+00:03:39,940 --> 00:03:42,650
+So these are the type of objects that
+we're going
+
+57
+00:03:42,650 --> 00:03:46,965
+to be storing through the repository and
+retrieving through the repository.
+
+58
+00:03:46,965 --> 00:03:52,560
+So by, by extending CrudRepository we get
+all the basic operations to
+
+59
+00:03:52,560 --> 00:03:58,560
+save objects or types of videos into the
+database.
+
+60
+00:03:58,560 --> 00:04:04,150
+We get the ability to retrieve by finding
+one or all, or running a query to find
+
+61
+00:04:04,150 --> 00:04:10,050
+a series of, of different video objects
+that meet our parameters in the database.
+
+62
+00:04:10,050 --> 00:04:13,849
+So, immediately we get a lot of work done
+for us by Spring.
+
+63
+00:04:14,910 --> 00:04:16,880
+One of the most important functions that
+we
+
+64
+00:04:16,880 --> 00:04:21,780
+typically need above save or delete of the
+video
+
+65
+00:04:21,780 --> 00:04:23,810
+objects that we're going to be storing is
+the
+
+66
+00:04:23,810 --> 00:04:27,840
+ability to find video objects that meet
+some criteria.
+
+67
+00:04:27,840 --> 00:04:29,830
+So for example we might want to go and
+search
+
+68
+00:04:29,830 --> 00:04:32,875
+for all the videos that have a particular
+name.
+
+69
+00:04:32,875 --> 00:04:35,330
+Or all of the videos that have a
+particular category,
+
+70
+00:04:35,330 --> 00:04:38,930
+if we had added a category member variable
+to our video.
+
+71
+00:04:38,930 --> 00:04:39,460
+And so, to inde-,
+
+72
+00:04:39,460 --> 00:04:41,140
+be able to do that, we can't do that
+
+73
+00:04:41,140 --> 00:04:44,060
+with the default methods that are provided
+by CRUD.
+
+74
+00:04:44,060 --> 00:04:48,620
+We have to have something beyond simply
+search by the unique
+
+75
+00:04:48,620 --> 00:04:52,310
+id of a video, or something beyond, give
+me all videos.
+
+76
+00:04:52,310 --> 00:04:54,810
+We want to be able to search based on
+different
+
+77
+00:04:54,810 --> 00:04:59,000
+member variable values of the objects that
+we've stored.
+
+78
+00:04:59,000 --> 00:05:03,240
+So the way that we do that with the
+repository is by defining
+
+79
+00:05:03,240 --> 00:05:08,080
+in our interface new methods that provide
+the type of searches that we want.
+
+80
+00:05:08,080 --> 00:05:14,360
+So for example, we could go and add a new
+search like public list, because we're
+
+81
+00:05:14,360 --> 00:05:22,927
+going to a series of them, video
+findByName.
+
+82
+00:05:22,927 --> 00:05:27,800
+And then we could have a String for the
+name.
+
+83
+00:05:29,070 --> 00:05:34,280
+And this simple method that we've just
+added to our interface is
+
+84
+00:05:34,280 --> 00:05:39,630
+going to tell Spring that it needs to go
+and create a way of querying
+
+85
+00:05:39,630 --> 00:05:45,600
+the data by the name member variables of
+all the objects that have been stored.
+
+86
+00:05:45,600 --> 00:05:49,660
+So, what it will see is, I'm going to have
+to create a method
+
+87
+00:05:49,660 --> 00:05:55,660
+of querying that's going to return more
+than one video object from the database.
+
+88
+00:05:55,660 --> 00:06:00,490
+The find here and by is telling Spring
+that this
+
+89
+00:06:00,490 --> 00:06:04,240
+is going to be a query that it needs to
+run.
+
+90
+00:06:04,240 --> 00:06:07,780
+And the name is telling it the criteria of
+that query.
+
+91
+00:06:07,780 --> 00:06:14,125
+Basically this is saying, find every video
+object where
+
+92
+00:06:14,125 --> 00:06:20,616
+video.name equals the value that's passed
+in here, n.
+
+93
+00:06:20,616 --> 00:06:25,659
+So, behind the scenes, Spring is
+automatically constructing an
+
+94
+00:06:25,659 --> 00:06:30,702
+implementation of this interface method
+that can query all of your
+
+95
+00:06:30,702 --> 00:06:34,752
+videos and return any stored object, if
+you had a
+
+96
+00:06:34,752 --> 00:06:39,280
+member variable name equal to the value
+that's passed in.
+
+97
+00:06:39,280 --> 00:06:43,140
+So we're actually running a query,
+defining a query across the member
+
+98
+00:06:43,140 --> 00:06:47,570
+variables in our stored objects based on
+the naming of the method.
+
+99
+00:06:48,790 --> 00:06:53,530
+Similarly, we can go and add additional
+fields that we'd like to query by.
+
+100
+00:06:53,530 --> 00:06:59,788
+So, for example, we could say, public
+lists
+
+101
+00:06:59,788 --> 00:07:05,252
+video, and we could say, find by name.
+
+102
+00:07:05,252 --> 00:07:14,029
+And if we had, let's say, a category
+member variable.
+
+103
+00:07:14,029 --> 00:07:17,249
+[BLANK_AUDIO]
+
+104
+00:07:17,249 --> 00:07:24,170
+And then we can define our parameters to
+this
+
+105
+00:07:24,170 --> 00:07:31,670
+thing to be string name, and string
+category.
+
+106
+00:07:31,670 --> 00:07:39,460
+And Spring will automatically realize it
+needs to go and find all objects where
+
+107
+00:07:39,460 --> 00:07:44,425
+video, and that's what this is telling us
+again, is this is defining our query.
+
+108
+00:07:44,425 --> 00:07:53,100
+Video.name equals the name that was passed
+in.
+
+109
+00:07:53,100 --> 00:08:00,000
+And we also have, at the same time,
+video.category if we had
+
+110
+00:08:00,000 --> 00:08:06,420
+a category member variable equals the
+category value that we passed in.
+
+111
+00:08:07,420 --> 00:08:11,840
+So, simply by going and adding and
+defining new methods on our interface that
+
+112
+00:08:11,840 --> 00:08:18,940
+start with find, and then provide a series
+of query parameters.
+
+113
+00:08:18,940 --> 00:08:21,310
+So in this case we're saying we're
+going to query across name
+
+114
+00:08:21,310 --> 00:08:25,650
+and category, and then providing method
+parameters for each of those things.
+
+115
+00:08:25,650 --> 00:08:28,030
+Spring can automatically go and figure out
+how to
+
+116
+00:08:28,030 --> 00:08:31,750
+construct a query and find all of those
+objects.
+
+117
+00:08:31,750 --> 00:08:35,010
+So you can very quickly add all kinds of
+complex search
+
+118
+00:08:35,010 --> 00:08:39,430
+mechanisms simply by defining new methods
+and giving them the appropriate naming.
+
+119
+00:08:40,450 --> 00:08:43,000
+And there are many more things that you
+can do
+
+120
+00:08:43,000 --> 00:08:46,300
+with the method naming to do more advanced
+querying capabilities.
+
+121
+00:08:46,300 --> 00:08:50,940
+And if you go and look at the spring data
+JPA documentation or
+
+122
+00:08:50,940 --> 00:08:53,150
+a repository documentation, you'll see all
+
+123
+00:08:53,150 --> 00:08:55,980
+of those different capabilities that are
+provided.
+
+124
+00:08:55,980 --> 00:08:58,220
+But for our case, these are going to be
+sufficient for the
+
+125
+00:08:58,220 --> 00:09:01,700
+things that we need to do to create our
+video upload service.
+

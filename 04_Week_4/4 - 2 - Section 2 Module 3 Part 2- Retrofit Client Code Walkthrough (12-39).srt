@@ -1,0 +1,884 @@
+1
+00:00:00,372 --> 00:00:08,484
+[MUSIC]
+
+2
+00:00:08,484 --> 00:00:12,207
+In the last servlet example that we saw,
+we were using the
+
+3
+00:00:12,207 --> 00:00:16,970
+HTTP client library to send POST and GET
+requests to the server.
+
+4
+00:00:16,970 --> 00:00:21,790
+But, if you've noticed it took a lot of
+work, just like with the servlet, to be
+
+5
+00:00:21,790 --> 00:00:28,000
+able to turn our logic into something we
+can send an HTTP POST request with.
+
+6
+00:00:28,000 --> 00:00:32,090
+So we had to go and create a HTTP POST, we
+had to create a bunch of named value
+
+7
+00:00:32,090 --> 00:00:35,420
+pairs, and then URL encode them, and
+attach them
+
+8
+00:00:35,420 --> 00:00:37,950
+to this body, and send it off to the
+server.
+
+9
+00:00:37,950 --> 00:00:40,030
+And it really took a lot of work and there
+was a big
+
+10
+00:00:40,030 --> 00:00:44,070
+disconnect from the code that we were
+trying to write, which was at a
+
+11
+00:00:44,070 --> 00:00:48,980
+video or get a list of the videos, and
+what we actually had to
+
+12
+00:00:48,980 --> 00:00:52,490
+do in order to invoke that on the server
+and get the result back.
+
+13
+00:00:53,580 --> 00:00:57,610
+Now, just like with Spring, there are ways
+to simplify that
+
+14
+00:00:57,610 --> 00:01:01,382
+interaction, significantly so that we
+don't have to write all of the
+
+15
+00:01:01,382 --> 00:01:06,910
+low-level code to translate our desires in
+terms of method
+
+16
+00:01:06,910 --> 00:01:13,310
+invocations and, on the services that are
+in the cloud into HTTP methods.
+
+17
+00:01:13,310 --> 00:01:18,900
+So, right now what we're having to do is
+when we want to send a message to
+
+18
+00:01:18,900 --> 00:01:24,340
+our server our client is having to go
+through
+
+19
+00:01:24,340 --> 00:01:30,600
+and use a library to manually create the
+HTTP request.
+
+20
+00:01:30,600 --> 00:01:36,590
+So, the interface that we're working with
+is the Apache HTTP client.
+
+21
+00:01:36,590 --> 00:01:41,730
+Which means that we're having to be
+exposed to all of the
+
+22
+00:01:41,730 --> 00:01:47,320
+information related to, how do you go and
+translate something like
+
+23
+00:01:47,320 --> 00:01:52,840
+add video into HTTP.
+
+24
+00:01:52,840 --> 00:01:57,900
+What we would really like to do is just
+directly call add video.
+
+25
+00:02:00,030 --> 00:02:05,820
+And then have whatever library we're
+using, this black box, automatically
+
+26
+00:02:05,820 --> 00:02:11,430
+translate that into the appropriate HTTP
+calls that need to go to the server.
+
+27
+00:02:11,430 --> 00:02:13,800
+Just like on the server we can
+automatically
+
+28
+00:02:13,800 --> 00:02:18,860
+see what parameters a method is expecting,
+extract
+
+29
+00:02:18,860 --> 00:02:21,140
+them, create objects, invoke the method,
+and then
+
+30
+00:02:21,140 --> 00:02:24,850
+convert the return type back into a HTTP
+response.
+
+31
+00:02:24,850 --> 00:02:28,470
+We want to be able to do something similar
+on the client side so that
+
+32
+00:02:28,470 --> 00:02:30,080
+we can do things in a more
+
+33
+00:02:30,080 --> 00:02:34,150
+Java object-oriented way where we're just
+invoking methods.
+
+34
+00:02:34,150 --> 00:02:37,090
+And because they have the right
+information,
+
+35
+00:02:37,090 --> 00:02:39,960
+HTTP requests are being sent from them.
+
+36
+00:02:39,960 --> 00:02:42,840
+And there's a number of reasons to do
+this, one of which is, when
+
+37
+00:02:42,840 --> 00:02:44,780
+we're dealing with the low-level details
+of
+
+38
+00:02:44,780 --> 00:02:48,250
+like HTTP client we can easily make
+mistakes.
+
+39
+00:02:48,250 --> 00:02:51,820
+We can make typos in the strings that
+we're using for keys.
+
+40
+00:02:51,820 --> 00:02:54,620
+We can easily have all kinds of situations
+where we are
+
+41
+00:02:54,620 --> 00:02:58,175
+looking at the different response codes to
+figure out what to do.
+
+42
+00:02:58,175 --> 00:03:01,500
+We'd really like to make it simpler and
+look like this so that
+
+43
+00:03:01,500 --> 00:03:06,930
+we can have simple, easy invocations that
+look object oriented to our code.
+
+44
+00:03:06,930 --> 00:03:11,380
+Now we still have to account for the fact
+that these invocations are going to be
+
+45
+00:03:11,380 --> 00:03:15,060
+slow because they're going across a
+network, but
+
+46
+00:03:15,060 --> 00:03:18,020
+we would like to have the automatic
+translation.
+
+47
+00:03:18,020 --> 00:03:20,820
+And that's what retrofit is going to
+provide us in this
+
+48
+00:03:20,820 --> 00:03:25,270
+code example is retrofit can
+automatically, if we give it
+
+49
+00:03:25,270 --> 00:03:30,890
+the right annotations, translate our
+method calls into HTTP requests
+
+50
+00:03:30,890 --> 00:03:34,450
+on our server that will be interpreted
+correctly by Sprint.
+
+51
+00:03:34,450 --> 00:03:37,110
+So let's take a look at how this works.
+
+52
+00:03:37,110 --> 00:03:40,805
+So, if you open up the video controller in
+retrofit
+
+53
+00:03:40,805 --> 00:03:43,030
+project again and look at
+
+54
+00:03:43,030 --> 00:03:44,570
+the client package,
+
+55
+00:03:44,570 --> 00:03:48,683
+the org.magnum.mobilecloud.video.client
+package.
+
+56
+00:03:48,683 --> 00:03:52,300
+Let's look at this video service API that
+we didn't look at before.
+
+57
+00:03:53,310 --> 00:03:55,690
+Now, what you'll see is, is we're
+
+58
+00:03:55,690 --> 00:04:00,050
+actually using retrofit with this video
+service API.
+
+59
+00:04:00,050 --> 00:04:03,450
+So we've created an interface, a Java
+interface, to
+
+60
+00:04:03,450 --> 00:04:08,720
+describe the operations that can be
+invoked on our controller.
+
+61
+00:04:08,720 --> 00:04:14,840
+In this case, we can invoke getVideoList
+and get a list of videos returned to us.
+
+62
+00:04:14,840 --> 00:04:19,570
+Or we can invoke addVideo, and provide a
+video object.
+
+63
+00:04:19,570 --> 00:04:22,540
+And we'll get a boolean back if it's
+successful.
+
+64
+00:04:22,540 --> 00:04:24,980
+And if you'll go and look, and we can open
+
+65
+00:04:24,980 --> 00:04:28,460
+up and look at our controller class that
+we created.
+
+66
+00:04:28,460 --> 00:04:30,400
+We'll see that our controller class
+
+67
+00:04:30,400 --> 00:04:32,810
+actually implements this video service
+API.
+
+68
+00:04:33,890 --> 00:04:37,460
+So, we've created an interface that
+provides a strong
+
+69
+00:04:37,460 --> 00:04:42,420
+contract between our controller, which is
+the server side.
+
+70
+00:04:42,420 --> 00:04:44,980
+And our client, which is going to be
+
+71
+00:04:44,980 --> 00:04:48,360
+the the video service API side created by
+retrofit.
+
+72
+00:04:48,360 --> 00:04:51,820
+So, we're going to use retrofit to
+automatically
+
+73
+00:04:51,820 --> 00:04:55,550
+create an implementation of an object that
+can,
+
+74
+00:04:55,550 --> 00:04:58,260
+when these methods are invoked, send the
+appropriate
+
+75
+00:04:58,260 --> 00:05:01,590
+HTTP request to the server, in order to,
+
+76
+00:05:01,590 --> 00:05:05,410
+and automatically translate the response
+body back into
+
+77
+00:05:05,410 --> 00:05:08,260
+a list of videos or automatically
+translate a
+
+78
+00:05:08,260 --> 00:05:11,140
+video into a request body so that we
+
+79
+00:05:11,140 --> 00:05:14,260
+can invoke the correct methods on our
+controller.
+
+80
+00:05:14,260 --> 00:05:17,180
+So what we've got in this video service
+API.
+
+81
+00:05:17,180 --> 00:05:21,060
+Is the get video list method has been
+annotated with
+
+82
+00:05:21,060 --> 00:05:27,030
+the at get annotation that is provided by
+the retrofit library.
+
+83
+00:05:27,030 --> 00:05:32,540
+So all we have to do is tell it to, that
+whenever you invoke this you should a GET
+
+84
+00:05:32,540 --> 00:05:39,710
+request, and here is the actual path to
+the request that you should be sending.
+
+85
+00:05:39,710 --> 00:05:44,230
+So when you send a get request it's
+going to send a request to /video, which
+
+86
+00:05:44,230 --> 00:05:47,960
+we also know is what our video service
+
+87
+00:05:47,960 --> 00:05:50,680
+controller is bound to, the various
+request mappings.
+
+88
+00:05:50,680 --> 00:05:53,980
+So you can see that the various request
+
+89
+00:05:53,980 --> 00:05:56,460
+mappings are also bound to video service
+path.
+
+90
+00:05:56,460 --> 00:05:58,160
+So we know both our client and our
+
+91
+00:05:58,160 --> 00:06:01,690
+server are going to be working with the
+same paths.
+
+92
+00:06:01,690 --> 00:06:07,480
+Also added an at body annotation so that
+retrofit knows that the video parameter
+
+93
+00:06:07,480 --> 00:06:12,290
+that we're providing should automatically
+be converted into the body of the
+
+94
+00:06:12,290 --> 00:06:16,420
+request that we're sending, and in this
+case retrofit's going to be converting
+
+95
+00:06:16,420 --> 00:06:20,320
+that video into JSON and putting it in the
+body of the request.
+
+96
+00:06:21,370 --> 00:06:24,170
+On the other side, we know that Spring is
+going to look at the
+
+97
+00:06:24,170 --> 00:06:28,730
+body of the request and interpret it as
+JSON and read a video back out.
+
+98
+00:06:28,730 --> 00:06:34,115
+So we've got a nice contractor interface
+that we can use to
+
+99
+00:06:34,115 --> 00:06:39,390
+allow us to automatically send requests in
+an object-oriented way to our server.
+
+100
+00:06:40,400 --> 00:06:41,285
+Now if we open up the
+
+101
+00:06:41,285 --> 00:06:45,610
+VideoServiceClientAPITest, in the Source
+Test Java
+
+102
+00:06:45,610 --> 00:06:51,110
+package, we can see how we use retrofit
+and this interface together.
+
+103
+00:06:51,110 --> 00:06:54,760
+First, at the top of the test we create an
+
+104
+00:06:54,760 --> 00:07:00,440
+implementation of this interface
+dynamically, or we ask retrofit to create
+
+105
+00:07:00,440 --> 00:07:04,980
+a dynamic implementation of this interface
+that will send HTTP
+
+106
+00:07:04,980 --> 00:07:09,700
+requests in response to the methods on
+this interface being invoked.
+
+107
+00:07:09,700 --> 00:07:13,950
+And the way that we do that is we create a
+new rest adapter builder.
+
+108
+00:07:13,950 --> 00:07:16,780
+And then we set the endpoint to be our
+
+109
+00:07:16,780 --> 00:07:19,710
+server, which is then case is local host
+8080.
+
+110
+00:07:19,710 --> 00:07:25,160
+We set up some logging so we can see
+what's actually being sent to the server.
+
+111
+00:07:25,160 --> 00:07:29,210
+And then we build and create a new
+implementation of the
+
+112
+00:07:29,210 --> 00:07:34,630
+video service API that's bound and
+attached to this particular server.
+
+113
+00:07:34,630 --> 00:07:37,910
+So what is actually happening behind the
+scenes here is
+
+114
+00:07:37,910 --> 00:07:42,970
+retrofit is creating an object that
+implements the video service API.
+
+115
+00:07:42,970 --> 00:07:47,870
+And it's dynamically creating this object
+such that whenever you invoke
+
+116
+00:07:47,870 --> 00:07:51,800
+one of the methods on the video service
+API, it's going
+
+117
+00:07:51,800 --> 00:07:55,990
+to generate the appropriate request based
+on your annotations on that
+
+118
+00:07:55,990 --> 00:08:00,570
+method and send it to the server that
+we've specified up here.
+
+119
+00:08:00,570 --> 00:08:03,630
+So, if we look a little farther down, what
+we see
+
+120
+00:08:03,630 --> 00:08:06,770
+is we have a example where we are creating
+a URL,
+
+121
+00:08:06,770 --> 00:08:09,980
+a title, and a duration for a video, just
+like we
+
+122
+00:08:09,980 --> 00:08:15,100
+did before with our test that was using
+the HTTP client library.
+
+123
+00:08:15,100 --> 00:08:19,190
+But rather than having to go into the
+low-level details of
+
+124
+00:08:19,190 --> 00:08:24,470
+constructing a HTTP POST request and using
+the client to send it,
+
+125
+00:08:24,470 --> 00:08:30,133
+instead we just create a video object with
+those details and then
+
+126
+00:08:30,133 --> 00:08:36,610
+ask the video service API implementation,
+called videoService, to add the video.
+
+127
+00:08:36,610 --> 00:08:40,350
+Now a huge amount of work is happening
+behind the scenes to make this happen.
+
+128
+00:08:41,950 --> 00:08:47,440
+What retrofit is doing is our addVideoCall
+
+129
+00:08:47,440 --> 00:08:51,345
+is being taken and translated by retrofit
+
+130
+00:08:51,345 --> 00:08:57,900
+into a HTTP POST request.
+
+131
+00:08:59,750 --> 00:09:03,570
+And the way it's doing this, is the
+interface
+
+132
+00:09:03,570 --> 00:09:07,710
+that we're using up here, the video
+service API,
+
+133
+00:09:11,000 --> 00:09:16,950
+is annotated with the various at post and
+at get annotations.
+
+134
+00:09:16,950 --> 00:09:21,540
+And so when you invoke addVideo Retrofit
+looks
+
+135
+00:09:21,540 --> 00:09:23,980
+at addVideo and says, what annotation is
+on it?
+
+136
+00:09:23,980 --> 00:09:25,900
+And it sees at post.
+
+137
+00:09:25,900 --> 00:09:30,530
+So it says, I know I'm supposed to create
+a POST request for addVideo.
+
+138
+00:09:30,530 --> 00:09:32,250
+It then looks at the value that you
+
+139
+00:09:32,250 --> 00:09:35,010
+provide inside the annotation, which in
+case, in
+
+140
+00:09:35,010 --> 00:09:41,830
+this case is /video and says, I know I
+need to send that request to /video.
+
+141
+00:09:41,830 --> 00:09:43,590
+It then looks at the annotation inside the
+
+142
+00:09:43,590 --> 00:09:46,800
+parameters and says, I know I need to
+take.
+
+143
+00:09:46,800 --> 00:09:52,520
+This parameter video and encode it in to
+the body of this HTTP POST request.
+
+144
+00:09:52,520 --> 00:09:57,290
+So, the video that's in here is going to
+be inserted as
+
+145
+00:09:58,470 --> 00:10:04,060
+JSON in to the body of this request.
+
+146
+00:10:04,060 --> 00:10:10,250
+And then on the other side, Spring and
+your controller is receiving this JSON.
+
+147
+00:10:10,250 --> 00:10:16,280
+Enable to do its own magic to extract that
+JSON into a video object and process it.
+
+148
+00:10:16,280 --> 00:10:20,390
+Similarly, if the controller sends a
+response back,
+
+149
+00:10:20,390 --> 00:10:23,312
+the retrofit library can see the return
+type
+
+150
+00:10:23,312 --> 00:10:25,670
+of' addVideo and know that I need to
+
+151
+00:10:25,670 --> 00:10:28,790
+take whatever is in the response body,
+interpret
+
+152
+00:10:28,790 --> 00:10:33,430
+it as that particular return type so I can
+read it out of the response body
+
+153
+00:10:33,430 --> 00:10:36,010
+as JSON and then convert it to whatever
+
+154
+00:10:36,010 --> 00:10:39,250
+return type of the addVideo method we
+have.
+
+155
+00:10:39,250 --> 00:10:42,940
+So, all of this complicated work allows us
+to have
+
+156
+00:10:42,940 --> 00:10:48,390
+this simple call that we see right here to
+videoService.addVideo.
+
+157
+00:10:48,390 --> 00:10:51,750
+And all of the details of how this method
+call goes and
+
+158
+00:10:51,750 --> 00:10:58,110
+actually turns our video into an HTTP POST
+request is hidden from us.
+
+159
+00:10:58,110 --> 00:10:59,895
+And instead, we can operate it using
+
+160
+00:10:59,895 --> 00:11:03,070
+an object-orientated, nice, clean
+interface to our server.
+
+161
+00:11:03,070 --> 00:11:08,680
+And then we can also go and similarly, get
+a list of videos that's from the server.
+
+162
+00:11:08,680 --> 00:11:12,280
+This is going to end up sending a get
+request to the server
+
+163
+00:11:12,280 --> 00:11:17,830
+to /video based on the annotations that we
+provided in our interface.
+
+164
+00:11:17,830 --> 00:11:21,210
+So, through some simple annotations we're
+getting
+
+165
+00:11:21,210 --> 00:11:24,770
+really powerful simplification of the work
+that
+
+166
+00:11:24,770 --> 00:11:30,000
+we have to do in order to interact and
+send HTTP methods to the server.
+
+167
+00:11:30,000 --> 00:11:33,380
+Not only that, but it's hard for us to
+mess up
+
+168
+00:11:33,380 --> 00:11:39,090
+these requests, because atVideo, addVideo
+is a strongly typed Java method.
+
+169
+00:11:39,090 --> 00:11:43,990
+So if we don't pass a video object in,
+this method would not compile.
+
+170
+00:11:43,990 --> 00:11:46,180
+This method call would not compile.
+
+171
+00:11:46,180 --> 00:11:47,950
+So if we try to pass something else in.
+
+172
+00:11:47,950 --> 00:11:52,610
+So we're not only getting a simple
+interface to go and invoke those methods,
+
+173
+00:11:52,610 --> 00:11:59,260
+but we're getting type safety because our
+interface has strong Java typing on it.
+
+174
+00:11:59,260 --> 00:12:04,360
+So we can't just go and involve methods
+with the wrong parameter types or
+
+175
+00:12:04,360 --> 00:12:08,639
+expect that the parameter coming back from
+the return value is of the wrong type.
+
+176
+00:12:09,910 --> 00:12:13,610
+So you can see how retrofit is doing a lot
+of the same type
+
+177
+00:12:13,610 --> 00:12:17,710
+of work that Spring is doing, but it's
+doing it on the client side.
+
+178
+00:12:17,710 --> 00:12:20,562
+It's making it easier for us to generate
+the HTTP
+
+179
+00:12:20,562 --> 00:12:24,450
+requests from method calls that are going
+to the server.
+
+180
+00:12:24,450 --> 00:12:28,350
+And take the responses that we're getting
+back and convert
+
+181
+00:12:28,350 --> 00:12:32,300
+the response bodies back into objects that
+we can operate on.
+
+182
+00:12:32,300 --> 00:12:35,740
+So it's substantially simplifying and
+improving the
+
+183
+00:12:35,740 --> 00:12:38,580
+type safety of our interaction with the
+server.
+

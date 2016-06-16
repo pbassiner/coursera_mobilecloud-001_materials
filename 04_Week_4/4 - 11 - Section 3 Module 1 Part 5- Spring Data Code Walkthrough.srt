@@ -1,0 +1,852 @@
+1
+00:00:00,246 --> 00:00:08,554
+[MUSIC]
+
+2
+00:00:08,554 --> 00:00:10,880
+In the past example that we used, our
+
+3
+00:00:10,880 --> 00:00:14,868
+implementation in the video repository was
+always in memory.
+
+4
+00:00:14,868 --> 00:00:19,000
+It was always backed up by some simple
+Java data structure.
+
+5
+00:00:19,000 --> 00:00:23,280
+But what if we wanted to store our videos
+in an actual database?
+
+6
+00:00:23,280 --> 00:00:27,000
+So what if we wanted our video repository
+to provide
+
+7
+00:00:27,000 --> 00:00:32,280
+an interface to a database, such as
+MongoDB or something else.
+
+8
+00:00:32,280 --> 00:00:34,600
+So that we could save data into it.
+
+9
+00:00:34,600 --> 00:00:37,150
+Or maybe we want to connect up to a MySQL
+database.
+
+10
+00:00:38,210 --> 00:00:43,660
+Well if we use JPA, we can actually very
+easily convert
+
+11
+00:00:43,660 --> 00:00:49,000
+our video repository into an interface
+that Spring
+
+12
+00:00:49,000 --> 00:00:52,400
+will automatically provide an
+implementation for to connect to
+
+13
+00:00:52,400 --> 00:00:56,130
+our database and save our video objects
+into a database.
+
+14
+00:00:56,130 --> 00:00:58,480
+So let's take a look at some code that
+will do this.
+
+15
+00:00:59,960 --> 00:01:02,269
+First we need to go and look at our video
+object.
+
+16
+00:01:03,310 --> 00:01:07,650
+If we're going to begin storing videos in
+a database, we're going to have to
+
+17
+00:01:07,650 --> 00:01:11,910
+do a little bit of work to use JPA with
+our video object.
+
+18
+00:01:11,910 --> 00:01:15,170
+The first one is, is that we need to tell
+JPA
+
+19
+00:01:15,170 --> 00:01:18,470
+that this is an object that we expect to
+be stored
+
+20
+00:01:18,470 --> 00:01:22,130
+in a database, and the way that we do that
+is
+
+21
+00:01:22,130 --> 00:01:27,210
+by adding an at entity annotation to the
+top of the class.
+
+22
+00:01:27,210 --> 00:01:31,540
+So as we'll see here, this @entity
+annotation has been added to to the
+
+23
+00:01:31,540 --> 00:01:37,030
+video class, signaling to JPA that this is
+something to store in a database.
+
+24
+00:01:37,030 --> 00:01:40,120
+The next thing that we need to do, is
+because we're going to
+
+25
+00:01:40,120 --> 00:01:45,780
+be storing these objects, we need a way of
+uniquely identifying each object.
+
+26
+00:01:45,780 --> 00:01:50,280
+And we do that by adding an @ID annotation
+to
+
+27
+00:01:50,280 --> 00:01:54,260
+the property in the video that we want to
+make unique.
+
+28
+00:01:54,260 --> 00:01:56,330
+And to be the unique identifier to a
+video.
+
+29
+00:01:56,330 --> 00:01:58,280
+So in this case, all we've done is added
+
+30
+00:01:58,280 --> 00:02:02,500
+a simple long ID member variable to our
+video.
+
+31
+00:02:02,500 --> 00:02:08,410
+So each video can be assigned a unique
+number that we can refer to it by,
+
+32
+00:02:08,410 --> 00:02:13,170
+and if we want to go and look it up in the
+database, we can specify a particular ID.
+
+33
+00:02:13,170 --> 00:02:17,090
+That we want JPA to go and get the video
+associated with.
+
+34
+00:02:17,090 --> 00:02:22,770
+Now, one trick here is that, how do we
+make sure that our IDs are always unique?
+
+35
+00:02:22,770 --> 00:02:27,790
+How when we store a new video, do we make
+sure that it has a unique ID?
+
+36
+00:02:27,790 --> 00:02:30,670
+Now we could certainly keep track of this
+ourselves.
+
+37
+00:02:30,670 --> 00:02:36,211
+And try to remember what our last ID was
+and automatically assign a new ID.
+
+38
+00:02:36,211 --> 00:02:38,208
+But luckily, we don't actually have to do
+that.
+
+39
+00:02:38,208 --> 00:02:42,181
+JPA can automatically, if we tell it to,
+generate unique
+
+40
+00:02:42,181 --> 00:02:46,450
+IDs for each of our object instances that
+we store.
+
+41
+00:02:46,450 --> 00:02:52,445
+So, in this example here, we're adding the
+@ Generated Value.
+
+42
+00:02:52,445 --> 00:02:57,800
+Strategy=GenerationType.auto, and that's
+telling JPA every time we
+
+43
+00:02:57,800 --> 00:03:03,910
+store a video for the first time in the
+repository,
+
+44
+00:03:03,910 --> 00:03:09,850
+we want you to automatically assign a
+value to its ID, so that it's unique.
+
+45
+00:03:09,850 --> 00:03:14,060
+So JPA is taking care of automatically
+making sure
+
+46
+00:03:14,060 --> 00:03:18,130
+that our video ID is unique for each
+individual instance.
+
+47
+00:03:19,270 --> 00:03:21,440
+The other thing is, all of the rest of
+
+48
+00:03:21,440 --> 00:03:25,100
+the class is exactly the same as it was
+before.
+
+49
+00:03:25,100 --> 00:03:28,030
+We have member variables and getters and
+setters.
+
+50
+00:03:28,030 --> 00:03:29,410
+Everything else is the same.
+
+51
+00:03:29,410 --> 00:03:31,310
+All of the logic is the same.
+
+52
+00:03:31,310 --> 00:03:34,900
+But adding these simple annotations of
+@entity and then
+
+53
+00:03:34,900 --> 00:03:39,030
+ID that's auto generated, this is enough
+to tell JPA
+
+54
+00:03:39,030 --> 00:03:41,780
+what it needs to know in order to store
+
+55
+00:03:41,780 --> 00:03:45,140
+our video in a variety of different types
+of databases.
+
+56
+00:03:45,140 --> 00:03:49,240
+Now, this is the first piece which is to
+tell JPA
+
+57
+00:03:49,240 --> 00:03:52,530
+about our entities, or the objects that we
+want to store.
+
+58
+00:03:52,530 --> 00:03:58,860
+The second piece, is to provide, the
+information that Spring Data JPA
+
+59
+00:03:58,860 --> 00:04:04,160
+needs to figure out how to automatically
+provide this storage logic for us.
+
+60
+00:04:05,200 --> 00:04:09,470
+So, if you went and actually wrote code,
+to use JPA,
+
+61
+00:04:09,470 --> 00:04:12,940
+you would see that you are writing similar
+code over and over.
+
+62
+00:04:12,940 --> 00:04:17,670
+Just like we had when we're receiving
+HTTP, requests there's boiler plate code.
+
+63
+00:04:17,670 --> 00:04:21,080
+When you're going to use JPA to store data
+in a database you're going
+
+64
+00:04:21,080 --> 00:04:23,980
+to end up writing a very similar code over
+and over to be
+
+65
+00:04:23,980 --> 00:04:28,230
+able to save objects, to be able to update
+the existing objects in
+
+66
+00:04:28,230 --> 00:04:31,830
+the database, to be able to delete them or
+to search for them.
+
+67
+00:04:31,830 --> 00:04:35,950
+So Spring Data actually takes all of this
+boiler plate code,
+
+68
+00:04:35,950 --> 00:04:39,890
+and it automatically generates it for you
+if you tell it to.
+
+69
+00:04:39,890 --> 00:04:43,030
+So, in this case, the way that we
+
+70
+00:04:43,030 --> 00:04:46,160
+get Spring Data to automatically generate
+the code
+
+71
+00:04:46,160 --> 00:04:49,680
+that we need to create, read, update, and
+
+72
+00:04:49,680 --> 00:04:53,105
+delete the video objects that we want to
+store.
+
+73
+00:04:53,105 --> 00:04:58,720
+Is we take our video repository and we add
+the @repository annotation to it.
+
+74
+00:04:58,720 --> 00:05:05,220
+And then the second thing we do is we make
+sure that the repository interface extends
+
+75
+00:05:05,220 --> 00:05:12,150
+the crud repository interface, provided by
+J, not by JPA but by Spring Data JPA.
+
+76
+00:05:13,290 --> 00:05:18,280
+And what this does, is this crud
+repository specifies a
+
+77
+00:05:18,280 --> 00:05:23,344
+variety of default methods like, Save to
+save an object.
+
+78
+00:05:23,344 --> 00:05:26,440
+Find a particular object by its ID.
+
+79
+00:05:27,480 --> 00:05:29,860
+Checking if an object exists.
+
+80
+00:05:29,860 --> 00:05:33,059
+Getting all of a particular type of object
+that we've saved.
+
+81
+00:05:34,150 --> 00:05:39,380
+Or deleting or counting the objects that
+we previously saved.
+
+82
+00:05:39,380 --> 00:05:42,920
+So the crud repository is a super
+interface that we
+
+83
+00:05:42,920 --> 00:05:47,210
+inherit from that provides a lot of the
+default functionality.
+
+84
+00:05:47,210 --> 00:05:48,510
+And all we have to do is parameterize
+
+85
+00:05:48,510 --> 00:05:51,160
+it by the type of object we're going to
+store.
+
+86
+00:05:51,160 --> 00:05:56,540
+So the first thing here in the crud
+repository parameterization, is
+
+87
+00:05:56,540 --> 00:05:59,370
+the type of object we're going to store,
+which is a video.
+
+88
+00:05:59,370 --> 00:06:02,610
+And then the type of ID that videos have.
+
+89
+00:06:02,610 --> 00:06:08,020
+In this case, if we go back and look at
+our video, we see that their ID is a long.
+
+90
+00:06:08,020 --> 00:06:10,500
+So when we were parameterize it, we
+
+91
+00:06:10,500 --> 00:06:12,780
+parameterize the crud repository with a
+long.
+
+92
+00:06:13,890 --> 00:06:16,340
+So what this is saying is, this video
+
+93
+00:06:16,340 --> 00:06:20,760
+repository is a JPA repository that Spring
+is going
+
+94
+00:06:20,760 --> 00:06:24,290
+to create that will store videos and where
+each
+
+95
+00:06:24,290 --> 00:06:27,160
+video has a unique long that is its
+identifier.
+
+96
+00:06:28,230 --> 00:06:33,610
+And automatically because we inherit or
+extend this super interface,
+
+97
+00:06:33,610 --> 00:06:37,960
+crud repository, we're going to get
+methods to save, find
+
+98
+00:06:37,960 --> 00:06:42,850
+an existing object, find all existing
+objects, delete objects, or
+
+99
+00:06:42,850 --> 00:06:47,080
+even go and query objects for, that meet a
+specific criteria.
+
+100
+00:06:48,200 --> 00:06:53,610
+So in order to tell Spring to go and
+instantiate a implementation
+
+101
+00:06:53,610 --> 00:06:59,021
+of this interface that automatically
+provides the logic that we
+
+102
+00:06:59,021 --> 00:07:04,327
+need, we go, and in our Application class,
+all we have to do is
+
+103
+00:07:04,327 --> 00:07:09,664
+add one new annotation, and that is
+EnableJPARepositories.
+
+104
+00:07:09,664 --> 00:07:12,550
+And we're going to tell it where we want
+it to
+
+105
+00:07:12,550 --> 00:07:15,202
+go and find those repository interfaces
+
+106
+00:07:15,202 --> 00:07:18,254
+that it should provide implementations
+for.
+
+107
+00:07:18,254 --> 00:07:20,794
+In this case we're saying, go and look at
+
+108
+00:07:20,794 --> 00:07:24,787
+the package associated with the video
+repository class, and any
+
+109
+00:07:24,787 --> 00:07:28,199
+classes that are in the video repository
+classes parent
+
+110
+00:07:28,199 --> 00:07:32,939
+package, you should automatically go and
+create implementations of them.
+
+111
+00:07:34,040 --> 00:07:38,560
+So, if we go here we're going to have this
+simple interface and it's going
+
+112
+00:07:38,560 --> 00:07:43,170
+to dynamically allow us to create
+implementations
+
+113
+00:07:43,170 --> 00:07:46,360
+of this interface that we can use.
+
+114
+00:07:46,360 --> 00:07:49,980
+So, if we go back to our video service.
+
+115
+00:07:49,980 --> 00:07:52,410
+We're still at auto wiring.
+
+116
+00:07:52,410 --> 00:07:55,640
+And having Spring inject the
+implementation
+
+117
+00:07:55,640 --> 00:07:59,120
+of our video repository into this
+controller.
+
+118
+00:07:59,120 --> 00:08:01,030
+But one of the things you'll notice is
+that if we go
+
+119
+00:08:01,030 --> 00:08:06,970
+back to the application, we are no longer
+providing the actual implementation.
+
+120
+00:08:06,970 --> 00:08:12,430
+Instead, because we've added this
+enableJPArepositories,
+
+121
+00:08:12,430 --> 00:08:17,640
+Spring is going to automatically
+dynamically create an implementation of
+
+122
+00:08:17,640 --> 00:08:20,720
+that repository that provides all of the
+functionality
+
+123
+00:08:20,720 --> 00:08:24,810
+we need to save video objects into a
+database.
+
+124
+00:08:24,810 --> 00:08:28,680
+And then once it's created it, it's going
+to automatically go
+
+125
+00:08:28,680 --> 00:08:34,690
+and inject it or auto-wire it into our
+video repository users.
+
+126
+00:08:34,690 --> 00:08:36,190
+So all of the places that we are,
+
+127
+00:08:36,190 --> 00:08:41,330
+at auto-wiring a video repository, Spring
+will take the
+
+128
+00:08:41,330 --> 00:08:46,300
+JPA video repository implementation that
+it dynamically generates
+
+129
+00:08:46,300 --> 00:08:49,280
+and attach it to all of the right
+locations.
+
+130
+00:08:49,280 --> 00:08:52,750
+And then if we go and look down, we'll see
+that even though
+
+131
+00:08:52,750 --> 00:08:58,060
+we didn't directly define it, we now have
+a method to save videos,
+
+132
+00:08:58,060 --> 00:09:01,520
+we have a method to find all the videos
+that have been saved
+
+133
+00:09:01,520 --> 00:09:05,650
+in the database, or we can even go and
+search for particular videos.
+
+134
+00:09:06,850 --> 00:09:10,010
+Now, all of this is being provided for us,
+we
+
+135
+00:09:10,010 --> 00:09:14,090
+don't actually have to provide an
+implementation of the repository.
+
+136
+00:09:14,090 --> 00:09:17,060
+All we have to do is define the interface
+
+137
+00:09:17,060 --> 00:09:22,370
+that we are expecting for the dynamically
+generated implementation.
+
+138
+00:09:22,370 --> 00:09:27,280
+Spring is literally going and looking at
+this interface and saying, what database
+
+139
+00:09:27,280 --> 00:09:30,170
+is currently configured and attached, and
+then
+
+140
+00:09:30,170 --> 00:09:32,938
+automatically figuring out how to
+implement a
+
+141
+00:09:32,938 --> 00:09:38,870
+version of this interface that can talk to
+that database and save video objects into
+
+142
+00:09:38,870 --> 00:09:43,810
+it, and automatically translate them into
+the appropriate tables in the database.
+
+143
+00:09:45,340 --> 00:09:48,620
+The other interesting thing that we've
+done is we've defined
+
+144
+00:09:48,620 --> 00:09:54,490
+a custom method here in this video
+repository that's FindByName.
+
+145
+00:09:54,490 --> 00:09:59,070
+And what this method is is it's defining a
+new way of querying for videos.
+
+146
+00:09:59,070 --> 00:10:02,350
+We want to find all videos where the
+
+147
+00:10:02,350 --> 00:10:07,170
+name parameter of the video, the member
+variable
+
+148
+00:10:07,170 --> 00:10:10,610
+name of the video, matches a particular
+value
+
+149
+00:10:10,610 --> 00:10:13,439
+that's provided in, in the, by the caller.
+
+150
+00:10:15,350 --> 00:10:19,420
+There is a naming convention that Spring
+allows you to use.
+
+151
+00:10:19,420 --> 00:10:24,880
+So any methods on your video repository
+that are find by and then the name of
+
+152
+00:10:24,880 --> 00:10:29,150
+a member variable, Spring will
+automatically generate a
+
+153
+00:10:29,150 --> 00:10:33,610
+method that generates the appropriate
+query in the database.
+
+154
+00:10:33,610 --> 00:10:36,780
+To find all objects with the member
+variable
+
+155
+00:10:36,780 --> 00:10:40,490
+of, in this case, name, that matches the
+value.
+
+156
+00:10:40,490 --> 00:10:44,850
+And there's a whole specification for how
+you can name
+
+157
+00:10:44,850 --> 00:10:50,240
+methods and annotate them to generate
+complex queries on your database.
+
+158
+00:10:50,240 --> 00:10:54,020
+In this case, we're just using a very
+simple example, FindByName.
+
+159
+00:10:54,020 --> 00:10:59,720
+But we could also go and add methods for
+other things like, if we wanted to find
+
+160
+00:10:59,720 --> 00:11:05,940
+all videos by duration, we could say,
+findByDuration, and provide
+
+161
+00:11:05,940 --> 00:11:11,720
+a value for the duration that we're want,
+videos that are exactly this long.
+
+162
+00:11:11,720 --> 00:11:15,030
+And Spring data would automatically go and
+
+163
+00:11:15,030 --> 00:11:17,890
+generate an implementation and an
+appropriate query
+
+164
+00:11:17,890 --> 00:11:22,600
+to find all of the video objects that we
+had stored with that duration.
+
+165
+00:11:22,600 --> 00:11:25,770
+Now this is all almost pure magic when you
+look at it.
+
+166
+00:11:25,770 --> 00:11:28,990
+We're not actually providing any of the
+logic, and it's
+
+167
+00:11:28,990 --> 00:11:31,950
+quite complex logic to go and interact
+with the database.
+
+168
+00:11:32,950 --> 00:11:38,710
+All we're telling Spring is, here is an
+interface that we would like to
+
+169
+00:11:38,710 --> 00:11:41,270
+have an implementation for, to store
+videos,
+
+170
+00:11:41,270 --> 00:11:43,640
+to search for them, to delete them.
+
+171
+00:11:43,640 --> 00:11:47,430
+Go and automatically produce an
+implementation for us.
+
+172
+00:11:47,430 --> 00:11:49,140
+And Spring can figure out, based on
+
+173
+00:11:49,140 --> 00:11:52,745
+our annotations, how to create an
+implementation of
+
+174
+00:11:52,745 --> 00:11:57,020
+thisr repository that can do all of the
+things that we need it to do.
+
+175
+00:11:57,020 --> 00:12:01,800
+So this vastly simplifies our work for
+creating
+
+176
+00:12:01,800 --> 00:12:04,800
+data driven applications that are
+connected to a database
+

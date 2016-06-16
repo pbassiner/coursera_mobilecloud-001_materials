@@ -1,0 +1,372 @@
+1
+00:00:00,000 --> 00:00:08,609
+[MUSIC]
+
+2
+00:00:08,609 --> 00:00:11,334
+Cloud services have access to huge amounts
+of
+
+3
+00:00:11,334 --> 00:00:15,494
+storage, that allow them to aggregate
+information from multiple,
+
+4
+00:00:15,494 --> 00:00:17,931
+mobile clients and then be able to search
+
+5
+00:00:17,931 --> 00:00:22,070
+that information and return it back to
+mobile clients.
+
+6
+00:00:22,070 --> 00:00:23,580
+So one of the important functions that we
+have
+
+7
+00:00:23,580 --> 00:00:26,790
+to learn how to build in our cloud
+services for
+
+8
+00:00:26,790 --> 00:00:30,510
+mobile clients, is the capability to take
+advantage of all
+
+9
+00:00:30,510 --> 00:00:34,860
+these storage resources and store data on
+a clients behalf.
+
+10
+00:00:34,860 --> 00:00:37,640
+And then be able to search that data and
+find
+
+11
+00:00:37,640 --> 00:00:40,780
+what a particular client needs and return
+it to them.
+
+12
+00:00:40,780 --> 00:00:44,060
+Now this whole process looks very similar
+to what
+
+13
+00:00:44,060 --> 00:00:48,760
+we saw when we were sending object data
+over HTTP.
+
+14
+00:00:48,760 --> 00:00:53,180
+We would have some objects, that we were
+working with, either on
+
+15
+00:00:53,180 --> 00:00:57,350
+the client or on the service side, we
+would then marshal them,
+
+16
+00:01:00,270 --> 00:01:03,900
+into an HTTP body of a message.
+
+17
+00:01:05,930 --> 00:01:12,880
+And then, on the other side, we would have
+to unmarshal that data back into objects.
+
+18
+00:01:12,880 --> 00:01:15,390
+So all of this would happen on the client,
+
+19
+00:01:18,220 --> 00:01:21,730
+and then this would happen on the server.
+
+20
+00:01:23,420 --> 00:01:26,410
+So we would have this whole process where
+we were
+
+21
+00:01:26,410 --> 00:01:30,374
+taking objects, we were converting them
+into HTTP messages to
+
+22
+00:01:30,374 --> 00:01:33,363
+send to the cloud based service, and then
+on the
+
+23
+00:01:33,363 --> 00:01:37,430
+server side we were converting those
+bodies back into objects.
+
+24
+00:01:37,430 --> 00:01:41,790
+And we saw that there were ways to
+simplify this using
+
+25
+00:01:41,790 --> 00:01:47,050
+various libraries like Jackson, which can
+automatically convert an object into
+
+26
+00:01:47,050 --> 00:01:50,750
+JSON, which can be placed into an HTTP
+body, and then
+
+27
+00:01:50,750 --> 00:01:55,340
+automatically take that JSON and convert
+it back into an object.
+
+28
+00:01:55,340 --> 00:02:00,800
+And we used Retrofit to do a lot of this
+for us, in the earlier discussions.
+
+29
+00:02:02,660 --> 00:02:04,290
+Now, what we'd like to be able to do
+
+30
+00:02:04,290 --> 00:02:08,730
+is something similar for storing data on
+the server.
+
+31
+00:02:08,730 --> 00:02:13,010
+So, on the server side, we also are
+working with objects.
+
+32
+00:02:13,010 --> 00:02:18,090
+So we will have objects, just like we did
+on the client side, and then what we want
+
+33
+00:02:18,090 --> 00:02:23,560
+to do is we want take the information in
+those objects, and we want to convert it
+
+34
+00:02:23,560 --> 00:02:29,200
+into some format, which then gets stored
+in a database.
+
+35
+00:02:29,200 --> 00:02:33,700
+And there are multiple formats and types
+of databases that we might be storing in.
+
+36
+00:02:33,700 --> 00:02:39,300
+But one of the keys things that we have to
+do, is we have to marshal again our
+
+37
+00:02:39,300 --> 00:02:47,480
+objects into, or map our objects, into the
+database and the format of the database.
+
+38
+00:02:47,480 --> 00:02:51,230
+So down here in the database, probably,
+
+39
+00:02:51,230 --> 00:02:55,310
+the format is something like, rows and
+columns.
+
+40
+00:02:55,310 --> 00:03:00,640
+So, we've got database rows and we've got
+database columns and we have to
+
+41
+00:03:00,640 --> 00:03:06,960
+figure out how do we go from an object to
+this format in the database.
+
+42
+00:03:06,960 --> 00:03:11,130
+And the way that we can do this, one way
+to do it at least, is to always just write
+
+43
+00:03:11,130 --> 00:03:14,000
+our own code that goes and takes each
+object and
+
+44
+00:03:14,000 --> 00:03:18,300
+decides how we map that object into a
+database table.
+
+45
+00:03:18,300 --> 00:03:25,100
+So for example, we might take each object
+and map each object into a row of the
+
+46
+00:03:25,100 --> 00:03:29,260
+database, and then we might set each
+column to
+
+47
+00:03:29,260 --> 00:03:33,030
+a particular property or member variable
+of that object.
+
+48
+00:03:33,030 --> 00:03:35,790
+So we can put the member variable values
+in the
+
+49
+00:03:35,790 --> 00:03:40,570
+columns, and we can map our object
+instances to different rows.
+
+50
+00:03:40,570 --> 00:03:42,500
+But if we go and do something like this,
+
+51
+00:03:42,500 --> 00:03:44,300
+we're doing a lot of work, because every
+time
+
+52
+00:03:44,300 --> 00:03:46,930
+we save an object, we have to figure out
+
+53
+00:03:46,930 --> 00:03:49,950
+how to convert that object into a table
+format.
+
+54
+00:03:50,960 --> 00:03:54,720
+And then every time we want to go and get
+data back, we have to figure out
+
+55
+00:03:54,720 --> 00:03:59,940
+how we search these tables, and we have to
+write our own code to search the tables.
+
+56
+00:03:59,940 --> 00:04:03,490
+And then, once we find the data that we
+want in the database, then
+
+57
+00:04:03,490 --> 00:04:09,070
+we have to convert that data in those,
+either table rows or wha, columns or
+
+58
+00:04:09,070 --> 00:04:12,290
+whatever part of the table it is that
+we've stored our data into, we have
+
+59
+00:04:12,290 --> 00:04:16,330
+to convert that data back into object so
+that we can do something with it.
+
+60
+00:04:16,330 --> 00:04:21,430
+And this whole process is normally called
+object relational
+
+61
+00:04:21,430 --> 00:04:26,534
+mapping, at least for traditional
+relational databases.
+
+62
+00:04:26,534 --> 00:04:30,771
+[BLANK_AUDIO]
+
+63
+00:04:30,771 --> 00:04:33,221
+This term still gets used, even
+
+64
+00:04:33,221 --> 00:04:37,980
+with non-relational databases like noSQL
+databases.
+
+65
+00:04:37,980 --> 00:04:39,795
+We're still doing this whole process
+
+66
+00:04:39,795 --> 00:04:42,560
+of essentially mapping objects into the
+database.
+
+67
+00:04:42,560 --> 00:04:44,760
+And some people call it ORM, some people
+
+68
+00:04:44,760 --> 00:04:47,980
+call it other things when it hits noSQL
+databases.
+
+69
+00:04:47,980 --> 00:04:51,930
+But regardless of what it is, the, the
+fundamental fact
+
+70
+00:04:51,930 --> 00:04:54,250
+remains that we have to take objects, and
+we have
+
+71
+00:04:54,250 --> 00:04:56,590
+to convert them on the server side in
+order to
+
+72
+00:04:56,590 --> 00:04:59,410
+store them into some format that the
+database can understand.
+
+73
+00:04:59,410 --> 00:05:02,220
+And then when we want to use them, we have
+to be able to find them,
+
+74
+00:05:02,220 --> 00:05:05,120
+convert that data back into objects, and
+do
+
+75
+00:05:05,120 --> 00:05:07,510
+something with it, because Java operates
+on objects.
+
+76
+00:05:07,510 --> 00:05:12,160
+And we don't really want to operate on raw
+primitives and database tables which don't
+
+77
+00:05:12,160 --> 00:05:15,880
+make sense in the Java language or may not
+be strongly typed, like we would like.
+

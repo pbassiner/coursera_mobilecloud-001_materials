@@ -1,0 +1,742 @@
+1
+00:00:00,000 --> 00:00:08,382
+[MUSIC]
+
+2
+00:00:08,382 --> 00:00:12,879
+In Java, there's a tool that we can use to
+help us go from objects down
+
+3
+00:00:12,879 --> 00:00:15,906
+to the database, search the database and
+then
+
+4
+00:00:15,906 --> 00:00:19,710
+return that data back as objects to our
+code.
+
+5
+00:00:19,710 --> 00:00:24,590
+In this tool is a framework called JPA, or
+the Java Persistence API.
+
+6
+00:00:25,600 --> 00:00:31,610
+And so, the idea behind JPA is that we go
+and annotate
+
+7
+00:00:31,610 --> 00:00:36,510
+our objects using Java annotations and
+
+8
+00:00:36,510 --> 00:00:41,450
+tell JPA about how to store our objects,
+
+9
+00:00:44,860 --> 00:00:46,660
+in a database.
+
+10
+00:00:46,660 --> 00:00:51,630
+So we go and we add these annotations to
+our objects.
+
+11
+00:00:51,630 --> 00:00:54,060
+And then JPA can automatically look at our
+
+12
+00:00:54,060 --> 00:00:57,130
+objects and look at those annotations, and
+figure out
+
+13
+00:00:57,130 --> 00:01:00,880
+the appropriate way to turn our objects
+automatically
+
+14
+00:01:00,880 --> 00:01:05,980
+into rows and columns and tables within a
+database.
+
+15
+00:01:05,980 --> 00:01:10,540
+So JPA uses this information to marshal or
+
+16
+00:01:10,540 --> 00:01:16,340
+map our objects down into the underlying
+database.
+
+17
+00:01:16,340 --> 00:01:19,630
+And then whenever we want objects back, it
+uses this same
+
+18
+00:01:19,630 --> 00:01:24,250
+information to help us get objects back
+out of the database.
+
+19
+00:01:24,250 --> 00:01:28,050
+So JPA is an incredibly useful tool and
+will allow us to write less
+
+20
+00:01:28,050 --> 00:01:31,100
+code and know that our mapping will
+
+21
+00:01:31,100 --> 00:01:33,420
+hopefully be done 100% correctly all the
+time.
+
+22
+00:01:33,420 --> 00:01:35,320
+So we don't have to worry about making
+
+23
+00:01:35,320 --> 00:01:37,920
+errors and how we can convert these
+objects.
+
+24
+00:01:37,920 --> 00:01:40,600
+And in fact, what you'll see is with a
+very small amount
+
+25
+00:01:40,600 --> 00:01:45,240
+of code, we can begin utilizing the
+database in our cloud services.
+
+26
+00:01:45,240 --> 00:01:47,910
+So there's not a huge amount of work or
+things that
+
+27
+00:01:47,910 --> 00:01:50,340
+we have to learn in order to be able to
+leverage JPA.
+
+28
+00:01:50,340 --> 00:01:54,370
+With some very simple annotations, we can
+start immediately
+
+29
+00:01:54,370 --> 00:01:56,650
+taking our objects and storing them in a
+database.
+
+30
+00:01:57,660 --> 00:02:03,010
+Let's take a look at JPA and how it can
+help us to store information.
+
+31
+00:02:03,010 --> 00:02:06,220
+So, let's think about our, our video
+service.
+
+32
+00:02:06,220 --> 00:02:09,150
+So far, we have a cloud service where
+
+33
+00:02:09,150 --> 00:02:12,250
+users using their mobile clients can
+upload videos
+
+34
+00:02:12,250 --> 00:02:16,030
+to the service and then it stores objects,
+
+35
+00:02:16,030 --> 00:02:20,600
+video objects representing those uploaded
+videos in a list.
+
+36
+00:02:20,600 --> 00:02:25,110
+Now, this is a very simple approach
+because as long as that service
+
+37
+00:02:25,110 --> 00:02:28,220
+is in memory, as long as it's running, as
+long as the service, the
+
+38
+00:02:28,220 --> 00:02:32,100
+server that it's on hasn't been turned
+off, we have access to all
+
+39
+00:02:32,100 --> 00:02:35,920
+of those video objects and we can see what
+has been uploaded so far.
+
+40
+00:02:35,920 --> 00:02:39,490
+But the moment somebody stops our cloud
+service for accepting
+
+41
+00:02:39,490 --> 00:02:42,070
+these videos or the moment that the server
+that it's
+
+42
+00:02:42,070 --> 00:02:45,790
+running on gets turned off, all of the
+information was
+
+43
+00:02:45,790 --> 00:02:50,400
+in memory, that list of video objects, is
+suddenly gone.
+
+44
+00:02:50,400 --> 00:02:53,490
+And the next time we start up our cloud
+service, we
+
+45
+00:02:53,490 --> 00:02:57,890
+don't have access to those video objects
+that we previously created.
+
+46
+00:02:57,890 --> 00:03:03,360
+So we need some way of creating instances
+of an object and then telling
+
+47
+00:03:03,360 --> 00:03:09,300
+JPA to go and save those objects for us so
+that in the future, if
+
+48
+00:03:09,300 --> 00:03:14,090
+the service gets turned off or the server
+gets shut down, when we start
+
+49
+00:03:14,090 --> 00:03:19,120
+back up, they will have been persisted in
+the database and still accessible to us.
+
+50
+00:03:19,120 --> 00:03:22,550
+So what we're going to do is create a
+simple video object and show you
+
+51
+00:03:22,550 --> 00:03:28,880
+how easy it is to actually store instances
+of an object in a database.
+
+52
+00:03:28,880 --> 00:03:32,120
+Now, the way that we do this is we have to
+create a class and
+
+53
+00:03:32,120 --> 00:03:36,610
+provide annotations to JPA explaining how
+instances of
+
+54
+00:03:36,610 --> 00:03:38,910
+that class should be stored in a database.
+
+55
+00:03:38,910 --> 00:03:40,730
+So let's take a look at a simple example.
+
+56
+00:03:40,730 --> 00:03:50,220
+So we're going to create a class to
+represent the videos that we are storing.
+
+57
+00:03:50,220 --> 00:03:51,950
+So we'll have a simple video class.
+
+58
+00:03:53,300 --> 00:03:54,750
+And what we'd like to do is store
+
+59
+00:03:54,750 --> 00:03:57,170
+some information in the member variables
+in this class.
+
+60
+00:03:57,170 --> 00:03:59,630
+So we might have private.
+
+61
+00:04:02,560 --> 00:04:04,810
+And we'll just fix that.
+
+62
+00:04:04,810 --> 00:04:07,040
+Long because we're going to store a whole
+bunch of these things.
+
+63
+00:04:07,040 --> 00:04:09,410
+We're hoping our service will be like
+YouTube.
+
+64
+00:04:09,410 --> 00:04:10,790
+ID.
+
+65
+00:04:10,790 --> 00:04:13,300
+So we're going to have an ID for each of
+our videos.
+
+66
+00:04:13,300 --> 00:04:14,900
+That's going to be a numeric ID.
+
+67
+00:04:14,900 --> 00:04:18,839
+And then we'll store, let's just say to be
+simple for the moment,
+
+68
+00:04:21,240 --> 00:04:24,230
+a string, which is the name of the video.
+
+69
+00:04:26,600 --> 00:04:29,080
+Now we could go and add a whole bunch of
+other member variables
+
+70
+00:04:29,080 --> 00:04:33,460
+here, but this is just a simple example,
+so let's start with this.
+
+71
+00:04:33,460 --> 00:04:38,780
+Now, what we need to do is we need to tell
+JPA that
+
+72
+00:04:38,780 --> 00:04:44,980
+we want it to store instances of this
+class in the database for us.
+
+73
+00:04:44,980 --> 00:04:47,240
+And the first thing we have to do is we
+have to declare that this is
+
+74
+00:04:47,240 --> 00:04:52,830
+a type of object or a type of class that
+is something that can be stored.
+
+75
+00:04:52,830 --> 00:04:54,070
+And the way that we do that is by
+
+76
+00:04:54,070 --> 00:04:59,740
+simply adding the @Entity annotation from
+JPA to the class.
+
+77
+00:05:00,840 --> 00:05:03,060
+And what this Entity annotation does is it
+
+78
+00:05:03,060 --> 00:05:05,950
+says this is something that can be
+persistent.
+
+79
+00:05:06,990 --> 00:05:08,590
+Now the second thing we need to do is
+since
+
+80
+00:05:08,590 --> 00:05:12,470
+we want to be able to search for these
+objects after
+
+81
+00:05:12,470 --> 00:05:15,000
+we've stored them and we need a way of
+accessing
+
+82
+00:05:15,000 --> 00:05:19,000
+them and referencing them, we need to give
+them an identity.
+
+83
+00:05:19,000 --> 00:05:21,170
+So normally, when we go and create
+objects,
+
+84
+00:05:21,170 --> 00:05:23,740
+they get stored at some memory address and
+we
+
+85
+00:05:23,740 --> 00:05:27,950
+don't have to worry so much about each one
+of them having a unique in, you know, ID.
+
+86
+00:05:27,950 --> 00:05:31,890
+We just know that underneath the hood,
+Java provides a
+
+87
+00:05:31,890 --> 00:05:35,250
+unique memory address where each one of
+them is stored.
+
+88
+00:05:35,250 --> 00:05:40,030
+But we need to do something equivalent so
+that we can know and address each of these
+
+89
+00:05:40,030 --> 00:05:43,550
+video objects once they've been stored
+individually and that
+
+90
+00:05:43,550 --> 00:05:46,010
+we need to do that with a unique ID.
+
+91
+00:05:46,010 --> 00:05:50,430
+So to do that, we simply pick one of our
+properties that we know is going to be
+
+92
+00:05:50,430 --> 00:05:57,100
+unique or we would like to be filled in
+with a unique value, and we say @Id.
+
+93
+00:05:57,100 --> 00:06:03,730
+So this is telling JPA that this ID right
+here is going to be our ID property.
+
+94
+00:06:03,730 --> 00:06:06,620
+Now, we could've had any member variable
+with any
+
+95
+00:06:06,620 --> 00:06:10,250
+naming provided for the ID so long as it's
+
+96
+00:06:10,250 --> 00:06:18,350
+of a type like a string or a long that JPA
+knows how to use as a unique identifier.
+
+97
+00:06:18,350 --> 00:06:19,940
+And it doesn't have to be named ID.
+
+98
+00:06:19,940 --> 00:06:21,630
+I just happened to name mine ID in
+
+99
+00:06:21,630 --> 00:06:23,820
+this purpose, in this example, but we
+could have
+
+100
+00:06:23,820 --> 00:06:26,500
+named it, you know, video number or
+anything
+
+101
+00:06:26,500 --> 00:06:30,197
+else as long as we have this @Id
+annotation.
+
+102
+00:06:30,197 --> 00:06:35,760
+The @Id annotation tells JPA that this is
+a
+
+103
+00:06:35,760 --> 00:06:40,730
+property or a member variable that we want
+to use to uniquely identify this object.
+
+104
+00:06:40,730 --> 00:06:44,510
+But we still have the problems, we have to
+make sure that every
+
+105
+00:06:44,510 --> 00:06:49,440
+time this member variable is set, that it
+gets provided a unique ID.
+
+106
+00:06:49,440 --> 00:06:51,960
+Now, we could go and try to manually
+figure out
+
+107
+00:06:51,960 --> 00:06:55,720
+how to assign these IDs to make sure
+they're unique.
+
+108
+00:06:55,720 --> 00:07:00,620
+But it would be easier if we could just
+ask JPA to create unique
+
+109
+00:07:00,620 --> 00:07:04,960
+IDs for us on the fly so that we don't
+have to worry about it.
+
+110
+00:07:04,960 --> 00:07:06,470
+And so, that's what we're going to do.
+
+111
+00:07:06,470 --> 00:07:09,000
+We can add a second annotation, and I'm
+just going to move over
+
+112
+00:07:09,000 --> 00:07:11,910
+here to the left, because this is going to
+be a long annotation.
+
+113
+00:07:11,910 --> 00:07:15,400
+And don't worry if you can't remember all
+of these longer annotations.
+
+114
+00:07:15,400 --> 00:07:18,410
+They're easy to Google or to look up in
+your [INAUDIBLE]
+
+115
+00:07:18,410 --> 00:07:22,190
+previous code, sorry about that, to figure
+out what you should add.
+
+116
+00:07:23,270 --> 00:07:28,783
+So we're going to add @GeneratedValue and
+then
+
+117
+00:07:28,783 --> 00:07:34,294
+we're going to say strategy equals and
+then,
+
+118
+00:07:34,294 --> 00:07:39,240
+I apologize if this runs off the screen
+and
+
+119
+00:07:39,240 --> 00:07:44,924
+hopefully I'll be able to get it in the
+screen.
+
+120
+00:07:44,924 --> 00:07:48,949
+Generation
+
+121
+00:07:48,949 --> 00:07:54,992
+type.auto and if
+
+122
+00:07:54,992 --> 00:08:01,830
+I got really lucky, all of that stayed on
+the screen and hopefully I did.
+
+123
+00:08:01,830 --> 00:08:07,300
+But what this extra annotation that I just
+added says is basically, @GeneratedValue,
+
+124
+00:08:07,300 --> 00:08:12,280
+meaning, this is something I'm expecting
+JPA to fill in a value for.
+
+125
+00:08:12,280 --> 00:08:15,470
+I'm expecting it to generate a value for
+this.
+
+126
+00:08:15,470 --> 00:08:17,850
+And then the strategy is I want it to
+
+127
+00:08:17,850 --> 00:08:21,660
+automatically generate the value that
+should go in here.
+
+128
+00:08:21,660 --> 00:08:24,110
+And if you're having trouble reading this
+annotation because
+
+129
+00:08:24,110 --> 00:08:27,140
+of my handwriting, the code samples that
+are provided
+
+130
+00:08:27,140 --> 00:08:29,950
+along with this lecture will make this
+much clearer
+
+131
+00:08:29,950 --> 00:08:32,330
+about what this looks like and how it
+works.
+
+132
+00:08:32,330 --> 00:08:35,840
+But at this point, this is all we actually
+have to provide in
+
+133
+00:08:35,840 --> 00:08:41,520
+order for JPA to be able to persist
+instances of this video class.
+
+134
+00:08:41,520 --> 00:08:44,170
+All we have to do is construct a
+
+135
+00:08:44,170 --> 00:08:48,340
+video class and very importantly, just
+assign the name.
+
+136
+00:08:48,340 --> 00:08:51,110
+Because we don't want to assign the ID
+because we're asking
+
+137
+00:08:51,110 --> 00:08:55,540
+the JPA infrastructure to go and assign
+that ID for us.
+
+138
+00:08:55,540 --> 00:08:56,990
+We just want to assign the name.
+
+139
+00:08:56,990 --> 00:09:00,259
+So we create a video object, maybe we have
+some getters and setters.
+
+140
+00:09:00,259 --> 00:09:06,480
+We assign a value for name and then we ask
+JPA to go and store this object.
+
+141
+00:09:06,480 --> 00:09:08,200
+And two things are going to happen.
+
+142
+00:09:08,200 --> 00:09:12,500
+One is JPA is automatically going to take
+this object and convert
+
+143
+00:09:12,500 --> 00:09:15,600
+it into the tables and the rows and
+columns of our
+
+144
+00:09:15,600 --> 00:09:19,590
+database, or depending on the actual
+database implementation, maybe it does
+
+145
+00:09:19,590 --> 00:09:23,080
+something completely different and we
+don't have to worry about that.
+
+146
+00:09:23,080 --> 00:09:26,320
+And two, after it's stored it and it's
+figured
+
+147
+00:09:26,320 --> 00:09:30,340
+out its unique identifier in the database,
+it's going to generate
+
+148
+00:09:30,340 --> 00:09:34,730
+a unique ID for us and assign it to the ID
+so that we don't have to do that.
+
+149
+00:09:34,730 --> 00:09:39,150
+So, it's not only going to from these
+three simple annotations, these are
+
+150
+00:09:39,150 --> 00:09:41,550
+actually two related annotations, but from
+
+151
+00:09:41,550 --> 00:09:43,410
+these three simple annotations, it's not
+only
+
+152
+00:09:43,410 --> 00:09:46,830
+going to store the objects in a database
+for us, but it's going to give
+
+153
+00:09:46,830 --> 00:09:50,840
+us a way of uniquely identifying them and
+referencing them in our code.
+
+154
+00:09:50,840 --> 00:09:53,070
+Which we'll see is very helpful when we
+want
+
+155
+00:09:53,070 --> 00:09:56,130
+to query and look up data that's been
+previously stored.
+
