@@ -1,0 +1,1809 @@
+1
+00:00:00,012 --> 00:00:07,142
+Welcome to Part 7 in the module on
+Patterns and Frameworks for Concurrency
+
+2
+00:00:07,142 --> 00:00:11,772
+and Synchronization.
+In previous parts of this module, we
+
+3
+00:00:11,772 --> 00:00:16,972
+described the active object pattern and
+illustrated the ways in which you can
+
+4
+00:00:16,972 --> 00:00:20,662
+implement active object using the ACE Task
+Framework.
+
+5
+00:00:20,662 --> 00:00:25,560
+And then apply the ACE Task Framework to
+implement a thread per connection
+
+6
+00:00:25,560 --> 00:00:29,472
+concurrency model implementation of the
+JAWS Web Server.
+
+7
+00:00:29,472 --> 00:00:33,411
+We then move on and talk about the
+Half-Sync/Half-Async pattern and
+
+8
+00:00:33,411 --> 00:00:37,896
+illustrated how that pattern can be
+implemented, using some of the frame work
+
+9
+00:00:37,896 --> 00:00:41,124
+in ace as well.
+What we're going, what we then did is we
+
+10
+00:00:41,124 --> 00:00:45,810
+described the Monitor Object pattern and
+talked about how we could use monitor
+
+11
+00:00:45,810 --> 00:00:50,567
+object to apply it to a portion of the
+Half-Sync/Half-Async solution in order to
+
+12
+00:00:50,567 --> 00:00:55,452
+implement a synchronized request queue.
+What we're going to do in this part of the
+
+13
+00:00:55,452 --> 00:01:00,327
+module is we're going to explore how we
+might Apply monitor object along with a
+
+14
+00:01:00,327 --> 00:01:05,740
+number of other synchronization patterns
+to implement the ACE Message Queue class.
+
+15
+00:01:05,740 --> 00:01:10,686
+And use this in order to flesh out a bit
+more of our pattern language relating to
+
+16
+00:01:10,686 --> 00:01:14,834
+scaleability in a multi-threaded or
+multi-cole environment.
+
+17
+00:01:14,835 --> 00:01:19,547
+Let's first start by talking a bit more
+about what we need to have an ACE Message
+
+18
+00:01:19,547 --> 00:01:24,117
+Queue class for in the first place.
+So it turns out when producer and consumer
+
+19
+00:01:24,117 --> 00:01:28,737
+threads interact with each other in
+concurrent programs, there's often a need
+
+20
+00:01:28,737 --> 00:01:32,643
+to be able to exchange messages within.
+A process address space.
+
+21
+00:01:32,643 --> 00:01:37,071
+Typically a producer task will create
+messages and then insert them or, or pass
+
+22
+00:01:37,071 --> 00:01:41,002
+them off to consumer tasks.
+And those consumer tasks will then either
+
+23
+00:01:41,002 --> 00:01:44,331
+process them immediately.
+Or more likely do a little bit of
+
+24
+00:01:44,331 --> 00:01:48,420
+processing or no processing at all.
+And then stick those messages on to a
+
+25
+00:01:48,420 --> 00:01:50,694
+thread safe message queue.
+Queue.
+
+26
+00:01:50,694 --> 00:01:53,955
+If the queue is full, then the producers
+typically wait.
+
+27
+00:01:53,955 --> 00:01:58,312
+Either they block indefinitely or they
+block for a certain time-out period.
+
+28
+00:01:58,312 --> 00:02:02,874
+And likewise, if the message queue is
+empty, then the consumer thread or threads
+
+29
+00:02:02,874 --> 00:02:07,178
+will either block indefinitely or block
+for some bounded amount of time.
+
+30
+00:02:07,179 --> 00:02:10,381
+Waiting to see if there's some more work
+showing up for them.
+
+31
+00:02:10,381 --> 00:02:14,479
+So that's kind of the, the background of,
+of why you need an ACE Message Queue and
+
+32
+00:02:14,479 --> 00:02:17,484
+sort of how it interacts with other pieces
+in the system.
+
+33
+00:02:17,484 --> 00:02:21,089
+When we implement ACE Message Queue,
+there's a number of pieces that it
+
+34
+00:02:21,089 --> 00:02:23,682
+involves.
+One piece is the message itself, and we
+
+35
+00:02:23,682 --> 00:02:27,916
+call this the ACE Message Block.
+The purpose of the ACE Message Block is to
+
+36
+00:02:27,916 --> 00:02:32,389
+be able to manage the memory of the
+message in a very efficient way, allowing
+
+37
+00:02:32,389 --> 00:02:36,405
+us to do a couple of things.
+First, it allows us to be able to support
+
+38
+00:02:36,405 --> 00:02:39,832
+reference counting.
+So if we end up having to use a message
+
+39
+00:02:39,832 --> 00:02:43,950
+that's held from a couple of different
+parts of our solution, say, in a
+
+40
+00:02:43,950 --> 00:02:47,731
+re-transmit buffer.
+We can do reference counting to be able to
+
+41
+00:02:47,731 --> 00:02:52,394
+make a logical copy of the message.
+Without having to physically copy the data
+
+42
+00:02:52,394 --> 00:02:54,533
+itself.
+So that's much more efficient.
+
+43
+00:02:54,533 --> 00:02:58,256
+Another thing you can do with an ACE
+Message Block, is you can also chain
+
+44
+00:02:58,256 --> 00:03:02,540
+together a sequence of ACE Message Blocks
+to form some kind of composite message,
+
+45
+00:03:02,540 --> 00:03:06,509
+which can be useful in situations where
+you're dealing with a lot of network
+
+46
+00:03:06,509 --> 00:03:09,729
+protocol messages.
+Where you have to add headers and, and
+
+47
+00:03:09,729 --> 00:03:12,628
+trailers to them.
+And you want to be able to do this again
+
+48
+00:03:12,628 --> 00:03:15,465
+without having to copy the messages
+repeatedly.
+
+49
+00:03:15,466 --> 00:03:19,310
+Another thing you can do with an ACE
+message block is it's got next and
+
+50
+00:03:19,310 --> 00:03:23,534
+previous pointers and so you can actually
+chain together groups of ACE Message
+
+51
+00:03:23,534 --> 00:03:26,566
+Blocks, which themselves may be composite
+messages.
+
+52
+00:03:26,566 --> 00:03:30,787
+In order to be able to provide a doubly
+linked list that will be use for the ACE
+
+53
+00:03:30,787 --> 00:03:33,936
+Message Queue that we'll talk about in
+just a moment.
+
+54
+00:03:33,936 --> 00:03:37,922
+Another thing you can do with an ACE
+Message Block is, you can treat
+
+55
+00:03:37,922 --> 00:03:41,466
+synchronization and memory management
+issues as aspects.
+
+56
+00:03:41,466 --> 00:03:45,657
+And you can change the locks.
+You can change where the memory comes from
+
+57
+00:03:45,657 --> 00:03:48,501
+without changing the logic of the class
+itself.
+
+58
+00:03:48,501 --> 00:03:52,847
+This composite structure, as a general
+rule, is intended to minimize data
+
+59
+00:03:52,847 --> 00:03:55,833
+copying.
+So you could often get by without having
+
+60
+00:03:55,833 --> 00:04:00,076
+to do a full copy of the data.
+And you only have to update reference
+
+61
+00:04:00,076 --> 00:04:04,121
+counts in various ways.
+This particular abstraction handles the
+
+62
+00:04:04,121 --> 00:04:07,948
+variability of messaging operations via a
+common interface.
+
+63
+00:04:07,948 --> 00:04:12,454
+An ACE Message Queue is really nothing
+more than a double link list of ACE
+
+64
+00:04:12,454 --> 00:04:17,387
+Message Blocks with a number of other
+mechanisms thrown in for good measure.
+
+65
+00:04:17,387 --> 00:04:21,273
+In order to make it easier to work with
+this as a cohesive abstraction.
+
+66
+00:04:21,273 --> 00:04:25,569
+For example, there are operations on an
+ACE Message Queue to be able to en-queue
+
+67
+00:04:25,569 --> 00:04:28,059
+and de-queue messages at the head or the
+tail.
+
+68
+00:04:28,059 --> 00:04:32,151
+And you can also go ahead and en-queue
+messages in so called priority order.
+
+69
+00:04:32,151 --> 00:04:36,447
+Such that when you de-queue them, the
+message of highest priority is always the
+
+70
+00:04:36,447 --> 00:04:40,672
+1 that will be at the front of the queue.
+Something else you can do with an ACE
+
+71
+00:04:40,672 --> 00:04:45,145
+message queue, and it depends a bit on the
+synchronization properties we're about to
+
+72
+00:04:45,145 --> 00:04:47,804
+talk about, is you can also do timed
+operations.
+
+73
+00:04:47,804 --> 00:04:51,970
+If the queue is full, for example, you can
+have it blocked until the queue is no
+
+74
+00:04:51,970 --> 00:04:54,954
+longer full.
+Now this concept of being able to block or
+
+75
+00:04:54,954 --> 00:04:58,848
+not depends on something called the
+synchronization strategy that is
+
+76
+00:04:58,848 --> 00:05:03,187
+configured Into the ACE Message Queue.
+And this is, again, done as an aspect
+
+77
+00:05:03,187 --> 00:05:06,776
+using the strategy pattern and using c
+plus, plus templates.
+
+78
+00:05:06,776 --> 00:05:11,184
+And so as we'll see, and this will cover
+actually the bulk of the discussion
+
+79
+00:05:11,184 --> 00:05:16,288
+throughout this part of the module, we can
+embody or configure an ACE Message Queue.
+
+80
+00:05:16,289 --> 00:05:20,549
+In a couple of different configurations.
+1 configuration is single threaded.
+
+81
+00:05:20,549 --> 00:05:24,197
+Which means that it never blocks.
+It just fails if its empty or full.
+
+82
+00:05:24,197 --> 00:05:28,549
+Another configuration is multi threaded.
+To use a multi threaded synchronization
+
+83
+00:05:28,549 --> 00:05:31,214
+strategy.
+This is the way we would typically do it,
+
+84
+00:05:31,214 --> 00:05:34,418
+of course, when we implement the
+Half-Sync/Half-Async.
+
+85
+00:05:34,419 --> 00:05:37,393
+Pattern and we need to have a synchronized
+request queue.
+
+86
+00:05:37,393 --> 00:05:41,539
+In this case, it will end up being able to
+block under certain circumstances, which
+
+87
+00:05:41,539 --> 00:05:45,052
+we will talk about in just a moment.
+Some other thing you can do with the
+
+88
+00:05:45,052 --> 00:05:48,371
+master queue, you can control its
+synchronization strategy.
+
+89
+00:05:48,371 --> 00:05:51,400
+You can also control where its memory
+allocation comes from.
+
+90
+00:05:51,400 --> 00:05:55,546
+So it can come from different alocators,
+that may be allocate, there are different
+
+91
+00:05:55,546 --> 00:05:59,444
+types of pools Memory.
+What this particular class does, from a
+
+92
+00:05:59,444 --> 00:06:04,414
+commonality and variability point of view,
+is it handles the variability of queuing
+
+93
+00:06:04,414 --> 00:06:08,752
+and synchronization mechanisms of queuing
+behind a common interface.
+
+94
+00:06:08,752 --> 00:06:13,426
+And we'll talk about why we do this as we
+go throughout this part of the module.
+
+95
+00:06:13,426 --> 00:06:18,372
+So let's first start talking about this
+notion of being able to transparently
+
+96
+00:06:18,372 --> 00:06:21,694
+Parameterize synchronization into a, a
+class.
+
+97
+00:06:21,694 --> 00:06:26,166
+Like, ACE Message Queue.
+The various concurrency patterns we've
+
+98
+00:06:26,166 --> 00:06:31,046
+talked about before give you a hint here
+that you might want to keep certain
+
+99
+00:06:31,046 --> 00:06:35,409
+components fixed with respect to their
+functional behavior.
+
+100
+00:06:35,409 --> 00:06:38,934
+But be able to change their
+synchronization strategies depending on
+
+101
+00:06:38,934 --> 00:06:42,345
+how it is they're being used.
+So it might turn out in some situations,
+
+102
+00:06:42,345 --> 00:06:45,885
+we just need have a, a queue to store data
+but we don't need to have that be
+
+103
+00:06:45,885 --> 00:06:49,632
+synchronized or thread safe.
+Conversely, when start trying to work with
+
+104
+00:06:49,632 --> 00:06:53,926
+the half-synch half-asynch pattern, we
+need to have a synchronized request queue.
+
+105
+00:06:53,926 --> 00:06:56,723
+Queue.
+Well you can imagine doing things in a
+
+106
+00:06:56,723 --> 00:06:59,996
+couple of inadequate ways, or, or
+dysfunctional ways.
+
+107
+00:06:59,996 --> 00:07:04,349
+One approach would be to try to maintain
+multiple copies of queues that were
+
+108
+00:07:04,349 --> 00:07:08,501
+customized and hard-coded for different
+synchronization use cases.
+
+109
+00:07:08,501 --> 00:07:12,827
+For example, we might have a
+non-synchronized message queue that has no
+
+110
+00:07:12,827 --> 00:07:16,452
+locks in it Whatsoever.
+Conversley we might have a synchronized
+
+111
+00:07:16,452 --> 00:07:18,847
+message queue that has a bunch of locks in
+it.
+
+112
+00:07:18,847 --> 00:07:21,241
+Well.
+The problem when you start trying to do
+
+113
+00:07:21,241 --> 00:07:25,465
+this is now you have to manage these
+different variance manually and that means
+
+114
+00:07:25,465 --> 00:07:29,625
+that when you make changes in one you have
+to make sure you go make changes in the
+
+115
+00:07:29,625 --> 00:07:32,294
+other.
+As you add new features, you have to make
+
+116
+00:07:32,294 --> 00:07:35,291
+sure those are added.
+As you fix bugs you have to go and fix
+
+117
+00:07:35,291 --> 00:07:38,461
+them in multiple places and that quickly
+becomes unwieldy.
+
+118
+00:07:38,461 --> 00:07:42,295
+What's a more effective approach?
+Apply the strategize locking pattern.
+
+119
+00:07:42,295 --> 00:07:46,648
+This pattern is a pattern that appears in
+the[UNKNOWN] book and I'll give you a link
+
+120
+00:07:46,648 --> 00:07:51,252
+to a paper where it appears as well.
+And basically what it does is it allows
+
+121
+00:07:51,252 --> 00:07:56,692
+you to treat synchronization as a first
+class citizen from an aspect perspective
+
+122
+00:07:56,692 --> 00:08:01,972
+and you can strategize different
+synchronization mechanisms via a common
+
+123
+00:08:01,972 --> 00:08:05,556
+interface.
+So we can use that to keep say ACE Message
+
+124
+00:08:05,556 --> 00:08:10,254
+Queue fixed and then change its
+synchronization properties without
+
+125
+00:08:10,254 --> 00:08:13,668
+changing its, other parts of its
+implementation.
+
+126
+00:08:13,668 --> 00:08:17,895
+Take a look at this URL for more
+information about this particular pattern,
+
+127
+00:08:17,895 --> 00:08:20,989
+which again appears in the[UNKNOWN] two
+book as well.
+
+128
+00:08:20,989 --> 00:08:25,038
+I, here's a way to apply this particular
+pattern to ACE_Message_Queue.
+
+129
+00:08:25,039 --> 00:08:29,049
+We, we follow a couple of steps here.
+The first step is to strategize.
+
+130
+00:08:29,050 --> 00:08:32,856
+The locking mechanism.
+So if you take a look at this particular
+
+131
+00:08:32,856 --> 00:08:37,320
+class which is a snippet from the
+ACE_Message_Queue class, what it does is
+
+132
+00:08:37,320 --> 00:08:40,500
+it makes the synchronization strategy a
+template.
+
+133
+00:08:40,500 --> 00:08:45,330
+And then we can use various traits from
+the template parameter that's passed in,
+
+134
+00:08:45,330 --> 00:08:50,298
+in order to get the appropriate kind of
+synchronization strategy that we want with
+
+135
+00:08:50,298 --> 00:08:54,698
+respect to mutual exclusion.
+As well as various condition operations
+
+136
+00:08:54,698 --> 00:08:59,489
+for the not empty and not full conditions.
+Here's an example of how to define some of
+
+137
+00:08:59,489 --> 00:09:04,218
+the different trait classes we might have.
+You notice here that we have two trait
+
+138
+00:09:04,218 --> 00:09:08,869
+classes that are built in from scratch.
+You're welcome to add more of course,
+
+139
+00:09:08,869 --> 00:09:14,119
+because it's extensible One model is the
+ACE_NULL_SYNCH class and this has nothing
+
+140
+00:09:14,119 --> 00:09:18,844
+but a bunch of no-op traits that do
+nothing they're the Null_Mutex, the
+
+141
+00:09:18,844 --> 00:09:23,114
+Null_Condition, the Null_Semaphore using
+the null object pattern.
+
+142
+00:09:23,114 --> 00:09:27,740
+The ACE_MT_SYNCH, in contrast, that
+particular traits class, has real
+
+143
+00:09:27,740 --> 00:09:31,765
+synchronizers it uses ACE_Thread_Mutex.
+Ace condition.
+
+144
+00:09:31,765 --> 00:09:36,800
+It uses ACE thread semaphore and so on.
+And each of these provides real mechanisms
+
+145
+00:09:36,800 --> 00:09:40,377
+that can be used in a threaded
+environment, in order to work
+
+146
+00:09:40,377 --> 00:09:44,830
+appropriately to lock, and wait, and
+notify when things change, that are
+
+147
+00:09:44,830 --> 00:09:47,980
+important.
+Notice by using trades class is that it
+
+148
+00:09:47,980 --> 00:09:52,672
+doesn't require us to have any common base
+class or even use any virtual methods at
+
+149
+00:09:52,672 --> 00:09:55,062
+all.
+We can simply use the magic of C++'s
+
+150
+00:09:55,062 --> 00:09:59,958
+signature based type conforments and the
+template policy mechanisms in order to
+
+151
+00:09:59,958 --> 00:10:03,928
+parameterize the way in which we use these
+with ACE Message Queue.
+
+152
+00:10:03,928 --> 00:10:08,758
+Speaking of which, let's take a look now
+at how we could use these trait classes to
+
+153
+00:10:08,758 --> 00:10:13,798
+instantiate the appropriate variant of
+ACE_Message_Queue depending on what it is
+
+154
+00:10:13,798 --> 00:10:17,517
+we're trying to do.
+If we don't need synchronization at all,
+
+155
+00:10:17,517 --> 00:10:22,773
+we can simply provide a no-op synchronizer
+like ACE_NULL_SYNCH and that traits class
+
+156
+00:10:22,773 --> 00:10:27,737
+and that means anytime you try to dequeue
+from a queue that's empty It won't block,
+
+157
+00:10:27,737 --> 00:10:31,607
+it'll just fail.
+Conversely, if we apply the ACE MT sync
+
+158
+00:10:31,607 --> 00:10:36,831
+traits class to make a message queue.
+And we define an instance of 1 of those
+
+159
+00:10:36,831 --> 00:10:42,087
+types of, of, synchronized objects.
+Then, when you do a DQ head on empty
+
+160
+00:10:42,087 --> 00:10:45,085
+queue.
+That will block until somebody puts
+
+161
+00:10:45,085 --> 00:10:49,226
+something into the queue to allow it to be
+able to continue.
+
+162
+00:10:49,227 --> 00:10:53,746
+So the nice thing here is the logic
+remains the same, but we're changing the
+
+163
+00:10:53,746 --> 00:10:58,282
+synchronization mechanisms via the
+strategy and the strategized locking
+
+164
+00:10:58,282 --> 00:11:01,118
+pattern.
+I show an example here that's using
+
+165
+00:11:01,118 --> 00:11:05,089
+templates and it's a basically static
+typing and early binding.
+
+166
+00:11:05,089 --> 00:11:09,980
+It's also a common practice to use some
+kind of base class with a common method.
+
+167
+00:11:09,980 --> 00:11:14,064
+With virtual methods in order to be able
+to plug these things in at run time as
+
+168
+00:11:14,064 --> 00:11:16,559
+well.
+The benefits with the template approach
+
+169
+00:11:16,559 --> 00:11:19,601
+there's less overhead.
+The downside it's less flexible.
+
+170
+00:11:19,601 --> 00:11:24,143
+The benefits with the virtual methods and
+inheritence approach is it's more flexible
+
+171
+00:11:24,143 --> 00:11:26,523
+at run time, but there's a bit more
+overhead.
+
+172
+00:11:26,523 --> 00:11:30,683
+Whether that overhead matters for you of
+course is up to your profiling and
+
+173
+00:11:30,683 --> 00:11:34,313
+architects to decide.
+So let's talk about some of the pros and
+
+174
+00:11:34,313 --> 00:11:38,592
+cons of strategized locking.
+The benefits is it enhances flexibility
+
+175
+00:11:38,592 --> 00:11:42,021
+and customization.
+You can change the different locking
+
+176
+00:11:42,021 --> 00:11:46,788
+mechanisms very flexibly without having to
+modify the behavior of your class.
+
+177
+00:11:46,788 --> 00:11:51,758
+That means you have less work to maintain,
+different variants, because they all exist
+
+178
+00:11:51,758 --> 00:11:54,699
+in one place.
+And you just strategize locking You can
+
+179
+00:11:54,699 --> 00:11:58,667
+think of this as a glorified example of
+the strategy pattern applied to the
+
+180
+00:11:58,667 --> 00:12:02,523
+context of synchronization.
+It also, to some extent, can improve reuse
+
+181
+00:12:02,523 --> 00:12:06,615
+because now you can have these reusable
+components that can be strategized for
+
+182
+00:12:06,615 --> 00:12:09,020
+different use cases and different
+contexts.
+
+183
+00:12:09,020 --> 00:12:13,041
+And it's a very simple thing to do.
+Of course there are some downsides.
+
+184
+00:12:13,041 --> 00:12:17,077
+One of the problems is that the locking
+now moves out to the interface of the
+
+185
+00:12:17,077 --> 00:12:19,394
+class.
+And sometimes you want the locking
+
+186
+00:12:19,394 --> 00:12:23,716
+mechanisms to be secret so people, they
+don't, don't even know that they exist
+
+187
+00:12:23,717 --> 00:12:27,714
+unless makes them more overt, more
+obtrusive, even also think of this as
+
+188
+00:12:27,714 --> 00:12:31,393
+being a bit over engineered.
+If you're not careful, people can do it
+
+189
+00:12:31,393 --> 00:12:33,876
+wrong.
+They can put in the wrong kind of locks
+
+190
+00:12:33,876 --> 00:12:37,294
+and things will fail in somewhat subtle
+And pernicious ways.
+
+191
+00:12:37,294 --> 00:12:41,082
+We'll talk about a couple of other
+patterns shortly to help reduce the risk
+
+192
+00:12:41,082 --> 00:12:43,326
+of that occurring.
+But it's always a risk.
+
+193
+00:12:43,326 --> 00:12:47,102
+So that was basically scoped.
+That was basically the strategized locking
+
+194
+00:12:47,102 --> 00:12:49,745
+pattern and applying it to the ACE Message
+Queue.
+
+195
+00:12:49,745 --> 00:12:55,816
+Let's now talk about another dimension of
+synchronization that corresponds to what
+
+196
+00:12:55,816 --> 00:13:00,068
+we just described.
+This is ensuring that locks are released
+
+197
+00:13:00,068 --> 00:13:04,022
+properly.
+If you start writing single-threaded code,
+
+198
+00:13:04,022 --> 00:13:06,313
+then.
+Releasing locks is a, a non issue.
+
+199
+00:13:06,313 --> 00:13:09,097
+When you begin to write multi threaded
+code, of course.
+
+200
+00:13:09,097 --> 00:13:12,634
+Releasing locks is a big deal.
+And if you don't release locks properly,
+
+201
+00:13:12,634 --> 00:13:16,809
+you could end up with dead lock, or other
+kinds of inefficiencies in your solution.
+
+202
+00:13:16,809 --> 00:13:20,591
+This is a particularly tricky thing when
+we start trying to apply things like
+
+203
+00:13:20,591 --> 00:13:24,721
+strategized locking, where it's not always
+clear whether we're locking things for
+
+204
+00:13:24,721 --> 00:13:27,025
+real or not.
+'Because we might have null locks.
+
+205
+00:13:27,026 --> 00:13:30,254
+Or recursive locks or nonrecursive locks
+and so on.
+
+206
+00:13:30,254 --> 00:13:34,859
+But in any case, we have to write the code
+that acquires a lock on the entry to a
+
+207
+00:13:34,859 --> 00:13:37,802
+critical section and releases it on the
+way out.
+
+208
+00:13:37,802 --> 00:13:42,560
+And if we're not careful and we write the
+code like it's shown on this slide, some
+
+209
+00:13:42,560 --> 00:13:46,828
+bad things can happen.
+In particular, if something goes A miss in
+
+210
+00:13:46,828 --> 00:13:52,093
+the implementation of this method, this
+method is the DQ head method, then, we
+
+211
+00:13:52,093 --> 00:13:57,043
+might not actually release the lock on all
+exit paths out of this method.
+
+212
+00:13:57,043 --> 00:14:02,444
+For example, if it does a return, that
+lock might not be released, if it does, if
+
+213
+00:14:02,444 --> 00:14:07,746
+an exception is thrown, the lock might not
+be released and so on and so forth.
+
+214
+00:14:07,746 --> 00:14:12,963
+If a goto or a break statement is called,
+for example The lock may not be released.
+
+215
+00:14:12,963 --> 00:14:16,536
+So how can we ensure that these locks are
+always released properly?
+
+216
+00:14:16,536 --> 00:14:19,479
+Well, we're going to apply the Scoped
+Locking pattern.
+
+217
+00:14:19,479 --> 00:14:23,580
+And this pattern will make it possible to
+use some features of object oriented
+
+218
+00:14:23,580 --> 00:14:27,990
+languages, where constructors acquire
+resources, and destructors release them,
+
+219
+00:14:27,990 --> 00:14:32,463
+to ensure that the scope over which things
+are applied, will always properly acquire
+
+220
+00:14:32,463 --> 00:14:36,667
+and release the locks Automatically.
+You can take again, take a look at this
+
+221
+00:14:36,667 --> 00:14:39,981
+particular paper for more information
+about this pattern.
+
+222
+00:14:39,981 --> 00:14:44,147
+So let's talk about how we might apply
+scope blocking to the ACE Message Queue
+
+223
+00:14:44,147 --> 00:14:47,132
+implementation.
+What we're going to do is we're going to
+
+224
+00:14:47,132 --> 00:14:50,601
+define a guard class.
+This particular one happens to be part of
+
+225
+00:14:50,601 --> 00:14:53,786
+ACE, but you could do the same thing if
+you didn't use ACE.
+
+226
+00:14:53,786 --> 00:14:58,967
+And this guard class, which is a template
+class, Follows a very simple protocol.
+
+227
+00:14:58,967 --> 00:15:04,957
+It's coructor is going to acquire a lock
+that corresponds to the parameter that's
+
+228
+00:15:04,957 --> 00:15:09,734
+passed into the template.
+And its destructor is going to release
+
+229
+00:15:09,734 --> 00:15:13,152
+that lock.
+So when we come in, the constructor
+
+230
+00:15:13,152 --> 00:15:17,233
+acquires a lock.
+And the destructor releases the lock.
+
+231
+00:15:17,233 --> 00:15:22,651
+Thereby insuring that we always are going
+to release the lock, whether or not we
+
+232
+00:15:22,651 --> 00:15:28,145
+have an exception or a return or a goto or
+anything else that will allow that scope
+
+233
+00:15:28,145 --> 00:15:31,376
+to be exited.
+The ACE guard that we show here as a
+
+234
+00:15:31,376 --> 00:15:36,317
+helper class also illustrates another
+reason why wrapper facades are so
+
+235
+00:15:36,317 --> 00:15:39,770
+powerful.
+Notice that we're using the wrapper Facade
+
+236
+00:15:39,770 --> 00:15:44,728
+mechanisms for ACE Thread Mutex, ACE
+Semaphore, ACE Reader/Writer locks and so
+
+237
+00:15:44,728 --> 00:15:47,474
+on.
+And all of those have the same interface.
+
+238
+00:15:47,474 --> 00:15:52,173
+They all have acquire and release methods.
+And so, all we have to be able to do to
+
+239
+00:15:52,173 --> 00:15:55,102
+use all these different mechanisms is
+create.
+
+240
+00:15:55,102 --> 00:15:58,321
+A parameterized guard class.
+Which is a helper class.
+
+241
+00:15:58,321 --> 00:16:00,928
+That implements the scoped locking
+pattern.
+
+242
+00:16:00,928 --> 00:16:05,399
+And then we can parameterize it with a
+particular type of the wrapper facade.
+
+243
+00:16:05,399 --> 00:16:10,329
+If you were just using functions, it would
+be much more complicated to work this way.
+
+244
+00:16:10,329 --> 00:16:14,544
+So once again wrapper facades provide
+building blocks for more powerful
+
+245
+00:16:14,544 --> 00:16:18,316
+Composition and capabilities with
+object-oriented designs.
+
+246
+00:16:18,316 --> 00:16:22,662
+The next thing we do is we let the
+critical sections correspond to the scope
+
+247
+00:16:22,662 --> 00:16:27,297
+and lifetime of these guard objects.
+Here's an illustration using the DQ head
+
+248
+00:16:27,297 --> 00:16:30,386
+method that we had in the message queue
+from before.
+
+249
+00:16:30,386 --> 00:16:34,633
+Now what we do when we come in is we use
+the scope locking pattern in order to be
+
+250
+00:16:34,633 --> 00:16:38,024
+able to automatically acquire the lock in
+its constructor.
+
+251
+00:16:38,024 --> 00:16:42,584
+And then no-matter how we leave the scope,
+short of crashing the program, that lock
+
+252
+00:16:42,584 --> 00:16:47,006
+is going to automatically be released,
+which is much more powerful and much more
+
+253
+00:16:47,006 --> 00:16:50,055
+fool proof.
+You're not going to make as many mistakes
+
+254
+00:16:50,055 --> 00:16:54,658
+because it automatically cleans things up.
+You can allocate instances of the ace
+
+255
+00:16:54,658 --> 00:16:58,552
+guard on the stack so they're very
+lightweight, they don't require any
+
+256
+00:16:58,552 --> 00:17:02,842
+dynamic memory allocation and they just
+grab the lock on entry and release the
+
+257
+00:17:02,842 --> 00:17:06,495
+lock on exit to a scope.
+There's a number of benefits of course to
+
+258
+00:17:06,495 --> 00:17:10,446
+using this particular pattern.
+It makes things more robust because.
+
+259
+00:17:10,447 --> 00:17:15,888
+You can eliminate this common source of
+overheads where you have the mistake of
+
+260
+00:17:15,888 --> 00:17:21,234
+forgetting to release the locks or, or
+jumping out of this scope too quickly and
+
+261
+00:17:21,234 --> 00:17:25,259
+having problems.
+This of course is really an embodiment of
+
+262
+00:17:25,259 --> 00:17:30,481
+a broader C++ idiom called resource
+acquisition is initialization or RAII.
+
+263
+00:17:30,481 --> 00:17:34,473
+And you can read more about RAII.
+Here at the Wikipedia site.
+
+264
+00:17:34,473 --> 00:17:38,254
+There are some limitations with this,
+using this particular pattern.
+
+265
+00:17:38,254 --> 00:17:41,965
+One of the problems is that you can end up
+with dead lock if you use this
+
+266
+00:17:41,965 --> 00:17:44,951
+recursively.
+We'll talk a bit more about how to get
+
+267
+00:17:44,951 --> 00:17:49,436
+around this particular problem, but if you
+have self recursive calls you can end up
+
+268
+00:17:49,436 --> 00:17:53,271
+with dead lock on a recursive, on a
+non-recursive mutex which could be a
+
+269
+00:17:53,271 --> 00:17:56,082
+problem.
+And there's also some language semantics
+
+270
+00:17:56,082 --> 00:17:57,424
+issues.
+We're using.
+
+271
+00:17:57,425 --> 00:18:00,193
+C plus, plus programming language
+features.
+
+272
+00:18:00,193 --> 00:18:04,951
+And while that will work for certain
+things, it doesn't know about low level
+
+273
+00:18:04,951 --> 00:18:09,487
+features that are available in the
+operating system to do, to do things like
+
+274
+00:18:09,487 --> 00:18:13,906
+exit threads by thread exit calls.
+Or do long jumps using set jump and long
+
+275
+00:18:13,906 --> 00:18:17,452
+jump mechanisms.
+So, if you're not careful you could still
+
+276
+00:18:17,452 --> 00:18:21,013
+find some way to subvert.
+The ability to release the locks
+
+277
+00:18:21,013 --> 00:18:24,396
+automatically.
+But at least this gives you a fighting
+
+278
+00:18:24,396 --> 00:18:28,071
+chance for the common case.
+The next, and last, part of this
+
+279
+00:18:28,071 --> 00:18:32,437
+particular part of the module will
+describe one of the consequences of
+
+280
+00:18:32,437 --> 00:18:37,904
+apllying the strategized locking pattern.
+If you think about strategized locking, it
+
+281
+00:18:37,904 --> 00:18:41,133
+was encouraging you to make the locking
+mechanism.
+
+282
+00:18:41,133 --> 00:18:45,493
+A policy or a strategy that you can
+parameterize with your components.
+
+283
+00:18:45,493 --> 00:18:49,891
+So for example, now we have an ACE Message
+Queue or we can parameterize the
+
+284
+00:18:49,891 --> 00:18:53,054
+particular type of locking mechanisms that
+we use.
+
+285
+00:18:53,054 --> 00:18:56,521
+The strategy for that.
+The tricky part here is if you have
+
+286
+00:18:56,521 --> 00:19:00,974
+Obstructions, classes like
+ACE_Message_Queue that have intra-object
+
+287
+00:19:00,974 --> 00:19:04,097
+method calls.
+You have to watch out for two things.
+
+288
+00:19:04,097 --> 00:19:08,927
+The first thing you need to watch out for
+is not incurring unnecessary sources of
+
+289
+00:19:08,927 --> 00:19:13,967
+locking that aren't strictly necessary or
+needed and the second problem you have to
+
+290
+00:19:13,967 --> 00:19:16,839
+watch out for is ending up with
+self-deadlock.
+
+291
+00:19:16,839 --> 00:19:19,819
+So let's take a look and see how this
+might arise.
+
+292
+00:19:19,819 --> 00:19:25,469
+So here we have an example where we've got
+the dequeue head method and depending on
+
+293
+00:19:25,469 --> 00:19:31,196
+the type O lock that's strategized into
+the ACE Message Queue, you're either going
+
+294
+00:19:31,196 --> 00:19:35,958
+to have extra overhead in this example or
+you'll have self deadlock.
+
+295
+00:19:35,958 --> 00:19:39,475
+Why is this?
+Well, the reason this is the case is
+
+296
+00:19:39,475 --> 00:19:43,425
+because the dq head method in this
+implementation.
+
+297
+00:19:43,425 --> 00:19:48,294
+First acquires the lock using the guard
+and then it calls is empty to check to see
+
+298
+00:19:48,294 --> 00:19:52,254
+whether or not the queue is empty or
+not.Is empty as you can see is an
+
+299
+00:19:52,254 --> 00:19:56,934
+interface method that also acquires the
+lock and then it goes to check to see if
+
+300
+00:19:56,934 --> 00:20:01,748
+there's any bytes in the, in the queue.
+What the problem there is if we give this
+
+301
+00:20:01,748 --> 00:20:06,104
+thing a nonrecursive mutex.
+It will self-deadlock and even if we give
+
+302
+00:20:06,104 --> 00:20:11,068
+it a recursive mutex, we'll still have an
+extra level of locking that really isn't
+
+303
+00:20:11,068 --> 00:20:14,344
+strictly necessary, which increases the
+overhead.
+
+304
+00:20:14,344 --> 00:20:17,085
+So how can we avoid this particular
+problem?
+
+305
+00:20:17,085 --> 00:20:21,826
+Well, we'll apply another pattern.
+This is called the Thread-safe Interface
+
+306
+00:20:21,826 --> 00:20:24,950
+pattern.
+And this pattern is used to minimize
+
+307
+00:20:24,950 --> 00:20:30,494
+Unnecessary locking, and ensure that
+intra-component or object method calls
+
+308
+00:20:30,494 --> 00:20:36,271
+don't end up incurring self-deadlock.
+So let's talk a little bit about how this
+
+309
+00:20:36,271 --> 00:20:40,152
+pattern works.
+What it does is it splits the world up
+
+310
+00:20:40,152 --> 00:20:44,260
+into 2 parts.
+It has interface methods that check and do
+
+311
+00:20:44,260 --> 00:20:48,369
+very little work.
+And it has Implementation methods that
+
+312
+00:20:48,369 --> 00:20:52,474
+trust and do work.
+And Implementation methods only call other
+
+313
+00:20:52,474 --> 00:20:56,846
+Implementation methods.
+By organizing things this way we can have
+
+314
+00:20:56,846 --> 00:21:01,994
+the interface methods acquire the locks,
+and then call down to Implementation
+
+315
+00:21:01,994 --> 00:21:06,232
+methods to do the actual heavy lifting,
+and do the actual logic.
+
+316
+00:21:06,232 --> 00:21:10,326
+Those implementation methods assume Trust
+the locks are held.
+
+317
+00:21:10,326 --> 00:21:14,781
+They do the work and they only ever call
+other implementation methods.
+
+318
+00:21:14,781 --> 00:21:19,803
+This pattern also appears in POSA2 and you
+can read more about it at the URL at the
+
+319
+00:21:19,803 --> 00:21:24,574
+bottom of this particular slide.
+Let's see how we can refactor our code to
+
+320
+00:21:24,574 --> 00:21:28,207
+apply thread-safe interface To
+ACE_Message_Queue.
+
+321
+00:21:28,207 --> 00:21:33,181
+What we can do in this case is we can
+split things up a little bit.
+
+322
+00:21:33,181 --> 00:21:39,352
+Instead of having the dequeue_head method
+call is_empty, which is an interface
+
+323
+00:21:39,352 --> 00:21:44,860
+method, instead, it acquires the lock and
+then it calls down to the is_empty_i
+
+324
+00:21:44,860 --> 00:21:49,151
+method, is_empty_i is the implementation
+method.
+
+325
+00:21:49,151 --> 00:21:52,105
+As you can see Is empty I, is a private
+method.
+
+326
+00:21:52,105 --> 00:21:55,182
+It's not public.
+It trusts that it aws called in a context
+
+327
+00:21:55,182 --> 00:21:58,680
+that the lock was properly held.
+And it actually does some work.
+
+328
+00:21:58,680 --> 00:22:02,881
+In this particular case, it just checks to
+see if there's some counts or zero.
+
+329
+00:22:02,881 --> 00:22:06,617
+And doesn't do any other work.
+But if it was actually doing some other
+
+330
+00:22:06,617 --> 00:22:09,310
+work.
+It would only be able to call other
+
+331
+00:22:09,310 --> 00:22:13,473
+implementation methods, not call out to
+the interface methods.
+
+332
+00:22:13,473 --> 00:22:18,723
+This pattern, as you can see, allows a
+broader range of syncronization strategies
+
+333
+00:22:18,723 --> 00:22:23,891
+to be used without running afoul of those
+issues of self-deadlock and additional
+
+334
+00:22:23,891 --> 00:22:27,103
+overhead.
+So to talk about some of the benefits and
+
+335
+00:22:27,103 --> 00:22:31,554
+limitations of this pattern.
+The key benefit, of course, is increased
+
+336
+00:22:31,554 --> 00:22:34,528
+robustness.
+We can avoid having to worry about this
+
+337
+00:22:34,528 --> 00:22:38,079
+self deadlock issue.
+We avoid extra calls that are going to be
+
+338
+00:22:38,079 --> 00:22:40,845
+unnecessary, and, and cause additional
+locks.
+
+339
+00:22:40,845 --> 00:22:44,194
+Even if it's going to work with the use of
+recursive locks.
+
+340
+00:22:44,194 --> 00:22:47,212
+We may be able to enhance performance by
+doing that.
+
+341
+00:22:47,212 --> 00:22:51,412
+And we can simplify the software by
+decoupling out the locking logic from the
+
+342
+00:22:51,412 --> 00:22:54,535
+business logic.
+And that may have some other benefits as
+
+343
+00:22:54,535 --> 00:22:58,711
+well, by being able to think more clearly
+about what your business logic is.
+
+344
+00:22:58,711 --> 00:23:01,347
+Naturally there's some downsides, as
+always.
+
+345
+00:23:01,347 --> 00:23:05,151
+There's additional indirection and there's
+lots of extra methods.
+
+346
+00:23:05,151 --> 00:23:09,445
+For every interface method that matters
+you may also have a corresponding set of
+
+347
+00:23:09,445 --> 00:23:13,574
+implementation methods.
+So that means your, your interface, your
+
+348
+00:23:13,574 --> 00:23:19,034
+Surface area of your class will go up even
+though the public interface may remain the
+
+349
+00:23:19,034 --> 00:23:22,148
+same.
+There's also of course the potential for
+
+350
+00:23:22,148 --> 00:23:25,385
+misuse.
+In some ob, object oriented languages like
+
+351
+00:23:25,385 --> 00:23:30,787
+C++ and Java, they have class level access
+control as opposed to object level access
+
+352
+00:23:30,787 --> 00:23:33,469
+control.
+So it's potentially possible to peek
+
+353
+00:23:33,469 --> 00:23:37,449
+around and access things you're not
+supposed to in those environments.
+
+354
+00:23:37,449 --> 00:23:42,011
+So you have to be careful how you use this
+pattern, you have to check and ensure that
+
+355
+00:23:42,011 --> 00:23:46,257
+people are not violating the rules in any
+malicious or accidental way.
+
+356
+00:23:46,258 --> 00:23:51,080
+So this particular set of patterns has
+helped to explain ways in which we can
+
+357
+00:23:51,080 --> 00:23:56,248
+take what ACE Message Queue provides us,
+with respect to a queuing mechanism, and
+
+358
+00:23:56,248 --> 00:24:00,841
+then use the monitor object in conjunction
+with strategized locking.
+
+359
+00:24:00,841 --> 00:24:06,490
+Scope locking and threads save interface
+to make the ACE Message Queue much more
+
+360
+00:24:06,490 --> 00:24:12,430
+reusable, much more flexible, much more
+configurable for a wide range of contexts.
+
+361
+00:24:12,430 --> 00:24:17,908
+In which we're likely to use it, including
+of course for Half-Sync/Half-Async
+
+362
+00:24:17,908 --> 00:24:21,585
+implementation that we use for the JAWS
+Web Server.

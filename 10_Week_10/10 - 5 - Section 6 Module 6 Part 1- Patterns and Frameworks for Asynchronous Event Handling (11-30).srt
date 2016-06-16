@@ -1,0 +1,829 @@
+1
+00:00:00,012 --> 00:00:07,747
+Welcome to Part One in the module on
+Patterns and Frameworks for Asynchronous
+
+2
+00:00:07,747 --> 00:00:13,311
+Event Handling.
+In this first part of the module we're
+
+3
+00:00:13,311 --> 00:00:19,560
+going to discuss the proacter pattern.
+If you think about what we've been
+
+4
+00:00:19,560 --> 00:00:24,804
+describing in the various modules we've
+covered to this point, the composition of
+
+5
+00:00:24,804 --> 00:00:30,124
+what we've focused on has largely been on
+either synchronous event handling, using
+
+6
+00:00:30,124 --> 00:00:35,272
+various variants of the reactor pattern.
+As well as synchronous multithreading.
+
+7
+00:00:35,272 --> 00:00:38,886
+Using patterns like active object, or half
+sync, half a sync.
+
+8
+00:00:38,886 --> 00:00:42,628
+The half a sync part we looked at also
+used the reactor patterns.
+
+9
+00:00:42,628 --> 00:00:45,733
+So that also used synchronous event to
+multiplexing.
+
+10
+00:00:45,733 --> 00:00:49,396
+These approaches work pretty well.
+But it turns out that in some
+
+11
+00:00:49,396 --> 00:00:54,614
+environments, in some operating systems.
+Synchronous event handling and synchronous
+
+12
+00:00:54,614 --> 00:00:59,375
+multithreading are not the most efficient
+or scalable way to take advantage of the
+
+13
+00:00:59,375 --> 00:01:03,597
+operating system resources.
+In those type environments, they support
+
+14
+00:01:03,597 --> 00:01:07,867
+some from of asynchronous I/O, which can
+be used more effectively in some
+
+15
+00:01:07,867 --> 00:01:11,082
+conditions.
+For example, on the Windows platform, they
+
+16
+00:01:11,082 --> 00:01:15,632
+support something called I/O completion
+ports and overlapped I/O which allows you
+
+17
+00:01:15,632 --> 00:01:19,727
+to invoke a number of asynchronous
+operations such as asynchronous accept
+
+18
+00:01:19,727 --> 00:01:23,364
+calls or asynchronous reads or
+asynchronous write operations.
+
+19
+00:01:23,364 --> 00:01:27,790
+And when these operation's complete, the
+results of the operations are stored in
+
+20
+00:01:27,790 --> 00:01:32,706
+something called an I/O completion port.
+Which is essentially a queue managed by
+
+21
+00:01:32,706 --> 00:01:36,751
+the operating system kernel.
+And 1 or more threads of control can wait
+
+22
+00:01:36,751 --> 00:01:41,443
+to pull the completion events out of that
+port, and then handle the despatching of
+
+23
+00:01:41,443 --> 00:01:45,649
+those clea, completion events.
+To do whatever they require in order to
+
+24
+00:01:45,649 --> 00:01:49,996
+take care of the operation that's
+finished, based on the success or failure
+
+25
+00:01:49,996 --> 00:01:52,943
+or contents of the results.
+That were passed back.
+
+26
+00:01:52,943 --> 00:01:57,233
+While these approaches tend to be very
+scaleable, there's a number of challenges
+
+27
+00:01:57,233 --> 00:02:00,459
+when trying to program them.
+When you start trying to program
+
+28
+00:02:00,459 --> 00:02:04,489
+Asynchronous I/O, there's a number of
+complexities that arise because of the
+
+29
+00:02:04,489 --> 00:02:08,023
+separation in time and space where
+operations are invoked and where
+
+30
+00:02:08,023 --> 00:02:11,380
+completions occur.
+So how can we address this particular set
+
+31
+00:02:11,380 --> 00:02:14,648
+of challenges?
+We're going to apply the Proactor pattern.
+
+32
+00:02:14,649 --> 00:02:19,750
+In order to be able to more effectively
+and efficiently handle asynchronous I/O on
+
+33
+00:02:19,750 --> 00:02:24,241
+operating system platforms that have good
+support for this capability.
+
+34
+00:02:24,241 --> 00:02:29,011
+The proactor pattern can be used to allow
+asynchronous I/O operations to run.
+
+35
+00:02:29,011 --> 00:02:33,987
+Providing scalability without incurring
+some of the complications and accidental
+
+36
+00:02:33,987 --> 00:02:38,257
+complexities of programming with
+multi-threads and synchronous event
+
+37
+00:02:38,257 --> 00:02:40,764
+Handling.
+Let's talk a bit about this pattern.
+
+38
+00:02:40,764 --> 00:02:44,550
+This pattern is somewhat complicated.
+There's a number of pieces in it, and you
+
+39
+00:02:44,550 --> 00:02:47,914
+have to understand them in order to make
+sense of how the various parts
+
+40
+00:02:47,914 --> 00:02:50,602
+interrelate.
+The initial portion of the pattern starts
+
+41
+00:02:50,602 --> 00:02:54,394
+with something called an initiator.
+An initiator might be the main program, it
+
+42
+00:02:54,394 --> 00:02:58,400
+might be another thread of control.
+And its job is to invoke asynchronous
+
+43
+00:02:58,400 --> 00:03:01,539
+operations.
+It invokes these asynchronous operations
+
+44
+00:03:01,539 --> 00:03:05,819
+on an asynchronous operation processor.
+Typically, an operating system.
+
+45
+00:03:05,819 --> 00:03:09,965
+But it could be some kind of a proxy or
+facade that was im-, implemented to
+
+46
+00:03:09,965 --> 00:03:12,807
+emulate asynchronous IO in an operating
+system.
+
+47
+00:03:12,807 --> 00:03:17,602
+When you invoke an asynchronous operation.
+You do it on a handle, such as a socket
+
+48
+00:03:17,602 --> 00:03:20,930
+handle or a file handle.
+And you also pass along with that
+
+49
+00:03:20,930 --> 00:03:25,257
+operation some type of completion handler,
+which is typically a pointer.
+
+50
+00:03:25,257 --> 00:03:30,024
+And all this information is then bundled
+together, given to the operating system,
+
+51
+00:03:30,024 --> 00:03:35,341
+and it goes ahead and runs the operations.
+When those operations finish, then they
+
+52
+00:03:35,341 --> 00:03:40,819
+are placed by the operating system into An
+I/O completion report or some kind of
+
+53
+00:03:40,819 --> 00:03:46,048
+completion event que and then we use a
+proactor to demultiplex a completion
+
+54
+00:03:46,048 --> 00:03:51,443
+results and turn them back into calls on
+concrete completion handlers that do
+
+55
+00:03:51,443 --> 00:03:57,087
+whatever work is necessary to clean up
+perhaps reinitiate perhaps asynchronous
+
+56
+00:03:57,087 --> 00:04:02,565
+operations perhaps transmit files Do other
+kinds of operations and so on and so
+
+57
+00:04:02,565 --> 00:04:04,935
+forth.
+If you take a look at the URL at the
+
+58
+00:04:04,935 --> 00:04:09,420
+bottom of this slide you'll find out more
+about the proactor pattern, which also of
+
+59
+00:04:09,420 --> 00:04:13,817
+course appears in the posted tool book.
+Let's talk a bit about the dynamics of the
+
+60
+00:04:13,817 --> 00:04:17,407
+interactions here.
+The dynamics typically work as follows.
+
+61
+00:04:17,407 --> 00:04:21,394
+You start out by initiating some number of
+asynchronous operations.
+
+62
+00:04:21,394 --> 00:04:25,114
+Typically asynchronous accepts or perhaps
+asynchronous reads.
+
+63
+00:04:25,114 --> 00:04:28,895
+You then turn the flow of control over to
+the proactor framework.
+
+64
+00:04:28,895 --> 00:04:31,912
+Which is actually driven by inversion of
+control.
+
+65
+00:04:31,912 --> 00:04:36,850
+Clients will then go ahead and initiate
+various kinds of requests to your server,
+
+66
+00:04:36,850 --> 00:04:41,297
+to your service, or your application.
+And as that happens, the proactor is
+
+67
+00:04:41,297 --> 00:04:45,777
+responsible for handling the completion of
+these asynchronous operations
+
+68
+00:04:45,777 --> 00:04:49,813
+corresponding to the client request.
+And then doing the various.
+
+69
+00:04:49,813 --> 00:04:54,485
+Dispatching and demultiplexing to the
+completion handlers to get the work done.
+
+70
+00:04:54,485 --> 00:04:59,115
+There's a number of similarities and
+differences between reactor and proactor,
+
+71
+00:04:59,115 --> 00:05:02,821
+there both driven by call-backs, so in
+that way they're the same.
+
+72
+00:05:02,821 --> 00:05:07,111
+The primary differences, is that the
+reactor works on so called initiation
+
+73
+00:05:07,111 --> 00:05:09,992
+events.
+These are events where you ask the reactor
+
+74
+00:05:09,992 --> 00:05:12,676
+framework Is it okay to read without
+blocking?
+
+75
+00:05:12,676 --> 00:05:16,785
+Is it okay to accept without blocking?
+And if it turns out that it's okay to read
+
+76
+00:05:16,785 --> 00:05:21,069
+or accept or connect or whatever operation
+you're doing, then you can go ahead and
+
+77
+00:05:21,069 --> 00:05:24,724
+initiate that operation.
+So these are essentially initiation events
+
+78
+00:05:24,724 --> 00:05:27,789
+with the reactor.
+In contrast, with the proactor pattern,
+
+79
+00:05:27,789 --> 00:05:30,478
+what you're dealing with are completion
+events.
+
+80
+00:05:30,478 --> 00:05:35,582
+Some has told the, the proactor start this
+operation, run this command, invoke this
+
+81
+00:05:35,582 --> 00:05:40,339
+operation to read or write or accept and
+when that operation is done the proactor
+
+82
+00:05:40,339 --> 00:05:43,716
+calls you back and says here you go.
+Here are the results.
+
+83
+00:05:43,716 --> 00:05:48,132
+So it's really a difference between
+initiation and completion events that
+
+84
+00:05:48,132 --> 00:05:52,495
+differentiate the These patterns.
+Let's talk about how we could apply the
+
+85
+00:05:52,495 --> 00:05:56,441
+proactor pattern to our JAWS web server.
+And we'll look at some other
+
+86
+00:05:56,441 --> 00:06:01,269
+implementations after we talked about the
+proactor framework in other parts of this
+
+87
+00:06:01,269 --> 00:06:04,265
+module.
+This particular example starts as follows.
+
+88
+00:06:04,265 --> 00:06:08,970
+We will have the main application.
+Create some kind of HTTP acceptor which
+
+89
+00:06:08,970 --> 00:06:13,834
+uses asynchronous I/O to invoke
+asynchronous accept calls on the operating
+
+90
+00:06:13,834 --> 00:06:18,858
+system and you would typically invoke a
+number of these, maybe, say five or so.
+
+91
+00:06:18,858 --> 00:06:23,397
+Those operations then go and wait for
+someone to connect to the server.
+
+92
+00:06:23,397 --> 00:06:28,443
+When a client comes along and connects
+That will cause a completion event to
+
+93
+00:06:28,443 --> 00:06:31,713
+occur.
+The operating system, the device driver
+
+94
+00:06:31,713 --> 00:06:37,302
+will work together in order to handle the
+accept operation and then it will return a
+
+95
+00:06:37,302 --> 00:06:41,963
+completion event that says accept complete
+back the HTTP acceptor.
+
+96
+00:06:41,963 --> 00:06:46,483
+The HTTP acceptor Then turns around and
+creates an HTTP handler.
+
+97
+00:06:46,483 --> 00:06:52,065
+And this http handler then initiates an
+asynchronous read operation and returns
+
+98
+00:06:52,065 --> 00:06:57,633
+control back to the proactor event loop.
+Later, when the client sends over a get
+
+99
+00:06:57,633 --> 00:07:03,093
+request, that get request shows up as a
+completion event for the read call that
+
+100
+00:07:03,093 --> 00:07:08,860
+was invoked earlier by the http handler.
+The proactor will dispatch that event back
+
+101
+00:07:08,860 --> 00:07:13,678
+to the handler, that handler will then
+look inside the event and figure out what
+
+102
+00:07:13,678 --> 00:07:18,569
+the URI is that's being requested by the
+client and perhaps memory map that file,
+
+103
+00:07:18,569 --> 00:07:23,460
+and then intiate and asynchronous write
+operation to write the event back to the
+
+104
+00:07:23,460 --> 00:07:26,687
+client.
+When that write operation completes, when
+
+105
+00:07:26,687 --> 00:07:31,480
+the file is entirely set Then, yet another
+completion event would be generated.
+
+106
+00:07:31,480 --> 00:07:34,694
+And that will cause the HTTP handler to
+shut itself down.
+
+107
+00:07:34,694 --> 00:07:39,323
+Some things to note anbout this particular
+pattern , is that almost all operations
+
+108
+00:07:39,323 --> 00:07:43,306
+are driven by a-synchro-SAO.
+Which run in the operating system kernel
+
+109
+00:07:43,306 --> 00:07:46,001
+context.
+And only for brief periods of time, are
+
+110
+00:07:46,001 --> 00:07:49,137
+call-backs invoked to the application or
+the service.
+
+111
+00:07:49,137 --> 00:07:51,680
+In order to do whatever works is
+necessary.
+
+112
+00:07:51,680 --> 00:07:54,461
+To re-initiate yet another asynchronous
+operation.
+
+113
+00:07:54,461 --> 00:07:58,667
+So the application code actually has very
+little to do and typically doesn't block,
+
+114
+00:07:58,667 --> 00:08:02,687
+it initiates asynchronous operations to
+complete the various states that it's
+
+115
+00:08:02,687 --> 00:08:05,920
+transitioning to when carrying out the
+processing requests.
+
+116
+00:08:05,920 --> 00:08:09,476
+Let's talk a bit about the benefits and
+limitations to this pattern.
+
+117
+00:08:09,477 --> 00:08:14,076
+Much like the reactor pattern, one of the
+benefits of this proactor approach is the
+
+118
+00:08:14,076 --> 00:08:18,284
+ability to separate concerns.
+We can cleanly differentiate between these
+
+119
+00:08:18,284 --> 00:08:22,970
+different roles the initiation of events,
+the completion of events, the accepting,
+
+120
+00:08:22,970 --> 00:08:25,872
+the connecting, the reading, the writing
+and so on.
+
+121
+00:08:25,872 --> 00:08:28,831
+Part of the other benefit that we get is
+portability.
+
+122
+00:08:28,831 --> 00:08:33,457
+It's possible to port implementations of
+the proactive pattern to a wide variety of
+
+123
+00:08:33,457 --> 00:08:37,549
+different operating systems which have
+radically different support for
+
+124
+00:08:37,549 --> 00:08:41,761
+asynchronous IO under the hood.
+Another benefit is we're able to decouple
+
+125
+00:08:41,761 --> 00:08:46,261
+concurrency from the use of threading.
+Because operating systems that support
+
+126
+00:08:46,261 --> 00:08:50,683
+asynchronous IO often have a very high
+performance support within the OS kernel
+
+127
+00:08:50,683 --> 00:08:54,616
+and the device driver frameworks.
+You can typically get very good
+
+128
+00:08:54,616 --> 00:08:57,939
+performance without having to rely on
+using a lot of threads.
+
+129
+00:08:57,939 --> 00:09:02,070
+You may only need one thread of control.
+Or just a handful of threads to handle
+
+130
+00:09:02,070 --> 00:09:05,989
+different completions and then kick off
+new asynchronious operations.
+
+131
+00:09:05,989 --> 00:09:09,343
+So you can get concurrency without
+incurring the complexity and
+
+132
+00:09:09,343 --> 00:09:13,745
+synchronization overhead and so on, of
+multi-threading Likewise, there's another
+
+133
+00:09:13,745 --> 00:09:18,021
+performace benefit that comes by being
+able to avoid a lot of context switching.
+
+134
+00:09:18,021 --> 00:09:22,098
+Ypu trypically don't have seperate threads
+that are sitting there blocking on I/O
+
+135
+00:09:22,098 --> 00:09:24,362
+operations.
+You simply have things kick off
+
+136
+00:09:24,362 --> 00:09:28,442
+asyncrhonous operations and maybe the
+proactor thread waits for the completion
+
+137
+00:09:28,442 --> 00:09:31,546
+events to come back to it to do the next
+phase in the transfer.
+
+138
+00:09:31,546 --> 00:09:36,062
+And yet another benefit you can greatly
+simplify the application synchronization
+
+139
+00:09:36,062 --> 00:09:38,643
+logic.
+Often times applications don't need any
+
+140
+00:09:38,643 --> 00:09:43,187
+synchronization because there's only one
+thread of control and everything's being
+
+141
+00:09:43,187 --> 00:09:47,603
+driven by Asynchronous I/O running largely
+in the context of the operating system
+
+142
+00:09:47,603 --> 00:09:49,919
+kernel.
+Naturally of course there's some
+
+143
+00:09:49,919 --> 00:09:54,060
+limitations with this pattern.
+First and foremost, if you don't have an
+
+144
+00:09:54,060 --> 00:09:58,812
+operating system that supports asynchronus
+I O natively, or if you have and operating
+
+145
+00:09:58,812 --> 00:10:03,168
+system that supports asynchronus I O
+inefficently, or in a buggy fashion, then
+
+146
+00:10:03,168 --> 00:10:07,603
+you're going to have a hard time really
+being able to leverage this pattern.
+
+147
+00:10:07,603 --> 00:10:12,398
+Another problem that arises here is a
+typical problem that occurs whenever you
+
+148
+00:10:12,398 --> 00:10:17,155
+have concurrency, asynchrony, separation
+in time and space of invocations and
+
+149
+00:10:17,155 --> 00:10:21,486
+completions and so on, and that's
+additional complexity with respect to
+
+150
+00:10:21,486 --> 00:10:26,551
+testing, debugging, validation and so on.
+Clearly, knowledge of the pattern can help
+
+151
+00:10:26,551 --> 00:10:30,829
+you understand these roles and
+relationships and interactions much more
+
+152
+00:10:30,829 --> 00:10:33,967
+effectively.
+And the last limitation with this pattern
+
+153
+00:10:33,967 --> 00:10:37,747
+is that you don't often have a lot of
+control over the order in which these
+
+154
+00:10:37,747 --> 00:10:41,282
+asynchronous events execute.
+If the asynchronous events need to
+
+155
+00:10:41,282 --> 00:10:45,509
+complete in a certain order to carry out
+some, some kind of collaborative task.
+
+156
+00:10:45,509 --> 00:10:49,484
+Then you're going to have to provide some
+sort of reassembly buffer to take the
+
+157
+00:10:49,484 --> 00:10:53,579
+results, and reassemble them somehow,
+before you can go on to the next phase of
+
+158
+00:10:53,579 --> 00:10:57,109
+your processing.
+Another complexity that you sometimes have
+
+159
+00:10:57,109 --> 00:11:00,828
+to deal with is it may be difficult to
+cancel an operation once its begun.
+
+160
+00:11:00,828 --> 00:11:03,716
+And some operating systems don't support
+cancellation.
+
+161
+00:11:03,716 --> 00:11:07,682
+Other operating systems support it in a
+limited way, or you may have situations
+
+162
+00:11:07,682 --> 00:11:11,762
+where there are race conditions between
+cancelling things and actually knowing
+
+163
+00:11:11,762 --> 00:11:15,280
+when they're finished so you can clean up
+the various resources.
+
+164
+00:11:15,280 --> 00:11:20,601
+So that completes our quick overview of
+the proactor pattern and then in the
+
+165
+00:11:20,601 --> 00:11:26,494
+remainder of this module we'll talk about
+ways to implement this particular pattern
+
+166
+00:11:26,494 --> 00:11:30,503
+and apply it in a more detailed way to our
+jaws web server.

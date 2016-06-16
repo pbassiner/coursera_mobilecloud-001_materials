@@ -1,0 +1,1123 @@
+1
+00:00:00,012 --> 00:00:06,186
+Welcome to Part 2 in the module on
+Patterns and Frameworks for Asynchronous
+
+2
+00:00:06,186 --> 00:00:08,456
+Event Handling.
+In the previous part of this module, we
+
+3
+00:00:08,456 --> 00:00:10,070
+described the Proactor pattern.
+We're now going to describe the ACE
+
+4
+00:00:10,070 --> 00:00:11,890
+Proactor Framework, which can be used to
+implement this pattern in a portable
+
+5
+00:00:11,890 --> 00:00:13,370
+manner on a number of different operating
+system platforms.
+
+6
+00:00:13,370 --> 00:00:19,384
+We're now going to describe the ACE
+Proactor Framework which can be used to
+
+7
+00:00:19,384 --> 00:00:25,786
+implement this pattern in a portable
+manner on a number of different operating
+
+8
+00:00:25,786 --> 00:00:29,617
+system platforms.
+As you'll see, this is by far the most
+
+9
+00:00:29,617 --> 00:00:34,096
+complicated framework that's in ACE and as
+we go through the discussion.
+
+10
+00:00:34,096 --> 00:00:38,995
+I'll explain to you where the complexity
+comes from and how the framework tries its
+
+11
+00:00:38,995 --> 00:00:42,297
+best to alleviate the complexity as much
+as possible.
+
+12
+00:00:42,297 --> 00:00:46,551
+Let's first talk by talking about the
+motivation for the ACE Proactive
+
+13
+00:00:46,551 --> 00:00:49,475
+Framework.
+Operating systems have support for
+
+14
+00:00:49,475 --> 00:00:52,306
+asynchronous operations in various
+degrees.
+
+15
+00:00:52,306 --> 00:00:56,579
+Windows has good support.
+Other POSIX platforms have some support.
+
+16
+00:00:56,579 --> 00:01:00,708
+But as a general rule of thumb, these
+mechanisms are characterized in a few ways
+
+17
+00:01:00,708 --> 00:01:04,316
+that are some what problematic.
+First of all, they tend to be some what
+
+18
+00:01:04,316 --> 00:01:08,470
+tedious and error prone to program and the
+reason for the complexity comes from a
+
+19
+00:01:08,470 --> 00:01:12,252
+number of sources, the APIs are often
+somewhat low level and difficult to
+
+20
+00:01:12,252 --> 00:01:15,692
+understand.
+In asynchronous programming, by its very
+
+21
+00:01:15,692 --> 00:01:20,172
+nature is complicated, because it
+separates the invocation of an operation
+
+22
+00:01:20,172 --> 00:01:24,834
+from its completions in time and space.
+And it also doesn't help the fact that
+
+23
+00:01:24,834 --> 00:01:29,154
+another of the APIs that you have, to
+program these on various operating
+
+24
+00:01:29,154 --> 00:01:33,147
+systems, tend to be non-portable and often
+inefficient as well.
+
+25
+00:01:33,148 --> 00:01:36,091
+Windows does a very nice job of
+asynchronous I/O.
+
+26
+00:01:36,091 --> 00:01:40,996
+It supports asynchronous I/O through I/O
+completion ports, it supports overlapped
+
+27
+00:01:40,996 --> 00:01:43,772
+I/O.
+And in general, even though it's somewhat
+
+28
+00:01:43,772 --> 00:01:48,401
+tricky to program, the implementation is
+robust and the performance is good.
+
+29
+00:01:48,401 --> 00:01:51,441
+Posix, in contrast, is a bit more
+problematic.
+
+30
+00:01:51,441 --> 00:01:55,621
+The APIs are somewhat limited.
+They don't provide as wide range of
+
+31
+00:01:55,621 --> 00:01:59,911
+capabilities in a more, in as consistent
+of a way that Windows does.
+
+32
+00:01:59,911 --> 00:02:05,029
+The asynchronous I/O mechanisms in POSIX
+were largely designed originally for Disk
+
+33
+00:02:05,029 --> 00:02:07,819
+I/O.
+And you can use them for network I/O, but
+
+34
+00:02:07,819 --> 00:02:12,555
+it's a little tricky, and it's not as
+generalizable and consistent as it is in
+
+35
+00:02:12,555 --> 00:02:15,356
+Windows.
+The other problem is that there tend to be
+
+36
+00:02:15,356 --> 00:02:19,196
+a number of inefficiencies.
+Some operating system implementations of
+
+37
+00:02:19,196 --> 00:02:22,913
+Asynchronous I/O on POSIX platforms,
+actually spawn a thread for each
+
+38
+00:02:22,913 --> 00:02:26,919
+asynchronous operation, which to some
+extent, defeats the whole purpose.
+
+39
+00:02:26,919 --> 00:02:32,116
+So, because of all these different issues.
+It, we decided to come up with a framework
+
+40
+00:02:32,116 --> 00:02:36,556
+that would help to hide as much of these
+complexities as we could.
+
+41
+00:02:36,556 --> 00:02:39,681
+This framework is the ACE Proactor
+Framework.
+
+42
+00:02:39,681 --> 00:02:44,835
+And the classes in this framework allow
+event-driven applications to process
+
+43
+00:02:44,835 --> 00:02:49,538
+completion events for operations that are
+invoked asynchronously.
+
+44
+00:02:49,539 --> 00:02:54,276
+Typically, classes who use this framework
+will end up inheriting from something
+
+45
+00:02:54,276 --> 00:02:58,968
+called ACE_Svc_Handler, which is a little
+different from the ACE_Svc_Handler we
+
+46
+00:02:58,968 --> 00:03:02,884
+talked about in the context of the
+Acceptor-Connector Framework.
+
+47
+00:03:02,884 --> 00:03:07,174
+And the reason for that is it's used for
+asynchronous operations and the ACE
+
+48
+00:03:07,174 --> 00:03:12,091
+Proactor Framework will then dispatch
+various hook methods when things complete.
+
+49
+00:03:12,091 --> 00:03:15,297
+After these asynchronous operations are
+done running.
+
+50
+00:03:15,297 --> 00:03:19,792
+Naturally, the various classes that are
+part of the ACE Proactive Framework are
+
+51
+00:03:19,792 --> 00:03:24,482
+inspired and designed in accordance with
+the Proactor pattern that we talked about
+
+52
+00:03:24,482 --> 00:03:27,344
+before.
+So let's talk about the various classes
+
+53
+00:03:27,344 --> 00:03:29,904
+that are part of the ACE Proactor
+Framework.
+
+54
+00:03:29,904 --> 00:03:33,978
+The first set of classes that are in there
+are largely responsible for.
+
+55
+00:03:33,979 --> 00:03:38,546
+Invoking operations asynchronously and
+then being able to handle the completion
+
+56
+00:03:38,546 --> 00:03:43,034
+of those operations in as clean a way as
+possible, given the overall asynchronous
+
+57
+00:03:43,034 --> 00:03:46,136
+I/O paradigm.
+And these would include the ACE_Handler
+
+58
+00:03:46,136 --> 00:03:50,087
+class and the various read stream and
+write stream classes that were.
+
+59
+00:03:50,088 --> 00:03:53,844
+We're going to talk about.
+There then are a set of classes for being
+
+60
+00:03:53,844 --> 00:03:57,963
+able to accept connections or to initiate
+connections asynchronously.
+
+61
+00:03:57,963 --> 00:04:01,174
+So we have the ACE_Asynch_Acceptor and the
+ACE_Asynch_Connector.
+
+62
+00:04:01,174 --> 00:04:05,775
+And those are used much the way that
+they're used in the Acceptor-Connector
+
+63
+00:04:05,775 --> 00:04:08,564
+Framework.
+Except, now we're doing this in a more
+
+64
+00:04:08,564 --> 00:04:12,104
+asynchronous way.
+There is then a service handler that I
+
+65
+00:04:12,104 --> 00:04:15,685
+mentioned before.
+And it typically provides the target for
+
+66
+00:04:15,685 --> 00:04:20,442
+the creation of these services when the
+acceptors and connectors asynchronous
+
+67
+00:04:20,442 --> 00:04:24,136
+operation is complete.
+And the service handlers also provide
+
+68
+00:04:24,136 --> 00:04:28,687
+various means of being able to do TCP/IP
+processing in a network environment.
+
+69
+00:04:28,687 --> 00:04:33,097
+And then, the final piece here is
+something called the ACE Proactor, and the
+
+70
+00:04:33,097 --> 00:04:37,647
+ACE Proactor itself is really the, the
+heart of this, it's the driver, it's the
+
+71
+00:04:37,647 --> 00:04:41,626
+thing that controls the event loop.
+It's the thing that derives the
+
+72
+00:04:41,626 --> 00:04:46,522
+asynchronous processing and the completion
+dispatching to the completion handlers
+
+73
+00:04:46,522 --> 00:04:50,364
+when the processing is done.
+You can take a look at this URL for more
+
+74
+00:04:50,364 --> 00:04:53,141
+discussion about the ACE Proactor
+Framework.
+
+75
+00:04:53,141 --> 00:04:58,756
+Of course, this discussion also appears in
+Chapter 8 of the C++ Network Programming,
+
+76
+00:04:58,756 --> 00:05:02,221
+Volume 2 book.
+So let's now go ahead and talk about the
+
+77
+00:05:02,221 --> 00:05:06,172
+various classes that are part of the ACE
+Proactor Framework.
+
+78
+00:05:06,172 --> 00:05:08,428
+And as you can see, there's a number of
+them.
+
+79
+00:05:08,429 --> 00:05:12,491
+Many more than there are say in the ACE
+Reactor Framework or in some of the other
+
+80
+00:05:12,491 --> 00:05:15,094
+frameworks.
+And the reason for this, really, is easy
+
+81
+00:05:15,094 --> 00:05:17,836
+to understand.
+When you deal with asynchronous I/O, you
+
+82
+00:05:17,836 --> 00:05:21,490
+have to separate in time and space, the
+invocation of operations from their
+
+83
+00:05:21,490 --> 00:05:24,374
+completion.
+And all these various mechanisms we're
+
+84
+00:05:24,374 --> 00:05:27,611
+about to talk about are there to support
+that separation.
+
+85
+00:05:27,611 --> 00:05:31,559
+The first of the classes we're going to
+talk about are the ACE_Asynch_Read_Stream
+
+86
+00:05:31,559 --> 00:05:36,957
+and the ACE_Asynch_Write_Stream classes.
+And these classes are used to initiate
+
+87
+00:05:36,957 --> 00:05:39,866
+asynchronous operation to read and write
+data.
+
+88
+00:05:39,866 --> 00:05:44,242
+As the names might suggest.
+If you think about how you would do this
+
+89
+00:05:44,242 --> 00:05:49,478
+in a classic synchronous multi-threaded
+environment, you can invoke a call like
+
+90
+00:05:49,478 --> 00:05:54,200
+send or receive that may block.
+And there's no problem with this, because
+
+91
+00:05:54,200 --> 00:05:58,925
+you've got a separate thread of control
+and a separate run time stack to keep
+
+92
+00:05:58,925 --> 00:06:01,903
+track of any state And any other
+interactions.
+
+93
+00:06:01,903 --> 00:06:04,730
+So that when the control comes back to
+that function.
+
+94
+00:06:04,730 --> 00:06:07,748
+When it returns, you can pick up from
+where you left off.
+
+95
+00:06:07,748 --> 00:06:10,832
+With asynchronous I/O, however, it doesn't
+work this way.
+
+96
+00:06:10,832 --> 00:06:15,248
+When you invoke an operation, the handling
+of the completion may occur much later in
+
+97
+00:06:15,248 --> 00:06:17,558
+time.
+It may occur in a different thread of
+
+98
+00:06:17,558 --> 00:06:20,297
+control.
+And so there's separation or a decoupling
+
+99
+00:06:20,297 --> 00:06:23,360
+in time and space.
+Of invocation from completion header
+
+100
+00:06:23,360 --> 00:06:26,385
+processing.
+And this class helps with that particular
+
+101
+00:06:26,385 --> 00:06:29,235
+process.
+One of these you can do with this class is
+
+102
+00:06:29,235 --> 00:06:34,065
+you can initiate asynchronous operations,
+reads and writes, and those operations
+
+103
+00:06:34,065 --> 00:06:38,274
+will no block and they will go ahead and
+set the wheels in motion to have the
+
+104
+00:06:38,274 --> 00:06:41,240
+underlying asynchronous operation
+processor.
+
+105
+00:06:41,240 --> 00:06:45,796
+The, the operating system typically, to
+run these operations, while the caller
+
+106
+00:06:45,796 --> 00:06:50,633
+thread goes back to doing something else.
+Something else you can do with this is you
+
+107
+00:06:50,633 --> 00:06:54,822
+can also bind an I/O handle and
+ACE_Handler object, which is used to get
+
+108
+00:06:54,822 --> 00:06:59,579
+the completion results back and an ACE
+Proactor which keeps track of who's going
+
+109
+00:06:59,579 --> 00:07:04,549
+to demultiplex the results with the done
+with the particular operation that you're
+
+110
+00:07:04,549 --> 00:07:07,138
+invoking.
+So they're all bundled together.
+
+111
+00:07:07,138 --> 00:07:11,097
+Yet another thing you can do is
+internally, it'll create an object that
+
+112
+00:07:11,097 --> 00:07:15,050
+can keep track of all the parameters
+associated with the asynchronous
+
+113
+00:07:15,050 --> 00:07:17,765
+operation.
+So when the operation is done, those
+
+114
+00:07:17,765 --> 00:07:21,898
+parameters come back.
+To the completion handler and they can be
+
+115
+00:07:21,898 --> 00:07:27,270
+used to figure out what to do next whether
+things succeeded, whether they failed,
+
+116
+00:07:27,270 --> 00:07:32,405
+whether or not their issues with respect
+to how much data you read or send and so
+
+117
+00:07:32,405 --> 00:07:36,062
+on and so forth.
+Because we inherit from a class called
+
+118
+00:07:36,062 --> 00:07:40,862
+Asynch, Asynch Operation we can also open
+And initiate as well as cancel
+
+119
+00:07:40,862 --> 00:07:45,545
+asynchronous operations.
+This particular class helps to handle the
+
+120
+00:07:45,545 --> 00:07:51,385
+variability of asynchronous I/O operations
+via a common interface which can work with
+
+121
+00:07:51,385 --> 00:07:55,293
+Windows, it can work with Posics in, in a
+consistent way.
+
+122
+00:07:55,293 --> 00:07:59,919
+The next class we're going to talk about
+handles the completion of these
+
+123
+00:07:59,919 --> 00:08:05,277
+asynchronous operations when they're done.
+And this is called the ACE_Handler class.
+
+124
+00:08:05,277 --> 00:08:09,771
+And what this class does is it provides a
+set of hook methods that are called back
+
+125
+00:08:09,771 --> 00:08:14,599
+automatically by the Proactor framework
+when an asynchronously invoked operation
+
+126
+00:08:14,599 --> 00:08:17,348
+completes.
+And so, for each different kind of
+
+127
+00:08:17,348 --> 00:08:20,179
+operation that we can have run
+asynchronously.
+
+128
+00:08:20,179 --> 00:08:24,825
+Asynchronous accepts, asynchronous
+connects, asynchronous reads and writes on
+
+129
+00:08:24,825 --> 00:08:29,582
+screens, asynchronous reads and writes on
+files, other kinds of transmissions such
+
+130
+00:08:29,582 --> 00:08:33,736
+as using transmit file which use direct
+memory access to do very efficient
+
+131
+00:08:33,736 --> 00:08:37,536
+asynchronous transfer of bulk data from a
+file to a socket and so on.
+
+132
+00:08:37,536 --> 00:08:42,586
+All of these different kinds of completion
+events and the handling of them can be
+
+133
+00:08:42,586 --> 00:08:47,131
+expressed through a single base class
+interface called ACE_handler.
+
+134
+00:08:47,132 --> 00:08:50,692
+It also provides a way to handle timeout
+events as well.
+
+135
+00:08:50,692 --> 00:08:56,173
+This particular class allows us to handle
+the variability of asynchronous completion
+
+136
+00:08:56,173 --> 00:09:00,521
+handling within a common API.
+So clearly The read and write streams that
+
+137
+00:09:00,521 --> 00:09:03,291
+we saw before and the handlers all go
+together.
+
+138
+00:09:03,291 --> 00:09:05,834
+They're basically two sides of the same
+coin.
+
+139
+00:09:05,834 --> 00:09:08,352
+The initiation side and the completion
+side.
+
+140
+00:09:08,352 --> 00:09:12,913
+We then, for network communication, have
+something called the ACE_Svc_Handler
+
+141
+00:09:12,914 --> 00:09:17,850
+class, and this is essentially the target
+of the ACE_Asynch_Acceptor and the
+
+142
+00:09:17,850 --> 00:09:21,490
+ACE_Asynch_Connector that are used to
+initiate connections actively and
+
+143
+00:09:21,490 --> 00:09:24,499
+passively.
+And when they're done they go ahead and
+
+144
+00:09:24,499 --> 00:09:29,329
+initialize this ACE_Svc_Handler, and the
+ACE service handler provides a couple of
+
+145
+00:09:29,329 --> 00:09:32,186
+things.
+It provides a way to be able to activate a
+
+146
+00:09:32,186 --> 00:09:36,878
+service to do something, typically to run
+things in some kind of, of a synchronous
+
+147
+00:09:36,878 --> 00:09:39,988
+way although you could spawn threads if
+you chose to.
+
+148
+00:09:39,988 --> 00:09:44,410
+It's up to you because you can control how
+those hook methods are overridden in sub
+
+149
+00:09:44,410 --> 00:09:47,476
+classes.
+It also allows you to figure out who the
+
+150
+00:09:47,476 --> 00:09:52,300
+connected peer is, what their addresses
+are, which you may want to use for various
+
+151
+00:09:52,300 --> 00:09:55,495
+purposes.
+For example, to figure out if you want to
+
+152
+00:09:55,495 --> 00:10:00,590
+actually communicate to this peer at all.
+And because it inherits from ACE_Handler,
+
+153
+00:10:00,590 --> 00:10:05,290
+it is able to handle the completion.
+Of I/O events, things like asynchronous
+
+154
+00:10:05,290 --> 00:10:09,772
+reads and asynchronous writes.
+So ACE service handler is typically used
+
+155
+00:10:09,772 --> 00:10:14,517
+in cases where you want to handle the
+variability of network asynchronous I/O
+
+156
+00:10:14,517 --> 00:10:18,505
+behind a common interface.
+The next class we'll look at should be
+
+157
+00:10:18,505 --> 00:10:21,809
+pretty clear by now.
+This is the ACE_Asynch_Acceptor.
+
+158
+00:10:21,810 --> 00:10:25,647
+There's also an ACE_Asynch_Connector that
+is the dual of this.
+
+159
+00:10:25,647 --> 00:10:30,306
+The ACE_Asynch_Connector is used to
+initiate passive connection establishment.
+
+160
+00:10:30,306 --> 00:10:35,066
+Asynchronous, of course, so you can go
+ahead and open and accept connections that
+
+161
+00:10:35,066 --> 00:10:40,163
+come in and those we handle asynchronously
+as they complete when the clients connect.
+
+162
+00:10:40,163 --> 00:10:43,946
+It's a factory that will create and
+initialize service handlers.
+
+163
+00:10:43,946 --> 00:10:48,638
+Much like the acceptors and connectors do
+that we talked about before in the ACE
+
+164
+00:10:48,638 --> 00:10:52,812
+Acceptor-Connector Framework, that's more
+synchronous in nature.
+
+165
+00:10:52,812 --> 00:10:57,646
+It also allows you to be able to cancel
+previously initiated asynchronous accept
+
+166
+00:10:57,646 --> 00:11:00,800
+operations.
+It provides a hook method to validate
+
+167
+00:11:00,800 --> 00:11:04,245
+connections before you actually create
+service handlers.
+
+168
+00:11:04,245 --> 00:11:08,871
+You can do a form of call screening to
+ignore connections from clients you don't
+
+169
+00:11:08,871 --> 00:11:11,847
+want to talk to.
+And again, because it inherits from
+
+170
+00:11:11,847 --> 00:11:16,403
+ACE_Handler, it's able to handle the
+completion of asynchronous accept events
+
+171
+00:11:16,403 --> 00:11:19,850
+in a common way.
+So, the ACE_Asynch_Acceptor, much like the
+
+172
+00:11:19,850 --> 00:11:23,464
+ACE_Asynch_Connector that we're not going
+to talk about here.
+
+173
+00:11:23,465 --> 00:11:27,841
+Allow us to be able to handle the
+variability of asynchronous connection
+
+174
+00:11:27,841 --> 00:11:32,412
+establishment within a common API.
+And this can work both for UNIX platforms,
+
+175
+00:11:32,412 --> 00:11:37,186
+Posics platforms that don't really support
+asynchronous accepts and connects.
+
+176
+00:11:37,186 --> 00:11:42,077
+So we have to emulate them using threads.
+Or the Windows platforms that do support,
+
+177
+00:11:42,077 --> 00:11:44,884
+natively.
+Asynchronistic and asynchronistic
+
+178
+00:11:44,884 --> 00:11:46,926
+connects.
+So they're very powerful.
+
+179
+00:11:46,926 --> 00:11:51,540
+And you can hide all those diversities and
+heterogeneous differences behind a common
+
+180
+00:11:51,540 --> 00:11:54,177
+API.
+The final piece of the puzzle here, brings
+
+181
+00:11:54,177 --> 00:11:56,896
+it all together, this is the ACE Proactor
+class.
+
+182
+00:11:56,896 --> 00:12:00,571
+Much like for Ace Reactor, it's the class
+that runs the event loop.
+
+183
+00:12:00,571 --> 00:12:04,347
+It does a couple of things.
+It centralizes the event loop processing
+
+184
+00:12:04,347 --> 00:12:06,828
+by providing methods to run the event
+loop.
+
+185
+00:12:06,829 --> 00:12:11,227
+Either indefinetely or one at a time.
+It also provides a way to be able to
+
+186
+00:12:11,227 --> 00:12:16,126
+demultiplex completion events that come in
+from the underlying completion event
+
+187
+00:12:16,126 --> 00:12:21,025
+queses, things like I/O ports on Windows,
+and other similar mechanisms you have on
+
+188
+00:12:21,025 --> 00:12:24,861
+Posics platforms.
+And be able to get those things dispatched
+
+189
+00:12:24,861 --> 00:12:28,961
+back to the oppropriate completion
+handler, that knows what to do.
+
+190
+00:12:28,962 --> 00:12:33,324
+In response to the completion of the
+events, such as kick off an asynchronous
+
+191
+00:12:33,324 --> 00:12:37,138
+read call or kick off another asynchronous
+write call, etcetera.
+
+192
+00:12:37,138 --> 00:12:39,958
+It also can be used to dispatch time outs
+as well.
+
+193
+00:12:39,958 --> 00:12:44,629
+So, just like the reactor, we can dispatch
+a number of different kinds of events.
+
+194
+00:12:44,629 --> 00:12:48,130
+I/o events, time events and so on with one
+common interface.
+
+195
+00:12:48,130 --> 00:12:54,674
+This particular class handles the overall
+variability of asynchronous event handling
+
+196
+00:12:54,674 --> 00:13:00,658
+behind a common API that works both on
+Unix and, and POSIX platforms, as well as
+
+197
+00:13:00,658 --> 00:13:04,251
+on Windows.
+So to summarize this particular part in
+
+198
+00:13:04,251 --> 00:13:08,053
+the module Proactive I/O models are more
+complicated.
+
+199
+00:13:08,053 --> 00:13:13,029
+They are inherently more complicated to
+program than synchronous event handling,
+
+200
+00:13:13,029 --> 00:13:17,205
+and synchronous threading.
+And that's because of this separation in
+
+201
+00:13:17,205 --> 00:13:21,147
+terms of time and space, from the
+initiation and the completion.
+
+202
+00:13:21,147 --> 00:13:25,200
+Which means that things that you
+historically would have handled by
+
+203
+00:13:25,200 --> 00:13:28,062
+implicit.
+Information stored in the run time stack,
+
+204
+00:13:28,062 --> 00:13:31,976
+say in the activation record when you made
+a function call that was blocking.
+
+205
+00:13:31,976 --> 00:13:35,822
+That kind of information can no longer be
+stored implicitly on the stack, but
+
+206
+00:13:35,822 --> 00:13:39,482
+instead you have to store it explicitly
+using a variety of different data
+
+207
+00:13:39,482 --> 00:13:42,191
+structures.
+Some of the ones we'll talk about here.
+
+208
+00:13:42,191 --> 00:13:45,917
+Some of which such as asynchronous
+completion tokens, we'll talk about in
+
+209
+00:13:45,917 --> 00:13:49,629
+later parts of this module.
+There are also, of course, a number of
+
+210
+00:13:49,629 --> 00:13:54,119
+significant accidental complexities of
+programming with asynchronous I/O.
+
+211
+00:13:54,119 --> 00:13:57,754
+The programming interfaces are somewhat
+clumsy, not well-documented.
+
+212
+00:13:57,754 --> 00:14:00,661
+Hard to find information on how to use
+them effectively.
+
+213
+00:14:00,661 --> 00:14:04,632
+If you just read the manual pages in
+isolation, you'll have a really difficult
+
+214
+00:14:04,632 --> 00:14:07,187
+time knowing how all the pieces fit
+together.
+
+215
+00:14:07,188 --> 00:14:12,462
+So because of these issues, and because of
+some of the portability issues as well, we
+
+216
+00:14:12,462 --> 00:14:17,280
+developed the ACE Proactive Framework to
+help shield a lot of those accidental
+
+217
+00:14:17,280 --> 00:14:22,025
+complexities, make those portable wherever
+possible, make things a lot more
+
+218
+00:14:22,025 --> 00:14:25,642
+systematically.
+Applicable systematically reusable, so
+
+219
+00:14:25,642 --> 00:14:30,130
+even though there are more moving parts
+than a reactive approach or a, a, leader
+
+220
+00:14:30,130 --> 00:14:33,597
+followers approach or a
+Half-Sync/Half-Async approach.
+
+221
+00:14:33,597 --> 00:14:38,217
+The surface area that you deal with is
+much easier to understand, it uses common
+
+222
+00:14:38,217 --> 00:14:41,296
+object oriented techniques such as
+inheritance.
+
+223
+00:14:41,296 --> 00:14:48,770
+And other patterns we're going to talk
+about in just a moment, in order to be
+
+224
+00:14:48,770 --> 00:14:56,148
+able to reduce the overall complexity of
+programming these very powerful
+
+225
+00:14:56,148 --> 00:14:58,855
+asynchronous I/O models.

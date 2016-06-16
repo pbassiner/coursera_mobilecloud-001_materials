@@ -1,0 +1,724 @@
+1
+00:00:00,012 --> 00:00:06,753
+Welcome to Part 4, in the module on
+Patterns and Frameworks for Asyncronous
+
+2
+00:00:06,753 --> 00:00:11,112
+Event Handling.
+In previous parts of this module, we first
+
+3
+00:00:11,112 --> 00:00:16,632
+described the proactor pattern and we
+illustrated how the ACE proactor framework
+
+4
+00:00:16,632 --> 00:00:22,232
+can be used to implement this pattern, on
+a number of operating systems that support
+
+5
+00:00:22,232 --> 00:00:26,397
+Asynchronous I/O.
+We then implemented how you can apply the
+
+6
+00:00:26,397 --> 00:00:31,357
+ACE proactive framework on Windows or
+other operating systems in order to
+
+7
+00:00:31,357 --> 00:00:35,415
+implement an asynchronous version of our
+JAWS webs server.
+
+8
+00:00:35,415 --> 00:00:40,471
+What we're going to do in this part of the
+module is continue on by discussing yet
+
+9
+00:00:40,471 --> 00:00:45,764
+another pattern, the asynchronous
+completion token pattern, that fleshes out
+
+10
+00:00:45,764 --> 00:00:50,978
+our pattern language in order to be able
+to handle efficient demultiplexing of
+
+11
+00:00:50,978 --> 00:00:57,016
+responses that occur after asynchronous
+operations have completed their execution.
+
+12
+00:00:57,016 --> 00:01:01,462
+So let's first start talk, talking about
+motivating the need for this particular
+
+13
+00:01:01,462 --> 00:01:04,082
+pattern.
+If you take a look at our web server that
+
+14
+00:01:04,082 --> 00:01:08,502
+we implemented in the previous part of the
+module, you'll see that one of the goals
+
+15
+00:01:08,502 --> 00:01:12,467
+was to make it as efficient as possible,
+using as few threads as possible,
+
+16
+00:01:12,467 --> 00:01:15,846
+leveraging the underlying asynchronous I/O
+operations.
+
+17
+00:01:15,846 --> 00:01:20,366
+Well, part of the goal of making things
+efficient is to be able to get those
+
+18
+00:01:20,366 --> 00:01:25,102
+completion event handlers processed as
+quickly as possible and we'd like to
+
+19
+00:01:25,102 --> 00:01:29,986
+figure out a way of doing this that will
+minimize the time and the space overhead
+
+20
+00:01:29,986 --> 00:01:34,944
+necessary to associate the results of an
+asynchronous operation with a handler
+
+21
+00:01:34,944 --> 00:01:39,310
+that's been dedicated to clean up and
+complete the processing on those
+
+22
+00:01:39,310 --> 00:01:41,807
+operations.
+So, in order to do this.
+
+23
+00:01:41,807 --> 00:01:45,770
+In order to, to make that as quick and
+small and lean as possible.
+
+24
+00:01:45,770 --> 00:01:50,900
+We're going to apply something called, the
+asynchronous completion token pattern.
+
+25
+00:01:50,900 --> 00:01:56,357
+And we're going to use this to demultiplex
+and process the responses of asynchronous
+
+26
+00:01:56,357 --> 00:02:00,240
+requests, asynchronous operations, very
+efficiently.
+
+27
+00:02:00,240 --> 00:02:06,003
+This pattern is something that appears in
+the Posta 2 book, and it works as follows.
+
+28
+00:02:06,003 --> 00:02:11,025
+You start out by having some kind of an
+initiator, that invokes an asynchronous
+
+29
+00:02:11,025 --> 00:02:15,965
+operation and when it invokes the
+operation, it passes along an asynchronous
+
+30
+00:02:15,965 --> 00:02:19,646
+completion token.
+And I'll talk a bit more in a moment about
+
+31
+00:02:19,646 --> 00:02:23,625
+what that might look like.
+But a moment, think for the moment that
+
+32
+00:02:23,625 --> 00:02:28,662
+it's some kind of pointer or index or very
+small, lean data object that can be passed
+
+33
+00:02:28,662 --> 00:02:33,342
+along with an asynchronous call.
+That asynchronous call, of course, is
+
+34
+00:02:33,342 --> 00:02:38,142
+invoked on some kind of service which
+might be a remote service, it might be an
+
+35
+00:02:38,142 --> 00:02:42,567
+operating system service such as
+asynchronous I/O operations that's
+
+36
+00:02:42,567 --> 00:02:45,801
+supported on Windows or various versions
+of Posix.
+
+37
+00:02:45,801 --> 00:02:51,087
+When the service is finished running, it
+then goes ahead and returns a response
+
+38
+00:02:51,087 --> 00:02:56,219
+back to the original initiator.
+And along with that response, is contained
+
+39
+00:02:56,219 --> 00:03:01,819
+the asynchronous completion token, or act,
+that was passed along with the original
+
+40
+00:03:01,819 --> 00:03:06,318
+call invoked by the initiator.
+And this act is then used to figure out
+
+41
+00:03:06,318 --> 00:03:11,015
+how to get the appropriate completion
+handler to clean up, and do the, the
+
+42
+00:03:11,015 --> 00:03:14,411
+processing of the response as quickly as
+possible.
+
+43
+00:03:14,411 --> 00:03:18,677
+If you take a look at the URL at the
+bottom of this page, you'll find a paper
+
+44
+00:03:18,677 --> 00:03:23,346
+that describes this pattern in more
+detail, and of course it's also in POSA2.
+
+45
+00:03:23,346 --> 00:03:26,066
+Here's a more dynamic view of what's going
+on.
+
+46
+00:03:26,066 --> 00:03:30,371
+This illustrates what's being passed along
+with the various operations.
+
+47
+00:03:30,371 --> 00:03:35,705
+What's happening here is this Asynchronous
+completion token or ACT, is being bundled
+
+48
+00:03:35,705 --> 00:03:40,709
+along with any parameters to the service.
+That were invoked when the initiators
+
+49
+00:03:40,709 --> 00:03:45,746
+started the asynchronous operation and the
+service simply takes this ACT tucks it
+
+50
+00:03:45,746 --> 00:03:49,084
+away someplace.
+Typically, doesn't change it any way,
+
+51
+00:03:49,084 --> 00:03:53,770
+shape, or form, and then when it's done,
+when it's processing it passes this ACT
+
+52
+00:03:53,770 --> 00:03:58,314
+back unchanged to, to the initiator where
+the completion handler can then be
+
+53
+00:03:58,314 --> 00:04:03,070
+identified rapidly in order to be able to
+carry out the completion processing.
+
+54
+00:04:03,070 --> 00:04:07,428
+So let's talk about how we might be able
+to apply this pattern in the context of
+
+55
+00:04:07,428 --> 00:04:10,123
+JAWS.
+Well it turns out that we've actually
+
+56
+00:04:10,123 --> 00:04:15,377
+shown this pattern earlier, we just didn't
+emphasize it much, when we were reviewing
+
+57
+00:04:15,377 --> 00:04:18,860
+the code.
+If you take a look at the various diagrams
+
+58
+00:04:18,860 --> 00:04:23,923
+and the code snippets, you'll see that
+whenever we go ahead and activate a
+
+59
+00:04:23,923 --> 00:04:29,733
+service handler, and we associate the read
+or write operations that will be invoked
+
+60
+00:04:29,733 --> 00:04:35,128
+asynchronously with the, the service
+handler is called, we actually pass-in
+
+61
+00:04:35,128 --> 00:04:40,034
+the, this pointer and use this as the
+asynchronous completion token.
+
+62
+00:04:40,034 --> 00:04:44,720
+So we pass in a pointer to ourselves when
+we initiate the connection between an
+
+63
+00:04:44,720 --> 00:04:49,544
+operations that's going to asynchronously
+and the various data structures in ACE
+
+64
+00:04:49,544 --> 00:04:52,333
+that keep track of those, those
+operations.
+
+65
+00:04:52,333 --> 00:04:57,711
+So in this case for example, when we open
+the connection to the read stream, we pass
+
+66
+00:04:57,711 --> 00:05:01,213
+ourselves in as an asynchronous completion
+token.
+
+67
+00:05:01,213 --> 00:05:06,354
+And then when the read call is invoked,
+what will happen is that this pointer is
+
+68
+00:05:06,354 --> 00:05:11,331
+bundled up and passed along as an
+overlapped I/O struct, which goes through
+
+69
+00:05:11,331 --> 00:05:14,559
+the windows read file ex call or read file
+call.
+
+70
+00:05:14,559 --> 00:05:18,723
+And these calls then take that
+information, stash it through the
+
+71
+00:05:18,723 --> 00:05:22,059
+operating system.
+It goes through the bowels of the
+
+72
+00:05:22,059 --> 00:05:26,960
+internals of the windows kernel.
+And then when the completion even is done,
+
+73
+00:05:26,960 --> 00:05:31,888
+that completion event is handed back to
+the proactor where the asynchronous
+
+74
+00:05:31,888 --> 00:05:36,961
+completion token can be quickly extracted
+and used to do the demultiplexing.
+
+75
+00:05:36,962 --> 00:05:42,248
+This next slide illustrates how that
+demultiplexing takes place by effectively
+
+76
+00:05:42,248 --> 00:05:47,176
+having the proactor downcast the
+asynchronous completion token back to the
+
+77
+00:05:47,176 --> 00:05:52,874
+appropriate ACE handler and then invoking
+the appropriate callback method, depending
+
+78
+00:05:52,874 --> 00:05:55,779
+on what kind of an asynchronous call it
+was.
+
+79
+00:05:55,779 --> 00:06:00,147
+So in the case of an asynchronous read
+call, we would end up with the handle read
+
+80
+00:06:00,147 --> 00:06:03,529
+stream hook method dispatched by the
+proactor framework.
+
+81
+00:06:03,529 --> 00:06:07,955
+And the thing that's powerful about this,
+is it didn't have to do any table look
+
+82
+00:06:07,955 --> 00:06:10,298
+ups.
+It didn't have to do any complicated
+
+83
+00:06:10,298 --> 00:06:12,596
+processing.
+All it had to do was take this
+
+84
+00:06:12,596 --> 00:06:17,152
+asynchronous completion token that popped
+back out of the get queued completion
+
+85
+00:06:17,152 --> 00:06:21,801
+status call from the operating system.
+System when the call was done and then do
+
+86
+00:06:21,801 --> 00:06:26,085
+some down casting operations in order to
+turn it back into the right kind of object
+
+87
+00:06:26,085 --> 00:06:30,317
+with the right kind of hook method to do
+the right type of completion processing.
+
+88
+00:06:30,317 --> 00:06:34,613
+So the nice part about it is it's very
+fast it's essentially constant time look
+
+89
+00:06:34,613 --> 00:06:39,101
+up, just takes a few bytes worth of space
+to store the pointer and we're leveraging
+
+90
+00:06:39,101 --> 00:06:43,523
+the internal mechanisms that Windows Ports
+for asynchronous completion token
+
+91
+00:06:43,523 --> 00:06:46,641
+processing in the APIs it offers up to the
+application.
+
+92
+00:06:46,641 --> 00:06:51,408
+And there's similar kinds of mechanisms
+you can use with Posix asynchronous I/O as
+
+93
+00:06:51,408 --> 00:06:54,172
+well.
+So let's talk a bit about the benefits and
+
+94
+00:06:54,172 --> 00:06:58,249
+limitations of this pattern.
+One of the nice things about using this
+
+95
+00:06:58,249 --> 00:07:02,606
+pattern is it simplify the data structures
+needed on the initiator side.
+
+96
+00:07:02,606 --> 00:07:07,463
+You don't have to maintain some kind of
+hash table, or map or vector to map the
+
+97
+00:07:07,463 --> 00:07:12,168
+requests with the responses.
+The request and response are simply glon
+
+98
+00:07:12,168 --> 00:07:17,461
+together with the asynchronous completion
+token you pass in when you invoke the
+
+99
+00:07:17,461 --> 00:07:21,706
+operation asychronously.
+We also then get both time and space
+
+100
+00:07:21,706 --> 00:07:25,012
+benefits.
+The time benefits come because when we get
+
+101
+00:07:25,012 --> 00:07:29,465
+back this completion token all we have to
+do is do a downcast, so there's no
+
+102
+00:07:29,465 --> 00:07:34,648
+expensive look up, the space benefits come
+because all we're doing is really passing
+
+103
+00:07:34,648 --> 00:07:38,776
+a pointer, so it's just a few bytes, so
+it's not taking up much space.
+
+104
+00:07:38,776 --> 00:07:43,134
+And that pointer is not checked or, or
+accessed by the operating system, it's
+
+105
+00:07:43,134 --> 00:07:47,670
+simply returned back to the initiator when
+the completion results are done.
+
+106
+00:07:47,671 --> 00:07:52,223
+Another benefit we get is flexibility.
+There's various ways of implementing this
+
+107
+00:07:52,223 --> 00:07:55,881
+pattern, one way to do it is to pass
+around pointers, you could also pass
+
+108
+00:07:55,881 --> 00:07:59,973
+around indexes or indices and you don't
+even have to use any kind of inheritance
+
+109
+00:07:59,973 --> 00:08:03,633
+hierarchy if you don't want to.
+You can simply create objects that know
+
+110
+00:08:03,633 --> 00:08:07,645
+how to get back to the completion handler
+logic with a downcast of some kind.
+
+111
+00:08:07,646 --> 00:08:13,420
+Cut, naturally there are some limitations
+with this approach one problem is if you
+
+112
+00:08:13,420 --> 00:08:18,950
+start handing out dynamically allocated
+memory addresses to the services that you
+
+113
+00:08:18,950 --> 00:08:23,586
+are calling, if they don't ever end up
+completing, if the call fails.
+
+114
+00:08:23,587 --> 00:08:27,307
+Then it's hard to know whether you can
+delete those pointers without ending up
+
+115
+00:08:27,307 --> 00:08:31,163
+with dangling pointers or memory leaks.
+So this is one thing to keep in mind when
+
+116
+00:08:31,163 --> 00:08:34,042
+you use this pattern.
+You might have to deal with some kind of
+
+117
+00:08:34,042 --> 00:08:37,738
+generation count or scavenging or garbage
+collection to clean up these memory
+
+118
+00:08:37,738 --> 00:08:41,318
+resources appropriately.
+You certainly don't want to clean them up
+
+119
+00:08:41,318 --> 00:08:45,542
+prematurely because if you do, then when
+the call's complete, you'll get back a
+
+120
+00:08:45,542 --> 00:08:49,638
+pointer to memory that's been freed or has
+perhaps been reused for some other
+
+121
+00:08:49,638 --> 00:08:52,109
+purpose.
+Another tricky issue has to do with
+
+122
+00:08:52,109 --> 00:08:55,023
+authentication.
+You're handing out a pointer to some
+
+123
+00:08:55,023 --> 00:08:57,682
+service.
+If the service is the operating system,
+
+124
+00:08:57,682 --> 00:09:02,098
+you can probably be pretty confident it's
+not going to be maliciously changing the
+
+125
+00:09:02,098 --> 00:09:04,866
+contents of that pointer or that object
+somehow.
+
+126
+00:09:04,866 --> 00:09:09,518
+Conversely, if you pass out to something
+in the Internet, it may not be so clear it
+
+127
+00:09:09,518 --> 00:09:12,265
+hasn't changed things or forged some
+identity.
+
+128
+00:09:12,265 --> 00:09:16,827
+So you may need, need to build some kind
+of authentication protocol on top of this
+
+129
+00:09:16,827 --> 00:09:20,975
+mechanism to make it more assured in its
+use, much the way that we deal with
+
+130
+00:09:20,975 --> 00:09:23,859
+various cookie processing in a web
+environment.
+
+131
+00:09:23,860 --> 00:09:29,038
+And the last issue is if you actually pass
+out pointers to raw memory from the client
+
+132
+00:09:29,038 --> 00:09:34,144
+application space to the service, you have
+to be careful if you end up remapping the
+
+133
+00:09:34,144 --> 00:09:38,954
+virtual address of the client space
+somehow, that those pointers don't end up
+
+134
+00:09:38,954 --> 00:09:43,900
+pointing to other places in memory.
+Obviously, there's various ways to deal
+
+135
+00:09:43,900 --> 00:09:47,914
+with this using indirection, tables, or
+handles of some kind.
+
+136
+00:09:47,914 --> 00:09:51,804
+But it's something you have to be aware
+of, and you don't want to get caught
+
+137
+00:09:51,804 --> 00:09:55,896
+passing out pointers to raw memory and
+then having things be remapped, because
+
+138
+00:09:55,896 --> 00:10:00,001
+all kinds of crazy things will happen.
+So this is essentially a short overview of
+
+139
+00:10:00,001 --> 00:10:04,583
+the asynchronous completion token pattern.
+We've described it in the context of the
+
+140
+00:10:04,583 --> 00:10:09,139
+proactor, framework, and the proactor
+pattern, but in practice, it's also used
+
+141
+00:10:09,139 --> 00:10:13,936
+widely for many other kinds of use cases.
+It's used for various cookie processing in
+
+142
+00:10:13,936 --> 00:10:18,288
+web transactions, it's used a lot in
+various kinds of middleware to be able to
+
+143
+00:10:18,288 --> 00:10:22,859
+efficiently associate requests with
+responses that go across address spaces.
+
+144
+00:10:22,860 --> 00:10:28,668
+So, it's a nice pattern to know, it solves
+a fairly small problem, but if used
+
+145
+00:10:28,668 --> 00:10:33,758
+properly and carefully can help make your
+code smaller and faster

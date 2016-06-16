@@ -1,0 +1,1944 @@
+1
+00:00:00,012 --> 00:00:09,356
+Welcome to the module where we'll evaluate
+patterns and frameworks for concurrent and
+
+2
+00:00:09,356 --> 00:00:15,962
+networked software.
+In this one and only part of the module.
+
+3
+00:00:15,962 --> 00:00:20,846
+We're going to step back and take a look
+at some of the benefits and limitations of
+
+4
+00:00:20,846 --> 00:00:25,334
+applying patterns and frameworks to
+concurrent and networked software.
+
+5
+00:00:25,334 --> 00:00:29,876
+If you recall, at the end of section two,
+we had done a similar analysis after
+
+6
+00:00:29,876 --> 00:00:33,354
+providing an introduction to patterns and
+frameworks.
+
+7
+00:00:33,354 --> 00:00:36,077
+Now that we've gone through quite a
+lengthy.
+
+8
+00:00:36,077 --> 00:00:40,114
+Explanation and analysis of the
+application of many patterns and many
+
+9
+00:00:40,114 --> 00:00:44,104
+frameworks to the web server.
+We're going to step back and see if we can
+
+10
+00:00:44,104 --> 00:00:46,922
+take a look.
+And bring up some pros and cons of the
+
+11
+00:00:46,922 --> 00:00:51,451
+technologies we've been applying in the
+context of our previous discussion.
+
+12
+00:00:51,451 --> 00:00:55,079
+Let's start by talking about some of the
+benefits of patterns.
+
+13
+00:00:55,079 --> 00:00:58,492
+If you take a look back over all the
+material we covered.
+
+14
+00:00:58,492 --> 00:01:03,354
+In this section, you'll see that there
+were a number of core architectural
+
+15
+00:01:03,354 --> 00:01:08,294
+patterns that we use to systematically
+reuse capabilities in order to build a
+
+16
+00:01:08,294 --> 00:01:11,823
+concurrent Web server, an a, event driven
+Web server.
+
+17
+00:01:11,823 --> 00:01:16,769
+W applied patterns like the reactor
+patter, we applied half sync, half async,
+
+18
+00:01:16,769 --> 00:01:20,876
+we applied leader followers, we applied
+the proactor pattern.
+
+19
+00:01:20,876 --> 00:01:25,706
+And these are all ways of trying to embody
+Successful designs that have been done
+
+20
+00:01:25,706 --> 00:01:29,496
+well before we ever came along and tried
+to build a web server.
+
+21
+00:01:29,496 --> 00:01:34,262
+Likewise, we also explored a number of
+paths through our pattern language, which
+
+22
+00:01:34,262 --> 00:01:39,241
+combined these core architectural patterns
+with a number of other design patterns.
+
+23
+00:01:39,241 --> 00:01:42,320
+In order to be able to handle different
+variations on a theme.
+
+24
+00:01:42,320 --> 00:01:46,047
+Be able to make things more scalable less
+scalable and so on and so forth.
+
+25
+00:01:46,047 --> 00:01:49,852
+One of the nice things about this is that
+these approaches we looked at really
+
+26
+00:01:49,852 --> 00:01:53,569
+weren't specific to web servers.
+They'd been developed long before we did
+
+27
+00:01:53,569 --> 00:01:57,439
+anything with our JAWS web server.
+And they've proven themselves to be useful
+
+28
+00:01:57,439 --> 00:02:00,237
+over time.
+In many other contexts as well.
+
+29
+00:02:00,237 --> 00:02:03,611
+So that illustrates one of the benefits of
+patterns.
+
+30
+00:02:03,611 --> 00:02:09,077
+You can build upon prior success, in order
+to build new applications in new contexts.
+
+31
+00:02:09,077 --> 00:02:13,739
+Another benefit we have of patterns is the
+ability to record explicitly.
+
+32
+00:02:13,740 --> 00:02:17,504
+Trade offs between different design
+approaches in terms of our engineering and
+
+33
+00:02:17,504 --> 00:02:19,889
+our application of different design
+techniques.
+
+34
+00:02:19,889 --> 00:02:23,315
+So for example when we looked at the
+different paths through our pattern
+
+35
+00:02:23,315 --> 00:02:26,792
+language through our web server, you saw
+that we had a number of different
+
+36
+00:02:26,792 --> 00:02:30,782
+alternatives that we could evaluate and
+determine what the benefits were, what the
+
+37
+00:02:30,782 --> 00:02:34,384
+trade offs were and so on.
+For example we looked at the, the reactive
+
+38
+00:02:34,384 --> 00:02:38,672
+path which was very simple and easy to
+develop but didn't really scale because it
+
+39
+00:02:38,672 --> 00:02:43,144
+only used one thread of control at a time.
+We then went and explore a different path
+
+40
+00:02:43,144 --> 00:02:46,733
+through our pattern language.
+We look at the use of half sync half
+
+41
+00:02:46,733 --> 00:02:50,957
+async, which combines the reactive
+approach with an active object approach
+
+42
+00:02:50,957 --> 00:02:54,475
+and a number of other concurrency
+insynchronization pattern.
+
+43
+00:02:54,475 --> 00:02:58,834
+In order to build the scale up to take
+better advantage of multiple CPU's that
+
+44
+00:02:58,834 --> 00:03:03,730
+you might find in a multi-core environment
+or an upgrade system that supports various
+
+45
+00:03:03,730 --> 00:03:07,786
+kinds of occur ency and multiple type,
+threading in multiprocessing.
+
+46
+00:03:07,786 --> 00:03:12,549
+This particular approach is well different
+from the reactive approach and it allows
+
+47
+00:03:12,549 --> 00:03:15,986
+us to explicitly.
+Trade off and analyze these different
+
+48
+00:03:15,986 --> 00:03:19,131
+approaches.
+Yet another approach that we've followed
+
+49
+00:03:19,131 --> 00:03:22,147
+was 1 that was based on the leader
+followers pattern.
+
+50
+00:03:22,147 --> 00:03:25,647
+Which is, perhaps, less scalable than half
+sync half a sync.
+
+51
+00:03:25,647 --> 00:03:28,379
+But by the same token, can be more
+predictable.
+
+52
+00:03:28,379 --> 00:03:32,692
+Taking advantage of thread pools by
+arranging the concurrency and the
+
+53
+00:03:32,692 --> 00:03:37,212
+concurrency processing and event handling
+in a slightly different way.
+
+54
+00:03:37,213 --> 00:03:40,472
+Applications, different requirements,
+different domains.
+
+55
+00:03:40,472 --> 00:03:43,713
+Will require different paths through this
+pattern language.
+
+56
+00:03:43,713 --> 00:03:47,626
+We also took a step back and looked at the
+use of asynchronous processing.
+
+57
+00:03:47,626 --> 00:03:51,406
+Following the proactor pattern and various
+patterns that relate to it.
+
+58
+00:03:51,406 --> 00:03:55,332
+Such as asynchronous completion token.
+And this gives us a way to get a lot of
+
+59
+00:03:55,332 --> 00:03:59,486
+the benefits of multi-threading without
+incurring some of the complexities of
+
+60
+00:03:59,486 --> 00:04:04,166
+multi-threading and synchronization.
+The downside here of course, is that we
+
+61
+00:04:04,166 --> 00:04:08,774
+had less portability in our solution,
+which might make it difficult to use in
+
+62
+00:04:08,774 --> 00:04:13,526
+it's broad a number of different contexts
+as some of the other paths through our
+
+63
+00:04:13,526 --> 00:04:17,214
+pattern language.
+But the key point here was tha tpatterns
+
+64
+00:04:17,214 --> 00:04:21,630
+allow us to be explicit in recording and
+documementing these tradeoffs.
+
+65
+00:04:21,630 --> 00:04:26,381
+Which are otherwise often lost, in terms
+of internal implementation details.
+
+66
+00:04:26,382 --> 00:04:31,012
+And other information that's locked in the
+head of experts or buried deep in the
+
+67
+00:04:31,012 --> 00:04:34,262
+source code.
+Another benifite of patterns is that they
+
+68
+00:04:34,262 --> 00:04:39,023
+help us to have a shared vocabulary that
+allows team memeber to communicate to each
+
+69
+00:04:39,023 --> 00:04:43,827
+other much more clearly and concisely.
+For example when we had started to develop
+
+70
+00:04:43,827 --> 00:04:48,381
+the jaws web server in the late 90's The
+group I was working with at the time, grad
+
+71
+00:04:48,381 --> 00:04:53,211
+students, staff members, other faculty,
+had been working with patterns for about 4
+
+72
+00:04:53,211 --> 00:04:56,066
+or 5 years.
+And so we had begun to document many of
+
+73
+00:04:56,066 --> 00:04:59,094
+the key architectural roles and
+responsibilities.
+
+74
+00:04:59,095 --> 00:05:02,018
+That found their way into the use of the
+web server.
+
+75
+00:05:02,018 --> 00:05:06,580
+And the nice part was when we brought new
+team members into the project, it was very
+
+76
+00:05:06,580 --> 00:05:10,290
+easy to bring them up to speed.
+We just, we would say, go read these
+
+77
+00:05:10,290 --> 00:05:14,779
+papers or go look at these source code
+examples and very quickly they could latch
+
+78
+00:05:14,779 --> 00:05:18,435
+onto the key design behavioral issues,
+structural issues.
+
+79
+00:05:18,436 --> 00:05:22,365
+Ways of arranging the software to make it
+effective in the context of the web
+
+80
+00:05:22,365 --> 00:05:24,575
+server.
+If we hadn't had that information
+
+81
+00:05:24,575 --> 00:05:28,601
+documented, it would have been much more
+difficult to bring the team up to speed
+
+82
+00:05:28,601 --> 00:05:31,131
+quickly.
+Of course nowadays we have things much
+
+83
+00:05:31,131 --> 00:05:33,628
+easier.
+We're able to use various books that have
+
+84
+00:05:33,628 --> 00:05:37,888
+been published on these topics on a wide
+variety of different programming languages
+
+85
+00:05:37,888 --> 00:05:41,679
+and operating environments.
+We're able to leverage digital learning.
+
+86
+00:05:41,679 --> 00:05:45,774
+Means such as these video courses and so
+on in order to be able to teach people
+
+87
+00:05:45,774 --> 00:05:49,678
+these concepts without having to go
+through the school of hard knocks and
+
+88
+00:05:49,678 --> 00:05:52,472
+painful trial and error that takes a long
+time to do.
+
+89
+00:05:52,472 --> 00:05:56,446
+If you take a look at the website at the
+bottom of this slide, you can find out
+
+90
+00:05:56,446 --> 00:06:00,670
+more papers that document the origins of
+our JAWS web server and how we came upon
+
+91
+00:06:00,670 --> 00:06:04,830
+the ideas of trying to build it around a
+shared commonality using patterns and
+
+92
+00:06:04,830 --> 00:06:08,657
+pattern languages.
+Another benefit of patterns is it helps to
+
+93
+00:06:08,657 --> 00:06:13,401
+transcend language-centric perspectives,
+language-centric biases.
+
+94
+00:06:13,401 --> 00:06:16,821
+Programming languages are a lot like
+movies, music, art.
+
+95
+00:06:16,821 --> 00:06:21,295
+We all have our personal favorites.
+And it's a lot of fun to argue vehemently
+
+96
+00:06:21,295 --> 00:06:24,876
+with other people.
+Trying to convince them that what we like
+
+97
+00:06:24,876 --> 00:06:29,228
+is better than what they like.
+But of course, in reality, there's a lot
+
+98
+00:06:29,228 --> 00:06:32,680
+of underlying Themes that are important to
+also realize.
+
+99
+00:06:32,680 --> 00:06:37,042
+And focus on patterns allows us to elevate
+the discussion to the more strategic
+
+100
+00:06:37,042 --> 00:06:41,530
+issues of design and then make it more
+straightforward to apply those good design
+
+101
+00:06:41,530 --> 00:06:46,282
+techniques and those best practices in the
+context of whatever programming language
+
+102
+00:06:46,282 --> 00:06:50,506
+you may happen to work with, be it your
+favorite one or one that is imposed upon
+
+103
+00:06:50,506 --> 00:06:55,060
+you because of the context, or customer,
+or the work group that you're interacting
+
+104
+00:06:55,060 --> 00:06:57,365
+with.
+There are some other issues related to
+
+105
+00:06:57,365 --> 00:06:59,901
+this as well.
+Patterns also allow us to abstract away
+
+106
+00:06:59,901 --> 00:07:02,988
+from other details, above and beyond the
+programming language.
+
+107
+00:07:02,988 --> 00:07:06,642
+For example, if you go back and watch the
+various modules in this section that
+
+108
+00:07:06,642 --> 00:07:09,754
+talked about the different paths though
+our pattern language.
+
+109
+00:07:09,754 --> 00:07:14,478
+You'll see that almost all the discussions
+begin by discussing the patterns without
+
+110
+00:07:14,478 --> 00:07:19,164
+having yet wrapped around issues like the
+choice of the operating system, the choice
+
+111
+00:07:19,164 --> 00:07:24,048
+of the particular details of concurrency,
+synchronization, event demultiplexing and
+
+112
+00:07:24,048 --> 00:07:26,378
+so on.
+And so that allows us to be able to
+
+113
+00:07:26,378 --> 00:07:30,599
+abstract away from some of these
+unessential details when it makes sense to
+
+114
+00:07:30,599 --> 00:07:34,786
+think more strategically.
+At the design phase, at the architecture
+
+115
+00:07:34,786 --> 00:07:37,542
+phase.
+And these are all good things because they
+
+116
+00:07:37,542 --> 00:07:41,832
+help people get it right in the broad
+sense before they start to delve down into
+
+117
+00:07:41,832 --> 00:07:45,923
+those implementation details.
+Of course there's also some limitations
+
+118
+00:07:45,923 --> 00:07:48,526
+that come from patterns in this regard as
+well.
+
+119
+00:07:48,526 --> 00:07:53,020
+If you just read the pattern literature,
+it often gives you a somewhat incomplete
+
+120
+00:07:53,020 --> 00:07:56,914
+view of trying to address these design and
+implementation concerns.
+
+121
+00:07:56,914 --> 00:08:01,445
+The pattern's literature typically does a
+good job of explaining the design roles in
+
+122
+00:08:01,445 --> 00:08:04,563
+relationships.
+What are the key structures, what are the
+
+123
+00:08:04,563 --> 00:08:08,213
+common behavioral aspects?
+But often times doesn't really dig down
+
+124
+00:08:08,213 --> 00:08:12,882
+deep enough into some of these more subtle
+implementation and optimization concerns.
+
+125
+00:08:12,882 --> 00:08:16,794
+So when you actually go to apply these
+patterns in practice, especially in
+
+126
+00:08:16,794 --> 00:08:21,330
+environments where performance and quality
+of service has a big impact on the success
+
+127
+00:08:21,330 --> 00:08:25,047
+or failure of a system There's a lot of
+other things you're going to have to
+
+128
+00:08:25,047 --> 00:08:29,250
+wrestle with in order to be successful.
+You'll have to think about different ways
+
+129
+00:08:29,250 --> 00:08:32,984
+of doing event demultiplexing, A weight
+for multiple objects versus select.
+
+130
+00:08:32,984 --> 00:08:35,994
+Edge-triggered versus level-triggered
+event demultiplexors.
+
+131
+00:08:35,994 --> 00:08:38,509
+Different semantics for threading and
+concurrency.
+
+132
+00:08:38,509 --> 00:08:40,712
+Different ways of handling asynchronous
+I/O.
+
+133
+00:08:40,712 --> 00:08:43,132
+Windows does it one way, it does it quite
+well.
+
+134
+00:08:43,132 --> 00:08:45,993
+Posics does it a different way.
+Often not quite as well.
+
+135
+00:08:45,993 --> 00:08:48,866
+How do you try to find ways to factor out
+those diversities.
+
+136
+00:08:48,866 --> 00:08:52,232
+There's other issues of course, with
+different kinds of inter-process
+
+137
+00:08:52,232 --> 00:08:56,376
+communication mechanisms, dynamic linking,
+multiprocessing, security, and so on and
+
+138
+00:08:56,376 --> 00:08:58,894
+so forth.
+And of course, don't forget the language
+
+139
+00:08:58,894 --> 00:09:01,995
+specific issues too.
+Different languages embody different ways
+
+140
+00:09:01,995 --> 00:09:06,006
+of implementing these patterns.
+More efficiently or less efficiently or
+
+141
+00:09:06,006 --> 00:09:10,216
+more effectively and less effectively.
+And so it's important to get down a little
+
+142
+00:09:10,216 --> 00:09:14,149
+deeper than just an understanding at a
+cursory level of the design issues.
+
+143
+00:09:14,149 --> 00:09:18,187
+Now it turns out that some of the
+limitations we had talked about previously
+
+144
+00:09:18,187 --> 00:09:22,731
+when we had been in the section providing
+an introduction to patterns and frameworks
+
+145
+00:09:22,731 --> 00:09:27,147
+Are not quite as important or not quite as
+relevant when we start applying patterns
+
+146
+00:09:27,147 --> 00:09:31,069
+together with frameworks.
+For example one of the things we've talked
+
+147
+00:09:31,069 --> 00:09:35,464
+about earlier in the previous analyses was
+that patterns don't write the code.
+
+148
+00:09:35,464 --> 00:09:39,892
+You have to figure out some way of being
+able to take the patterns description and
+
+149
+00:09:39,892 --> 00:09:43,958
+turn them into source code.
+Well obviously if you're using a framework
+
+150
+00:09:43,958 --> 00:09:48,038
+or a set of frameworks And those
+frameworks do embody the patterns, then
+
+151
+00:09:48,038 --> 00:09:50,873
+that particular issue is much less
+problematic.
+
+152
+00:09:50,873 --> 00:09:55,502
+There may be other issues but the issue of
+trying to have the code reusable as well
+
+153
+00:09:55,502 --> 00:09:59,918
+as the design is somehow alleviated or
+somewhat alleviated when you combine
+
+154
+00:09:59,918 --> 00:10:03,736
+patterns of frameworks.
+This a good segway into the discussion
+
+155
+00:10:03,736 --> 00:10:08,632
+about some of the benefits Of frameworks
+that we've discussed as we've been going
+
+156
+00:10:08,632 --> 00:10:12,410
+through this section three.
+One of the main things you get with
+
+157
+00:10:12,410 --> 00:10:16,095
+frameworks is even further elaboration on
+reusive design.
+
+158
+00:10:16,096 --> 00:10:21,036
+By their nature, patterns are about
+reusing design concepts, design artifacts,
+
+159
+00:10:21,036 --> 00:10:25,361
+design architecures and so on.
+When you get into the frameworks, you're
+
+160
+00:10:25,361 --> 00:10:28,207
+using.
+They're reusing the design, but it's more
+
+161
+00:10:28,207 --> 00:10:31,793
+the detailed design.
+It's the way in which the various classes,
+
+162
+00:10:31,793 --> 00:10:35,947
+and components, and functions interact
+with each other in regular ways in
+
+163
+00:10:35,947 --> 00:10:40,431
+recurring structures and behaviors.
+And as you saw in our illustration in the
+
+164
+00:10:40,431 --> 00:10:45,401
+context of the JAWS Web server, because we
+developed the frameworks using variation
+
+165
+00:10:45,401 --> 00:10:49,687
+orientated design And careful commonality
+and variability analysis.
+
+166
+00:10:49,687 --> 00:10:54,725
+It was often very straight forward to go
+from one model, one event to multiplexing
+
+167
+00:10:54,725 --> 00:10:58,943
+or concurrency model to another without
+much change in the design.
+
+168
+00:10:58,943 --> 00:11:03,611
+For example we were able to go from a
+reactive approach to doing concurrency
+
+169
+00:11:03,611 --> 00:11:08,569
+with the web server to one that used a
+thread per connection model with virtually
+
+170
+00:11:08,569 --> 00:11:13,337
+no change whatsoever to the design.
+Just a few little tweaks here verriding a
+
+171
+00:11:13,337 --> 00:11:18,233
+few methods, implementing things spawning
+active objects as opposed to passive
+
+172
+00:11:18,233 --> 00:11:22,012
+objects and so on and so forth.
+So that's a nice example of how the
+
+173
+00:11:22,012 --> 00:11:26,352
+various frameworks that we've been
+discussing allow tremendous reuse of
+
+174
+00:11:26,352 --> 00:11:29,272
+design.
+And that design insight of course is built
+
+175
+00:11:29,272 --> 00:11:33,895
+up over many, many years of re-factoring
+an application and generalization and
+
+176
+00:11:33,895 --> 00:11:36,932
+customization.
+Based on real experience and real
+
+177
+00:11:36,932 --> 00:11:40,328
+environments.
+Another benefit that follows nicely from
+
+178
+00:11:40,328 --> 00:11:43,634
+design reuse with frameworks is
+implementation reuse.
+
+179
+00:11:43,634 --> 00:11:48,113
+We didn't have to write the code to do the
+synchronous and asychronous event
+
+180
+00:11:48,113 --> 00:11:51,267
+handling.
+We didn't have to write the code to do all
+
+181
+00:11:51,267 --> 00:11:56,517
+those various concurrency models, things
+like half sync half async, active object
+
+182
+00:11:56,517 --> 00:12:01,661
+leader followers, proactor and so on.
+Those were handled for us by the framework
+
+183
+00:12:01,661 --> 00:12:06,512
+so the ability to take these elements off
+the shelf and then apply them using
+
+184
+00:12:06,512 --> 00:12:11,286
+patterns to guide our design and
+programming techniques, is a tremendous
+
+185
+00:12:11,286 --> 00:12:15,258
+productivity enhancer.
+Yet another benefit that comes from
+
+186
+00:12:15,258 --> 00:12:18,983
+frameworks is the ability to be able to
+reuse validation.
+
+187
+00:12:18,983 --> 00:12:22,123
+To paraphrase Dilbert, writing software is
+easy.
+
+188
+00:12:22,123 --> 00:12:26,389
+The hard part of software is trying to get
+that software to run reliably,
+
+189
+00:12:26,389 --> 00:12:31,004
+predictably, securely, efficiently,
+reusably, modularly on the different
+
+190
+00:12:31,004 --> 00:12:35,176
+processors, the different platforms of
+what you're trying to apply.
+
+191
+00:12:35,176 --> 00:12:39,284
+And that can often take a lot of work.
+So one of the nice things about a
+
+192
+00:12:39,284 --> 00:12:42,224
+framework, or frameworks, is you can
+amortize.
+
+193
+00:12:42,224 --> 00:12:45,611
+The testing and debugging effort over long
+periods of time.
+
+194
+00:12:45,611 --> 00:12:50,127
+Especially if you avail yourselves of
+modern techniques for quality assurance.
+
+195
+00:12:50,127 --> 00:12:54,296
+Things like test driven development,
+continuous integration, and so on.
+
+196
+00:12:54,296 --> 00:12:59,059
+We've developed a number of capabilities
+over the years that are part of our open
+
+197
+00:12:59,059 --> 00:13:03,416
+source release for ACE and Dow, and other
+elements of our middleware.
+
+198
+00:13:03,417 --> 00:13:07,664
+And as you take a look at this slide and
+take a look at the link that's shown at
+
+199
+00:13:07,664 --> 00:13:11,690
+the bottom of the slide, you can see that
+we have a nice, interactive daily
+
+200
+00:13:11,690 --> 00:13:16,361
+scoreboard where it'll tell us what the
+status is of our various software modules.
+
+201
+00:13:16,361 --> 00:13:20,301
+How many of the tests have succeeded, how
+many of the tests have failed.
+
+202
+00:13:20,301 --> 00:13:24,997
+We can also go back and click through the
+history of these various reports to find
+
+203
+00:13:24,997 --> 00:13:29,638
+out how things were a month ago, year ago.
+The last major release, the last minor
+
+204
+00:13:29,638 --> 00:13:33,585
+release and so on and so forth.
+So that greatly simplifies the way in
+
+205
+00:13:33,585 --> 00:13:37,981
+which we can do verification and
+validation of the quality of our software.
+
+206
+00:13:37,981 --> 00:13:42,677
+And because we have a framework, or a set
+of frameworks, it's worth investing the
+
+207
+00:13:42,677 --> 00:13:45,055
+time.
+In building this regression testing
+
+208
+00:13:45,055 --> 00:13:49,117
+scaffolding, because we can leverage it
+for many new things going forward.
+
+209
+00:13:49,117 --> 00:13:53,215
+So by the time you go to use a mature
+framework, hopefully the bugs have been
+
+210
+00:13:53,215 --> 00:13:57,141
+found and fixed long ago by other people
+who have been there before you.
+
+211
+00:13:57,141 --> 00:14:00,567
+There are, of course, a number of
+limitations of frameworks and it's
+
+212
+00:14:00,567 --> 00:14:04,647
+important to be very honest and forthright
+about these so you can make an informed
+
+213
+00:14:04,647 --> 00:14:07,851
+decision about what technologies to apply
+for your projects.
+
+214
+00:14:07,851 --> 00:14:12,278
+One of the challenges with frameworks, of
+course, is they can often be rather large.
+
+215
+00:14:12,279 --> 00:14:16,696
+And that means there's a big surface area
+for you to navigate through it, for you to
+
+216
+00:14:16,696 --> 00:14:20,476
+understand, for you to learn how to
+customize and tailor, and extend and
+
+217
+00:14:20,476 --> 00:14:24,037
+compose, and integrate to build your
+particular applications.
+
+218
+00:14:24,037 --> 00:14:28,651
+Just as one example, the frameworks that
+we've developed over the years for ACE and
+
+219
+00:14:28,651 --> 00:14:33,152
+other parts of our middle ware, are now
+roughly around two million lines of code.
+
+220
+00:14:33,152 --> 00:14:37,188
+There are thousands of classes, there many
+more thousands of methods in those
+
+221
+00:14:37,188 --> 00:14:39,889
+classes.
+And you can imagine it, the average person
+
+222
+00:14:39,889 --> 00:14:43,981
+can't easily sit down and plow through
+millions of lines of code in an afternoon
+
+223
+00:14:43,981 --> 00:14:47,887
+to figure out how all the peices fit
+together, so there's clearly a learning
+
+224
+00:14:47,887 --> 00:14:50,857
+curve here.
+How do you navigate through that learning
+
+225
+00:14:50,857 --> 00:14:53,221
+curve?
+How do you master The complexity of
+
+226
+00:14:53,221 --> 00:14:57,138
+learning something that big.
+Well obviously a good place to start is by
+
+227
+00:14:57,138 --> 00:14:59,891
+understanding the core architectural
+patterns.
+
+228
+00:14:59,891 --> 00:15:04,385
+And a lot of the discussion that we've had
+in this section has introduced you to the
+
+229
+00:15:04,385 --> 00:15:07,516
+core frameworks, the half a dozen or so
+core frameworks.
+
+230
+00:15:07,516 --> 00:15:11,682
+And the couple scores of classes that are
+important to make the most out of the
+
+231
+00:15:11,682 --> 00:15:14,981
+architectural elements in this reusable
+body of software.
+
+232
+00:15:14,981 --> 00:15:19,397
+So that's one way of being able to deal
+with the complexity and the scope is by
+
+233
+00:15:19,397 --> 00:15:24,087
+being able to narrow it down by focusing
+on the strategic patterns and their core
+
+234
+00:15:24,087 --> 00:15:26,939
+models of structure and interactive
+behavior.
+
+235
+00:15:26,939 --> 00:15:31,501
+Another sort of complexities with using
+frameworks is the fact that they can be a
+
+236
+00:15:31,501 --> 00:15:34,129
+little bit tedious and challenging to
+debug.
+
+237
+00:15:34,129 --> 00:15:36,802
+Why is this?
+Well there's a number of reasons.
+
+238
+00:15:36,802 --> 00:15:41,036
+The use of polymorphism, both dynamic
+polymorphism, polymorphism through
+
+239
+00:15:41,036 --> 00:15:45,725
+subclassing and overriding in methods.
+The use of static polymorphism, templates
+
+240
+00:15:45,725 --> 00:15:50,147
+and parameterized types and so on means
+that you often have a hard time figuring
+
+241
+00:15:50,147 --> 00:15:54,937
+out just exactly what your software does.
+And you need to have a debugger that knows
+
+242
+00:15:54,937 --> 00:15:59,417
+how to work with templates, know how to be
+able to make it easy to debug virtual
+
+243
+00:15:59,417 --> 00:16:03,219
+function calls and so, So on.
+The use of inversion of control, which is
+
+244
+00:16:03,219 --> 00:16:07,251
+one of the hallmarks of a framework, can
+be complicated, knowing where to set
+
+245
+00:16:07,251 --> 00:16:11,472
+breakpoints, knowing that when you set a
+breakpoint and you get to a certain part
+
+246
+00:16:11,472 --> 00:16:15,693
+of your code, there may be a long stack of
+activation records sitting underneath
+
+247
+00:16:15,693 --> 00:16:20,166
+where you are that you didn't necessarily
+write but maybe necessary to understand to
+
+248
+00:16:20,166 --> 00:16:23,180
+some extent.
+To make sense of why your program is not
+
+249
+00:16:23,180 --> 00:16:25,457
+working.
+So having a feel for this, obviously
+
+250
+00:16:25,457 --> 00:16:28,867
+having a source code, can make a big
+difference in debugging as well.
+
+251
+00:16:28,867 --> 00:16:32,464
+And naturally anytime you start spawning
+threads, anytime you start doing
+
+252
+00:16:32,464 --> 00:16:36,340
+asynchronous processing, there are going
+to be some serious complexities you have
+
+253
+00:16:36,340 --> 00:16:39,817
+to wrestle with because things are going
+to take, they're going to run in different
+
+254
+00:16:39,817 --> 00:16:42,174
+orders.
+There's an inherent non-determinism.
+
+255
+00:16:42,174 --> 00:16:46,140
+The way in which you debug your code may
+be different from the way in which you run
+
+256
+00:16:46,140 --> 00:16:49,774
+it in a production environment.
+Because running the debugger may change
+
+257
+00:16:49,774 --> 00:16:53,348
+some of the timing properties.
+And these are all things you'll just have
+
+258
+00:16:53,348 --> 00:16:56,643
+to become accustomed to.
+Fortunately, once you get familiar with
+
+259
+00:16:56,643 --> 00:16:59,376
+the frameworks, the patterns, the
+interaction modes.
+
+260
+00:16:59,376 --> 00:17:02,991
+You start to develop a 6th sense of how to
+do these debugging techniques.
+
+261
+00:17:02,991 --> 00:17:06,646
+You'll develop trick of the trade that can
+help you be more successful.
+
+262
+00:17:06,647 --> 00:17:10,687
+In applying different ways of finding out
+why things are going wrong.
+
+263
+00:17:10,687 --> 00:17:15,115
+And of course, if you're very lucky a lot
+of the kind of bugs you ordinarily might
+
+264
+00:17:15,115 --> 00:17:19,738
+have had, because you wrote the code from
+scratch, will have been handled by using a
+
+265
+00:17:19,738 --> 00:17:24,294
+framework or frameworks that have long
+since been carefully tested and vetted to
+
+266
+00:17:24,294 --> 00:17:28,648
+remove those kinds of defects.
+Another tricky issue with, related to
+
+267
+00:17:28,648 --> 00:17:32,864
+quality assurance and debugging, has to do
+with the late binding nature of
+
+268
+00:17:32,864 --> 00:17:35,770
+frameworks.
+We, we saw that to some extent with the
+
+269
+00:17:35,770 --> 00:17:40,468
+previous slide about polomorphisms various
+forms and inversion of control.
+
+270
+00:17:40,468 --> 00:17:44,947
+But oftentimes when you go to framework
+The framework's correctness or the
+
+271
+00:17:44,947 --> 00:17:49,562
+framework's performance is, to some
+extent, a function of how it's composed,
+
+272
+00:17:49,562 --> 00:17:54,319
+how it's integrated, how the pieces are
+plugged together and that may not be easy
+
+273
+00:17:54,319 --> 00:17:58,334
+to test when you're building the reusable
+infrastructure itself.
+
+274
+00:17:58,334 --> 00:18:02,488
+Once again, it makes a lot of sense to
+invest in test-driven development,
+
+275
+00:18:02,488 --> 00:18:07,044
+continuous integration, automated
+regression test suites Various tools that
+
+276
+00:18:07,044 --> 00:18:11,192
+you can use to figure out how much of the
+surface area of your source code is
+
+277
+00:18:11,192 --> 00:18:14,402
+actually checked by the regression tests
+that you have.
+
+278
+00:18:14,402 --> 00:18:18,568
+And of course the goal should always be to
+write new tests whenever defects are
+
+279
+00:18:18,568 --> 00:18:21,297
+found.
+Write a regression test to check for those
+
+280
+00:18:21,297 --> 00:18:24,901
+things in the future, to make sure the
+problems don't pop up again.
+
+281
+00:18:24,901 --> 00:18:28,856
+This slide illustrates some software that
+we use with our open source.
+
+282
+00:18:28,857 --> 00:18:33,367
+Middleware in order to be able to check
+whether or not the test cases are covering
+
+283
+00:18:33,367 --> 00:18:37,050
+large portions of the software.
+That of course, is no guarantee of
+
+284
+00:18:37,050 --> 00:18:39,887
+success.
+There are ways of customize and extending
+
+285
+00:18:39,887 --> 00:18:44,011
+our infrastructure that will lead to new
+bugs that we have not anticipated.
+
+286
+00:18:44,011 --> 00:18:47,881
+Or new interactions that we did not
+anticipate with our previous test.
+
+287
+00:18:47,881 --> 00:18:51,043
+But you also get a much better sense of
+what's been tested.
+
+288
+00:18:51,043 --> 00:18:55,081
+As a general rule of thumb, if things
+aren't tested, there are probably bugs
+
+289
+00:18:55,081 --> 00:18:59,177
+lurking in them and so that's a good
+motivation to go and continually improve
+
+290
+00:18:59,177 --> 00:19:03,084
+and upgrade the infrastructure.
+This is also a good way in which you can
+
+291
+00:19:03,084 --> 00:19:07,593
+leverage the benefits of crowd sourcing.
+People will often come along, especially
+
+292
+00:19:07,593 --> 00:19:11,940
+in open source projects And provide new
+text cases, provide ways of automating and
+
+293
+00:19:11,940 --> 00:19:16,035
+scripting how you check to see whether
+certain conditions can be prevented or
+
+294
+00:19:16,035 --> 00:19:18,905
+certain conditions can be demonstrated to
+not exist.
+
+295
+00:19:18,905 --> 00:19:23,333
+Another challenge with frameworks, of
+course, is the fact that there are often
+
+296
+00:19:23,333 --> 00:19:28,090
+many different levels of indirection, and
+they're complex structures with a number
+
+297
+00:19:28,090 --> 00:19:32,713
+of different layer involved, and if you're
+not careful this can make your software
+
+298
+00:19:32,713 --> 00:19:37,202
+become big and bloated and difficult to
+optimize and difficult to be able to meet
+
+299
+00:19:37,202 --> 00:19:41,423
+your end to end latency, through put,
+jitter and other types of performance
+
+300
+00:19:41,423 --> 00:19:44,564
+requirements, dependability, security and
+so on.
+
+301
+00:19:44,564 --> 00:19:49,190
+So one of the key things that's important
+here is once again to try to find a way to
+
+302
+00:19:49,190 --> 00:19:54,139
+objectively and continuously monitor the
+performance aspects of your software.
+
+303
+00:19:54,139 --> 00:19:58,969
+There is a variety of ways you can improve
+things you can run profiling tools to look
+
+304
+00:19:58,969 --> 00:20:03,869
+for bottlenecks in critical paths and then
+come up with various optimizations that
+
+305
+00:20:03,869 --> 00:20:08,169
+reduce the use of memory allocation or
+locking in those critical path.
+
+306
+00:20:08,169 --> 00:20:12,859
+As the software grows in size and scope
+and as more people get involved, it's also
+
+307
+00:20:12,859 --> 00:20:17,829
+important to make sure that you don't let
+little inefficiencies creep in, some small
+
+308
+00:20:17,829 --> 00:20:22,379
+part at a time, that, individually, don't
+add much overhead but when composed
+
+309
+00:20:22,379 --> 00:20:26,961
+together into an aggregate, it makes the
+system becomes noticeably slower.
+
+310
+00:20:26,961 --> 00:20:31,257
+One of the things that we've been doing to
+keep track of that and to try to avoid it
+
+311
+00:20:31,257 --> 00:20:35,417
+and alliviate it as quickly as possible Is
+by running continuous regression
+
+312
+00:20:35,417 --> 00:20:38,277
+performance tests all the time with our
+software.
+
+313
+00:20:38,277 --> 00:20:42,441
+We actually have a computer that we've
+been using for quite a long time, a decade
+
+314
+00:20:42,441 --> 00:20:46,954
+or so, and we always run, every night, all
+of our performance tests on that computer.
+
+315
+00:20:46,954 --> 00:20:51,312
+And then we graph the output as shown here
+and we can tell at a glance whether things
+
+316
+00:20:51,312 --> 00:20:55,408
+are getting slower or faster as people
+make changes to the middle ware, to the
+
+317
+00:20:55,408 --> 00:20:59,133
+source code, to the code base.
+And this provides a good baseline to let
+
+318
+00:20:59,133 --> 00:21:02,915
+us know when things are starting to get
+out of hand and we have to go back and
+
+319
+00:21:02,915 --> 00:21:07,317
+spend more time refactoring, reoptimizing
+to bring the performance back to what was
+
+320
+00:21:07,317 --> 00:21:10,260
+expected.
+And this of course is a continual process,
+
+321
+00:21:10,260 --> 00:21:14,544
+there's never one point where you declare
+victory and all the overhead is gone, or
+
+322
+00:21:14,544 --> 00:21:18,797
+all the bugs are gone.
+Once again important to automate this, to
+
+323
+00:21:18,797 --> 00:21:23,853
+leverage the cost deficiencies of
+computing that you can use in an automated
+
+324
+00:21:23,853 --> 00:21:28,752
+regression test environment.
+So to summarize this particular module,
+
+325
+00:21:28,752 --> 00:21:32,926
+patterns, frameworks, middle ware are all
+very synergistic.
+
+326
+00:21:32,926 --> 00:21:36,013
+They leverage each other in effective
+ways.
+
+327
+00:21:36,014 --> 00:21:40,962
+Patterns of course are particularly useful
+to be able to reuse design knowledge and
+
+328
+00:21:40,962 --> 00:21:45,654
+design expertise in a way that people can
+understand and learn and then hopefully
+
+329
+00:21:45,654 --> 00:21:50,001
+begin to apply to the code that they
+develop, or the code that they integrate
+
+330
+00:21:50,001 --> 00:21:53,283
+from elsewhere.
+Frameworks, in contrast, reuse more
+
+331
+00:21:53,283 --> 00:21:57,012
+implementation artifacts.
+They reuse specific algorithms.
+
+332
+00:21:57,012 --> 00:21:59,867
+They reuse specific structures and
+behaviors.
+
+333
+00:21:59,867 --> 00:22:03,939
+They reuse implementations.
+Not surprisingly, there is a lot of
+
+334
+00:22:03,939 --> 00:22:09,390
+relationship between the frameworks you
+develop these days and the patterns that
+
+335
+00:22:09,390 --> 00:22:13,291
+help to guide and document the design of
+those frameworks.
+
+336
+00:22:13,291 --> 00:22:17,722
+And of course middle ware can really be
+used as a common set of framework
+
+337
+00:22:17,722 --> 00:22:22,597
+capabilities that are exposed through
+simpler, easier to use interfaces and
+
+338
+00:22:22,597 --> 00:22:27,547
+facades that emphasize clean lines, clean
+demarcation, crisp boundaries for
+
+339
+00:22:27,547 --> 00:22:32,797
+application developers to work with, even
+though under the hood, there may be quite
+
+340
+00:22:32,797 --> 00:22:38,047
+a number of intricate interactions and
+dependencies and call back and concurrency
+
+341
+00:22:38,047 --> 00:22:42,697
+and so on, taking place within the
+implementation of middle ware using the
+
+342
+00:22:42,697 --> 00:22:47,722
+frame One of the nice things these days is
+that there are powerful feedback loops
+
+343
+00:22:47,722 --> 00:22:50,981
+that are helping to build on these
+synergies.
+
+344
+00:22:50,981 --> 00:22:55,203
+Twenty, thirty years ago only a handful of
+people really understood the concepts
+
+345
+00:22:55,203 --> 00:22:58,431
+we're describing here.
+Nowadays you can read books on these
+
+346
+00:22:58,431 --> 00:23:01,451
+subjects, you can watch video lectures on
+this subject.
+
+347
+00:23:01,451 --> 00:23:06,066
+You can see the culmination of decades of
+bringing together patterns and frameworks.
+
+348
+00:23:06,067 --> 00:23:10,650
+In the form of the technologies that you
+are working with on a day-to-day basis and
+
+349
+00:23:10,650 --> 00:23:14,610
+that, that is tremendously liberating it
+provides a great boost to both
+
+350
+00:23:14,610 --> 00:23:19,296
+productivity, and quality, and performance
+which we are starting to see today in the
+
+351
+00:23:19,296 --> 00:23:22,695
+off-the-shelf solutions that we use in
+many environments.
+
+352
+00:23:22,695 --> 00:23:26,861
+So to rap things up One of the ways you
+can think about patterns is how to become
+
+353
+00:23:26,861 --> 00:23:31,241
+much more effective at understanding how
+to apply these powerful frameworks.
+
+354
+00:23:31,241 --> 00:23:34,217
+Both to build infrastructure, as well as
+applications.
+
+355
+00:23:34,217 --> 00:23:38,420
+Patterns help you to build frameworks.
+Patterns help you to use frameworks more
+
+356
+00:23:38,420 --> 00:23:41,545
+effectively.
+Many of the most interesting patterns that
+
+357
+00:23:41,545 --> 00:23:46,030
+have been documented over the years have
+grown up from people who were building and
+
+358
+00:23:46,030 --> 00:23:50,450
+applying frameworks in a wide variety of
+interesting domains, and so it should be
+
+359
+00:23:50,450 --> 00:23:55,065
+no surprise there's a real tight synergy
+and relationships between these different
+
+360
+00:23:55,065 --> 00:23:57,903
+technologies.
+It also important to realize too that
+
+361
+00:23:57,903 --> 00:24:01,261
+patterns can be applied to many other
+things besides frameworks.
+
+362
+00:24:01,261 --> 00:24:05,314
+We've been focusing on frameworks and the
+relation of patterns to frameworks, cause
+
+363
+00:24:05,314 --> 00:24:09,190
+that's the subject of this course, but
+there are many other technologies that are
+
+364
+00:24:09,190 --> 00:24:12,141
+not really framework based that are also
+rich with patterns.
+
+365
+00:24:12,141 --> 00:24:15,909
+Just as one simple example, if you're a
+fan of generic-programming the kinds of
+
+366
+00:24:15,909 --> 00:24:18,860
+things that you find with C++ standard
+template library.
+
+367
+00:24:18,860 --> 00:24:23,064
+Boost other ways of using parameterized
+types in effective ways, template
+
+368
+00:24:23,064 --> 00:24:26,927
+metaprogramming and so on.
+There are also many, many patterns in that
+
+369
+00:24:26,927 --> 00:24:29,562
+space.
+There are, some of the patterns, the Gang
+
+370
+00:24:29,562 --> 00:24:33,852
+of 4 patterns in particular, are also
+applicable in things like STL and generic
+
+371
+00:24:33,852 --> 00:24:37,000
+programming.
+Iterator, of course, strategy for
+
+372
+00:24:37,000 --> 00:24:40,624
+functors, factories for various things to
+make iterators.
+
+373
+00:24:40,624 --> 00:24:45,238
+There's other patterns you'll see.
+Adapters, there's lots and lots of use of
+
+374
+00:24:45,238 --> 00:24:49,909
+the adapter pattern in STL, and in C++
+parameterized generic programming.
+
+375
+00:24:49,910 --> 00:24:54,022
+And so, don't think that the patterns
+we've been talking about are only good if
+
+376
+00:24:54,022 --> 00:24:57,450
+you apply frameworks.
+They're also useful for many other things
+
+377
+00:24:57,450 --> 00:25:00,156
+as well.
+And needless to say, as you start trying
+
+378
+00:25:00,156 --> 00:25:03,179
+to apply some of these generic programming
+paradigms.
+
+379
+00:25:03,179 --> 00:25:07,624
+With broader framework related
+technologies, there're also patterns that
+
+380
+00:25:07,624 --> 00:25:11,003
+help to make those things work together
+effectively too.
+
+381
+00:25:11,003 --> 00:25:15,356
+For example, the bridge pattern is
+commonly used to be able to use ways of
+
+382
+00:25:15,356 --> 00:25:19,772
+taking object oriented objects and then
+using them in the context of generic
+
+383
+00:25:19,772 --> 00:25:24,533
+algorithms and generic containers, and you
+can use the bridge pattern to be able to
+
+384
+00:25:24,533 --> 00:25:28,038
+do very efficient copying, managing
+reference counts.
+
+385
+00:25:28,038 --> 00:25:32,891
+Not exposing memory management out to the
+application users, and so on and so forth.
+
+386
+00:25:32,891 --> 00:25:36,917
+So I hope that you've enjoyed all the
+material that we've covered in this
+
+387
+00:25:36,917 --> 00:25:39,757
+section.
+And I look forward to discussing with you
+
+388
+00:25:39,757 --> 00:25:43,849
+the various issues of patterns and
+frameworks for concurrent and network
+
+389
+00:25:43,849 --> 00:25:48,283
+software through the various discussion
+groups that we have at our disposal.

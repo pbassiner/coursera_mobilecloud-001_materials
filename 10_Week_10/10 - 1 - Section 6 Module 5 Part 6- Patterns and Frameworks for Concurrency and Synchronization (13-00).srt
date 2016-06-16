@@ -1,0 +1,909 @@
+1
+00:00:00,012 --> 00:00:06,988
+Welcome to part six of the module on
+Patterns and Frameworks for Concurrency
+
+2
+00:00:06,988 --> 00:00:12,358
+and Synchronization.
+In previous parts of this module, we
+
+3
+00:00:12,358 --> 00:00:18,748
+described the active object pattern.
+It illustrated the ACE Task framework that
+
+4
+00:00:18,748 --> 00:00:22,182
+implements this and other concurrency
+patterns.
+
+5
+00:00:22,182 --> 00:00:27,939
+We also illustrated how to apply ACE Task
+and ACE Acceptor-Connector and ACE Reactor
+
+6
+00:00:27,939 --> 00:00:33,123
+frameworks to implement a thread per
+connection web server based on our JAWS
+
+7
+00:00:33,123 --> 00:00:36,912
+example.
+We then described the Half-Sync/Half-Async
+
+8
+00:00:36,912 --> 00:00:39,872
+pattern.
+And then we illustrated how to apply a
+
+9
+00:00:39,872 --> 00:00:44,177
+variety of ACE frameworks to implement
+Half-Sync/Half-Async for JAWS.
+
+10
+00:00:44,177 --> 00:00:48,159
+If you took a look at the JAWS
+implementation, you would've seen one
+
+11
+00:00:48,159 --> 00:00:50,997
+place that used a synchronized request
+queue.
+
+12
+00:00:50,997 --> 00:00:55,689
+And in this particular part of the module,
+we're going to describe how the Monitor
+
+13
+00:00:55,689 --> 00:00:59,381
+Object pattern to be used to implement
+this request queue.
+
+14
+00:00:59,382 --> 00:01:02,500
+In a very straightforward and efficient
+way.
+
+15
+00:01:02,500 --> 00:01:06,794
+If you go back and take a look at the
+previous part, you'll see that between the
+
+16
+00:01:06,794 --> 00:01:11,551
+Half-Async portion of the solution and the
+Half-Sync portion of the solution, we had
+
+17
+00:01:11,551 --> 00:01:16,174
+an ACE message queue that was used to pass
+request messages containing get request
+
+18
+00:01:16,174 --> 00:01:19,844
+between the 2 different layers.
+That was the queuing layer in the
+
+19
+00:01:19,844 --> 00:01:23,817
+Half-Sync/Half-Async pattern.
+And it's instructive to consider how we
+
+20
+00:01:23,817 --> 00:01:27,153
+might go about implementing this
+particular queuing layer.
+
+21
+00:01:27,153 --> 00:01:31,455
+It we did things in naive way, we could
+end with a number of different problems.
+
+22
+00:01:31,456 --> 00:01:35,800
+One problem might be, if we neglected to
+put any kind of synchronization into the
+
+23
+00:01:35,800 --> 00:01:39,576
+request queue at all, which would
+guarantee that different threads of
+
+24
+00:01:39,576 --> 00:01:43,992
+control would corrupt the internal data
+structures, because they'd be accessing
+
+25
+00:01:43,992 --> 00:01:47,671
+them at the same time.
+And there would be race conditions galore.
+
+26
+00:01:47,671 --> 00:01:52,626
+Another problem which we might encounter
+would be to try to put some kind of spin
+
+27
+00:01:52,626 --> 00:01:57,387
+lock and use that solely to provide access
+to the particular request queue.
+
+28
+00:01:57,387 --> 00:02:02,065
+While that might work in some abstract
+sense, it would be wildly inefficient
+
+29
+00:02:02,065 --> 00:02:06,591
+because we would spend lot of time
+spinning when the queue was either empty
+
+30
+00:02:06,591 --> 00:02:10,891
+or full, just burning out CPU cycles for
+no particular good reason.
+
+31
+00:02:10,891 --> 00:02:15,881
+That might be useful in some kind of
+safety, critical, nuclear reactor control
+
+32
+00:02:15,881 --> 00:02:18,671
+system, but not for our web server
+solution.
+
+33
+00:02:18,671 --> 00:02:21,736
+So, what's the approach we're going to use
+instead?
+
+34
+00:02:21,736 --> 00:02:26,890
+We're going to apply the Monitor Object
+pattern in order to be able to serialize
+
+35
+00:02:26,890 --> 00:02:31,804
+access to our request queue in a manner
+that will both be thread safe and also
+
+36
+00:02:31,804 --> 00:02:35,254
+efficient.
+The Monitor Object pattern is used to
+
+37
+00:02:35,254 --> 00:02:41,076
+provide an object-oriented access point
+that allows multiple threads of control to
+
+38
+00:02:41,076 --> 00:02:46,652
+invoke methods on a Monitor Object while
+only allowing only one method at a time to
+
+39
+00:02:46,652 --> 00:02:49,680
+run.
+So, that provides corruption protection
+
+40
+00:02:49,680 --> 00:02:53,382
+and avoids race conditions.
+And the other thing that we're going to do
+
+41
+00:02:53,382 --> 00:02:57,802
+with Monitor Object, is make it possible
+to be able to allow the different threads
+
+42
+00:02:57,802 --> 00:03:02,157
+of control to schedule and coordinate
+their interaction by using various parts
+
+43
+00:03:02,157 --> 00:03:05,774
+of the Monitor Object as well.
+If you take a look at the structure
+
+44
+00:03:05,774 --> 00:03:09,998
+diagram illustrated on this slide, you'll
+see that there's a number of parts to
+
+45
+00:03:09,998 --> 00:03:13,020
+Monitor Object.
+The first part of Monitor Object is the
+
+46
+00:03:13,020 --> 00:03:17,541
+Monitor Object itself, which contains a
+number of so-called synchronized methods.
+
+47
+00:03:17,541 --> 00:03:21,516
+People who are Java programmers should be
+very familiar with the concept of
+
+48
+00:03:21,516 --> 00:03:24,524
+synchronized method.
+Because in Java, this is supported
+
+49
+00:03:24,524 --> 00:03:27,402
+natively in the language by the
+synchronized keyword.
+
+50
+00:03:27,402 --> 00:03:32,304
+And you can simply add that to a method to
+ensure that only one of those methods will
+
+51
+00:03:32,304 --> 00:03:36,906
+be active inside of an object at a time.
+In order to be able to ensure that this
+
+52
+00:03:36,906 --> 00:03:40,754
+takes place, there is typically a Monitor
+Lock of some kind.
+
+53
+00:03:40,754 --> 00:03:45,759
+Maybe a mutex, or a reader's writer lock,
+perhaps a recursive mutex, perhaps a
+
+54
+00:03:45,759 --> 00:03:49,346
+nonrecursive mutex.
+Sort of depends on the use case.
+
+55
+00:03:49,346 --> 00:03:54,310
+And this Monitor Lock is used to make sure
+that there's only one method active at a
+
+56
+00:03:54,310 --> 00:03:58,636
+time inside a Monitor Object.
+And then there's also, potentially 0 or
+
+57
+00:03:58,636 --> 00:04:03,454
+more Monitor Conditions, which are
+condition variables that are used to allow
+
+58
+00:04:03,454 --> 00:04:08,564
+threads to cooperatively schedule their
+interactions and to coordinate with each
+
+59
+00:04:08,564 --> 00:04:13,083
+other in various stylized ways.
+By being able to wait, notify, and notify
+
+60
+00:04:13,083 --> 00:04:18,018
+all waiting threads when something
+interesting happens and conditions change.
+
+61
+00:04:18,018 --> 00:04:22,460
+If you're programming in Java, these
+things come built-in to the language.
+
+62
+00:04:22,460 --> 00:04:26,434
+If you're programming in other languages
+like C++ or C, then you'll have to
+
+63
+00:04:26,434 --> 00:04:30,658
+understand how the pattern works in order
+to be able to use this for the code that
+
+64
+00:04:30,658 --> 00:04:34,390
+you write, where it's appropriate.
+If you take a look at this URL at the
+
+65
+00:04:34,390 --> 00:04:38,416
+bottom of the slide, you'll find out more
+information about the Monitor Object
+
+66
+00:04:38,416 --> 00:04:40,988
+pattern.
+And of course it also appears in the POSA
+
+67
+00:04:40,988 --> 00:04:43,768
+2 book.
+Let's now talk a bit about the dynamics of
+
+68
+00:04:43,768 --> 00:04:47,000
+this pattern.
+At first glance, these dynamics appear a
+
+69
+00:04:47,000 --> 00:04:50,016
+little daunting because there's a lot of
+moving parts.
+
+70
+00:04:50,016 --> 00:04:53,768
+But if you break it down, it's actually
+quite easy to understand.
+
+71
+00:04:53,768 --> 00:04:57,995
+And in order to make it a little bit more
+intuitive, I'll describe this in the
+
+72
+00:04:57,995 --> 00:05:02,667
+context of our synchronized request queue.
+And we'll imagine that we're trying to
+
+73
+00:05:02,667 --> 00:05:05,759
+dequeue an item a message from this
+request queue.
+
+74
+00:05:05,759 --> 00:05:09,736
+What happens in this case is the thread
+comes along and it says, I would like to
+
+75
+00:05:09,736 --> 00:05:13,056
+dequeue something from the queue.
+I'd like to do a Get-Queue.
+
+76
+00:05:13,056 --> 00:05:15,856
+And it would go in.
+The Monitor Lock would be acquired.
+
+77
+00:05:15,856 --> 00:05:18,961
+Let's assume there were no other threads
+running at the time.
+
+78
+00:05:18,961 --> 00:05:22,547
+So the Monitor Lock is acquired.
+No other, no other threads, no other
+
+79
+00:05:22,547 --> 00:05:26,280
+methods can execute at that point in that
+particular Monitor Object.
+
+80
+00:05:26,280 --> 00:05:30,704
+And then what'll happen is it'll go ahead.
+That method will check to see if there's
+
+81
+00:05:30,704 --> 00:05:35,047
+any elements, any messages on the queue.
+In this particular case, let's assume
+
+82
+00:05:35,047 --> 00:05:39,280
+there are no elements in the queue.
+So, what will happen at that point is that
+
+83
+00:05:39,280 --> 00:05:43,578
+this particular method will voluntarily
+relinquish the threat of control.
+
+84
+00:05:43,578 --> 00:05:46,963
+And it will do this by waiting on a
+notEmpty condition.
+
+85
+00:05:46,963 --> 00:05:51,371
+So, this is a condition variable, a
+Monitor Condition, that's used to wait
+
+86
+00:05:51,371 --> 00:05:54,184
+for.
+It's there to be something in the queue.
+
+87
+00:05:54,184 --> 00:05:58,177
+So it's no longer empty.
+When the waitCall is invoked, that will
+
+88
+00:05:58,177 --> 00:06:02,841
+also atomically release the lock.
+And this threat is now suspended waiting
+
+89
+00:06:02,841 --> 00:06:07,582
+for the notEmpty condition to change.
+At some point along the way, another
+
+90
+00:06:07,582 --> 00:06:12,410
+thread will come along that will actually
+enqueue or do a putQueue to put a message
+
+91
+00:06:12,410 --> 00:06:15,897
+into the queue.
+That method will acquire the Monitor Lock
+
+92
+00:06:15,897 --> 00:06:18,872
+which was released earlier, when we did
+the wait.
+
+93
+00:06:18,872 --> 00:06:22,269
+It will go ahead and add a message to the
+message queue.
+
+94
+00:06:22,269 --> 00:06:27,005
+And then it'll notice that someone was
+waiting and it will go ahead and invoke
+
+95
+00:06:27,005 --> 00:06:32,086
+the, the notify method or the notify all
+method to wake up any waiting threads.
+
+96
+00:06:32,086 --> 00:06:37,346
+And then it will go ahead and exit the,
+the Monitor Object and release the lock.
+
+97
+00:06:37,346 --> 00:06:41,095
+At some point henceforth, the sleeping
+thread will be reawakened.
+
+98
+00:06:41,095 --> 00:06:45,225
+It will acquire the lock, will go and
+check to see that there is indeed, a
+
+99
+00:06:45,225 --> 00:06:50,055
+message on the message queue and it will
+remove the message from the message queue,
+
+100
+00:06:50,055 --> 00:06:54,803
+release the lock and return to the caller.
+And these kinds of synchronization and
+
+101
+00:06:54,803 --> 00:06:59,423
+scheduling activities will go on over and
+over again, as we insert and remove things
+
+102
+00:06:59,423 --> 00:07:03,266
+into our request queue.
+So, how could we apply this to JAWS?
+
+103
+00:07:03,266 --> 00:07:07,847
+Well, we kind of already gave an example
+on the previous slide when we were
+
+104
+00:07:07,847 --> 00:07:11,616
+discussing the dynamics.
+But let's put it a bit more into the
+
+105
+00:07:11,616 --> 00:07:16,141
+context of our JAWS web server using the
+Half-Sync/Half-Async design.
+
+106
+00:07:16,141 --> 00:07:21,149
+So, if you recall we have an ACE Task and
+part of an ACE Task is an ACE Message
+
+107
+00:07:21,149 --> 00:07:26,233
+Queue, which we're going to look at in
+much more detail in the next part of this
+
+108
+00:07:26,233 --> 00:07:29,765
+module.
+This ACE message queue can be used in a
+
+109
+00:07:29,765 --> 00:07:34,842
+couple of ways by the Task.
+Most typically what happens is, when the
+
+110
+00:07:34,842 --> 00:07:40,845
+TP HTTP handler running in the Half-Async
+portion, the reactive portion of our web
+
+111
+00:07:40,845 --> 00:07:46,500
+server calls put, on the Task on the TP
+HTTP Task, that put method if you recall,
+
+112
+00:07:46,500 --> 00:07:51,807
+will enqueue the request on the
+synchronized ACE Message Queue using the
+
+113
+00:07:51,807 --> 00:07:57,986
+Monitor Condition and the Monitor Lock and
+the various things we just described.
+
+114
+00:07:57,986 --> 00:08:03,352
+Once it's been put on the queue, then one
+or more of the threads that are waiting to
+
+115
+00:08:03,352 --> 00:08:09,032
+receive notification that there's new work
+to be done, will be awakened by the thread
+
+116
+00:08:09,032 --> 00:08:12,669
+scheduler.
+And these threads that are running as part
+
+117
+00:08:12,669 --> 00:08:17,905
+of the active object in the TP HTTP Task,
+will call getQueue and that getQueue will
+
+118
+00:08:17,905 --> 00:08:22,258
+return with the queue to process.
+And you can see here that we use the
+
+119
+00:08:22,258 --> 00:08:27,142
+notEmpty and notFull conditions, in order
+to be able to dictate when things can
+
+120
+00:08:27,142 --> 00:08:32,026
+start up again, when they can be notified,
+when they have to wait and block and so
+
+121
+00:08:32,026 --> 00:08:34,837
+on.
+So, in this particular case, the producer
+
+122
+00:08:34,837 --> 00:08:39,582
+side will block if the queue is full, and
+the consumer threads will block if the
+
+123
+00:08:39,582 --> 00:08:43,088
+queue is empty.
+And everything is driven by those types of
+
+124
+00:08:43,088 --> 00:08:46,527
+interactions.
+It's instructive to compare and contrast
+
+125
+00:08:46,527 --> 00:08:51,077
+Monitor Object that we're talking about
+here, with Active Object that we described
+
+126
+00:08:51,077 --> 00:08:54,249
+somewhat earlier.
+There's a couple of different ways to
+
+127
+00:08:54,249 --> 00:08:58,202
+relate these patterns because they, at
+first glance, appear to be solving a
+
+128
+00:08:58,202 --> 00:09:01,980
+similar style of problem.
+In the Monitor Object case, the thread
+
+129
+00:09:01,980 --> 00:09:05,021
+that invokes a method is borrowed to run
+the method.
+
+130
+00:09:05,021 --> 00:09:09,647
+In the Active Objective case, in contrast,
+the thread that invokes the method is not
+
+131
+00:09:09,647 --> 00:09:13,787
+the thread that runs the method.
+Those two things are separated and they're
+
+132
+00:09:13,787 --> 00:09:17,341
+run in different threads of control.
+So that's one difference.
+
+133
+00:09:17,342 --> 00:09:20,625
+As a consequence of some of those
+differences, there's additional
+
+134
+00:09:20,625 --> 00:09:24,275
+flexibility with active object.
+In active object cases, you can reorder
+
+135
+00:09:24,275 --> 00:09:28,055
+the requests that are coming in, the
+method requests that correspond to the
+
+136
+00:09:28,055 --> 00:09:30,740
+messages.
+And you can run them in a different order
+
+137
+00:09:30,740 --> 00:09:34,272
+than they arrived.
+You may run them in priority order or some
+
+138
+00:09:34,272 --> 00:09:38,962
+other type of order that depends on
+synchronization constraints or guards that
+
+139
+00:09:38,962 --> 00:09:43,582
+may dictate how those method requests can
+be executed on the, the Active Object
+
+140
+00:09:43,582 --> 00:09:46,287
+server.
+Conversely, as we'll see with, with
+
+141
+00:09:46,287 --> 00:09:51,048
+Monitor Objects, typically the order in
+which you invoke the methods are the order
+
+142
+00:09:51,048 --> 00:09:54,147
+in which they run.
+There's usually a FIFO queuing like
+
+143
+00:09:54,147 --> 00:09:58,431
+regiment that's followed by the Monitor
+Lock, although that's often OS and
+
+144
+00:09:58,431 --> 00:10:02,166
+implementation specific.
+Another thing to keep in mind is that,
+
+145
+00:10:02,166 --> 00:10:06,786
+because Active Object has the methods that
+invoke the request in a different thread
+
+146
+00:10:06,786 --> 00:10:11,010
+from the methods that run the request,
+there will be some additional context
+
+147
+00:10:11,010 --> 00:10:15,564
+switching, synchronization, and data
+movement and memory allocation overhead,
+
+148
+00:10:15,564 --> 00:10:19,542
+to do those various operations.
+So, you probably want to use Monitor
+
+149
+00:10:19,542 --> 00:10:23,601
+Object when you're, have short running
+operations to run, to execute.
+
+150
+00:10:23,601 --> 00:10:27,733
+And perhaps, consider using Active Object
+when things take longer to run.
+
+151
+00:10:27,733 --> 00:10:32,227
+So, those overheads don't really amount
+for very much relative to the duration of
+
+152
+00:10:32,227 --> 00:10:35,459
+time the operations are executing in the
+pool of threads.
+
+153
+00:10:35,459 --> 00:10:40,085
+It's also worth noting that Active Object
+is more scalable in some ways than Monitor
+
+154
+00:10:40,085 --> 00:10:44,006
+Object is because you can have a pool of
+threads to run the various requests.
+
+155
+00:10:44,006 --> 00:10:47,486
+So, let's talk about the benefits of the
+Monitor Object pattern.
+
+156
+00:10:47,486 --> 00:10:51,844
+One of the great things that Monitor
+Object provides, which is one reason why
+
+157
+00:10:51,844 --> 00:10:56,264
+they, they bake it into Java, is that it
+greatly simplifies the way in which you
+
+158
+00:10:56,264 --> 00:10:59,508
+think about concurrency In an object
+oriented program.
+
+159
+00:10:59,508 --> 00:11:04,673
+In Monitor Object, the method indication
+is the unit of synchronization and one
+
+160
+00:11:04,673 --> 00:11:09,449
+method at a time is able to execute within
+the context of any given object.
+
+161
+00:11:09,449 --> 00:11:14,180
+Likewise, you can also do fairly straight
+forward say scheduling operations between
+
+162
+00:11:14,180 --> 00:11:17,810
+the different methods when they run.
+And then you have to be careful, of
+
+163
+00:11:17,810 --> 00:11:21,730
+course, that you're, you're thoughtful
+about how these different things interact
+
+164
+00:11:21,730 --> 00:11:24,878
+and they have to know about the protocol
+for waiting and notifying.
+
+165
+00:11:24,878 --> 00:11:28,893
+But it's pretty straightforward an object
+oriented developer can quickly understand
+
+166
+00:11:28,893 --> 00:11:33,152
+how to use this particular pattern.
+There are of course some limitations, one
+
+167
+00:11:33,152 --> 00:11:37,976
+of the downsides is, it's easy to have a
+Monitor Object become a contention point
+
+168
+00:11:37,976 --> 00:11:42,728
+by having too many threads try to descend
+upon it, which means that you'll end up
+
+169
+00:11:42,728 --> 00:11:47,048
+with long queues on your Monitor Lock
+waiting to get their turn to run in a
+
+170
+00:11:47,048 --> 00:11:51,723
+context of the Monitor Object.
+It's also possible, if you're not careful
+
+171
+00:11:51,723 --> 00:11:56,466
+when you design with Monitor Object, to
+end up with limited extensibility.
+
+172
+00:11:56,466 --> 00:12:01,197
+It's often easy to intertwine the
+synchronization logic with the business
+
+173
+00:12:01,197 --> 00:12:05,401
+logic of your, of your object, or your,
+your component or service.
+
+174
+00:12:05,401 --> 00:12:09,297
+And avoiding that is, is tricky.
+Yet another issue, and this is
+
+175
+00:12:09,297 --> 00:12:14,409
+particularly true in languages like Java,
+if you use Monitor Object naively, and you
+
+176
+00:12:14,409 --> 00:12:19,089
+try to nest monitor objects, you could end
+up with a problem known as the Nested
+
+177
+00:12:19,089 --> 00:12:22,742
+Monitor Lockout Problem.
+If you take a look at this link at the
+
+178
+00:12:22,742 --> 00:12:27,366
+bottom of the slide, it describes some of
+these problems in the context of Java and
+
+179
+00:12:27,366 --> 00:12:31,446
+illustrates how you can avoid these
+problems in Java, if you follow a few
+
+180
+00:12:31,446 --> 00:12:35,548
+other certain idioms and patterns when you
+implement your solution.
+
+181
+00:12:35,548 --> 00:12:40,867
+A great place to look for lots of other
+discussion about Java concurrency patterns
+
+182
+00:12:40,867 --> 00:12:44,651
+of course, is Doug Lea's Concurrent
+Programming in Java.

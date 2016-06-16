@@ -1,0 +1,684 @@
+1
+00:00:00,012 --> 00:00:06,584
+Welcome to part 9 in the module on
+patterns and frameworks for concurrency
+
+2
+00:00:06,584 --> 00:00:11,362
+and synchronization.
+In previous parts of this module, we
+
+3
+00:00:11,362 --> 00:00:15,218
+started by describing the active object
+pattern.
+
+4
+00:00:15,218 --> 00:00:20,894
+Discussed ways in which you can implement
+active objects using the ACE task
+
+5
+00:00:20,894 --> 00:00:24,490
+framework.
+And then applied the ACE task framework,
+
+6
+00:00:24,490 --> 00:00:29,170
+along with some other frameworks in ACE,
+to implement a thread per connection
+
+7
+00:00:29,170 --> 00:00:32,283
+version of active objects for our Jawsweb
+server.
+
+8
+00:00:32,283 --> 00:00:37,472
+Next we described the Half-Syn/Half-Async
+pattern, which generalizes and makes more
+
+9
+00:00:37,472 --> 00:00:41,453
+scalable the active objects.
+And we illustrated how you can apply
+
+10
+00:00:41,453 --> 00:00:46,125
+various ACE frameworks in order to
+implement Half-Sync/Half-Async for our
+
+11
+00:00:46,125 --> 00:00:49,514
+Jaws web server.
+We then focused in on a particular set of
+
+12
+00:00:49,514 --> 00:00:54,344
+patterns that relate to synchronization
+and trying to have a synchronized request
+
+13
+00:00:54,344 --> 00:00:59,381
+queue in Half-Sync/Half-Async, discussing
+the monitor object pattern and a number of
+
+14
+00:00:59,381 --> 00:01:04,211
+other synchronization patterns to help
+monitor object be applied Successfully in
+
+15
+00:01:04,211 --> 00:01:08,627
+the context of thee ACE message cue class
+which we use to provide a request cue
+
+16
+00:01:08,627 --> 00:01:12,990
+between the different layers in a
+Half-Sync,/Half-Async solution.
+
+17
+00:01:12,990 --> 00:01:16,176
+And now we're describing the leader
+followers pattern.
+
+18
+00:01:16,176 --> 00:01:21,078
+The previous part of this module described
+the pattern, now we're illustrating how we
+
+19
+00:01:21,078 --> 00:01:25,838
+can apply the leader followers pattern.
+Using the ACE thread pool reactor
+
+20
+00:01:25,838 --> 00:01:30,840
+mechanisms that are part of the ACE
+reactor framework, in order to make us
+
+21
+00:01:30,840 --> 00:01:36,088
+more predictable and more efficient in
+terms of how we have a path for a pool of
+
+22
+00:01:36,088 --> 00:01:39,961
+threads in our pattern language for the
+Jaws web server.
+
+23
+00:01:39,961 --> 00:01:43,736
+Let's first start by talking about the
+motivation for.
+
+24
+00:01:43,737 --> 00:01:47,083
+Ace TP reactor.
+Although you can use the ACE select
+
+25
+00:01:47,083 --> 00:01:51,470
+reactor very conveninetly as we've
+illustrated a number of times.
+
+26
+00:01:51,470 --> 00:01:55,681
+It has one key limitation.
+Only one thread of control can own its
+
+27
+00:01:55,681 --> 00:01:59,140
+event loop.
+Which means it can only really be used on
+
+28
+00:01:59,140 --> 00:02:02,811
+a single CPU or a single core.
+So it's not going to scale up very
+
+29
+00:02:02,811 --> 00:02:06,882
+effectively, in contrast, the ACE thread
+pool reactor implements the
+
+30
+00:02:06,882 --> 00:02:11,712
+Leaders/Followers pattern and that allows
+a pool of threads to run its event loop in
+
+31
+00:02:11,712 --> 00:02:15,921
+a way that is going to, to be much more
+scalable, work much more effectively on
+
+32
+00:02:15,921 --> 00:02:20,268
+the kinds of advanced hardware and
+software we find ourselves having at our
+
+33
+00:02:20,268 --> 00:02:23,615
+disposal in modern operating system
+environments.
+
+34
+00:02:23,616 --> 00:02:26,973
+Let's talk a bit about the ace tp reactor
+class.
+
+35
+00:02:26,973 --> 00:02:32,540
+This class actually inherits from ace
+select reactors, So it reuses large parts
+
+36
+00:02:32,540 --> 00:02:36,757
+of its implementation.
+Likewise, it also implements the ACE
+
+37
+00:02:36,757 --> 00:02:41,114
+reactor interface.
+If you recall, the ace reactor frameworks
+
+38
+00:02:41,114 --> 00:02:46,469
+uses the bridge pattern, and its ace
+reactor class is the abstraction role.
+
+39
+00:02:46,469 --> 00:02:51,487
+In that particular pattern and so classes
+like ACE_Select_Reactor, ACE_TP_Reactor
+
+40
+00:02:51,488 --> 00:02:55,630
+and so on are the various parts of the
+implementation or the implementer
+
+41
+00:02:55,630 --> 00:03:00,145
+hierarchy that form that pattern.
+And then we go ahead and apply the leader
+
+42
+00:03:00,145 --> 00:03:03,407
+followers logic.
+In ACE_TP_Reactor to do a couple of
+
+43
+00:03:03,407 --> 00:03:06,573
+things.
+The most important thing we do is we could
+
+44
+00:03:06,573 --> 00:03:11,578
+have a pool of threads all of which call
+run event loop or run reactor event loop
+
+45
+00:03:11,578 --> 00:03:16,121
+on the ACE_TP_reactor and this will be
+managed under the hood using the
+
+46
+00:03:16,121 --> 00:03:21,280
+mechanisms that define by the Leader/
+Followers pattern in order to ensure that
+
+47
+00:03:21,280 --> 00:03:24,130
+one of those threads at a time takes
+turns.
+
+48
+00:03:24,131 --> 00:03:29,297
+Handling the incoming events on the handle
+set that the reactor provides.
+
+49
+00:03:29,297 --> 00:03:33,444
+The other things that ACE_TP_Reactor does,
+it's kind of nice.
+
+50
+00:03:33,444 --> 00:03:38,616
+Is, it insures that only one thread at a
+time is reading requests from a given
+
+51
+00:03:38,616 --> 00:03:41,949
+handle.
+And so what that helps to ensure is that
+
+52
+00:03:41,949 --> 00:03:47,392
+we don't have to make a lot of changes to.
+Traditional single threaded code when we
+
+53
+00:03:47,392 --> 00:03:52,009
+move from a select reactor based solution
+to an ACE_TP_Reactor based solution.
+
+54
+00:03:52,009 --> 00:03:56,431
+We don't have to end up worrying about
+multiple threads trying to read out the
+
+55
+00:03:56,431 --> 00:04:00,350
+same end point, which would cause all
+kinds of chaos and insanity.
+
+56
+00:04:00,350 --> 00:04:05,095
+So one of the nice things about this
+approach is that the ACE_TP_Reactor
+
+57
+00:04:05,095 --> 00:04:10,705
+handles the variability of multithreaded
+access to I/O multiplexers like select or
+
+58
+00:04:10,705 --> 00:04:14,883
+pull using a common API.
+So could have different ways of doing
+
+59
+00:04:14,883 --> 00:04:20,148
+concurrency, but it all works out in a
+common way from the programming point of
+
+60
+00:04:20,148 --> 00:04:23,286
+view.
+Let's not talk about how we could extend
+
+61
+00:04:23,286 --> 00:04:28,668
+the earlier ACE acceptor connecter example
+for Jaws to spawn a pool of threads that
+
+62
+00:04:28,668 --> 00:04:32,896
+will work to wait on the different sources
+of I/O concurrently.
+
+63
+00:04:32,896 --> 00:04:37,702
+If you look at this diagram, you can see
+it's very similar to the one we had
+
+64
+00:04:37,702 --> 00:04:40,447
+before.
+The main difference is that now a pool of
+
+65
+00:04:40,447 --> 00:04:44,542
+threads are calling the event loop
+mechanisms on the ACE TP reactor, rather
+
+66
+00:04:44,542 --> 00:04:47,831
+than just 1 at a time.
+So we can imagine that the scaleability
+
+67
+00:04:47,831 --> 00:04:51,169
+will be much higher.
+Let's take a look at the implementation.
+
+68
+00:04:51,169 --> 00:04:54,512
+The actual implementation logic in many
+ways is very similar.
+
+69
+00:04:54,512 --> 00:04:58,032
+We include a bunch of header files that we
+would have had before.
+
+70
+00:04:58,033 --> 00:05:03,059
+We define 4 declarations for a couple of
+thread functions we're going to use in
+
+71
+00:05:03,059 --> 00:05:06,074
+order to be able to manage the pool of
+threads.
+
+72
+00:05:06,074 --> 00:05:09,586
+And be able to control the lifetime of the
+web server.
+
+73
+00:05:09,586 --> 00:05:13,346
+The particular use of the reactor HTTP
+server template.
+
+74
+00:05:13,347 --> 00:05:18,524
+Will be identical to what we had before in
+the acceptor connector version of this
+
+75
+00:05:18,524 --> 00:05:22,139
+solution.
+We used HTTP_Svc_Acceptor as the parameter
+
+76
+00:05:22,139 --> 00:05:27,301
+to this, this particular template to
+create the HTTP_Server_Daemon type def.
+
+77
+00:05:27,301 --> 00:05:30,796
+The main difference occurs in part of the
+main program.
+
+78
+00:05:30,796 --> 00:05:35,590
+If you take a look here, you can see that
+unlike before, when we just had an ACE
+
+79
+00:05:35,590 --> 00:05:40,606
+reactor that uses ACE select reactor by
+default on POSIX platforms, instead we
+
+80
+00:05:40,606 --> 00:05:44,676
+explicitly define an ACE TP reactor.
+And then associate that.
+
+81
+00:05:44,676 --> 00:05:49,502
+Which is the implementer portion with the
+abstraction part of the ACE reactor class
+
+82
+00:05:49,502 --> 00:05:53,832
+from the ACE reactor framework.
+So henceforth, whenever methods are called
+
+83
+00:05:53,832 --> 00:05:57,446
+on this particular reactor.
+It will forward those methods to the
+
+84
+00:05:57,446 --> 00:06:01,235
+ACE_TP_Reactor implementation.
+We then go ahead and allocate a new
+
+85
+00:06:01,235 --> 00:06:04,965
+HTTP_server_Daemon object.
+And we dynamically allocate it, and
+
+86
+00:06:04,965 --> 00:06:08,954
+associate it with the reactor.
+So it will be cleaned up correctly when
+
+87
+00:06:08,954 --> 00:06:12,615
+everything shuts down.
+And here's where things get a little bit
+
+88
+00:06:12,615 --> 00:06:16,359
+different and more interesting.
+What we do next, is we use the ACE thread
+
+89
+00:06:16,359 --> 00:06:20,337
+manager class to spawn a pool of threads.
+All of which will run the event loop
+
+90
+00:06:20,337 --> 00:06:22,237
+function.
+Which is the entry point.
+
+91
+00:06:22,237 --> 00:06:25,493
+So we'll have a pool of threads.
+In this case we have 8 threads.
+
+92
+00:06:25,493 --> 00:06:28,711
+We can easily change that.
+All of which are associated this the
+
+93
+00:06:28,711 --> 00:06:31,857
+thread pool reactor.
+And then we also spawn another thread of
+
+94
+00:06:31,857 --> 00:06:34,326
+control that will run the controller
+function.
+
+95
+00:06:34,326 --> 00:06:39,341
+Which is we'll see can be used to have.
+Administrative access to cleanly shutting
+
+96
+00:06:39,341 --> 00:06:44,486
+down the web server as the need arises.
+The final thing we do here is we have the,
+
+97
+00:06:44,486 --> 00:06:49,621
+a barrier synchronizer that's used from
+ACE Thread Manager to wait for all the
+
+98
+00:06:49,621 --> 00:06:54,743
+other threads of control to shutdown.
+And this of course guards against cases
+
+99
+00:06:54,743 --> 00:07:00,125
+where some operating systems Will shut a
+process down if the main threat of control
+
+100
+00:07:00,125 --> 00:07:03,497
+happens to exit.
+So we don't let that happen by using a
+
+101
+00:07:03,497 --> 00:07:07,411
+barrier synchronization.
+Here now is the event loop method.
+
+102
+00:07:07,411 --> 00:07:12,433
+This is the function that we passed when
+we spawn a thread or threads from the ACE
+
+103
+00:07:12,433 --> 00:07:15,904
+thread manager.
+As you can see all that does is it takes
+
+104
+00:07:15,904 --> 00:07:19,465
+in an ACE reactor.
+Pointer and then it goes ahead and calls
+
+105
+00:07:19,465 --> 00:07:22,206
+the reactor's event loop method to, to run
+it.
+
+106
+00:07:22,206 --> 00:07:26,622
+And because it's a threadpool reactor, it
+can do this in multiple threads of
+
+107
+00:07:26,622 --> 00:07:29,492
+control.
+Here is the controller function, very
+
+108
+00:07:29,492 --> 00:07:32,284
+simple.
+All it does is it runs in it's own thread
+
+109
+00:07:32,284 --> 00:07:35,358
+of control and it waits for something to
+type quit.
+
+110
+00:07:35,359 --> 00:07:40,072
+On the command line interface which will
+then tell the server to shut itself down
+
+111
+00:07:40,072 --> 00:07:44,374
+in a clean and graceful way.
+Notice how similar the single threaded and
+
+112
+00:07:44,374 --> 00:07:48,910
+multithreaded versions are, really the
+only major difference was with the
+
+113
+00:07:48,910 --> 00:07:53,878
+multithreaded version, that used the ACE
+thread pull reactor, what we do is we spot
+
+114
+00:07:53,878 --> 00:07:58,918
+a pool of threads that take advantage of
+its leader followers implementation to run
+
+115
+00:07:58,918 --> 00:08:03,184
+those threads in a way that takes turns
+accessing the low level event.
+
+116
+00:08:03,184 --> 00:08:07,462
+The multiplexing and multiplexing
+mechanisms that the operating system
+
+117
+00:08:07,462 --> 00:08:11,134
+provides under the hood.
+So to summarize this particular part of
+
+118
+00:08:11,134 --> 00:08:15,489
+the module and to kind of wrap up this
+module altogether, there's a wide variety
+
+119
+00:08:15,489 --> 00:08:20,112
+of different event De-multiplexing
+mechanisms and concurrency mechanisms that
+
+120
+00:08:20,112 --> 00:08:22,872
+are available on different operating
+systems.
+
+121
+00:08:22,872 --> 00:08:26,847
+And trying to keep track of all this
+diversity can be a little bit daunting at
+
+122
+00:08:26,847 --> 00:08:29,030
+times.
+One of the nice things about the ACE
+
+123
+00:08:29,030 --> 00:08:33,056
+reactor framework is it provides a
+convenient way of handling these different
+
+124
+00:08:33,056 --> 00:08:37,091
+mechanisms through a common interface.
+As we saw here, you can create an ACE
+
+125
+00:08:37,091 --> 00:08:40,708
+thread pool reactor and you can associate
+it with the ACE reactor.
+
+126
+00:08:40,708 --> 00:08:44,886
+Abstraction from the bridge pattern.
+And this allows you to kind of push the
+
+127
+00:08:44,886 --> 00:08:49,046
+details down into the framework
+implementation, so all these complexities
+
+128
+00:08:49,046 --> 00:08:53,011
+are largly hidden from you and you can
+focus on your business logic, on the
+
+129
+00:08:53,011 --> 00:08:56,110
+application, on the services that you're
+developing.
+
+130
+00:08:56,110 --> 00:09:00,471
+We didn't really talk about it in this
+module, but it's also worth noting, that
+
+131
+00:09:00,471 --> 00:09:05,295
+there's yet another implementation of the
+ACE Reactor framework, called the ACE Wait
+
+132
+00:09:05,295 --> 00:09:08,346
+for multiple objects reactor or the ACE
+WFMO reactor.
+
+133
+00:09:08,346 --> 00:09:13,952
+And Ace WFMO reactor provides many of the
+same capabilities that the ACE thread pool
+
+134
+00:09:13,952 --> 00:09:18,832
+reactor does, but it does it using the
+Window's wait for multiple objects
+
+135
+00:09:18,832 --> 00:09:24,272
+function which gives you yet even more
+powerful capabilities for running things
+
+136
+00:09:24,272 --> 00:09:29,632
+Involved with threads of control in
+handling various kinds of synchronization
+
+137
+00:09:29,632 --> 00:09:34,689
+and events from the wide range of
+synchronizers that Windows supports.

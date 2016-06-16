@@ -1,0 +1,868 @@
+1
+00:00:00,012 --> 00:00:06,753
+Welcome to part 3 in the module on
+patterns and frameworks for asynchronous
+
+2
+00:00:06,753 --> 00:00:12,011
+event handling.
+In previous parts of this module, we first
+
+3
+00:00:12,011 --> 00:00:18,430
+discussed the proactive pattern.
+And then described how ACE provides a
+
+4
+00:00:18,430 --> 00:00:24,732
+framework called the proactive framework.
+In order to implement this pattern in a
+
+5
+00:00:24,732 --> 00:00:28,932
+portable and efficient way on multiple
+operating systems that support
+
+6
+00:00:28,932 --> 00:00:32,062
+asyncrhonous I/O.
+Now, we're going to apply the ACE
+
+7
+00:00:32,062 --> 00:00:36,677
+proactive framework to JAWS to indicate
+yet another path through our pattern
+
+8
+00:00:36,677 --> 00:00:41,185
+language for high performance web server.
+This particular path is going to
+
+9
+00:00:41,185 --> 00:00:45,474
+demonstrate the use of asyncrhonous I/O.
+As a way to be able to initiate
+
+10
+00:00:45,474 --> 00:00:50,511
+connections, handling of connections and
+be able to handle asynchronous read and
+
+11
+00:00:50,511 --> 00:00:55,694
+write operations that take place after
+asynchronous connections are completed and
+
+12
+00:00:55,694 --> 00:00:59,306
+established.
+Let's first take a look at the archtecture
+
+13
+00:00:59,306 --> 00:01:03,215
+of our overall solution.
+We'll be focusing primarily here on the
+
+14
+00:01:03,215 --> 00:01:06,958
+use of the ACE_Service_Handler and
+ACE_Asynch_Acceptor.
+
+15
+00:01:06,959 --> 00:01:11,317
+As well as the ace proactive framework of
+course in order to be able to carry out
+
+16
+00:01:11,317 --> 00:01:15,324
+this asynchronous processing.
+If you take a look at these structures of
+
+17
+00:01:15,324 --> 00:01:19,868
+the solution it looks quite a bit like the
+reactor pattern solution except unlike the
+
+18
+00:01:19,868 --> 00:01:24,092
+reactor pattern we're driving everything
+by an asynchronous operation using
+
+19
+00:01:24,092 --> 00:01:28,124
+completion events as opposed to
+synchronous operations using initiation
+
+20
+00:01:28,124 --> 00:01:31,636
+events.
+Notice also that even though we only have
+
+21
+00:01:31,636 --> 00:01:36,348
+one thread of control in our solution, it
+can still scale up quite nicely on
+
+22
+00:01:36,348 --> 00:01:40,713
+operating systems that sypport
+asynchronous IO, such as Windows.
+
+23
+00:01:40,713 --> 00:01:44,680
+So let's first start talking about the
+classes involved here.
+
+24
+00:01:44,680 --> 00:01:49,711
+We're going to implement a class called
+the HTTP ACEsync handler which inherits
+
+25
+00:01:49,711 --> 00:01:53,867
+from ACE Service Handler.
+And what this allows it to do is it allows
+
+26
+00:01:53,867 --> 00:01:58,539
+it to be able to implement various
+asynchronous operations to implement the
+
+27
+00:01:58,539 --> 00:02:02,970
+HETP pro, protocol processing.
+We define a number of data members, we
+
+28
+00:02:02,970 --> 00:02:07,620
+define a pointer to the ACE proactor, we,
+we cache away to keep track of that
+
+29
+00:02:07,620 --> 00:02:11,274
+relationship.
+We define a memory map file abstraction we
+
+30
+00:02:11,274 --> 00:02:15,467
+can use to efficiently keep track of files
+that we map into memory.
+
+31
+00:02:15,467 --> 00:02:19,091
+We keep track of the handle.
+That's the socket endpoint that we're
+
+32
+00:02:19,091 --> 00:02:23,091
+going to be connected to and so on.
+And we also define something called HTTP
+
+33
+00:02:23,091 --> 00:02:25,689
+request.
+Which is simply a little wrapper around
+
+34
+00:02:25,689 --> 00:02:29,871
+the ace message block abstraction, that's
+used by the ace proactor framework.
+
+35
+00:02:29,871 --> 00:02:34,365
+To be able to send the received data very
+efficiently without having to copy large
+
+36
+00:02:34,365 --> 00:02:38,787
+chunks of data, and be able to deal with
+things very fast with respect to chaining
+
+37
+00:02:38,787 --> 00:02:42,459
+messages together.
+We also have a pair of data members here
+
+38
+00:02:42,459 --> 00:02:46,517
+that are an a, a sync read stream.
+And, and a, Asynch right stream.
+
+39
+00:02:46,517 --> 00:02:50,830
+And we will use these to invoke
+asynchronous read and write operations
+
+40
+00:02:50,830 --> 00:02:54,061
+respectively.
+In order to carry out the processing
+
+41
+00:02:54,061 --> 00:02:58,211
+without blocking the server thread for the
+duration of the call.
+
+42
+00:02:58,211 --> 00:03:04,016
+Lets now take a look at the open hook.
+This is the hook method called back by the
+
+43
+00:03:04,016 --> 00:03:10,122
+HTTP_Asynch_Acceptor in order to be able
+to activate our HTTP_Asynch_Handler once
+
+44
+00:03:10,122 --> 00:03:13,789
+the connection has been established
+passively.
+
+45
+00:03:13,789 --> 00:03:19,053
+What this particular approach does is it
+first opens the read stream.
+
+46
+00:03:19,053 --> 00:03:24,786
+And it associates with the read stream the
+handle that we're reading on, as well as a
+
+47
+00:03:24,786 --> 00:03:30,181
+reference to this object, which will be
+used to indicate where the completion
+
+48
+00:03:30,181 --> 00:03:35,207
+events need to be sent to when the
+asychronous read operation is done.
+
+49
+00:03:35,208 --> 00:03:40,234
+We then turn around and kick off the
+asynchronous read operation, passing in
+
+50
+00:03:40,234 --> 00:03:45,538
+the message buffer that we've allocated to
+store the results that come back from,
+
+51
+00:03:45,538 --> 00:03:50,160
+from the client application.
+Here then is the handle read stream hook
+
+52
+00:03:50,160 --> 00:03:55,374
+method, which is dispatched by the
+proactor framework when that asynchronous
+
+53
+00:03:55,374 --> 00:03:58,386
+read operation that we initiated
+completes.
+
+54
+00:03:58,386 --> 00:04:02,550
+We'll talk shortly about how the
+connection is made between the initiation
+
+55
+00:04:02,550 --> 00:04:06,906
+of the asynchronous read operation and
+this completion event hook method that
+
+56
+00:04:06,906 --> 00:04:11,489
+gets dispatched by the proactor framework.
+But be that as it may, assume it gets
+
+57
+00:04:11,489 --> 00:04:15,946
+called back and what we do now is we go
+ahead and check to see whether or not we.
+
+58
+00:04:15,947 --> 00:04:20,408
+You've gotten a complete request from the
+client and if we have gotten the complete
+
+59
+00:04:20,408 --> 00:04:23,918
+request, we're going to go ahead and
+handle that complete request.
+
+60
+00:04:23,918 --> 00:04:28,212
+If we have not gotten a complete request,
+if we've only got part of a request, then
+
+61
+00:04:28,212 --> 00:04:32,564
+we go ahead and reinitiate an asynchronous
+operation in order to get the complete
+
+62
+00:04:32,564 --> 00:04:36,916
+request and this may take place actually
+for a number of cycles until we're able to
+
+63
+00:04:36,916 --> 00:04:41,832
+read the entire request form the client.
+Assuming we've got the complete request
+
+64
+00:04:41,832 --> 00:04:46,676
+then the handler request method is called,
+and this is going to do a couple things.
+
+65
+00:04:46,676 --> 00:04:51,368
+The first thing it does is it checks to
+see what kind of requests we've received,
+
+66
+00:04:51,368 --> 00:04:55,841
+so keep in mind these things are initiated
+asynchronously and we could have
+
+67
+00:04:55,841 --> 00:05:00,463
+asynchronous receives for get request post
+requests, put requests and so on.
+
+68
+00:05:00,463 --> 00:05:04,168
+Let's assume for the sake of argument that
+we've got a get request.
+
+69
+00:05:04,168 --> 00:05:08,450
+So if we have a get request, what we do in
+that case is going to be very familiar.
+
+70
+00:05:08,450 --> 00:05:12,744
+We take the filename that we got, that
+came in the request from the client that
+
+71
+00:05:12,744 --> 00:05:16,312
+we extracted out of the stream once it was
+read asynchronously.
+
+72
+00:05:16,312 --> 00:05:20,608
+We memory map that file and then we turn
+around and we initiate an asynchronous
+
+73
+00:05:20,608 --> 00:05:23,996
+write operation.
+This asynchronous write operation of
+
+74
+00:05:23,996 --> 00:05:28,799
+course will attempt to send the entire
+file back to the client asynchronously.
+
+75
+00:05:28,799 --> 00:05:33,384
+Notice that we've used a write operation.
+We could also have used the transmit file
+
+76
+00:05:33,384 --> 00:05:36,054
+mechanism.
+Transmit file is a very interesting
+
+77
+00:05:36,054 --> 00:05:40,308
+mechanism available with Windows, and also
+available on a number of other.
+
+78
+00:05:40,309 --> 00:05:44,509
+Posix machines and Unix machines now via
+the send file system call.
+
+79
+00:05:44,509 --> 00:05:47,368
+And what it does is it takes open file
+handles.
+
+80
+00:05:47,368 --> 00:05:51,898
+An open file handle to an open file.
+An open file handle to an open socket.
+
+81
+00:05:51,898 --> 00:05:57,010
+And it does an asynchronous operation to
+transmit the entire content of the file to
+
+82
+00:05:57,010 --> 00:06:01,168
+the socket in one fell swoop.
+So that's a nice way of being able to use
+
+83
+00:06:01,168 --> 00:06:06,136
+and leverage the underlying hardware and
+device driver mechanisms for efficient
+
+84
+00:06:06,136 --> 00:06:10,374
+data transfer.
+Things like device memory mapped I/O and
+
+85
+00:06:10,375 --> 00:06:15,347
+various kinds of other ways of
+transmitting data without Incurring
+
+86
+00:06:15,347 --> 00:06:21,297
+contact switches copies and other kinds of
+overhead that you typically incur if you
+
+87
+00:06:21,297 --> 00:06:24,392
+did this one buffer or one chunck at a
+time.
+
+88
+00:06:24,392 --> 00:06:30,132
+Here is the HTTP async receptor it
+inherents from ACE acceptor ACE asynch
+
+89
+00:06:30,132 --> 00:06:33,734
+acceptor .
+The Ace asynch acceptor works very much
+
+90
+00:06:33,734 --> 00:06:38,186
+like The way that the acceptor connector
+framework did earlier.
+
+91
+00:06:38,186 --> 00:06:41,516
+When we talked about the ACE acceptor and
+ACE connector.
+
+92
+00:06:41,516 --> 00:06:46,214
+You can basically parametarized it with a
+kind of service handler that you want to
+
+93
+00:06:46,214 --> 00:06:49,680
+have it create.
+In this case, it's an HTTP_Asynch_Handler
+
+94
+00:06:49,681 --> 00:06:54,011
+and this then serves as a factory for
+passively accepting connections.
+
+95
+00:06:54,011 --> 00:06:59,741
+Initializing the handlers and then being
+able to have those handlers activated to
+
+96
+00:06:59,741 --> 00:07:03,469
+do their thing.
+In this particular case, the constructor
+
+97
+00:07:03,469 --> 00:07:08,105
+for the HTTP_Asynch_Acceptor will simply
+delegate up to the underlying
+
+98
+00:07:08,105 --> 00:07:13,273
+ACE_Asynch_Acceptor and call its open
+method and this open method takes a number
+
+99
+00:07:13,273 --> 00:07:16,361
+of parameters.
+The key parameters it takes are the
+
+100
+00:07:16,361 --> 00:07:20,917
+address it wants to listen on for incoming
+connections, typically port 80 in our
+
+101
+00:07:20,917 --> 00:07:23,681
+case, and it also indicates some other
+things.
+
+102
+00:07:23,681 --> 00:07:28,231
+It indicates whether or not it should go
+ahead and invoke certain operations such
+
+103
+00:07:28,231 --> 00:07:32,925
+as asynchronous accept calls, and it says
+how many of these calls should be invoked?
+
+104
+00:07:32,926 --> 00:07:37,521
+For example in this case, we're going to
+have some kind of backlog number of them,
+
+105
+00:07:37,521 --> 00:07:40,413
+perhaps five, that will kick off
+simultaneously.
+
+106
+00:07:40,413 --> 00:07:44,835
+And it will also indicate that we're going
+to keep re re-initiating these calls
+
+107
+00:07:44,835 --> 00:07:48,169
+automatically as they're being connected
+with a client.
+
+108
+00:07:48,169 --> 00:07:52,391
+So we'll always have a number of
+asynchronistic set calls that are ready to
+
+109
+00:07:52,391 --> 00:07:54,819
+go in case a client connects to our
+server.
+
+110
+00:07:54,820 --> 00:07:58,748
+We also pass in the proactor, and that's
+in order to get access to the IO
+
+111
+00:07:58,748 --> 00:08:03,081
+completion port that it holds internally.
+That it uses in order to match up the
+
+112
+00:08:03,081 --> 00:08:07,668
+completion events with the original
+requests that were invoked asynchronously.
+
+113
+00:08:07,668 --> 00:08:10,530
+So a lot of things going on in a simple
+constructor.
+
+114
+00:08:10,530 --> 00:08:13,497
+But you don't have to really worry about
+the details.
+
+115
+00:08:13,498 --> 00:08:17,982
+That's all handled for you internally by
+the ACE Proactor framework.
+
+116
+00:08:17,982 --> 00:08:23,136
+Finally we have our main program, as you
+can see, it's very simple not unlike the
+
+117
+00:08:23,136 --> 00:08:28,013
+reactor examples we've looked at before.
+What we do is go ahead and set up the
+
+118
+00:08:28,013 --> 00:08:33,040
+addressing to listen on port That's
+important for the web server like port 80.
+
+119
+00:08:33,040 --> 00:08:37,738
+Then we create ourselves an instance of
+the HTTP_Asynch_Acceptor passing in that
+
+120
+00:08:37,738 --> 00:08:42,347
+Internet address passing in the proactor.
+As you just saw that will kick off the
+
+121
+00:08:42,347 --> 00:08:46,568
+asynchronous accept operations.
+However that is done on a particular
+
+122
+00:08:46,568 --> 00:08:51,459
+platform and after those asynchronous
+accept operations are kicked off Then we
+
+123
+00:08:51,459 --> 00:08:56,428
+go and run the main proacter event loop.
+And all that does is it just sits there,
+
+124
+00:08:56,428 --> 00:09:01,672
+waiting for completion events to occur as
+clients connect and as read operations,
+
+125
+00:09:01,672 --> 00:09:05,845
+right operations that were invoked,
+asynchronistly complete.
+
+126
+00:09:05,845 --> 00:09:10,597
+As well as of course, other accept
+operations that may complete likewise.
+
+127
+00:09:10,597 --> 00:09:15,695
+So that's really all there is to it, very
+simple, very streamlined way of writing
+
+128
+00:09:15,695 --> 00:09:19,032
+the server program.
+As I've often said, it's sometimes a
+
+129
+00:09:19,032 --> 00:09:23,124
+little bit hard to understand the
+interactions between various pieces by
+
+130
+00:09:23,124 --> 00:09:26,695
+looking purely at source code.
+So here's a sequence diagram that
+
+131
+00:09:26,695 --> 00:09:30,660
+illustrates the various interactions
+between the components that I've
+
+132
+00:09:30,660 --> 00:09:34,033
+demonstrated.
+And illustrated in the previous code.
+
+133
+00:09:34,033 --> 00:09:38,798
+So as we see here, the web server starts
+out by creating an HTTP a sync acceptor.
+
+134
+00:09:38,798 --> 00:09:43,494
+And that will go ahead and initiate the a
+sync accept operation on the underlying
+
+135
+00:09:43,494 --> 00:09:48,254
+asynchronous operating processor,
+operation processor, such as the operating
+
+136
+00:09:48,254 --> 00:09:51,076
+system like windows or Posics that
+supports.
+
+137
+00:09:51,076 --> 00:09:56,183
+Ports, asynchronous I/O, it then turns
+over control to the proactor.
+
+138
+00:09:56,183 --> 00:10:01,765
+And when a connection shows up, callbacks
+are driven to the HTTP async acceptor in
+
+139
+00:10:01,765 --> 00:10:05,278
+order to create an appropriate HTTP async
+handle.
+
+140
+00:10:05,278 --> 00:10:09,292
+So that's all part of the.
+Service initialization, and connection
+
+141
+00:10:09,292 --> 00:10:12,727
+establishment phase.
+Once that connection has been established,
+
+142
+00:10:12,727 --> 00:10:16,875
+and the handler's been created, from that
+point onwards, for the duration of that
+
+143
+00:10:16,875 --> 00:10:21,084
+particular conversation with the client,
+we will then drive the communication by
+
+144
+00:10:21,084 --> 00:10:24,471
+asynchronous read, and asynchronous write
+operation calls.
+
+145
+00:10:24,471 --> 00:10:28,175
+So we'll do an asynchronous read call to
+get the data from the client.
+
+146
+00:10:28,176 --> 00:10:32,952
+And we'll do asynchronous right calls once
+we've received the URI in order to be able
+
+147
+00:10:32,952 --> 00:10:37,441
+to transmit that back and you can see if
+you carefully at the sequence diagram the
+
+148
+00:10:37,441 --> 00:10:41,930
+various ways in which the pieces talk back
+and forth to each other to carry out the
+
+149
+00:10:41,930 --> 00:10:44,660
+processing in a solely asynchronous
+manner.
+
+150
+00:10:44,660 --> 00:10:49,813
+So to summarize this part of the module.
+The ACE proactor framework alleviates some
+
+151
+00:10:49,813 --> 00:10:54,704
+of the bottlenecks with reactive I/O
+because things can run asynchronously, we
+
+152
+00:10:54,704 --> 00:10:59,668
+could also have some threads in a pool to
+kick off new asynchronous operations in a
+
+153
+00:10:59,668 --> 00:11:02,827
+concurrent way.
+This also can alleviate some of the
+
+154
+00:11:02,827 --> 00:11:06,610
+complexities.
+Of synchronous multi threading because we
+
+155
+00:11:06,610 --> 00:11:11,647
+can write our programs often to have few
+or no locks required because everything's
+
+156
+00:11:11,647 --> 00:11:16,246
+driven asynchronously and all the
+concurrency handled largely inside the
+
+157
+00:11:16,246 --> 00:11:20,473
+operating system in kernel.
+The framework allows applications to
+
+158
+00:11:20,473 --> 00:11:24,381
+invoke I/O operations asynchronously In 2
+canonical phases.
+
+159
+00:11:24,381 --> 00:11:29,555
+The first phase is the initiation phase,
+where they kick off the operations on the
+
+160
+00:11:29,555 --> 00:11:34,799
+asynchronous operation processor such as
+Windows, doing things like accept EX or
+
+161
+00:11:34,799 --> 00:11:39,817
+read file, write file EX, and so on.
+These are all operations that are part of
+
+162
+00:11:39,817 --> 00:11:43,328
+Windows.
+We can abstract away, of course, using.
+
+163
+00:11:43,329 --> 00:11:48,080
+The ACE proactor to hide those details.
+But under the hood, that's what's being
+
+164
+00:11:48,080 --> 00:11:50,734
+used.
+So that's how we kick the operations off
+
+165
+00:11:50,734 --> 00:11:53,966
+asynchronously.
+And then the second phase is Ryanwhen
+
+166
+00:11:53,966 --> 00:11:58,451
+those operations complete, we can go ahead
+and handle the demultiplexing and
+
+167
+00:11:58,451 --> 00:12:03,212
+dispatching of those completion events
+back to the appropriate completion event
+
+168
+00:12:03,212 --> 00:12:06,426
+handlers.
+Which in our case would be the acceptor
+
+169
+00:12:06,426 --> 00:12:11,277
+and the various asynch handlers To do
+reading and writing of the actual data
+
+170
+00:12:11,277 --> 00:12:15,190
+from the clients.
+So that, that illustrates how we can apply
+
+171
+00:12:15,190 --> 00:12:20,728
+this particular pattern in the context of
+Jaws, using the ACE proactor framework and
+
+172
+00:12:20,728 --> 00:12:26,032
+next we'll talk about yet another pattern
+that's often combined with proactor in
+
+173
+00:12:26,032 --> 00:12:31,258
+order to handle the multiplexing of
+responses for completion of[UNKNOWN] very
+
+174
+00:12:31,258 --> 00:12:32,265
+efficiently.
