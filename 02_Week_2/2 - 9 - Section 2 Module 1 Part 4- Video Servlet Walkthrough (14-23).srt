@@ -1,0 +1,1135 @@
+1
+00:00:00,617 --> 00:00:08,686
+[MUSIC]
+
+2
+00:00:08,686 --> 00:00:11,076
+We're going to walk thru a more
+complicated
+
+3
+00:00:11,076 --> 00:00:13,056
+servlet that does a little bit more
+
+4
+00:00:13,056 --> 00:00:15,925
+to actually extract parameters and
+validate them
+
+5
+00:00:15,925 --> 00:00:18,890
+that are being sent by the client.
+
+6
+00:00:18,890 --> 00:00:21,920
+So this servlet is moving towards the
+direction of
+
+7
+00:00:21,920 --> 00:00:25,120
+building the video service that we've been
+talking about.
+
+8
+00:00:25,120 --> 00:00:28,410
+So we're going to create a simple servlet,
+and walk through it here.
+
+9
+00:00:28,410 --> 00:00:32,010
+That actually allows clients to send the
+metadata
+
+10
+00:00:32,010 --> 00:00:35,290
+for videos, just the names and titles and
+durations.
+
+11
+00:00:35,290 --> 00:00:38,640
+We're not talking yet about actually
+sending video data,
+
+12
+00:00:38,640 --> 00:00:41,800
+but just the, the basic information to the
+server.
+
+13
+00:00:41,800 --> 00:00:45,250
+So that it can store in a list, in memory,
+and then when's client
+
+14
+00:00:45,250 --> 00:00:50,230
+send get request to the server, it can
+return a list of those videos.
+
+15
+00:00:50,230 --> 00:00:52,530
+So let's take a look at how this actually
+works.
+
+16
+00:00:53,750 --> 00:00:58,720
+So you can see here that we've got a
+project called video servlet.
+
+17
+00:00:58,720 --> 00:01:02,270
+And within the project you want to take a
+look in the source main
+
+18
+00:01:02,270 --> 00:01:08,940
+java folder and underneath this we'll see
+two important classes that we'll be using.
+
+19
+00:01:08,940 --> 00:01:11,710
+The first one is a video object that we'll
+be
+
+20
+00:01:11,710 --> 00:01:16,320
+using to store or represent the metadata
+in the videos.
+
+21
+00:01:17,340 --> 00:01:20,960
+So let's open that object up and what
+we'll see
+
+22
+00:01:20,960 --> 00:01:24,480
+is this is just a very straight forward
+Java class.
+
+23
+00:01:24,480 --> 00:01:28,730
+It doesn't inherit from anything unusual
+or exotic.
+
+24
+00:01:28,730 --> 00:01:30,840
+It's just a simple Java class that we're
+creating.
+
+25
+00:01:30,840 --> 00:01:33,910
+And it has member variables to store the
+name of
+
+26
+00:01:33,910 --> 00:01:39,310
+a video, the URL, and the duration of the
+video.
+
+27
+00:01:39,310 --> 00:01:42,110
+And it takes those as constructor
+parameters
+
+28
+00:01:42,110 --> 00:01:44,820
+and sets some values, and that's it.
+
+29
+00:01:44,820 --> 00:01:46,190
+That's everything that's in this file.
+
+30
+00:01:46,190 --> 00:01:49,770
+There's nothing else that's going on here,
+just a simple video object.
+
+31
+00:01:49,770 --> 00:01:50,910
+So that's not as interesting.
+
+32
+00:01:50,910 --> 00:01:52,620
+So let's take a look at the video servlet.
+
+33
+00:01:53,670 --> 00:01:55,900
+So if you open up the video servlet,
+
+34
+00:01:55,900 --> 00:01:58,700
+immediately we see something a little more
+interesting.
+
+35
+00:01:58,700 --> 00:02:02,370
+And that is we got a class that actually
+extends.
+
+36
+00:02:02,370 --> 00:02:08,690
+HGDP servlet, which is the base of classes
+that are going to be servlets.
+
+37
+00:02:08,690 --> 00:02:12,960
+So it extends job at x dot servlet dot
+HGDP dot HGDP servlet.
+
+38
+00:02:12,960 --> 00:02:15,460
+So there's the import, if you need it.
+
+39
+00:02:15,460 --> 00:02:20,650
+And, as we discussed, this class is going
+to receive
+
+40
+00:02:20,650 --> 00:02:23,940
+the HGDP requests that are coming in
+through the server.
+
+41
+00:02:23,940 --> 00:02:27,840
+It's just like if we were building an
+application that could take arguments
+
+42
+00:02:27,840 --> 00:02:30,450
+from the command line and receive those
+
+43
+00:02:30,450 --> 00:02:33,140
+arguments and invocations from the command
+line.
+
+44
+00:02:33,140 --> 00:02:36,620
+This is a class that has methods to
+receive
+
+45
+00:02:36,620 --> 00:02:40,520
+commands that are being sent across the
+network as HTTP.
+
+46
+00:02:40,520 --> 00:02:43,160
+So one of the first things that we see
+
+47
+00:02:43,160 --> 00:02:46,690
+that we previously discussed is a do get
+method.
+
+48
+00:02:46,690 --> 00:02:49,740
+And the do methods in a servlet, each one
+
+49
+00:02:49,740 --> 00:02:54,040
+of them corresponds to one of the http
+request methods.
+
+50
+00:02:54,040 --> 00:02:58,710
+So, this servlet is going to respond to
+two http request methods.
+
+51
+00:02:58,710 --> 00:03:01,270
+It's going to respond to the get
+
+52
+00:03:01,270 --> 00:03:05,090
+http request method and the post request
+method.
+
+53
+00:03:05,090 --> 00:03:07,710
+Now, if we look at the code, what that
+means is we
+
+54
+00:03:07,710 --> 00:03:14,230
+should see corresponding do get, and if we
+scroll down do post methods.
+
+55
+00:03:14,230 --> 00:03:17,760
+So both of these are the handler methods
+that are going to be
+
+56
+00:03:17,760 --> 00:03:22,370
+invoked on this class, when either a get
+or a post comes in.
+
+57
+00:03:22,370 --> 00:03:25,520
+So, what's going to happen is, that
+
+58
+00:03:25,520 --> 00:03:29,810
+the servlet container that's running our
+servlet.
+
+59
+00:03:29,810 --> 00:03:33,780
+So we have our video servlet that's inside
+this servlet container.
+
+60
+00:03:36,840 --> 00:03:41,659
+Is going to rout requests that come in,
+either to do post.
+
+61
+00:03:43,460 --> 00:03:44,160
+Or doGet and
+
+62
+00:03:46,170 --> 00:03:51,530
+all of this is going to be determined via
+the request method.
+
+63
+00:03:51,530 --> 00:03:55,040
+[BLANK_AUDIO]
+
+64
+00:03:55,040 --> 00:03:57,948
+That's what's going to determine this
+internal
+
+65
+00:03:57,948 --> 00:04:00,810
+routing to which method is getting
+invoked.
+
+66
+00:04:00,810 --> 00:04:04,010
+Now there's a second layer routing that's
+also going to happen
+
+67
+00:04:04,010 --> 00:04:08,490
+and that's the selection of servlet to
+handle the request.
+
+68
+00:04:09,930 --> 00:04:11,390
+And that's what we're going to see in a
+second
+
+69
+00:04:11,390 --> 00:04:17,110
+when we look at the web.xml file in this
+project.
+
+70
+00:04:17,110 --> 00:04:19,720
+So right now, all we're looking at is
+
+71
+00:04:19,720 --> 00:04:22,490
+the internal handler methods within the
+servlet once
+
+72
+00:04:22,490 --> 00:04:24,770
+it gets routed a request, that are going
+
+73
+00:04:24,770 --> 00:04:27,950
+to decide how the server responds to that
+request.
+
+74
+00:04:27,950 --> 00:04:31,450
+So let's look at the implementation of
+these methods.
+
+75
+00:04:31,450 --> 00:04:35,270
+So the do get method is fairly
+straight-forward.
+
+76
+00:04:35,270 --> 00:04:38,540
+The first thing we do, as we did in the
+simple
+
+77
+00:04:38,540 --> 00:04:41,920
+servlet that we created is, we're going to
+set the output type.
+
+78
+00:04:41,920 --> 00:04:44,800
+We're going to tell the, set the content
+type so that the
+
+79
+00:04:44,800 --> 00:04:47,780
+client knows what we're going to be
+sending back to them.
+
+80
+00:04:47,780 --> 00:04:51,740
+So in this case, we're just sending text
+plain back to
+
+81
+00:04:51,740 --> 00:04:55,040
+the client, so that it knows how to
+display what we've got.
+
+82
+00:04:56,390 --> 00:05:00,100
+Now, the second piece is, we're getting a
+prep writer again, and this
+
+83
+00:05:00,100 --> 00:05:04,860
+is exactly the same thing that we did in
+the first simple servlet example.
+
+84
+00:05:04,860 --> 00:05:11,390
+We created a prep writer that allows us to
+send data back to the client.
+
+85
+00:05:11,390 --> 00:05:18,980
+So the print writer is being used to write
+data that's going back to the client.
+
+86
+00:05:18,980 --> 00:05:23,240
+So our mobile client over here is getting
+data
+
+87
+00:05:23,240 --> 00:05:26,808
+that's coming in to the print writer's
+write method.
+
+88
+00:05:26,808 --> 00:05:29,950
+So, whenever printrider.rider's called,
+that's sending
+
+89
+00:05:29,950 --> 00:05:31,930
+that data back here to the client.
+
+90
+00:05:31,930 --> 00:05:36,088
+Also, the setContentType Method is going
+to be important because that's telling
+
+91
+00:05:36,088 --> 00:05:40,192
+headers or providing headers that are
+going to be put into this request.
+
+92
+00:05:40,192 --> 00:05:48,400
+So, when we call setContentType, we are
+providing headers.
+
+93
+00:05:48,400 --> 00:05:51,620
+That are going to go back to the client as
+we saw.
+
+94
+00:05:51,620 --> 00:05:55,730
+So this is how these methods are mapping
+into the requests that we're creating.
+
+95
+00:05:57,210 --> 00:06:00,360
+Now, the actual bulk of the work of what
+this method is
+
+96
+00:06:00,360 --> 00:06:03,890
+actually doing is down here in this For
+Loop at the bottom.
+
+97
+00:06:03,890 --> 00:06:10,240
+We're looping over each video that we
+currently have added and have in memory.
+
+98
+00:06:10,240 --> 00:06:11,990
+So, if we scroll up a little bit, we can
+see
+
+99
+00:06:11,990 --> 00:06:16,910
+that this list of videos is simply a in
+memory array list.
+
+100
+00:06:16,910 --> 00:06:17,920
+There's nothing fancy.
+
+101
+00:06:17,920 --> 00:06:20,820
+We're not connected to a database, yet.
+
+102
+00:06:20,820 --> 00:06:27,840
+And, we are looping over the list of
+videos in this, in this, a for loop right
+
+103
+00:06:27,840 --> 00:06:30,570
+here, and then for each video we're simply
+writing
+
+104
+00:06:30,570 --> 00:06:33,470
+out the name and the URL to the client.
+
+105
+00:06:33,470 --> 00:06:38,160
+So this is just a simple loop that's
+outputting text that's being fed back
+
+106
+00:06:38,160 --> 00:06:40,825
+to the client so that it can go and do
+something and read it.
+
+107
+00:06:40,825 --> 00:06:45,330
+Now, this actual get method isn't that
+interesting.
+
+108
+00:06:45,330 --> 00:06:48,100
+It's just a simple method, and it's doing
+something very similar to
+
+109
+00:06:48,100 --> 00:06:53,180
+what we saw, in a simple, servlet that we,
+we looked at before.
+
+110
+00:06:53,180 --> 00:06:56,310
+Now let's take a look at a more complex
+method in the due post.
+
+111
+00:06:56,310 --> 00:07:00,300
+Because suddenly, we're going to start
+accepting more data from the
+
+112
+00:07:00,300 --> 00:07:04,550
+client that we have to look at and
+actually validate carefully.
+
+113
+00:07:04,550 --> 00:07:07,120
+So let's look at the work that we have to
+do in
+
+114
+00:07:07,120 --> 00:07:09,870
+order to accept that data from the client
+and then validate it.
+
+115
+00:07:10,880 --> 00:07:15,540
+So we go down to the do post method, the
+first thing we'll see here is that we're
+
+116
+00:07:15,540 --> 00:07:21,930
+accepting or expecting to accept a series
+of parameters from the client.
+
+117
+00:07:21,930 --> 00:07:23,310
+So in this case, we're expecting
+
+118
+00:07:23,310 --> 00:07:27,690
+to receive name, URL, and duration
+parameters.
+
+119
+00:07:27,690 --> 00:07:29,620
+And just like we did with get request, we
+
+120
+00:07:29,620 --> 00:07:34,110
+can extract these parameters from the http
+request body.
+
+121
+00:07:34,110 --> 00:07:37,110
+In this case, it's a post body that' being
+sent
+
+122
+00:07:37,110 --> 00:07:40,420
+to this due post method with the get
+parameter method.
+
+123
+00:07:41,560 --> 00:07:43,960
+Again, if the client is sending query
+
+124
+00:07:43,960 --> 00:07:46,650
+parameters they can be extracted with get
+parameter.
+
+125
+00:07:46,650 --> 00:07:52,550
+And if the client is sending, you know,
+url encoded body, parameters in the form
+
+126
+00:07:52,550 --> 00:07:56,870
+body of a post, then we can also extract
+them with the get parameter method.
+
+127
+00:07:56,870 --> 00:08:02,510
+So, we're extracting the values of the
+name, the URL
+
+128
+00:08:02,510 --> 00:08:05,660
+and the duration keys that the client is
+sending to us.
+
+129
+00:08:06,780 --> 00:08:08,810
+The next thing that we have to do is
+
+130
+00:08:08,810 --> 00:08:12,030
+something that's making things getting a
+little more interesting.
+
+131
+00:08:12,030 --> 00:08:15,460
+And that's, we're going to have to
+validate that one
+
+132
+00:08:15,460 --> 00:08:18,910
+of the parameters that we're getting is
+the expected value.
+
+133
+00:08:18,910 --> 00:08:23,730
+So in the prior example of sample servlet
+we expected that all of
+
+134
+00:08:23,730 --> 00:08:26,370
+the data that the client was sending to us
+was just a string.
+
+135
+00:08:26,370 --> 00:08:29,840
+And we didn't really care about what the
+content of it was
+
+136
+00:08:29,840 --> 00:08:32,250
+cause we weren't doing anything with it,
+we were just echoing it back.
+
+137
+00:08:33,250 --> 00:08:35,720
+In this example, what we're actually
+going to do is
+
+138
+00:08:35,720 --> 00:08:38,850
+we expect one of the parameters to be a
+number.
+
+139
+00:08:38,850 --> 00:08:41,190
+So, we have to validate that we're
+actually
+
+140
+00:08:41,190 --> 00:08:44,060
+getting a number back that is a java long.
+
+141
+00:08:44,060 --> 00:08:46,610
+So the first thing we do here is we're
+
+142
+00:08:46,610 --> 00:08:51,190
+going to actually create a java long to
+store the value,
+
+143
+00:08:51,190 --> 00:08:57,275
+and then we have to try to parse a long
+out of the string the client sent to us.
+
+144
+00:08:57,275 --> 00:09:01,090
+So you can imagine this is important,
+because we don't want the
+
+145
+00:09:01,090 --> 00:09:05,370
+client to be able to send garbage data to
+us for the long.
+
+146
+00:09:05,370 --> 00:09:10,440
+If they make a mistake and send an invalid
+video duration to us, we want
+
+147
+00:09:10,440 --> 00:09:14,010
+to be able to catch that and tell the
+client that they made a mistake.
+
+148
+00:09:14,010 --> 00:09:16,030
+Similarly, if they're doing something
+malicious
+
+149
+00:09:16,030 --> 00:09:18,500
+and sending us data that isn't actually
+
+150
+00:09:18,500 --> 00:09:23,760
+a valid video duration, we don't want to
+have that data stored on our site.
+
+151
+00:09:23,760 --> 00:09:31,440
+So, here, we have to actually go and check
+that we have received a correct duration.
+
+152
+00:09:31,440 --> 00:09:34,830
+And, there's lots of, of checks that we
+could do for the duration.
+
+153
+00:09:34,830 --> 00:09:36,090
+But in this case, the first thing we're
+
+154
+00:09:36,090 --> 00:09:38,050
+going to do is, we're just going to check
+the format.
+
+155
+00:09:39,530 --> 00:09:41,360
+The next thing that we do, but as we
+
+156
+00:09:41,360 --> 00:09:43,400
+did before, is we're going to set the
+content type.
+
+157
+00:09:43,400 --> 00:09:45,440
+So, I'm going to move on past that,
+
+158
+00:09:45,440 --> 00:09:47,060
+down to where it starts getting more
+interesting.
+
+159
+00:09:48,200 --> 00:09:52,830
+Because we're accepting data and there's
+the possibility, that the client might
+
+160
+00:09:52,830 --> 00:09:56,480
+not have send us correct data, we have to
+use this if
+
+161
+00:09:56,480 --> 00:10:00,250
+statement, to look at, all of the
+different parameters that the client's
+
+162
+00:10:00,250 --> 00:10:05,060
+sent to us, and make sure they meet our
+expectations and format.
+
+163
+00:10:05,060 --> 00:10:09,800
+We have to remember that we have no
+control over what the client sends us.
+
+164
+00:10:09,800 --> 00:10:14,270
+The client can send any data it wants in
+its HTTP request.
+
+165
+00:10:14,270 --> 00:10:16,530
+And this is a really important point to
+remember.
+
+166
+00:10:16,530 --> 00:10:20,360
+Even if you are writing your own client,
+you should not write your
+
+167
+00:10:20,360 --> 00:10:26,050
+server to expect that all of the data is
+correctly formatted, or non malicious.
+
+168
+00:10:26,050 --> 00:10:27,820
+You always need to realize anybody can
+
+169
+00:10:27,820 --> 00:10:30,650
+send an HTTP request across the method,
+anybody
+
+170
+00:10:30,650 --> 00:10:34,050
+can prot, pretend do be your client,
+
+171
+00:10:34,050 --> 00:10:37,860
+and send you arbitrary requests to your
+server.
+
+172
+00:10:37,860 --> 00:10:39,790
+And so you have to be able to handle
+
+173
+00:10:39,790 --> 00:10:42,189
+those arbitrary requests and make sure
+they're actually valid.
+
+174
+00:10:43,500 --> 00:10:45,890
+So, as we see here, we're doing several
+different checks.
+
+175
+00:10:45,890 --> 00:10:48,510
+One, we're checking that the name isn't
+null, that
+
+176
+00:10:48,510 --> 00:10:51,870
+the url isn't null, and the duration
+string isn't null.
+
+177
+00:10:51,870 --> 00:10:56,410
+And then we're checking that the actual
+link of the name, and the
+
+178
+00:10:56,410 --> 00:10:59,630
+link of the url, if you strip out all of
+the white space.
+
+179
+00:10:59,630 --> 00:11:01,860
+So that's what these trim methods do.
+
+180
+00:11:01,860 --> 00:11:04,380
+Is they actually strip out all of the
+white space
+
+181
+00:11:04,380 --> 00:11:07,950
+in the string, or as long as we would
+expect.
+
+182
+00:11:07,950 --> 00:11:11,830
+So we're saying that we expect a URL to be
+at least 10 characters long.
+
+183
+00:11:11,830 --> 00:11:15,260
+And then we're also going in checking that
+the duration
+
+184
+00:11:15,260 --> 00:11:20,310
+that we got was at least a, a certain
+length.
+
+185
+00:11:20,310 --> 00:11:25,580
+We're not expecting any durations that are
+zero, or less.
+
+186
+00:11:25,580 --> 00:11:27,790
+Now we're actually doing some extra work
+that, now
+
+187
+00:11:27,790 --> 00:11:29,530
+that I look at it could probably be
+eliminated.
+
+188
+00:11:29,530 --> 00:11:33,100
+We could just check the duration here, and
+see if it's correct, but
+
+189
+00:11:33,100 --> 00:11:34,450
+we're actually checking the string as
+
+190
+00:11:34,450 --> 00:11:36,160
+well, but that could probably be
+eliminated.
+
+191
+00:11:37,490 --> 00:11:41,040
+The key then, is that if any of these
+things are wrong,
+
+192
+00:11:41,040 --> 00:11:44,820
+we need to tell the client that the client
+made a mistake.
+
+193
+00:11:44,820 --> 00:11:48,020
+And the way that we do that is by sending
+the 400 response
+
+194
+00:11:48,020 --> 00:11:52,730
+code back to the client which is
+essentially a bad request response code.
+
+195
+00:11:52,730 --> 00:11:55,400
+So if the client has missed one of the
+parameters or
+
+196
+00:11:55,400 --> 00:12:01,210
+provided an invalid value, we're going to
+send an HDP400 response code.
+
+197
+00:12:01,210 --> 00:12:04,130
+And then as we see here in the second part
+we're going to provide
+
+198
+00:12:04,130 --> 00:12:06,840
+the client sort of a nice hint as to what
+it did wrong.
+
+199
+00:12:06,840 --> 00:12:09,940
+We're going to give it some information
+about the parameters,
+
+200
+00:12:09,940 --> 00:12:12,950
+that we were expecting to see in the
+request.
+
+201
+00:12:12,950 --> 00:12:16,170
+Now, you could make this fancy or not
+fancy, it's rally up to you.
+
+202
+00:12:16,170 --> 00:12:19,010
+But the important thing is that, we're
+sending this 400 response
+
+203
+00:12:19,010 --> 00:12:22,830
+code, which is telling the client that it
+made a bad request.
+
+204
+00:12:24,270 --> 00:12:28,770
+If we get lucky, and we've gone through
+all of this work up here.
+
+205
+00:12:28,770 --> 00:12:31,990
+So this is a lot of work, this is all the
+work that we're
+
+206
+00:12:31,990 --> 00:12:35,620
+doing to extract the parameters from the
+
+207
+00:12:35,620 --> 00:12:39,190
+request and validate that they're actually
+correct.
+
+208
+00:12:39,190 --> 00:12:41,670
+So if we go through all of this work up
+there at
+
+209
+00:12:41,670 --> 00:12:47,080
+the top, finally at the bottom we actually
+get to do some work.
+
+210
+00:12:47,080 --> 00:12:50,970
+So most of this method is just extracting
+parameters that
+
+211
+00:12:50,970 --> 00:12:56,050
+the client sent us, and validating that
+they meet our expectations.
+
+212
+00:12:56,050 --> 00:12:58,050
+So if we go thru all of that work,
+
+213
+00:12:58,050 --> 00:13:00,960
+down here at the bottom we finally get to
+construct
+
+214
+00:13:00,960 --> 00:13:03,510
+a video object, which is what we're trying
+to do
+
+215
+00:13:03,510 --> 00:13:06,760
+is take the client data and construct a
+video object.
+
+216
+00:13:06,760 --> 00:13:11,080
+We get to add it to our list of videos,
+and then finally we
+
+217
+00:13:11,080 --> 00:13:16,220
+can write back a message to the client
+saying hey, we added the video.
+
+218
+00:13:16,220 --> 00:13:18,930
+So if you look at this video added method,
+er
+
+219
+00:13:18,930 --> 00:13:21,390
+message, it's just a video added is the
+value of it.
+
+220
+00:13:21,390 --> 00:13:23,710
+So this is just a constant we've defined
+up top.
+
+221
+00:13:25,120 --> 00:13:30,410
+So this is a huge amount of work to
+actually do something simple.
+
+222
+00:13:30,410 --> 00:13:33,730
+And that is to take a request from the
+client, take in the data
+
+223
+00:13:33,730 --> 00:13:38,110
+they they provides us, construct a video
+object and add it to our list.
+
+224
+00:13:38,110 --> 00:13:40,180
+A massive amount of work, is going
+
+225
+00:13:40,180 --> 00:13:43,870
+into all of this parameter extraction and
+validation.
+
+226
+00:13:43,870 --> 00:13:49,940
+Now, it makes sense, that we have to do
+some work here, because again, we
+
+227
+00:13:49,940 --> 00:13:52,220
+always want to remember, the values that
+we're getting
+
+228
+00:13:52,220 --> 00:13:54,800
+in an http request, they could be
+anything.
+
+229
+00:13:54,800 --> 00:13:57,420
+We don't know what the client is sending
+us.
+
+230
+00:13:57,420 --> 00:14:00,920
+So as a developer, of a web based service
+that's going to
+
+231
+00:14:00,920 --> 00:14:06,820
+receive http requests, you always need to
+be diligent, to check the content
+
+232
+00:14:06,820 --> 00:14:10,830
+that you're getting in any you know key
+value pairs that are
+
+233
+00:14:10,830 --> 00:14:15,770
+encoded in a foreign body and any query
+string parameters and any headers.
+
+234
+00:14:15,770 --> 00:14:18,710
+Anything else you're getting from the
+client, you must not trust
+
+235
+00:14:18,710 --> 00:14:22,480
+it, you must validate it yourself and
+ensure that it's actually correct.
+

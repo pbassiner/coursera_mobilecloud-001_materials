@@ -1,0 +1,348 @@
+1
+00:00:00,000 --> 00:00:09,001
+[MUSIC]
+
+2
+00:00:09,001 --> 00:00:15,050
+Our simple servlet has all the logic that
+we need to handle get and post requests.
+
+3
+00:00:15,050 --> 00:00:16,870
+But the one piece that we haven't talked
+about
+
+4
+00:00:16,870 --> 00:00:21,540
+is, how do we route requests to this
+servlet?
+
+5
+00:00:21,540 --> 00:00:25,090
+So how does the web application container
+that our servlet is running in
+
+6
+00:00:25,090 --> 00:00:31,020
+know when should it invoke our servlet and
+which operations it should handle?
+
+7
+00:00:32,110 --> 00:00:36,710
+So, if we think about this, a request gets
+sent with a particular path.
+
+8
+00:00:37,770 --> 00:00:39,650
+And then the servlet container
+
+9
+00:00:42,570 --> 00:00:45,970
+needs to know, depending on the path, when
+
+10
+00:00:45,970 --> 00:00:51,930
+should the individual servlets, should
+actually handle the request?
+
+11
+00:00:51,930 --> 00:00:55,600
+So we need to set up a routing
+relationship so that we
+
+12
+00:00:55,600 --> 00:01:00,589
+know, based on the path, which server,
+servlet should it be routed to.
+
+13
+00:01:01,770 --> 00:01:05,430
+That's what this web.xml file provides.
+
+14
+00:01:05,430 --> 00:01:10,160
+We're going to talk about web.xml files
+first because they're the traditional way
+
+15
+00:01:10,160 --> 00:01:13,060
+of specifying these routing relationships
+to decide
+
+16
+00:01:13,060 --> 00:01:15,972
+which paths get handled by which servlet.
+
+17
+00:01:15,972 --> 00:01:20,270
+But, as we'll talk about later, there's a
+newer method for doing this that's
+
+18
+00:01:20,270 --> 00:01:23,030
+based on Java-based configuration, where
+you can
+
+19
+00:01:23,030 --> 00:01:27,520
+still do all of these configuration
+parameterizations of
+
+20
+00:01:27,520 --> 00:01:31,900
+your application, but you have type safety
+of Java and so it's easier to make
+
+21
+00:01:31,900 --> 00:01:36,036
+sure you do things correctly because you
+can make a mistake in a web.xml file.
+
+22
+00:01:36,036 --> 00:01:39,160
+So here's a simple web.xml file for our
+video
+
+23
+00:01:39,160 --> 00:01:41,740
+service that we created and the servlet
+for it.
+
+24
+00:01:43,030 --> 00:01:45,310
+So we see that there's a web-app
+
+25
+00:01:45,310 --> 00:01:49,040
+declaration saying that this is a web
+application.
+
+26
+00:01:49,040 --> 00:01:54,350
+And what we're doing is we're describing
+in this XML file the parts of our
+
+27
+00:01:54,350 --> 00:01:57,510
+code that the servlet container or the
+
+28
+00:01:57,510 --> 00:02:00,950
+web [INAUDIBLE] application container
+needs to know about.
+
+29
+00:02:00,950 --> 00:02:04,663
+So when it loads our code, it needs to
+know what are the servlets
+
+30
+00:02:04,663 --> 00:02:09,023
+that it should care about and what path
+should it route to which servlets.
+
+31
+00:02:09,023 --> 00:02:14,069
+So that's what this web.xml file tells it,
+is information about our code
+
+32
+00:02:14,069 --> 00:02:18,100
+and how to load it and how do you map
+requests into that code.
+
+33
+00:02:18,100 --> 00:02:19,420
+So in this case, all we have is a
+
+34
+00:02:19,420 --> 00:02:23,350
+simple servlet and a single mapping for
+that servlet.
+
+35
+00:02:23,350 --> 00:02:25,390
+So the servlet is declared here and we see
+the
+
+36
+00:02:25,390 --> 00:02:28,970
+servlet's got a name and then we've got a
+class.
+
+37
+00:02:28,970 --> 00:02:31,622
+So, this tells the servlet, go and load
+
+38
+00:02:31,622 --> 00:02:35,678
+this particular class that I wrote, which,
+you're telling
+
+39
+00:02:35,678 --> 00:02:39,110
+it, it's going to have to inherit from
+HttpServlet
+
+40
+00:02:39,110 --> 00:02:41,694
+and then give it this name in this file.
+
+41
+00:02:41,694 --> 00:02:45,920
+So whenever I'm referring to this name, it
+means this class.
+
+42
+00:02:45,920 --> 00:02:48,580
+So we're describing a servlet that the web
+
+43
+00:02:48,580 --> 00:02:51,280
+application container should go and load,
+and then
+
+44
+00:02:51,280 --> 00:02:55,992
+we can refer to that name later in the
+file to route requests to that servlet.
+
+45
+00:02:57,030 --> 00:03:00,840
+Now down here, we see there's a mapping.
+
+46
+00:03:00,840 --> 00:03:02,910
+Up here is where we're declaring the
+server.
+
+47
+00:03:02,910 --> 00:03:05,790
+So we are defining a servlet.
+
+48
+00:03:05,790 --> 00:03:08,700
+And down here, we're doing routing.
+
+49
+00:03:08,700 --> 00:03:14,170
+So we're mapping a request to our servlet.
+
+50
+00:03:14,170 --> 00:03:18,910
+So in this case, we see that we're
+referring to the original name of that
+
+51
+00:03:18,910 --> 00:03:22,585
+servlet we declared and then we're
+specifying a
+
+52
+00:03:22,585 --> 00:03:26,940
+url-pattern that should be routed to that
+servlet.
+
+53
+00:03:26,940 --> 00:03:29,060
+So in this case, we're going to route all
+
+54
+00:03:29,060 --> 00:03:34,642
+requests to the /video path to that
+particular servlet.
+
+55
+00:03:34,642 --> 00:03:37,300
+The url-pattern can take on a number of
+forms.
+
+56
+00:03:37,300 --> 00:03:41,430
+You can have regular expression matching
+in the url-pattern.
+
+57
+00:03:41,430 --> 00:03:44,670
+So you can do things like match all URLs
+that
+
+58
+00:03:44,670 --> 00:03:50,560
+begin with /video or match any URL that
+ends with /video.
+
+59
+00:03:50,560 --> 00:03:52,070
+And you can have all kinds of different
+
+60
+00:03:52,070 --> 00:03:55,840
+schemes and the pattern here will
+determine how
+
+61
+00:03:55,840 --> 00:03:58,740
+the web application container looks at
+paths and
+
+62
+00:03:58,740 --> 00:04:01,140
+decides which paths should be mapped to
+your servlet.
+
+63
+00:04:01,140 --> 00:04:04,580
+And if you have multiple servlets, you
+simply define
+
+64
+00:04:04,580 --> 00:04:10,140
+multiple servlet tags and you simply
+define multiple mapping
+
+65
+00:04:10,140 --> 00:04:13,880
+tags for the servlets describe how the
+different paths
+
+66
+00:04:15,090 --> 00:04:18,020
+that are on the request map into different
+servlets.
+
+67
+00:04:19,090 --> 00:04:20,620
+Now, as we'll see later, we'll going to
+actually
+
+68
+00:04:20,620 --> 00:04:24,480
+use a finer-grained and more advanced
+routing mechanism, but
+
+69
+00:04:24,480 --> 00:04:30,300
+for now, this is the basis, is this, this
+is what goes inside of a web.xml file.
+
+70
+00:04:31,480 --> 00:04:35,050
+And a lot of newer applications don't use
+web.xml.
+
+71
+00:04:35,050 --> 00:04:37,540
+They use, you know, Java-based
+configurations.
+
+72
+00:04:37,540 --> 00:04:41,575
+But the vast majority of applications that
+are out there still use
+
+73
+00:04:41,575 --> 00:04:45,420
+web.xml, so it's important to know what it
+is and how it works.
+

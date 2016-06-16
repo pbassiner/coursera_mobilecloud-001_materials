@@ -1,0 +1,254 @@
+1
+00:00:00,201 --> 00:00:08,776
+[MUSIC]
+
+2
+00:00:08,776 --> 00:00:11,736
+The Java technology that's used to handle
+
+3
+00:00:11,736 --> 00:00:15,690
+incoming requests on a server, is
+typically Servlets.
+
+4
+00:00:16,690 --> 00:00:20,930
+So what Servlets do, is when a browser,
+where
+
+5
+00:00:20,930 --> 00:00:25,727
+in our case a mobile device, sends an HTTP
+request.
+
+6
+00:00:25,727 --> 00:00:29,164
+[BLANK_AUDIO]
+
+7
+00:00:29,164 --> 00:00:36,045
+This request gets routed to what's called
+a Web Application Container.
+
+8
+00:00:36,045 --> 00:00:40,130
+So this is often just called a Web
+Container,
+
+9
+00:00:42,790 --> 00:00:48,549
+and inside of the web container, there are
+one or more Servlets
+
+10
+00:00:48,549 --> 00:00:55,270
+that handle and process the HTTP requests
+that are being sent to it.
+
+11
+00:00:55,270 --> 00:01:00,480
+So the request will reach the web
+container and then be routed to one of
+
+12
+00:01:00,480 --> 00:01:05,770
+many individual Servlets typically, that
+are running inside of that web container.
+
+13
+00:01:06,930 --> 00:01:12,402
+Now, what a Servlet is, is it's just a
+Java object, that
+
+14
+00:01:12,402 --> 00:01:18,010
+has special methods for handling incoming
+HTTP requests.
+
+15
+00:01:18,010 --> 00:01:23,759
+And the key methods that a servlet has,
+are doGet,
+
+16
+00:01:23,759 --> 00:01:29,470
+doPost, and you can probably see a pattern
+here.
+
+17
+00:01:29,470 --> 00:01:33,758
+You have do methods for the various
+request
+
+18
+00:01:33,758 --> 00:01:39,710
+methods, that are part of the HTTP
+specification.
+
+19
+00:01:39,710 --> 00:01:43,730
+So this Servelet is nothing more than a
+Java object,
+
+20
+00:01:46,090 --> 00:01:52,400
+that inherits from Servlet and has
+implementations of the various request
+
+21
+00:01:52,400 --> 00:01:58,220
+handling methods, that correspond to the
+various HTTP request method.
+
+22
+00:01:59,810 --> 00:02:05,100
+So if somebody sends a Get request for
+some resource
+
+23
+00:02:05,100 --> 00:02:10,190
+like Foo, it's going to pick out a
+Servlet, it's going to route
+
+24
+00:02:10,190 --> 00:02:13,780
+that request to the Servlets doGet method
+and then that doGet
+
+25
+00:02:13,780 --> 00:02:19,080
+method gets access to all of the different
+pieces of the request.
+
+26
+00:02:19,080 --> 00:02:21,590
+Namely, the request line where we can look
+at for
+
+27
+00:02:21,590 --> 00:02:26,635
+example, the resource that was requested,
+it gets access to the
+
+28
+00:02:26,635 --> 00:02:29,830
+Headers and it gets access to the request
+body, so
+
+29
+00:02:29,830 --> 00:02:35,500
+they can go and do any processing
+associated with that request.
+
+30
+00:02:35,500 --> 00:02:38,310
+So, Servlets are the underline and most
+commonly
+
+31
+00:02:38,310 --> 00:02:41,750
+used technology in Java, for handling the
+incoming request.
+
+32
+00:02:43,090 --> 00:02:49,220
+Now, one of the key questions is, if we
+have multiple Servlets here, how do we
+
+33
+00:02:49,220 --> 00:02:55,890
+decide which Servlet should handle a
+particular HTTP request?
+
+34
+00:02:55,890 --> 00:02:59,070
+Well, inside of most web containers,
+there's
+
+35
+00:02:59,070 --> 00:03:01,920
+what we call basically a routing function,
+or
+
+36
+00:03:01,920 --> 00:03:06,160
+some router which decides based on the
+request
+
+37
+00:03:06,160 --> 00:03:09,780
+that's coming in, which Servlet should
+handle it.
+
+38
+00:03:09,780 --> 00:03:13,640
+And in Java, the way that Servlet handling
+
+39
+00:03:13,640 --> 00:03:17,570
+and routing is specified, is through a
+web.xml file.
+
+40
+00:03:19,680 --> 00:03:24,560
+And this is a specialized file that tells
+the web container when a particular
+
+41
+00:03:24,560 --> 00:03:31,050
+request comes in, so let's say we get a
+new request here for slash-bar
+
+42
+00:03:31,050 --> 00:03:38,782
+and it's a post to bar, it looks in the
+web.xml file, finds the Servlet
+
+43
+00:03:38,782 --> 00:03:44,500
+that it should go to, and then routes the
+request to the appropriate Servelet,
+
+44
+00:03:44,500 --> 00:03:48,500
+based on what's specified in that web.xml
+file.
+
+45
+00:03:48,500 --> 00:03:53,500
+So this is essentially the routing of
+requests.
+
+46
+00:03:53,500 --> 00:03:56,170
+This is where routing is specified as in
+web.xml.
+
+47
+00:03:56,170 --> 00:04:01,432
+The web container handles the life cycle,
+and uses this routing table to
+
+48
+00:04:01,432 --> 00:04:04,969
+decide which Servlet should receive
+requests,
+
+49
+00:04:04,969 --> 00:04:08,949
+and then the individual Servlet's process
+request.
+
+50
+00:04:08,949 --> 00:04:14,689
+[BLANK_AUDIO]
+
+51
+00:04:14,689 --> 00:04:17,882
+So, this is the overview of how the
+
+52
+00:04:17,882 --> 00:04:23,620
+Servlet system in, in Java works, to
+handle requests.
+

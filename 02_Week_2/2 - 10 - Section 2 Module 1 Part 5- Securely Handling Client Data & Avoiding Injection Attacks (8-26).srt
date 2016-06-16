@@ -1,0 +1,622 @@
+1
+00:00:01,429 --> 00:00:09,052
+[MUSIC]
+
+2
+00:00:09,052 --> 00:00:11,587
+Whenever you're building a server side
+code
+
+3
+00:00:11,587 --> 00:00:13,855
+base that's going to receive data from a
+
+4
+00:00:13,855 --> 00:00:16,323
+client, like we are in these examples
+where
+
+5
+00:00:16,323 --> 00:00:19,700
+we're receiving data over HTTP from a
+client.
+
+6
+00:00:19,700 --> 00:00:22,780
+And then we're going to process and do
+something with that data,
+
+7
+00:00:22,780 --> 00:00:26,650
+something that we have to be very
+concerned about are injection attacks.
+
+8
+00:00:27,790 --> 00:00:36,490
+And so, to summon up what this is, is when
+the client sends us some
+
+9
+00:00:36,490 --> 00:00:42,570
+data, that because of the way that the
+client sends that data to us or formats
+
+10
+00:00:42,570 --> 00:00:47,810
+it or some other aspect of the data or the
+request, we end up rather than
+
+11
+00:00:47,810 --> 00:00:50,000
+interpreting that data as data we end up
+
+12
+00:00:50,000 --> 00:00:54,160
+interpreting it as a command and executing
+something.
+
+13
+00:00:54,160 --> 00:00:55,880
+We have to be very careful of these things
+
+14
+00:00:55,880 --> 00:00:58,300
+because we don't want the client to be
+able to
+
+15
+00:00:58,300 --> 00:01:01,320
+manipulate our execution paths and our
+logic on the
+
+16
+00:01:01,320 --> 00:01:05,300
+server, or on other clients that are
+accessing our website.
+
+17
+00:01:05,300 --> 00:01:10,330
+So it's very important that we always, be
+cognizant of the potential
+
+18
+00:01:10,330 --> 00:01:15,300
+for the client to send us some data that
+causes to take some command or
+
+19
+00:01:15,300 --> 00:01:21,310
+action that we didn't want to take or that
+we don't thinks is secure.
+
+20
+00:01:21,310 --> 00:01:24,580
+So, let me give you an example using the
+
+21
+00:01:24,580 --> 00:01:27,750
+echo servlet that we've seen in our coded
+samples.
+
+22
+00:01:28,890 --> 00:01:33,992
+So, with the echo servlet a client
+
+23
+00:01:33,992 --> 00:01:39,150
+can send a request to
+
+24
+00:01:39,150 --> 00:01:44,250
+the server with a message that should be
+occur, and
+
+25
+00:01:44,250 --> 00:01:49,460
+the server then returns to the client a
+message
+
+26
+00:01:49,460 --> 00:01:54,419
+back which is the content of the webpage
+so its going to send echo
+
+27
+00:01:55,450 --> 00:01:56,670
+plus the message.
+
+28
+00:01:58,390 --> 00:02:00,560
+Now, in our example that we were using, we
+
+29
+00:02:00,560 --> 00:02:04,140
+were sending this echo plus message back
+as plain text.
+
+30
+00:02:04,140 --> 00:02:07,260
+So whenever the client gets back, it's
+just going to hopefully
+
+31
+00:02:07,260 --> 00:02:10,770
+look at the content type header and
+interpret it as plain text.
+
+32
+00:02:10,770 --> 00:02:12,450
+But let's assume that we were actually
+setting the
+
+33
+00:02:12,450 --> 00:02:16,390
+content type to HTML, so that when the
+client
+
+34
+00:02:16,390 --> 00:02:19,450
+got this echo plus message back, we could
+have
+
+35
+00:02:19,450 --> 00:02:22,970
+HTML in it, and the client would display
+it.
+
+36
+00:02:22,970 --> 00:02:24,850
+So you can imagine we might go and add
+
+37
+00:02:24,850 --> 00:02:30,040
+something like a HTML tag, and then we
+might add
+
+38
+00:02:30,040 --> 00:02:33,730
+a body tag, in front of our content we're
+
+39
+00:02:33,730 --> 00:02:36,940
+sending back, and there might be a closing
+body tag.
+
+40
+00:02:38,180 --> 00:02:44,620
+And a closing HTML tag, so now whenever
+we, the client
+
+41
+00:02:44,620 --> 00:02:49,170
+send us a message they could provide some
+HTML formatting on the message
+
+42
+00:02:49,170 --> 00:02:51,540
+that they sent to us and when I got echo
+it back
+
+43
+00:02:51,540 --> 00:02:55,550
+they could make it bold or different
+colors whatever they wanted to do.
+
+44
+00:02:55,550 --> 00:02:57,900
+Now the, the challenge with this is what
+
+45
+00:02:57,900 --> 00:03:02,060
+if they make this message, some JavaScript
+code.
+
+46
+00:03:03,290 --> 00:03:07,640
+So suddenly, the client is going to send
+us, some
+
+47
+00:03:07,640 --> 00:03:11,280
+JavaScript code, which we are going to
+echo back to them.
+
+48
+00:03:11,280 --> 00:03:16,650
+Well the challenge is now, when we echo
+this HTML page back to them, It's going to
+
+49
+00:03:16,650 --> 00:03:19,190
+have java script code in it, which will be
+
+50
+00:03:19,190 --> 00:03:23,080
+executed by the client when it gets it
+back.
+
+51
+00:03:23,080 --> 00:03:24,640
+Now you may say, well then, why, why do
+
+52
+00:03:24,640 --> 00:03:26,750
+we care about this If the client's sending
+it to
+
+53
+00:03:26,750 --> 00:03:30,360
+us, why should we care about it executing
+it because
+
+54
+00:03:30,360 --> 00:03:33,040
+it sent it to us so it must be okay?
+
+55
+00:03:33,040 --> 00:03:38,660
+Well, the challenge is, is think about in
+this case, If we had a second website.
+
+56
+00:03:40,030 --> 00:03:45,600
+So, we have another website and the client
+
+57
+00:03:45,600 --> 00:03:50,920
+then goes and visits this website, and
+part of what the
+
+58
+00:03:50,920 --> 00:03:56,499
+website returns is a URL to this server so
+a link,
+
+59
+00:03:58,720 --> 00:04:02,380
+to the echo service.
+
+60
+00:04:04,040 --> 00:04:08,200
+If that link encodes some java script in
+the message,
+
+61
+00:04:08,200 --> 00:04:11,660
+then this website can trick the client
+into clicking on this
+
+62
+00:04:11,660 --> 00:04:15,710
+link, which when they visit it will cause
+JavaScript to
+
+63
+00:04:15,710 --> 00:04:19,580
+be injected into their browser that goes
+and does something malicious.
+
+64
+00:04:19,580 --> 00:04:24,180
+So for example, if our server was sending
+private cookies or other data
+
+65
+00:04:24,180 --> 00:04:29,270
+back to the client or maybe our, the bank
+balance was coming back.
+
+66
+00:04:29,270 --> 00:04:31,510
+It wasn't just a simple page, web page but
+
+67
+00:04:31,510 --> 00:04:34,520
+it was actually something to show them
+their account balance.
+
+68
+00:04:34,520 --> 00:04:37,550
+The script that they injected into the
+client,
+
+69
+00:04:37,550 --> 00:04:39,430
+would have access to all of that data when
+
+70
+00:04:39,430 --> 00:04:43,905
+it came back to the client and that script
+could tell the client to go ahead and
+
+71
+00:04:43,905 --> 00:04:47,330
+for the data secretly to the attacking
+website,
+
+72
+00:04:47,330 --> 00:04:50,980
+so this is just one example of where the
+
+73
+00:04:50,980 --> 00:04:53,030
+facts that we're taking in data from the
+
+74
+00:04:53,030 --> 00:04:57,230
+client can lead to some type of injection
+attack.
+
+75
+00:04:57,230 --> 00:04:59,730
+We want to be very careful, that whatever
+data we take
+
+76
+00:04:59,730 --> 00:05:03,650
+from the client, that we treat it very,
+very carefully.
+
+77
+00:05:03,650 --> 00:05:06,340
+Another one of the top types of injection
+attacks, that we'll
+
+78
+00:05:06,340 --> 00:05:10,390
+talk about later in the course, is called
+a SQL injection attack.
+
+79
+00:05:10,390 --> 00:05:13,530
+Where, because of the data that the client
+provides, the server
+
+80
+00:05:13,530 --> 00:05:19,030
+goes off and accesses or manipulates the
+database in an inappropriate way.
+
+81
+00:05:19,030 --> 00:05:23,510
+So, the moral of this story is, whenever
+you are taking in
+
+82
+00:05:23,510 --> 00:05:29,310
+data from the client, you must consider
+this data to be highly untrusted.
+
+83
+00:05:29,310 --> 00:05:32,390
+Even if you were expecting only your
+mobile client to be
+
+84
+00:05:32,390 --> 00:05:36,430
+sending the HB request to the server, it
+doesn't mean that
+
+85
+00:05:36,430 --> 00:05:41,870
+some other Entity could just directly,
+create HTTP requests outside of
+
+86
+00:05:41,870 --> 00:05:45,200
+your client and send them to the server to
+do something.
+
+87
+00:05:45,200 --> 00:05:48,490
+So, you always, always, always must be
+
+88
+00:05:48,490 --> 00:05:52,538
+very, very careful and don't trust client
+data.
+
+89
+00:05:52,538 --> 00:05:55,888
+[BLANK_AUDIO]
+
+90
+00:05:55,888 --> 00:06:00,170
+You always must validate it and segregate
+it, and make
+
+91
+00:06:00,170 --> 00:06:05,420
+sure that it can't manipulate your server
+in some way.
+
+92
+00:06:05,420 --> 00:06:08,160
+So what are things that you should be
+careful of?
+
+93
+00:06:08,160 --> 00:06:13,600
+Anytime a client is going to be sending
+you HTML, or some type of code
+
+94
+00:06:13,600 --> 00:06:18,780
+that could potentially be interpreted as
+commands or logic.
+
+95
+00:06:18,780 --> 00:06:21,990
+Be very, very careful of that, because
+that's a direct case
+
+96
+00:06:21,990 --> 00:06:25,370
+where, if you're going to interpret what
+they send you as
+
+97
+00:06:25,370 --> 00:06:28,810
+logic, then there's the potential that
+what they send you, could
+
+98
+00:06:28,810 --> 00:06:32,470
+manipulate the logic on your server to do
+something very bad.
+
+99
+00:06:32,470 --> 00:06:34,550
+If you're going, they're going to send
+something to you that
+
+100
+00:06:34,550 --> 00:06:38,270
+you're going to temporarily store and then
+send back to other clients.
+
+101
+00:06:38,270 --> 00:06:40,550
+But what you send back is going to be
+interpreted
+
+102
+00:06:40,550 --> 00:06:43,870
+as logic in some way or executed in some
+way.
+
+103
+00:06:43,870 --> 00:06:48,060
+Be very, very careful of that, because
+that's another case where they could
+
+104
+00:06:48,060 --> 00:06:53,760
+inject some type of command data, that
+later gets served up to your visitors
+
+105
+00:06:53,760 --> 00:06:59,780
+or store other clients of your website and
+causes attacks to be generated on them.
+
+106
+00:06:59,780 --> 00:07:03,590
+So, always take client data and validate
+it
+
+107
+00:07:03,590 --> 00:07:06,890
+very, very carefully, If there's the
+potential that it
+
+108
+00:07:06,890 --> 00:07:10,920
+could be executed, you must try to
+sanitize
+
+109
+00:07:10,920 --> 00:07:14,170
+that data and strip out anything bad in
+it.
+
+110
+00:07:14,170 --> 00:07:18,720
+And the best approach is to only allow
+very certain things in.
+
+111
+00:07:18,720 --> 00:07:23,190
+Rather than trying to go and manipulate
+the data after the
+
+112
+00:07:23,190 --> 00:07:28,050
+fact, and remove bad things, or try to
+catch just bad things.
+
+113
+00:07:28,050 --> 00:07:31,520
+It's very, very difficult to take data in
+from a
+
+114
+00:07:31,520 --> 00:07:34,840
+client that's later going to be executed
+as logical commands in
+
+115
+00:07:34,840 --> 00:07:38,060
+some way, and do that securely It's a
+very, very
+
+116
+00:07:38,060 --> 00:07:42,250
+challenging thing to do, be very careful
+whenever you do it.
+
+117
+00:07:42,250 --> 00:07:44,830
+Any data that you're taking from the
+client, if you're expecting
+
+118
+00:07:44,830 --> 00:07:47,840
+it to be of a certain type, validate that
+it's that type.
+
+119
+00:07:47,840 --> 00:07:51,800
+If you're expecting it not to be empty,
+validate that it's not empty.
+
+120
+00:07:51,800 --> 00:07:57,260
+Always you know, treat client data as an
+attack on your system.
+
+121
+00:07:57,260 --> 00:07:59,500
+Validate it, and then prove that it's not
+an
+
+122
+00:07:59,500 --> 00:08:03,410
+attack before you do something with it
+that is sensitive.
+
+123
+00:08:03,410 --> 00:08:08,810
+So, the moral of the story is anything
+that comes into a servlet, anything that
+
+124
+00:08:08,810 --> 00:08:11,070
+comes into the controllers, the spring
+controllers
+
+125
+00:08:11,070 --> 00:08:13,700
+that we'll talk about later in this
+course.
+
+126
+00:08:13,700 --> 00:08:16,330
+Any of that type of data that comes in,
+you
+
+127
+00:08:16,330 --> 00:08:19,310
+must be incredibly careful with what you
+do with it,
+
+128
+00:08:19,310 --> 00:08:22,170
+and ensure that doesn't lead to an attack
+on you,
+
+129
+00:08:22,170 --> 00:08:25,770
+and your server or the clients that are
+visiting your server.
+

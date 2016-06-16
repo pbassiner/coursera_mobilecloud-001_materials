@@ -1,0 +1,372 @@
+1
+00:00:00,066 --> 00:00:08,821
+[MUSIC]
+
+2
+00:00:08,821 --> 00:00:13,191
+It's helpful for the rest of the course to
+understand what people
+
+3
+00:00:13,191 --> 00:00:18,400
+mean by REST, typically, when they say you
+have a REST interface.
+
+4
+00:00:18,400 --> 00:00:23,200
+And the piece of, of REST, what they're
+probably describing, is the idea that
+
+5
+00:00:23,200 --> 00:00:29,130
+you're interacting with resources, rather
+than specific objects or services.
+
+6
+00:00:29,130 --> 00:00:32,710
+Instead, you're, you're acting, you're
+interacting with resources and
+
+7
+00:00:32,710 --> 00:00:36,859
+your interactions are specified through
+URLs that address those resources.
+
+8
+00:00:37,960 --> 00:00:40,352
+And there is a common way that people
+
+9
+00:00:40,352 --> 00:00:43,622
+tend to build URLs to address resources,
+that is
+
+10
+00:00:43,622 --> 00:00:47,211
+what, when you use that common format,
+that's what
+
+11
+00:00:47,211 --> 00:00:49,709
+they mean by, do you have a REST API.
+
+12
+00:00:49,709 --> 00:00:52,075
+Is they're not meaning the true
+definition, the
+
+13
+00:00:52,075 --> 00:00:54,608
+full definition of REST, what they're
+meaning is,
+
+14
+00:00:54,608 --> 00:00:58,940
+you build up your resource URLs in the
+particular format that I think of as REST.
+
+15
+00:00:58,940 --> 00:01:01,280
+So let's talk about what that format is,
+since
+
+16
+00:01:01,280 --> 00:01:04,520
+it's helpful to understand what a lot of
+people expect.
+
+17
+00:01:04,520 --> 00:01:07,940
+So let's say that we're accessing the
+videos in our video service.
+
+18
+00:01:09,040 --> 00:01:12,512
+A way to represent a particular video
+would be
+
+19
+00:01:12,512 --> 00:01:16,770
+/video, and then slash an identifier for
+that video.
+
+20
+00:01:16,770 --> 00:01:17,800
+So let's say, video1.
+
+21
+00:01:19,440 --> 00:01:24,019
+So this is a very specific format, saying
+this is a video.
+
+22
+00:01:24,019 --> 00:01:27,259
+Now let's say we wanted to go and find out
+the url of that
+
+23
+00:01:27,259 --> 00:01:31,430
+video, or let's say we wanted to find out
+the duration of that video.
+
+24
+00:01:31,430 --> 00:01:36,724
+We might go and say video/1/duration.
+
+25
+00:01:39,980 --> 00:01:44,180
+And this could be a addressing scheme that
+said, go and access
+
+26
+00:01:44,180 --> 00:01:49,000
+videos, the first video and get its
+duration, and return it to me.
+
+27
+00:01:49,000 --> 00:01:53,620
+So, this is going and accessing, resources
+sort of in finer and finer
+
+28
+00:01:53,620 --> 00:01:56,536
+granularity of which, you know, resource
+we're
+
+29
+00:01:56,536 --> 00:01:59,470
+accessing, and which part of that
+resource.
+
+30
+00:01:59,470 --> 00:02:06,960
+Similarly, we might go and say /video, and
+expect to get a list of all videos back.
+
+31
+00:02:09,660 --> 00:02:11,720
+Versus here we're getting specific,
+
+32
+00:02:14,170 --> 00:02:15,470
+and we're getting one video.
+
+33
+00:02:18,370 --> 00:02:26,050
+And then here, we're getting a part of a
+video.
+
+34
+00:02:26,050 --> 00:02:28,710
+And when you hear people say a REST
+
+35
+00:02:28,710 --> 00:02:34,260
+based interface, or a REST based API,
+typically, this
+
+36
+00:02:34,260 --> 00:02:36,210
+is what they're referring to, is that you
+have
+
+37
+00:02:36,210 --> 00:02:40,986
+some URL addressing scheme that looks
+something like this.
+
+38
+00:02:40,986 --> 00:02:46,590
+That you define resources in this sort of
+generic format that
+
+39
+00:02:46,590 --> 00:02:48,890
+then gets more and more specific as you go
+down the line.
+
+40
+00:02:48,890 --> 00:02:50,914
+And if you say /video it will give you all
+of them.
+
+41
+00:02:50,914 --> 00:02:54,950
+If you say /video/ some identifier it will
+give you a specific one.
+
+42
+00:02:54,950 --> 00:02:58,938
+Or you can ask a specific one and for a
+specific part of that resource.
+
+43
+00:02:58,938 --> 00:03:04,350
+And this format, is what people think of
+as
+
+44
+00:03:04,350 --> 00:03:07,880
+REST, and are commonly referring to when
+they say REST.
+
+45
+00:03:07,880 --> 00:03:11,050
+The other component that they typically
+are referring to,
+
+46
+00:03:11,050 --> 00:03:16,030
+is how you interact with these resources
+through HTTP methods.
+
+47
+00:03:16,030 --> 00:03:21,879
+So, if you want to access a resource and
+get its value, you send a GET request.
+
+48
+00:03:21,879 --> 00:03:26,880
+So GET, to video would give you the list
+of all the videos.
+
+49
+00:03:28,250 --> 00:03:31,930
+However, if you went and sent a PUT
+request to this.
+
+50
+00:03:31,930 --> 00:03:37,254
+It's going to create that collection of
+
+51
+00:03:37,254 --> 00:03:43,986
+resources, or if you send a PUT request to
+down here
+
+52
+00:03:43,986 --> 00:03:50,420
+its going to create or replace, this
+resource.
+
+53
+00:03:52,610 --> 00:04:00,450
+similarly, if you went and sent a POSt to
+this resource, what you're
+
+54
+00:04:00,450 --> 00:04:04,900
+actually going to be doing is creating a
+new one and adding it to the video.
+
+55
+00:04:04,900 --> 00:04:08,860
+So you would create a new video, it would
+be added to the list, and
+
+56
+00:04:08,860 --> 00:04:11,910
+then a new resource address for that
+resources
+
+57
+00:04:11,910 --> 00:04:14,170
+that you added would be returned to you.
+
+58
+00:04:14,170 --> 00:04:18,030
+And it's these types of interactions that
+get labeled REST.
+
+59
+00:04:18,030 --> 00:04:23,230
+This sort of url addressing scheme and the
+fact that we're using
+
+60
+00:04:23,230 --> 00:04:28,890
+POST to go and add, we're using PUT to
+replace, we're using GET to access.
+
+61
+00:04:28,890 --> 00:04:31,210
+And also, we can go and potentially
+
+62
+00:04:31,210 --> 00:04:36,580
+delete, using the HTTP verb, some specific
+resource.
+
+63
+00:04:36,580 --> 00:04:38,230
+And, that's really what's getting referred
+to
+
+64
+00:04:38,230 --> 00:04:41,710
+as REST, is this loose definition that's
+much
+
+65
+00:04:41,710 --> 00:04:44,290
+looser than what's actually described in
+the true
+
+66
+00:04:44,290 --> 00:04:47,460
+definition of REST, but it's important to
+understand.
+
+67
+00:04:47,460 --> 00:04:51,710
+What the basic idea is behind what people
+think of as REST.
+
+68
+00:04:51,710 --> 00:04:56,390
+It's accessing resources in a format that
+looks similar to this, and you can sort
+
+69
+00:04:56,390 --> 00:04:59,690
+of still choose how you describe, you
+
+70
+00:04:59,690 --> 00:05:03,000
+know, finer and finer granularity in your
+resource.
+
+71
+00:05:03,000 --> 00:05:11,490
+And then using these HTTP verbs to
+describe the deletion of a resource, or a
+
+72
+00:05:11,490 --> 00:05:13,670
+replacement of a resource, or addition of
+a
+
+73
+00:05:13,670 --> 00:05:16,320
+new resource, or access to a new resource.
+
+74
+00:05:16,320 --> 00:05:18,500
+And so when we see most of the
+applications that we're
+
+75
+00:05:18,500 --> 00:05:21,630
+going to be building in this course, we're
+going to be using
+
+76
+00:05:21,630 --> 00:05:24,420
+URL schemes that look something like this,
+and we're going to
+
+77
+00:05:24,420 --> 00:05:27,990
+be using verbs in HTTP in a similar manner
+to this.
+

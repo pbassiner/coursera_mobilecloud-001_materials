@@ -1,0 +1,695 @@
+1
+00:00:00,000 --> 00:00:08,602
+[MUSIC]
+
+2
+00:00:08,602 --> 00:00:11,024
+One of the most common approaches that
+ends
+
+3
+00:00:11,024 --> 00:00:13,242
+up getting used to solve this problem of
+
+4
+00:00:13,242 --> 00:00:16,067
+getting information or updates from the
+server to
+
+5
+00:00:16,067 --> 00:00:19,560
+the client is what's known as Push
+notifications.
+
+6
+00:00:19,560 --> 00:00:24,850
+Or depending on which particular platform
+you're on.
+
+7
+00:00:24,850 --> 00:00:29,320
+If you're on Android, it's the Google
+Cloud Messaging.
+
+8
+00:00:29,320 --> 00:00:32,550
+And the idea behind this is that every
+Android client,
+
+9
+00:00:35,760 --> 00:00:42,059
+automatically sets up a persistent
+connection to
+
+10
+00:00:42,059 --> 00:00:49,420
+Google servers, it's GCM servers, which
+are the Google Cloud Messaging servers.
+
+11
+00:00:49,420 --> 00:00:53,700
+And this connection is done over XMPP,
+which is an
+
+12
+00:00:53,700 --> 00:00:58,559
+XML based messaging protocol, that was
+originally used for chat messages.
+
+13
+00:01:00,530 --> 00:01:06,120
+And the idea is, is that at any time
+because this GCM server has
+
+14
+00:01:06,120 --> 00:01:13,100
+access to the Android client over XMPP, it
+can push information to it.
+
+15
+00:01:13,100 --> 00:01:16,710
+So typically what happens is, is if you
+want to have a
+
+16
+00:01:16,710 --> 00:01:22,360
+server that you're building that needs to
+push information to a client.
+
+17
+00:01:23,800 --> 00:01:29,629
+What happens is, is when the Android
+client goes and establishes the
+
+18
+00:01:29,629 --> 00:01:37,379
+connection, the initial, XMPP connection,
+what it gets back is a registration ID.
+
+19
+00:01:37,379 --> 00:01:42,385
+And this is a unique handle or identifier,
+an address
+
+20
+00:01:42,385 --> 00:01:47,392
+of this Android client on this GCM server
+and then what
+
+21
+00:01:47,392 --> 00:01:52,288
+the Android client does is it sends its
+registration
+
+22
+00:01:52,288 --> 00:01:57,071
+ID to the server, your sever doing
+something like a
+
+23
+00:01:57,071 --> 00:02:02,409
+traditional HTP Push, I mean Post, or Put,
+or whatever
+
+24
+00:02:02,409 --> 00:02:07,440
+it needs to do, depending on your API to
+your server.
+
+25
+00:02:07,440 --> 00:02:11,019
+So now your server knows the unique ID of
+this
+
+26
+00:02:11,019 --> 00:02:17,990
+Android client on, on this particular
+Google cloud messaging system.
+
+27
+00:02:17,990 --> 00:02:19,760
+So what the server can do is when it wants
+
+28
+00:02:19,760 --> 00:02:22,160
+to send a message to the client, even
+though it
+
+29
+00:02:22,160 --> 00:02:27,390
+doesn't directly have a connection to the
+client, it can send a POST
+
+30
+00:02:27,390 --> 00:02:32,200
+message over HTTP that has a specific
+format.
+
+31
+00:02:33,730 --> 00:02:38,190
+The POST message tells the GCM server, the
+registration ID
+
+32
+00:02:40,300 --> 00:02:44,680
+of the client or clients that the server
+wants the message delivered to.
+
+33
+00:02:44,680 --> 00:02:49,610
+And then the actual body or the content of
+the message that should be delivered.
+
+34
+00:02:49,610 --> 00:02:52,880
+And so this gets sent to the GCM server,
+and then because it has
+
+35
+00:02:52,880 --> 00:02:56,060
+a persistent connection to the one or
+
+36
+00:02:56,060 --> 00:02:58,410
+multiple clients that the server wants you
+to
+
+37
+00:02:58,410 --> 00:03:06,530
+push to, it can then over one of these
+XMPP connections, send the message that
+
+38
+00:03:06,530 --> 00:03:13,790
+the server provided to each of the clients
+that it specified with a registration ID.
+
+39
+00:03:13,790 --> 00:03:15,730
+So, the idea behind this is the Android
+
+40
+00:03:15,730 --> 00:03:18,030
+client is setting up a persistent
+connection to
+
+41
+00:03:18,030 --> 00:03:21,360
+Google's infrastructure and each time and
+a client
+
+42
+00:03:21,360 --> 00:03:25,260
+connects to this infrastructure, it's
+getting a registration ID.
+
+43
+00:03:25,260 --> 00:03:28,260
+And libraries that are on the Android
+cloud automatically
+
+44
+00:03:28,260 --> 00:03:33,300
+handle the issues of reconnecting when the
+connection has been
+
+45
+00:03:33,300 --> 00:03:35,580
+lost because you were in an airplane or
+you went
+
+46
+00:03:35,580 --> 00:03:38,570
+through a dead zone and you didn't have
+cellular coverage.
+
+47
+00:03:38,570 --> 00:03:43,880
+The Android libraries automatically
+continually reconnect to the GCM server.
+
+48
+00:03:44,890 --> 00:03:48,600
+And if you have a rooted device, this only
+happens and works if
+
+49
+00:03:48,600 --> 00:03:53,220
+you have all of the Google Play services
+and apps installed on the device.
+
+50
+00:03:53,220 --> 00:03:56,850
+But it goes and connects, it gets this
+unique registration ID.
+
+51
+00:03:56,850 --> 00:03:58,960
+And then anybody that wants to send a
+
+52
+00:03:58,960 --> 00:04:02,610
+message to this client can basically
+obtain that
+
+53
+00:04:02,610 --> 00:04:04,790
+client's registration ID, so in this case
+your
+
+54
+00:04:04,790 --> 00:04:07,780
+app gets that registration ID, sends it to
+your
+
+55
+00:04:07,780 --> 00:04:10,220
+server, and then when your server wants to
+
+56
+00:04:10,220 --> 00:04:13,050
+send a message to the client, rather than
+sending
+
+57
+00:04:13,050 --> 00:04:15,180
+it directly to the client, it sends an
+
+58
+00:04:15,180 --> 00:04:19,390
+HTTP message to the GCM infrastructure,
+the Google infrastructure.
+
+59
+00:04:19,390 --> 00:04:23,160
+And the Google infrastructure based on the
+registration ID or IDs that you
+
+60
+00:04:23,160 --> 00:04:26,560
+provide, figures out how to use its
+
+61
+00:04:26,560 --> 00:04:29,810
+XMPP connections to automatically deliver
+the message.
+
+62
+00:04:32,090 --> 00:04:35,870
+Even if you're using a Push type service,
+there's still
+
+63
+00:04:35,870 --> 00:04:40,640
+some architectural considerations to think
+through when you're building your app.
+
+64
+00:04:40,640 --> 00:04:43,400
+The first one is the style of
+notifications
+
+65
+00:04:43,400 --> 00:04:46,100
+that you're going to use to update your
+app.
+
+66
+00:04:46,100 --> 00:04:51,400
+So there's a couple different approaches,
+one is that you can have the client and
+
+67
+00:04:51,400 --> 00:04:57,155
+the server and GCM and
+
+68
+00:04:57,155 --> 00:05:02,020
+whenever the server wants to send
+
+69
+00:05:02,020 --> 00:05:06,170
+an update to the client, let's say you
+have a server that's going
+
+70
+00:05:06,170 --> 00:05:11,650
+to notify the client of people that are
+subscribing to that client's videos.
+
+71
+00:05:11,650 --> 00:05:15,400
+So whenever the server wants to tell the
+client that a new subscriber has shown up,
+
+72
+00:05:15,400 --> 00:05:21,340
+it would send the post message with the
+registration ID of the client to GCM with
+
+73
+00:05:21,340 --> 00:05:27,412
+the identifier, let's say, the message is
+who subscribed,
+
+74
+00:05:27,412 --> 00:05:33,230
+so it, it, it directly encodes in the
+message, the particular subscriber.
+
+75
+00:05:33,230 --> 00:05:36,510
+And from that point, when the client
+receives the message,
+
+76
+00:05:36,510 --> 00:05:39,470
+it can instantly update its internal state
+and be done.
+
+77
+00:05:40,480 --> 00:05:43,360
+Now, this is certainly a viable approach
+as to
+
+78
+00:05:43,360 --> 00:05:47,100
+just directly send all of the state
+information that you
+
+79
+00:05:47,100 --> 00:05:49,230
+want to communicate to the client in the
+actual
+
+80
+00:05:49,230 --> 00:05:54,360
+message bodies that you're pushing out
+over Google Cloud Messaging.
+
+81
+00:05:54,360 --> 00:05:56,730
+And the nice property about this is that
+you
+
+82
+00:05:56,730 --> 00:06:00,340
+get the message to the client as quickly
+as possible.
+
+83
+00:06:00,340 --> 00:06:03,140
+You get it that state update as quickly as
+possible.
+
+84
+00:06:04,430 --> 00:06:09,613
+Now, one of the downsides of this approach
+is that the messages
+
+85
+00:06:09,613 --> 00:06:14,769
+that you send through Google servers are
+limited to four
+
+86
+00:06:14,769 --> 00:06:20,140
+kilobytes, so this only works if you can
+send a state
+
+87
+00:06:20,140 --> 00:06:25,080
+notification that is less than four
+kilobytes in size.
+
+88
+00:06:25,080 --> 00:06:29,820
+For example if you wanted to sync actual
+video data, on the client,
+
+89
+00:06:29,820 --> 00:06:33,310
+you're not going to be able to do this
+over Google Cloud Messaging.
+
+90
+00:06:33,310 --> 00:06:35,096
+Google is not going to push out a
+
+91
+00:06:35,096 --> 00:06:38,580
+multi gigabyte video, over cloud messaging
+to client.
+
+92
+00:06:38,580 --> 00:06:41,790
+So this only works and is really designed
+for
+
+93
+00:06:41,790 --> 00:06:44,419
+sort of small bits of information that
+you're sending.
+
+94
+00:06:45,680 --> 00:06:51,730
+But, there's still a way to get large data
+pushed to the client.
+
+95
+00:06:51,730 --> 00:06:57,620
+And the way that you do that is, you use
+essentially a push to sync model.
+
+96
+00:06:57,620 --> 00:07:01,400
+So before when we were talking about
+polling, the problem
+
+97
+00:07:01,400 --> 00:07:05,060
+was polling was that the client never knew
+what was
+
+98
+00:07:05,060 --> 00:07:07,170
+going on in the server, it didn't know
+when it
+
+99
+00:07:07,170 --> 00:07:10,390
+should go and poll the server to pick up
+information.
+
+100
+00:07:11,460 --> 00:07:13,810
+But, with a push to sync model the
+
+101
+00:07:13,810 --> 00:07:16,650
+idea is, is that if something interesting
+happens on
+
+102
+00:07:16,650 --> 00:07:18,740
+the server that the client needs to know
+
+103
+00:07:18,740 --> 00:07:21,880
+about it can push it to Google cloud
+messaging.
+
+104
+00:07:21,880 --> 00:07:26,850
+The client can receive the message and
+then it can go and pull
+
+105
+00:07:26,850 --> 00:07:32,840
+the server to get the state that it needs
+to know about.
+
+106
+00:07:32,840 --> 00:07:35,360
+And so with something like this you could
+actually
+
+107
+00:07:35,360 --> 00:07:39,460
+go and send messages that are greater than
+four kilobytes.
+
+108
+00:07:39,460 --> 00:07:42,780
+What's happening is the server's sending
+an event that's pushed
+
+109
+00:07:42,780 --> 00:07:46,420
+to the client, that then triggers a pull
+from the server.
+
+110
+00:07:46,420 --> 00:07:51,110
+So, it's performing essentially the same
+function as if you
+
+111
+00:07:51,110 --> 00:07:53,320
+were pushing out a large amount of data to
+the client.
+
+112
+00:07:53,320 --> 00:07:56,270
+The client is being told to go and pick
+
+113
+00:07:56,270 --> 00:07:59,290
+up new state information, and you can send
+it as
+
+114
+00:07:59,290 --> 00:08:01,430
+much state as you want, it's just that it
+
+115
+00:08:01,430 --> 00:08:05,680
+revolves, re, requires an extra round trip
+to your sever.
+
+116
+00:08:05,680 --> 00:08:11,096
+Rather than directly receiving the message
+from Google's cloud servers.
+
+117
+00:08:11,096 --> 00:08:14,230
+There's another reason that you might
+want to consider using a
+
+118
+00:08:14,230 --> 00:08:17,800
+push to sync model, and that is if the
+data or
+
+119
+00:08:17,800 --> 00:08:21,310
+the state that you're pushing out to the
+client is
+
+120
+00:08:21,310 --> 00:08:26,230
+sensitive, and you are concerned about
+Google having access to it.
+
+121
+00:08:26,230 --> 00:08:28,590
+So in our video example, it probably
+doesn't make sense.
+
+122
+00:08:28,590 --> 00:08:33,360
+We've, we probably don't care about the
+messages that are being sent.
+
+123
+00:08:33,360 --> 00:08:35,360
+But if, for example, you're building a
+health
+
+124
+00:08:35,360 --> 00:08:38,600
+care based app, you might not want to send
+
+125
+00:08:38,600 --> 00:08:42,420
+a patient data through a push
+notification, so if
+
+126
+00:08:42,420 --> 00:08:46,750
+you post patient data to Google clouds
+cloud messaging.
+
+127
+00:08:46,750 --> 00:08:49,730
+That may not be acceptable in your country
+and with
+
+128
+00:08:49,730 --> 00:08:52,840
+your particular laws, and then have it
+delivered to the client.
+
+129
+00:08:53,940 --> 00:08:56,700
+In that case what you really want to do is
+send a notification
+
+130
+00:08:56,700 --> 00:09:01,830
+that tells the client to go and pull your
+server to get the data.
+
+131
+00:09:01,830 --> 00:09:08,770
+And with this model you can control the
+security, so you get to control the
+
+132
+00:09:08,770 --> 00:09:15,880
+data and the security that you use to
+deliver that data to the client.
+
+133
+00:09:15,880 --> 00:09:18,570
+Now Google I'm sure has a very, very high
+
+134
+00:09:18,570 --> 00:09:22,772
+security on their servers, but it's still
+important that you
+
+135
+00:09:22,772 --> 00:09:26,380
+be able to control in many cases, the
+actual
+
+136
+00:09:26,380 --> 00:09:29,840
+dissemination of your data and the
+security over that data.
+
+137
+00:09:29,840 --> 00:09:31,805
+So the push to sync model is good when you
+
+138
+00:09:31,805 --> 00:09:35,320
+neither need to push out large amounts of
+data or
+
+139
+00:09:35,320 --> 00:09:38,405
+you need to be in strict control of that
+data's
+
+140
+00:09:38,405 --> 00:09:42,500
+dissemination and the security over the
+dissemination of that data.
+
+141
+00:09:42,500 --> 00:09:47,330
+If you just want a quick message to the
+client to update its state that doesn't
+
+142
+00:09:47,330 --> 00:09:51,323
+require high security, then the push to,
+with
+
+143
+00:09:51,323 --> 00:09:53,380
+a message body is the right way to go.
+
