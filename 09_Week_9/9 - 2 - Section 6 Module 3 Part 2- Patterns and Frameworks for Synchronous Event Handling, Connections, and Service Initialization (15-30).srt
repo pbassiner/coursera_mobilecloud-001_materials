@@ -1,0 +1,1203 @@
+1
+00:00:00,012 --> 00:00:07,852
+Hello and welcome to Part 2 in the Module
+on Patterns and Frameworks for Synchronous
+
+2
+00:00:07,852 --> 00:00:14,814
+Event Handling, Connection Establishment
+and Service Initialization.
+
+3
+00:00:14,814 --> 00:00:20,500
+In the previous part of this module.
+We described the acceptor connector
+
+4
+00:00:20,500 --> 00:00:25,396
+patterns, and explained how these patterns
+can be used effectively, in the context of
+
+5
+00:00:25,396 --> 00:00:28,306
+our web server.
+We're now going to talk about a way to
+
+6
+00:00:28,306 --> 00:00:31,911
+implement these patterns, starting with
+the reactor pattern.
+
+7
+00:00:31,911 --> 00:00:36,071
+And to do this, we'll describe the way in
+which the Adaptive Communication
+
+8
+00:00:36,071 --> 00:00:40,895
+Environment or ACE, implements a framework
+that embodies the patterns we just talked
+
+9
+00:00:40,895 --> 00:00:43,229
+about.
+There of course are many other ways to
+
+10
+00:00:43,229 --> 00:00:47,123
+implement the pattern for a reactor, we're
+just going to focus on one, to give you a
+
+11
+00:00:47,123 --> 00:00:50,322
+more detailed understanding of how this
+could work in practice.
+
+12
+00:00:50,322 --> 00:00:52,954
+So let's motivate why we need this in the
+first place.
+
+13
+00:00:52,954 --> 00:00:56,677
+This is a little bit of a recap, but it
+provides the foundation for what we're
+
+14
+00:00:56,677 --> 00:00:59,605
+about to talk about.
+Historically when people have developed
+
+15
+00:00:59,605 --> 00:01:03,103
+event driven applications They program
+them directly to the native operating
+
+16
+00:01:03,103 --> 00:01:05,889
+system mechanisms.
+This is particularly true if you're doing
+
+17
+00:01:05,889 --> 00:01:08,611
+systems programming.
+If you're doing applications programming,
+
+18
+00:01:08,611 --> 00:01:11,591
+these days you're probably using higher
+level frameworks and tool kits.
+
+19
+00:01:11,591 --> 00:01:15,307
+But if you're building systems code, then
+you're usually using sockets or select or
+
+20
+00:01:15,307 --> 00:01:17,751
+other kinds of event demultiplexing and
+mechanisms.
+
+21
+00:01:17,751 --> 00:01:21,957
+Unfortunately, when you program like this,
+it tends to tightly couple a lot of parts
+
+22
+00:01:21,957 --> 00:01:26,037
+together, which means whenever any changes
+are made you have to spend a lot of time
+
+23
+00:01:26,037 --> 00:01:30,477
+going through to code, performing surgery,
+rerunning regression tests, having to open
+
+24
+00:01:30,477 --> 00:01:34,348
+up your source control system.
+Usually finding all kinds of mistakes over
+
+25
+00:01:34,348 --> 00:01:38,006
+time, shaking out those error legs
+throughout a long, protracted quality
+
+26
+00:01:38,006 --> 00:01:41,024
+assurance cycle.
+As another consequence is that developers
+
+27
+00:01:41,024 --> 00:01:44,402
+spend way too much time rewriting this
+lull of infrastructure code.
+
+28
+00:01:44,402 --> 00:01:46,945
+And believe me, it's very tedious and
+error prone.
+
+29
+00:01:46,945 --> 00:01:51,367
+I've written way too much of this code in
+my own life, and once I learned the magic
+
+30
+00:01:51,367 --> 00:01:55,719
+of patterns and frameworks I resolve to
+help other people not having to rewrite it
+
+31
+00:01:55,719 --> 00:01:58,904
+again from scratch.
+The good news is a lot of these codes is
+
+32
+00:01:58,904 --> 00:02:01,877
+very generic.
+If you spend some time to refactor it, if
+
+33
+00:02:01,877 --> 00:02:06,427
+you spend some time thinking through the
+various implication of design construct,
+
+34
+00:02:06,427 --> 00:02:09,576
+structure, conanical bahavior, flow
+control and so on.
+
+35
+00:02:09,576 --> 00:02:13,292
+You can abstract a lot of this out.
+And turn into a framework.
+
+36
+00:02:13,292 --> 00:02:16,925
+And that's exactly what we're going to
+talk about ehre.
+
+37
+00:02:16,925 --> 00:02:22,090
+So the ACE_Reactor framework provides a
+set of classes, that allow event driven
+
+38
+00:02:22,090 --> 00:02:27,140
+applications to react to events from a
+range of different sources of events.
+
+39
+00:02:27,140 --> 00:02:31,354
+Different kinds of I/O events.
+Sockets, files, terminals, local
+
+40
+00:02:31,354 --> 00:02:35,307
+inter-process communication and so on.
+Time-based events.
+
+41
+00:02:35,307 --> 00:02:38,512
+Signals.
+Anything that is event oriented you can
+
+42
+00:02:38,512 --> 00:02:43,272
+typically connect together in a common
+interface through a framework that we use
+
+43
+00:02:43,272 --> 00:02:46,485
+for the reactor.
+Applications typically inherit from
+
+44
+00:02:46,485 --> 00:02:51,177
+something called ACE_Event_Handler which
+is a base class, and they override the
+
+45
+00:02:51,177 --> 00:02:55,423
+hook methods of this base class.
+And then they fill in various service or
+
+46
+00:02:55,423 --> 00:03:00,144
+application specific processing behavior.
+That can leverage the reasonable
+
+47
+00:03:00,144 --> 00:03:03,894
+infrastructure for an event.
+These classes of course are designed in
+
+48
+00:03:03,894 --> 00:03:08,119
+accordance with the reactor pattern.
+Here are some of the key classes that the
+
+49
+00:03:08,119 --> 00:03:11,976
+ACE_Reactor framework provides.
+We'll talk about them one at a time.
+
+50
+00:03:11,976 --> 00:03:16,207
+It provides something called ACE time
+value, which is a class that normalizes
+
+51
+00:03:16,207 --> 00:03:18,937
+time.
+And let you do various kinds of relational
+
+52
+00:03:18,937 --> 00:03:23,158
+and arithmetic operations on time values
+so you can compare them and add them and
+
+53
+00:03:23,158 --> 00:03:27,683
+subtract them in a clean and portable way.
+It also provides something called the ACE
+
+54
+00:03:27,683 --> 00:03:31,715
+timer queue, which is a base class for
+whole families of different timer cube
+
+55
+00:03:31,715 --> 00:03:35,348
+management mechanisms.
+Various things using timer wheels and
+
+56
+00:03:35,348 --> 00:03:39,700
+timer heaps and timer lists and so on, in
+order to be able to dispatch time-out
+
+57
+00:03:39,700 --> 00:03:42,396
+handlers very convienently and
+efficiently.
+
+58
+00:03:42,396 --> 00:03:47,017
+There's also, of course, the ACE event
+handler which is the core for being able
+
+59
+00:03:47,017 --> 00:03:50,260
+to be called back when various kinds of
+things happen.
+
+60
+00:03:50,260 --> 00:03:54,137
+Either time-based events, signal-based
+events or I/O based events.
+
+61
+00:03:54,137 --> 00:03:58,025
+And finally we have the ACE_Reactor.
+Which is essentially the facade.
+
+62
+00:03:58,025 --> 00:04:01,214
+It's the interface.
+It usually uses the bridge pattern to
+
+63
+00:04:01,214 --> 00:04:04,793
+provide an abstraction.
+In order to make it possible to register
+
+64
+00:04:04,793 --> 00:04:08,274
+event handlers, remove event handlers.
+Run the event loop.
+
+65
+00:04:08,274 --> 00:04:12,010
+Start timers, stop timers.
+All kinds of other different types of
+
+66
+00:04:12,010 --> 00:04:16,042
+things that you might want to do here.
+You take a look at this paper, it gives
+
+67
+00:04:16,042 --> 00:04:19,702
+you some more information about the, the
+ACE reactor framework and how it
+
+68
+00:04:19,702 --> 00:04:22,786
+implements the particular pattern we've
+been describing.
+
+69
+00:04:22,786 --> 00:04:26,632
+One of the things you'll see is that the
+heart of the reactor framework is this
+
+70
+00:04:26,632 --> 00:04:31,796
+concept of object-oriented event handling.
+So let's talk a little bit about why you
+
+71
+00:04:31,796 --> 00:04:35,458
+would want to do this.
+If you take a look back in the early part
+
+72
+00:04:35,458 --> 00:04:39,813
+of event driven frameworks and event
+driven communication, things like the X
+
+73
+00:04:39,813 --> 00:04:43,273
+Windows Toolkit.
+Those were typically implemented in C not
+
+74
+00:04:43,273 --> 00:04:46,066
+in C++, or Java or some object oriented
+language.
+
+75
+00:04:46,066 --> 00:04:50,552
+And as a result, when callbacks occurred,
+they typically called back on functions,
+
+76
+00:04:50,552 --> 00:04:54,866
+and those functions were typically
+associated somehow with some type of data.
+
+77
+00:04:54,866 --> 00:04:59,162
+And this data would either be global data
+or it would be passed in as pointer to a,
+
+78
+00:04:59,162 --> 00:05:03,322
+to a structure or some kind of other
+relational database information that is
+
+79
+00:05:03,322 --> 00:05:07,464
+associated with the function callback.
+And by doing this it's just a little
+
+80
+00:05:07,464 --> 00:05:09,395
+crufty.
+It's a little error prone.
+
+81
+00:05:09,395 --> 00:05:13,753
+The connection between the functions and
+the data is a little bit diffuse and it's
+
+82
+00:05:13,753 --> 00:05:17,628
+somewhat hard to understand.
+In contrast, with the reactive based
+
+83
+00:05:17,628 --> 00:05:22,314
+approach we're talking about here, we can
+more cohesively associate the data and the
+
+84
+00:05:22,314 --> 00:05:26,340
+functions that operate on that data
+through the use of an object oriented
+
+85
+00:05:26,340 --> 00:05:30,413
+event demultiplexing interface.
+So, what we'll have is an event handler
+
+86
+00:05:30,413 --> 00:05:34,233
+base class that you can sub-class, and
+then you can have your state.
+
+87
+00:05:34,234 --> 00:05:37,427
+Associated in the subclass.
+And in the various methods that you
+
+88
+00:05:37,427 --> 00:05:40,912
+override, can access that state.
+And it's all much more cohesive and
+
+89
+00:05:40,912 --> 00:05:43,826
+localized and easier to understand, easier
+to maintain.
+
+90
+00:05:43,826 --> 00:05:48,041
+Let's take a look at the ACE_Event_Handler
+class just to give you a feel for how this
+
+91
+00:05:48,041 --> 00:05:50,592
+works.
+Keep in mind that other implementations of
+
+92
+00:05:50,592 --> 00:05:54,304
+the reactor pattern will do.
+Slightly different things, there is the
+
+93
+00:05:54,304 --> 00:05:58,447
+java implementations, their implementation
+in other environments as well.
+
+94
+00:05:58,447 --> 00:06:02,678
+The core idea here is to provide hook
+methods for each of the different types of
+
+95
+00:06:02,678 --> 00:06:05,982
+events that may occur.
+As you can see in this diagram we've got
+
+96
+00:06:05,982 --> 00:06:09,950
+input events, things like incoming
+connections or incoming data, we have
+
+97
+00:06:09,950 --> 00:06:14,164
+output events which you typically used.
+For learning when a connection has no
+
+98
+00:06:14,164 --> 00:06:17,813
+longer been flow controlled.
+And now you can go ahead and send without
+
+99
+00:06:17,813 --> 00:06:20,573
+blocking.
+We have exception events which typically
+
+100
+00:06:20,573 --> 00:06:23,072
+deal with things like out of band data
+delivery.
+
+101
+00:06:23,072 --> 00:06:24,925
+We have timeouts.
+We have signals.
+
+102
+00:06:24,925 --> 00:06:28,907
+We have other kinds of things as well.
+So those are the main hook methods that
+
+103
+00:06:28,907 --> 00:06:33,432
+you would subclass and override, depending
+on the kind of thing you're dealing with.
+
+104
+00:06:33,432 --> 00:06:38,312
+This particular approach also centralizes
+how event handlers are cleaned up when
+
+105
+00:06:38,312 --> 00:06:42,996
+they're no longer going to be needed.
+We handle close method that you will fill
+
+106
+00:06:42,996 --> 00:06:47,895
+in to delete the object or shut down any
+resources it allocated dynamically when it
+
+107
+00:06:47,895 --> 00:06:51,136
+closes down.
+The event handler also contains a pointer
+
+108
+00:06:51,136 --> 00:06:55,760
+to the reactor it's associated with, and
+that makes it easier for an event handler
+
+109
+00:06:55,760 --> 00:07:00,520
+to figure out how to Remove itself, how to
+update its event registration masks, that
+
+110
+00:07:00,520 --> 00:07:04,153
+we'll talk about shortly.
+And basically, keep charge of its life
+
+111
+00:07:04,153 --> 00:07:06,863
+cycle by knowing the reactor it's
+associated with.
+
+112
+00:07:06,863 --> 00:07:11,142
+It's kind of a parents point if you will.
+Another nice thing you can do is, because
+
+113
+00:07:11,142 --> 00:07:15,203
+we use classes, with virtual methods.
+Is it's easy, as I mentioned before, to
+
+114
+00:07:15,203 --> 00:07:17,811
+associate state.
+With the, the hook methods.
+
+115
+00:07:17,811 --> 00:07:21,657
+So here we have an example we'll talk
+about later, which is our HTTP event
+
+116
+00:07:21,657 --> 00:07:24,370
+handler which inherits from
+Ace_Event_Handler.
+
+117
+00:07:24,371 --> 00:07:28,077
+And it has some state, it has the
+connected sockets that it's using to
+
+118
+00:07:28,077 --> 00:07:32,163
+receive data from a client, and it
+overrides methods like handle input.
+
+119
+00:07:32,164 --> 00:07:36,386
+To figure out how to process the incoming
+data associated with that stream.
+
+120
+00:07:36,386 --> 00:07:40,032
+And it's all nice and compact and
+encapsulated, and part of the same
+
+121
+00:07:40,032 --> 00:07:43,116
+abstraction.
+So, if you look at this from a commonality
+
+122
+00:07:43,116 --> 00:07:47,112
+and variability point of view.
+The ACE_Event_Handler allows us to have a
+
+123
+00:07:47,112 --> 00:07:51,080
+common interface that is open to
+extensibility for the different kinds of
+
+124
+00:07:51,080 --> 00:07:55,327
+events you might want to handle.
+I should mention very briefly, by the way,
+
+125
+00:07:55,327 --> 00:07:59,935
+that these events that the Event Handler
+deals with are fairly coarse-grain
+
+126
+00:07:59,935 --> 00:08:03,889
+systemsy kinds of events.
+Input events, output events, signals,
+
+127
+00:08:03,889 --> 00:08:07,053
+timeouts.
+In a real application, you typically have
+
+128
+00:08:07,053 --> 00:08:11,627
+more domain specific events.
+Thinking about Android, for example, you
+
+129
+00:08:11,627 --> 00:08:16,618
+have a whole slew of life cycle events for
+on create, on destroy, on start, on stop.
+
+130
+00:08:16,618 --> 00:08:21,381
+And usually you would take the reactor as
+a core piece And then build, in a layered
+
+131
+00:08:21,381 --> 00:08:25,783
+manner, more fine grain type of event
+management on top of the core reactor
+
+132
+00:08:25,783 --> 00:08:28,914
+framework.
+Let's talk a little bit about some of the
+
+133
+00:08:28,914 --> 00:08:31,617
+types of events an event handler hook
+methods.
+
+134
+00:08:31,617 --> 00:08:36,247
+When an application registers an event
+handler with a reactor, it has to indicate
+
+135
+00:08:36,247 --> 00:08:39,574
+the type or types of events it wants to be
+notified about.
+
+136
+00:08:39,574 --> 00:08:43,397
+Here's a simple example we'll talk about
+later.
+
+137
+00:08:43,397 --> 00:08:48,287
+When an HTTP event handler is created and
+initialized, it turns around and says
+
+138
+00:08:48,287 --> 00:08:53,245
+reactor, please register me, this, to be
+notified when read events occur using a
+
+139
+00:08:53,245 --> 00:08:56,154
+read mask.
+A read event would correspond to the
+
+140
+00:08:56,154 --> 00:09:01,105
+arrival of a get request from a client.
+There's a whole slew of different kinds of
+
+141
+00:09:01,105 --> 00:09:04,106
+event types that can be handled by the
+reactor.
+
+142
+00:09:04,106 --> 00:09:08,218
+There's Read Events, there's Accept
+Events, there's Connect Events, there's
+
+143
+00:09:08,218 --> 00:09:11,556
+Output Events, called Write Events,
+Exception Events and so on.
+
+144
+00:09:11,556 --> 00:09:15,527
+Where going to be focusing primarily on
+Read Events and Exception, and Accept
+
+145
+00:09:15,527 --> 00:09:19,007
+Events, not Exception Events, Accept
+Events in our examples here.
+
+146
+00:09:19,007 --> 00:09:22,231
+And I'll show you as we go through this
+how these are applied.
+
+147
+00:09:22,232 --> 00:09:26,138
+They're basically provided by a bit mask.
+And you can or the bit mask fields
+
+148
+00:09:26,138 --> 00:09:28,427
+together.
+In order to be able to register for
+
+149
+00:09:28,427 --> 00:09:32,142
+multiple different types of events.
+And that allows one event handler to
+
+150
+00:09:32,142 --> 00:09:35,957
+handle many different kinds of things.
+If you choose to use that particular
+
+151
+00:09:35,957 --> 00:09:38,669
+approach.
+There's also return values that the hook
+
+152
+00:09:38,669 --> 00:09:42,827
+methods will give back to the reactor
+framework, after they finish processing
+
+153
+00:09:42,827 --> 00:09:45,725
+whatever it is they're doing when an event
+shows up.
+
+154
+00:09:45,726 --> 00:09:50,169
+For example, here's the handler input
+method that gets called back on the
+
+155
+00:09:50,169 --> 00:09:53,928
+HTTP_Event_Handler.
+We'll look at this in more detail later,
+
+156
+00:09:53,928 --> 00:09:58,536
+but what it's essentially doing is it's
+extracting the URI from the incoming
+
+157
+00:09:58,536 --> 00:10:03,000
+stream and then it goes ahead and memory
+maps a file that corresponds to the
+
+158
+00:10:03,000 --> 00:10:05,724
+content.
+Designated by that URI and then it
+
+159
+00:10:05,724 --> 00:10:10,607
+transmits file back to the, to the client.
+When it's done, it returns various values
+
+160
+00:10:10,607 --> 00:10:13,451
+and it indicates whether it succeded or
+failed.
+
+161
+00:10:13,451 --> 00:10:17,493
+So we get back certain values to say if
+this worked or it didn't work.
+
+162
+00:10:17,494 --> 00:10:20,326
+Here are the different values that get
+passed back.
+
+163
+00:10:20,326 --> 00:10:23,771
+So we have the zero value, which means
+everything worked fine.
+
+164
+00:10:23,771 --> 00:10:27,172
+Keep me registered.
+I'd like some more callbacks in the future
+
+165
+00:10:27,172 --> 00:10:29,636
+when my handles become ready again,
+please.
+
+166
+00:10:29,636 --> 00:10:33,693
+If you get back a minus one, it says,
+something went wrong or I'm done.
+
+167
+00:10:33,694 --> 00:10:37,151
+Please call my handle closer method and
+shut me down.
+
+168
+00:10:37,151 --> 00:10:42,189
+And if you give back a greater than one,
+that indicates that please re-dispatch me
+
+169
+00:10:42,189 --> 00:10:46,851
+again after you've handled all of the
+other various sources of input in this
+
+170
+00:10:46,851 --> 00:10:50,558
+particular pass.
+The key point here is that when things get
+
+171
+00:10:50,558 --> 00:10:55,112
+shut down, the reactor knows how to call
+the handle close hook method on an event
+
+172
+00:10:55,112 --> 00:10:59,597
+handler and that can be used to clean
+itself up, often by deleting this as we'll
+
+173
+00:10:59,597 --> 00:11:02,397
+see later on.
+Let's now talk a little bit about the
+
+174
+00:11:02,397 --> 00:11:06,196
+ACE_Reactor Class itself.
+This is the, the public interface, the
+
+175
+00:11:06,196 --> 00:11:10,222
+abstraction that you will interact with as
+a user of this framework.
+
+176
+00:11:10,223 --> 00:11:13,931
+It does a couple of things.
+It centralizes event loop processing.
+
+177
+00:11:13,931 --> 00:11:16,430
+It hands, has a method called
+run_event_loop().
+
+178
+00:11:16,431 --> 00:11:20,153
+It also has another method called
+run_reactor_event_loop(), used for a
+
+179
+00:11:20,153 --> 00:11:23,752
+slightly different purpose.
+And so, when you want to run the event
+
+180
+00:11:23,752 --> 00:11:28,045
+loops, those are the methods you call.
+It also has some kind of way of waiting
+
+181
+00:11:28,045 --> 00:11:32,774
+for activity to occur, by using low level
+I/O multiplexors like select(), or poll(),
+
+182
+00:11:32,774 --> 00:11:36,327
+or other mechanisms.
+And these are used then as part of the
+
+183
+00:11:36,327 --> 00:11:41,087
+demultiplexing process to figure out
+what's happened, and which event handlers
+
+184
+00:11:41,087 --> 00:11:44,421
+to call back.
+The event handler callback process is done
+
+185
+00:11:44,421 --> 00:11:47,881
+by the reactor, when the underlying
+multiplexor returns.
+
+186
+00:11:47,881 --> 00:11:51,028
+And it basically takes a look and sees
+what happens.
+
+187
+00:11:51,029 --> 00:11:54,769
+Correlates that to the handlers registered
+for those types of events.
+
+188
+00:11:54,769 --> 00:11:57,780
+And then it goes ahead and dispatches
+their hook methods.
+
+189
+00:11:57,780 --> 00:12:00,595
+The appropriate ones, based on what events
+occurred.
+
+190
+00:12:00,595 --> 00:12:04,631
+And these hook methods, of course, are
+then the things that do application- or
+
+191
+00:12:04,631 --> 00:12:08,847
+service-specific processing logic in order
+to carry out the work designated and
+
+192
+00:12:08,847 --> 00:12:13,108
+associated with those types of events.
+From a variability and commonality point
+
+193
+00:12:13,108 --> 00:12:17,332
+of view the reactor provides a common.
+Interface for being able to do several
+
+194
+00:12:17,332 --> 00:12:21,422
+different types of variability.
+Of course, it can handle different kinds
+
+195
+00:12:21,422 --> 00:12:25,726
+of event handlers by subclassing from
+event handlers we talked about before.
+
+196
+00:12:25,726 --> 00:12:29,686
+And it can also shield the rest of the
+application from the details of the
+
+197
+00:12:29,686 --> 00:12:34,438
+low-level, synchronous, I/O multiplexers
+and event demultiplexing logic so you can
+
+198
+00:12:34,438 --> 00:12:38,087
+plug in different mechanisms.
+And we'll talk more about that in a
+
+199
+00:12:38,087 --> 00:12:40,402
+moment.
+There's a number of different
+
+200
+00:12:40,402 --> 00:12:44,317
+implementations of the ACE reactor
+framework that come bundled with ACE.
+
+201
+00:12:44,317 --> 00:12:48,166
+Ace uses the bridge pattern in order to be
+able to separate interface from
+
+202
+00:12:48,166 --> 00:12:50,958
+implementation.
+And there's over a dozen different
+
+203
+00:12:50,958 --> 00:12:55,179
+reactors for all different flavors of
+event loops, user interface tool kits and
+
+204
+00:12:55,179 --> 00:12:58,044
+so on.
+Some of the core types of reactor
+
+205
+00:12:58,044 --> 00:13:02,749
+implementations that are most commonly
+used are the following.
+
+206
+00:13:02,749 --> 00:13:08,855
+The ACE_Select_Reactor which uses select()
+and it allows one thread to take its time
+
+207
+00:13:08,855 --> 00:13:15,047
+to dispatch event handlers that come back
+from events that select will dictate and
+
+208
+00:13:15,047 --> 00:13:19,073
+indicate have arrived.
+It's got something called the ACE_Thread
+
+209
+00:13:19,073 --> 00:13:22,716
+Pool_Reactor or TP_Reactor.
+And that implements something called the
+
+210
+00:13:22,716 --> 00:13:25,741
+Leader/Followers pattern, which we'll talk
+about later.
+
+211
+00:13:25,741 --> 00:13:29,895
+And that actually allows a pool of threads
+to take turns accessing the underlying
+
+212
+00:13:29,895 --> 00:13:32,976
+select mechanism.
+We'll talk more about that pattern in a
+
+213
+00:13:32,976 --> 00:13:37,710
+little bit later part of the course.
+It's also got an implementation called the
+
+214
+00:13:37,710 --> 00:13:41,489
+ACE_WFMO_Reactor or the Wait For Multiple
+Objects Reactor.
+
+215
+00:13:41,489 --> 00:13:46,386
+And that uses a very interesting system
+call that's provided by, by windows that
+
+216
+00:13:46,386 --> 00:13:50,143
+allows you to wait for things to happen on
+an array of handles.
+
+217
+00:13:50,143 --> 00:13:54,592
+And it, it allows you to wait for many
+different types of events on Windows, not
+
+218
+00:13:54,592 --> 00:13:57,296
+just sockets.
+You can wait for various types of
+
+219
+00:13:57,296 --> 00:14:01,580
+synchronization events, you can wait for
+various kinds of threading, user
+
+220
+00:14:01,580 --> 00:14:05,061
+interfaces files, overlapped I/O and so on
+and so forth.
+
+221
+00:14:05,061 --> 00:14:09,621
+And in the last one we'll talk about just
+briefly here is the ace dev poll reactor
+
+222
+00:14:09,621 --> 00:14:14,866
+which uses a couple of specialized .
+Various mechanisms that Solaris and Linux
+
+223
+00:14:14,866 --> 00:14:20,238
+implement, using Dev_Poll and Dev_Epoll
+respectively, which are designed to be
+
+224
+00:14:20,238 --> 00:14:25,583
+more scalable than select(), when you have
+large numbers of clients connected.
+
+225
+00:14:25,583 --> 00:14:30,909
+So to summarize this particular section,
+the ACE_Reactor Framework is designed to
+
+226
+00:14:30,909 --> 00:14:34,069
+simplify the development of event-driven
+apps.
+
+227
+00:14:34,069 --> 00:14:37,780
+And the way, one way it does this is by
+encapsulating the low level I/O
+
+228
+00:14:37,780 --> 00:14:42,271
+multiplexing and synchronous event
+demultiplexing logic within the framework.
+
+229
+00:14:42,271 --> 00:14:45,935
+So it's shielded from you.
+You don't have to worry about how to write
+
+230
+00:14:45,935 --> 00:14:48,762
+that code, maintain that code, optimize
+that code.
+
+231
+00:14:48,762 --> 00:14:53,241
+There's all kinds of clever optimizations
+that are baked in to the implementation of
+
+232
+00:14:53,241 --> 00:14:56,009
+the ACE_Reactor.
+And then it also facilitates greater
+
+233
+00:14:56,009 --> 00:14:58,019
+reuse.
+Of course there's more reuse of the
+
+234
+00:14:58,019 --> 00:15:02,009
+infrastructure for event management, but
+there's also going to be more reuse of the
+
+235
+00:15:02,009 --> 00:15:04,388
+components you develop that live on top of
+this.
+
+236
+00:15:04,388 --> 00:15:08,327
+And we'll see more examples of this as we
+look at more sophisticated examples of the
+
+237
+00:15:08,327 --> 00:15:11,703
+patterns and frameworks that we're going
+to be talking about shortly.
+
+238
+00:15:11,704 --> 00:15:15,191
+One of the other key things we do is we
+separate out the mechanisms.
+
+239
+00:15:15,191 --> 00:15:21,072
+Of the infrastructure for event handling,
+from the various policies and protocols
+
+240
+00:15:21,072 --> 00:15:26,648
+and algorithms that are implemented on top
+by the subclasses that derive from the
+
+241
+00:00:00,000 --> 00:00:00,000
+ACE_Event_Handler.

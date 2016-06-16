@@ -1,0 +1,813 @@
+1
+00:00:00,012 --> 00:00:07,372
+Welcome to Part 5, in the module on
+Patterns & Frameworks for Concurrency and
+
+2
+00:00:07,372 --> 00:00:12,658
+Synchronization.
+In previous parts of this module, we
+
+3
+00:00:12,658 --> 00:00:17,462
+started by describing the active object
+pattern.
+
+4
+00:00:17,462 --> 00:00:22,184
+And exploring the ACE task framework that
+can be used to implement active objects
+
+5
+00:00:22,184 --> 00:00:26,517
+and other concurrency patterns.
+We then talked about how to apply the ACE
+
+6
+00:00:26,517 --> 00:00:31,487
+Task and ACE Acceptor-Connector frameworks
+in order to be able to implement a thread
+
+7
+00:00:31,487 --> 00:00:35,466
+per connection version of our web server.
+Next, we talked about the
+
+8
+00:00:35,466 --> 00:00:40,246
+Half-Sync/Half-Async pattern, which
+combines the reactor with active object.
+
+9
+00:00:40,246 --> 00:00:44,158
+And now, we're going to implement
+Half-Sync/Half-Async using a number of
+
+10
+00:00:44,158 --> 00:00:47,340
+frameworks in ACE.
+This particular example will provide yet
+
+11
+00:00:47,340 --> 00:00:50,444
+another path through our pattern language
+for web servers.
+
+12
+00:00:50,444 --> 00:00:55,846
+This particular path will be, as you'll
+see, more scalable, realistically scalable
+
+13
+00:00:55,846 --> 00:01:00,786
+than some of the implementations and
+patterns and frameworks we've looked at
+
+14
+00:01:00,786 --> 00:01:03,935
+before.
+This particular example will start by
+
+15
+00:01:03,935 --> 00:01:08,771
+applying to use of the ACE service handler
+in order to be able to provide the
+
+16
+00:01:08,771 --> 00:01:12,763
+reactive portion of this half-sync, half
+passive pattern.
+
+17
+00:01:12,763 --> 00:01:18,073
+If you recall, we have a reactor portion
+on the bottom and an active object portion
+
+18
+00:01:18,073 --> 00:01:20,542
+on top.
+And we'll start by talking about the
+
+19
+00:01:20,542 --> 00:01:23,664
+reactive portion.
+There are a lot of pieces to discuss in
+
+20
+00:01:23,664 --> 00:01:28,020
+this particular example, and so it's
+important to have an understanding of the
+
+21
+00:01:28,020 --> 00:01:32,310
+pattern, in order to figure out how the
+pieces interact with each other and how
+
+22
+00:01:32,310 --> 00:01:35,823
+they're structured.
+Let's first start by talking about
+
+23
+00:01:35,823 --> 00:01:40,329
+defining the TP_HTTP_Handler class.
+Tp stands for thread pool.
+
+24
+00:01:40,329 --> 00:01:45,763
+In this particular case the
+TP_HTTP_Handler class is going to inherit
+
+25
+00:01:45,763 --> 00:01:52,019
+from ACE service handler, and that means
+that we can dispatch it from the reactive
+
+26
+00:01:52,019 --> 00:01:56,603
+part of our system.
+It them goes ahead and defines a reference
+
+27
+00:01:56,603 --> 00:02:02,279
+to an active object called, TP HTTP task
+that we'll be talking about shortly and
+
+28
+00:02:02,279 --> 00:02:07,697
+that reference is tucked away as a data
+member in the implementation of this
+
+29
+00:02:07,697 --> 00:02:10,610
+class.
+We then override the open hook method
+
+30
+00:02:10,610 --> 00:02:15,185
+which will be used by the ACE Acceptor
+Framework In order to activate this
+
+31
+00:02:15,185 --> 00:02:18,719
+particular object after a connection is
+established.
+
+32
+00:02:18,719 --> 00:02:23,205
+Now when this occurs, what we're going to
+do, is we're going to do two things, first
+
+33
+00:02:23,205 --> 00:02:28,035
+we're going to register ourselves with the
+reactor to be dispatched when an incoming
+
+34
+00:02:28,035 --> 00:02:32,437
+event shows up, containing a, get message.
+And we're also going to go ahead and
+
+35
+00:02:32,437 --> 00:02:36,925
+schedule a timer and this timer is used to
+guard against situations where clients
+
+36
+00:02:36,925 --> 00:02:41,044
+provide some kind of intentional or
+accidental denial of service attack.
+
+37
+00:02:41,044 --> 00:02:44,529
+Where they connect to our server, but
+never send any get requests.
+
+38
+00:02:44,529 --> 00:02:46,977
+And therefore, we'd end up wasting
+resources.
+
+39
+00:02:46,977 --> 00:02:51,139
+Let's first take a look at how we might
+implement the handle time out mechanism.
+
+40
+00:02:51,139 --> 00:02:54,947
+If the time out period elapses.
+Which could be whatever you want it to be
+
+41
+00:02:54,947 --> 00:02:57,393
+30 seconds, a minute, 10 minutes, 2
+seconds.
+
+42
+00:02:57,393 --> 00:03:01,020
+Whatever you think is appropriate for your
+workload environment.
+
+43
+00:03:01,021 --> 00:03:05,904
+Your reactor will go ahead and call-back
+the handle timeout hook method after that
+
+44
+00:03:05,904 --> 00:03:09,221
+timeout elapses.
+And what we do in this case is we use this
+
+45
+00:03:09,221 --> 00:03:13,499
+as an opportunity to shut down that
+particular connection and reclaim any
+
+46
+00:03:13,499 --> 00:03:17,846
+resources that have been allocated
+dynamically, to prevent those types of
+
+47
+00:03:17,846 --> 00:03:21,924
+denial service attacks.
+More likely however, we're actually going
+
+48
+00:03:21,924 --> 00:03:26,078
+to get a get request, and when that
+occurs, the reactor will call back to the
+
+49
+00:03:26,078 --> 00:03:30,835
+handle input method on our TP_HTTP_Handler
+class, and this handle input method will
+
+50
+00:03:30,835 --> 00:03:34,227
+do several things.
+The first thing it'll do, is it'll try to
+
+51
+00:03:34,227 --> 00:03:38,647
+receive the complete message from the
+socket end point, and this may actually
+
+52
+00:03:38,647 --> 00:03:42,325
+take a number of tries, because we can't
+afford to block here.
+
+53
+00:03:42,326 --> 00:03:48,166
+Because we're in the Half-Async layer, or
+the reactive layer, of our solution.
+
+54
+00:03:48,166 --> 00:03:54,020
+Assuming we get the complete message then
+what we do is we cancel the timer, remove
+
+55
+00:03:54,020 --> 00:03:59,610
+the handler, and we take the message that
+we got and we pass it up to the half sync
+
+56
+00:03:59,610 --> 00:04:03,346
+layer using the put method that is invoked
+on the.
+
+57
+00:04:03,346 --> 00:04:08,437
+Thread pool HTTP task object we've got a
+reference to this put method represents
+
+58
+00:04:08,437 --> 00:04:13,312
+the boundary between the Half-Async part
+or the reactive part which is single
+
+59
+00:04:13,312 --> 00:04:18,562
+threaded and runs with callbacks from the
+reactor and the active object part, which
+
+60
+00:04:18,562 --> 00:04:23,062
+as we'll see in a moment is actually
+multi-threaded and runs as an active
+
+61
+00:04:23,062 --> 00:04:26,038
+object.
+So let's now take a look at how we can
+
+62
+00:04:26,038 --> 00:04:29,743
+implement this half-sync layer using the
+ACE_Task class.
+
+63
+00:04:29,743 --> 00:04:34,707
+So once again we have our Half-Async part,
+which we're using the reactor, and now
+
+64
+00:04:34,707 --> 00:04:38,851
+we're going to go ahead and focus on
+illustrating how to implement the
+
+65
+00:04:38,851 --> 00:04:42,921
+half-sync portion of our
+Half-Sync/Half-Async solution, using
+
+66
+00:04:42,921 --> 00:04:45,907
+ACE_Task, which will spawn a pool of
+threads.
+
+67
+00:04:45,907 --> 00:04:51,610
+So let's first define the TP_HTTP_Task
+class, where once again, TP is thread
+
+68
+00:04:51,610 --> 00:04:54,512
+pool.
+As you can see, this particular class
+
+69
+00:04:54,512 --> 00:04:59,902
+inherits from ACE_Task, and it provides a
+special set of traits and these traits are
+
+70
+00:04:59,902 --> 00:05:04,676
+used to indicate that it wants to use the
+multi-threaded synchronization
+
+71
+00:05:04,676 --> 00:05:09,912
+capabilities, which essentially means
+we're going to have a synchronized request
+
+72
+00:05:09,912 --> 00:05:12,545
+queue.
+And we'll talk a bit more about that as we
+
+73
+00:05:12,545 --> 00:05:15,426
+go further along.
+We then go ahead in the constructor of
+
+74
+00:05:15,426 --> 00:05:18,422
+this object and we activate it to become
+an active object.
+
+75
+00:05:18,422 --> 00:05:22,272
+And as you can see here we're going to
+spawn, eight threads, and these threads
+
+76
+00:05:22,272 --> 00:05:25,684
+will run in a pool in the background, and
+we'll look more at that.
+
+77
+00:05:25,684 --> 00:05:31,424
+In just a moment, when the put method is
+invoked on this particular active object,
+
+78
+00:05:31,424 --> 00:05:37,136
+as part of the handle input phase in the
+Half-Async portion of our design, that put
+
+79
+00:05:37,136 --> 00:05:42,596
+method is going to turn around, take the
+message that is passed in, and then put
+
+80
+00:05:42,596 --> 00:05:46,574
+it, or enqueue it, onto the thread-safe
+message queue.
+
+81
+00:05:46,574 --> 00:05:52,406
+And that will then be used to feed in to
+the method that we'll look at on the next
+
+82
+00:05:52,406 --> 00:05:55,291
+slide.
+We'll explain how this synchronized
+
+83
+00:05:55,291 --> 00:05:58,127
+request works in the next part of this
+module.
+
+84
+00:05:58,127 --> 00:06:03,264
+We talk about the monitor object pattern.
+Here is the key driver for this Half-Sync
+
+85
+00:06:03,264 --> 00:06:05,790
+layer.
+This is the service hook method.
+
+86
+00:06:05,790 --> 00:06:10,916
+This method will be called back once in
+every thread that's part of the thread
+
+87
+00:06:10,916 --> 00:06:13,592
+pool.
+And that, of course, will be managed by
+
+88
+00:06:13,592 --> 00:06:16,493
+the ACE task framework we've been talking
+about.
+
+89
+00:06:16,493 --> 00:06:21,469
+This particular service method will block
+in every thread, waiting for a new message
+
+90
+00:06:21,469 --> 00:06:26,047
+to show up from the half a sync part, from
+the part that's driven by the reactor.
+
+91
+00:06:26,047 --> 00:06:30,847
+And the schedule of the operating and the
+thread scheduling package will decide.
+
+92
+00:06:30,848 --> 00:06:35,922
+Which of the threads waiting, in so-called
+hungry puppy fashion, to get the next get
+
+93
+00:06:35,922 --> 00:06:38,918
+request.
+Which of those threads will receive the
+
+94
+00:06:38,918 --> 00:06:41,644
+work.
+The thread will then unblock when getq
+
+95
+00:06:41,644 --> 00:06:46,462
+returns, when it's, it's turn to run and
+that get request will then be extracted
+
+96
+00:06:46,462 --> 00:06:51,207
+out of the message along with the socket
+handle that comes back and that will be
+
+97
+00:06:51,207 --> 00:06:56,171
+used to memory map the particular content
+requested by the user and then send that
+
+98
+00:06:56,171 --> 00:07:00,536
+content back to the Client Application
+running on another machine.
+
+99
+00:07:00,536 --> 00:07:05,914
+Notice how as always the core web server
+logic is essentially identical in all the
+
+100
+00:07:05,914 --> 00:07:10,970
+examples we've looked at, the thing that
+keeps changing is the way in which we
+
+101
+00:07:10,970 --> 00:07:16,342
+arrange this logic to be called, using
+different concurrency and event handling
+
+102
+00:07:16,342 --> 00:07:19,366
+patterns, an arrangement of those
+patterns.
+
+103
+00:07:19,366 --> 00:07:25,134
+Let's take a look now at our thread-pool
+HTTP acceptor class, or TP HTTP acceptor
+
+104
+00:07:25,134 --> 00:07:28,467
+class.
+Which of course is an ACE acceptor, so it
+
+105
+00:07:28,467 --> 00:07:33,486
+registers uses all the capabilities that
+ACE acceptor provides.
+
+106
+00:07:33,486 --> 00:07:37,954
+It's parametrized using the TP.
+Http handler class, which we looked at
+
+107
+00:07:37,954 --> 00:07:42,297
+earlier, which is a service handler.
+And its constructor simply forwards down
+
+108
+00:07:42,297 --> 00:07:46,782
+to the constructor of ACE acceptor which
+will go and listen on the appropriate port
+
+109
+00:07:46,782 --> 00:07:49,501
+number.
+In our case most likely port 80, unless we
+
+110
+00:07:49,501 --> 00:07:53,988
+decide to override that somewhere else.
+And then if you recall the handle input.
+
+111
+00:07:53,989 --> 00:07:59,054
+Put template method that the acceptor uses
+when it gets a new connection coming in
+
+112
+00:07:59,054 --> 00:08:04,082
+from a client somewhere in the network.
+One of the hook methods that the template
+
+113
+00:08:04,082 --> 00:08:08,038
+method handle input calls back is called
+make service handler.
+
+114
+00:08:08,038 --> 00:08:12,349
+And you can see here, we will simply
+override make service handler.
+
+115
+00:08:12,349 --> 00:08:18,064
+In order to be able to spawn a new
+instance, or create a new instance of the,
+
+116
+00:08:18,064 --> 00:08:32,684
+the TP_HTTP_Handler object.
+And that will also include a reference to
+
+117
+00:08:32,684 --> 00:08:48,275
+the TP HTTP task object, which is the
+active object.
+
+118
+00:08:48,275 --> 00:08:57,947
+So, what that means is that every end
+point object, which is the one that's a
+
+119
+00:08:57,947 --> 00:09:05,324
+service handler, has a reference to this
+active object.
+
+120
+00:09:05,324 --> 00:09:08,426
+So, it knows how to do a put invocation on
+that active object to pass the incoming
+
+121
+00:09:08,426 --> 00:09:11,481
+GET messages from async layer up to the
+sync layer, where things can be running
+
+122
+00:09:11,481 --> 00:09:14,199
+and blocking a different thread control.
+Let's take a look at the driver program
+
+123
+00:09:14,199 --> 00:09:15,063
+for our solution.
+As you can see here the driver program is
+
+124
+00:09:15,063 --> 00:09:15,745
+very, very similar to the one we saw
+before, just a little tiny tweet to use a
+
+125
+00:09:15,745 --> 00:09:16,043
+different kind of acceptor.
+In this case the TP, HTTP acceptor that we
+
+126
+00:09:16,043 --> 00:09:16,431
+just define.
+We go ahead and create ourselves an ace
+
+127
+00:09:16,431 --> 00:09:19,319
+reactor to drive the event loop.
+We create an instance of the HTTP server
+
+128
+00:09:19,319 --> 00:09:24,389
+demon, which will use that reactor to go
+ahead and, and do various things to
+
+129
+00:09:24,389 --> 00:09:28,345
+register for, for deallocations when
+things get shut down.
+
+130
+00:09:28,345 --> 00:09:31,620
+And then, finally, as always, with the
+reactor.
+
+131
+00:09:31,621 --> 00:09:36,480
+We run the event loop and the event loop
+will be used to wait for connection
+
+132
+00:09:36,480 --> 00:09:41,082
+requests to come in and when those
+connection requests come in they're
+
+133
+00:09:41,082 --> 00:09:44,319
+accepted.
+The HTTP handlers are created by the
+
+134
+00:09:44,319 --> 00:09:48,696
+acceptor and then those handlers are used
+to take the messages.
+
+135
+00:09:48,696 --> 00:09:54,371
+Put them in the thread safe message queue.
+Where they're then processed by threads in
+
+136
+00:09:54,371 --> 00:09:58,503
+the pool of threads.
+Running in the TP, HTTP task, which is the
+
+137
+00:09:58,503 --> 00:10:03,517
+active object seems complicated.
+But actually, it all flows quite nicely
+
+138
+00:10:03,517 --> 00:10:08,964
+from the various parts of the pattern.
+So, to summarize this particular section,
+
+139
+00:10:08,964 --> 00:10:13,755
+this particular part in the module.
+It turns out that, even though there are
+
+140
+00:10:13,755 --> 00:10:18,795
+lots of moving parts, we can keep track of
+the roles and responsibilities, the way in
+
+141
+00:10:18,795 --> 00:10:23,763
+which those moving parts relate to each
+other, by a firm understanding of patterns
+
+142
+00:10:23,763 --> 00:10:27,373
+and frameworks.
+The particular patterns that we are going
+
+143
+00:10:27,373 --> 00:10:31,761
+to use here or that we've used here are
+they Half-Sync/Half-Async pattern?
+
+144
+00:10:31,761 --> 00:10:35,862
+And of course that's going to be able to
+combine the reactor pattern with the
+
+145
+00:10:35,862 --> 00:10:39,432
+active object pattern.
+So now we are able to reuse these patterns
+
+146
+00:10:39,432 --> 00:10:43,874
+we've talked about in previous examples.
+And more importantly we're also able to
+
+147
+00:10:43,874 --> 00:10:47,458
+reuse not just the design artifacts but
+we're also able to reuse the
+
+148
+00:10:47,458 --> 00:10:51,554
+implementations of these design artifacts
+that are provided by the various
+
+149
+00:10:51,554 --> 00:10:54,742
+framework.
+The ACE reactor framework, the acceptor
+
+150
+00:10:54,742 --> 00:10:57,486
+connecter framework, and the ACE task
+framework.
+
+151
+00:10:57,486 --> 00:11:01,254
+So this gives us both the reuse of the
+design knowledge that went into
+
+152
+00:11:01,254 --> 00:11:05,808
+understanding how the patterns relate to
+each other as well as the implementation
+
+153
+00:11:05,808 --> 00:11:10,098
+knowledge and detail design knowledge
+embodied in the source code that we get
+
+154
+00:11:10,098 --> 00:11:14,393
+with the ACE framework works.
+Another nice thing about this particular
+
+155
+00:11:14,393 --> 00:11:18,937
+approach is that by trying to more
+carefully bound the number of threads that
+
+156
+00:11:18,937 --> 00:11:23,765
+we allocate to the number of cores at our
+disposal in the hardware, we're probably
+
+157
+00:11:23,765 --> 00:11:28,159
+in a better shape to be able to scale up
+the processing more effectively.
+
+158
+00:11:28,159 --> 00:11:32,851
+We're not allocating hundreds or thousands
+of threads, most of which are doing
+
+159
+00:11:32,851 --> 00:11:36,807
+nothing most of the time.
+Instead, we're having about as many
+
+160
+00:11:36,807 --> 00:11:41,227
+threads as there are cores.
+And then those threads are used to get
+
+161
+00:11:41,227 --> 00:11:46,304
+data out the endpoints from the sockets.
+And then queue up that data in the
+
+162
+00:11:46,304 --> 00:11:51,552
+synchronized request queue where it's
+eventually processed by the various
+
+163
+00:11:51,552 --> 00:11:53,943
+threads in the active object pool.

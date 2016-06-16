@@ -1,0 +1,949 @@
+1
+00:00:00,012 --> 00:00:06,150
+Welcome to Part 4 in the Module on
+Patterns and Frameworks for Concurrency
+
+2
+00:00:06,150 --> 00:00:10,833
+and Synchronization.
+In earlier parts of this module, we
+
+3
+00:00:10,833 --> 00:00:17,131
+started by describing the active object
+pattern, then we discussed the ACE task
+
+4
+00:00:17,131 --> 00:00:23,577
+framework, which can be used to implement
+Active object and some other patterns.
+
+5
+00:00:23,577 --> 00:00:27,737
+We then illustrated how you could apply
+the ACE task framework with the ACE
+
+6
+00:00:27,737 --> 00:00:32,092
+acceptor connector and reactor frameworks
+in order to implement a thread per
+
+7
+00:00:32,092 --> 00:00:36,387
+connection version of our JAWS web server.
+And now, we're going to describe the
+
+8
+00:00:36,387 --> 00:00:41,271
+Half-Sync/Half-Async pattern, which builds
+upon some of the things we've talked about
+
+9
+00:00:41,271 --> 00:00:43,940
+earlier.
+Let's first start by talking about the
+
+10
+00:00:43,940 --> 00:00:47,616
+motivation for why we want to improve opon
+thread per-connection.
+
+11
+00:00:47,616 --> 00:00:51,974
+Thread-per-connection is certainly an
+improvement from a performance point of
+
+12
+00:00:51,974 --> 00:00:54,971
+view, on a purely reactive solution that
+we had before.
+
+13
+00:00:54,971 --> 00:00:59,072
+And it's also going to have lighter
+weight, less overhead characteristics
+
+14
+00:00:59,072 --> 00:01:03,345
+relative to the, the activator based.
+Process per request or process per
+
+15
+00:01:03,345 --> 00:01:06,496
+connection model that we'd also talked
+about earlier.
+
+16
+00:01:06,496 --> 00:01:10,344
+But there are some downsides.
+If you have an environment where you've
+
+17
+00:01:10,344 --> 00:01:14,967
+got large numbers of clients, and you may
+have very bursty data traffic, you can end
+
+18
+00:01:14,967 --> 00:01:19,657
+up in situations where you've got hundreds
+or thousands of threads being spawned to
+
+19
+00:01:19,657 --> 00:01:23,655
+handle the various connections.
+And if you only have a limited number of
+
+20
+00:01:23,655 --> 00:01:27,561
+cores at your disposal, four, eight,
+twelve, having thousands of threads
+
+21
+00:01:27,561 --> 00:01:30,488
+running around really doesn't give you
+much of a boost.
+
+22
+00:01:30,488 --> 00:01:33,574
+In fact, it's probably going to take a lot
+of extra memory.
+
+23
+00:01:33,574 --> 00:01:37,486
+It's going to end up requiring a lot of
+extra work by the operating system to
+
+24
+00:01:37,486 --> 00:01:40,392
+manage.
+All those internal thread queues and keep
+
+25
+00:01:40,392 --> 00:01:43,131
+track of all the resources and so on and
+so forth.
+
+26
+00:01:43,131 --> 00:01:46,537
+The thread stacks, etc.
+So what we'd like to do is find a way to
+
+27
+00:01:46,537 --> 00:01:50,892
+be able to get concurrency but perhaps
+without paying quite so much overhead,
+
+28
+00:01:50,892 --> 00:01:55,113
+especially in ways that really doesn't
+help advance the performance of our
+
+29
+00:01:55,113 --> 00:01:57,776
+system.
+So to do this, we're going to apply
+
+30
+00:01:57,776 --> 00:02:01,194
+something called the Half-Sync/Half-Async
+pattern.
+
+31
+00:02:01,194 --> 00:02:05,726
+And we're going to use this pattern in
+order to be able run our HTTP get request
+
+32
+00:02:05,726 --> 00:02:08,681
+processing in separate threads of the
+control.
+
+33
+00:02:08,681 --> 00:02:13,121
+But we're going to bound the number of
+threads that we allocate to keep them
+
+34
+00:02:13,121 --> 00:02:17,541
+closer to the number of CP user cores that
+we may have at our disposal.
+
+35
+00:02:17,541 --> 00:02:22,692
+In general, the Half-Sync/Half-Async
+pattern helps to decouple asynchronous and
+
+36
+00:02:22,692 --> 00:02:26,009
+synchronous service processing in current
+systems.
+
+37
+00:02:26,009 --> 00:02:30,767
+And the goal is to both simplify the
+programming model without unduly reducing
+
+38
+00:02:30,767 --> 00:02:34,136
+performance.
+So let's first start by talking a little
+
+39
+00:02:34,136 --> 00:02:38,519
+bit about the structure of this pattern
+and, and how it's been applied.
+
+40
+00:02:38,519 --> 00:02:42,789
+This pattern is often applied historically
+in operating systems.
+
+41
+00:02:42,789 --> 00:02:47,051
+People often implement operating system
+kernels using this pattern.
+
+42
+00:02:47,051 --> 00:02:52,241
+The kernel processing is typically driven
+by asynchronous callbacks, at which don't
+
+43
+00:02:52,241 --> 00:02:54,882
+block.
+There's often not more than one or a
+
+44
+00:02:54,882 --> 00:02:59,332
+handful of threads of control in the OS
+kernel to keep things efficient.
+
+45
+00:02:59,332 --> 00:03:03,358
+And then when you get up to the
+application process level, then those are
+
+46
+00:03:03,358 --> 00:03:06,418
+able to block.
+You can block on read calls, you can block
+
+47
+00:03:06,418 --> 00:03:10,067
+on right calls, and so on.
+And in between those things, there's some
+
+48
+00:03:10,067 --> 00:03:13,971
+kind of queuing layer that's used to
+mediate interactions between the a,
+
+49
+00:03:13,971 --> 00:03:18,259
+interrupt driven asynchronous kernel, and
+the more synchronous process, more
+
+50
+00:03:18,259 --> 00:03:21,796
+civilized programming model, that you get
+up the user space.
+
+51
+00:03:21,797 --> 00:03:25,404
+The sockets layer is a good example of
+such a queuing layer.
+
+52
+00:03:25,404 --> 00:03:29,446
+You also see this pattern used in many
+modern user interface toolkits.
+
+53
+00:03:29,446 --> 00:03:34,351
+For example, in Android, you typically do
+your user interface processing in the main
+
+54
+00:03:34,351 --> 00:03:39,112
+thread, in one thread of control, and you
+can't afford to block that thread for more
+
+55
+00:03:39,112 --> 00:03:43,482
+than a very short period of time.
+Or you'll get some kind of application not
+
+56
+00:03:43,482 --> 00:03:47,055
+responding dialogue popping up.
+So if you want to do longer running
+
+57
+00:03:47,055 --> 00:03:51,339
+operations you spawn threads and you run
+those as background processing and then
+
+58
+00:03:51,339 --> 00:03:54,669
+you have the main thread coordinate with
+those other threads.
+
+59
+00:03:54,669 --> 00:03:58,519
+Well both of these examples are very nice
+because they illustrate the core
+
+60
+00:03:58,519 --> 00:04:02,524
+structural elements of this pattern.
+So let's talk about those structural
+
+61
+00:04:02,524 --> 00:04:06,273
+elements briefly.
+At the bottom of this is the so-called
+
+62
+00:04:06,273 --> 00:04:11,273
+Async or Asynchronist service layer.
+This is driven by incoming events.
+
+63
+00:04:11,273 --> 00:04:16,937
+It could be driven by call backs, it could
+be driven by signal responses, it could be
+
+64
+00:04:16,937 --> 00:04:21,653
+driven by interrupts, etcetera.
+And the characteristic of this layer is
+
+65
+00:04:21,653 --> 00:04:26,209
+that there's only one thread of control,
+one stack and so you can't afford to block
+
+66
+00:04:26,209 --> 00:04:30,564
+for any length of time or you'll starve
+out all the other sources of events that
+
+67
+00:04:30,564 --> 00:04:34,697
+happen to reside at this layer.
+As we'll see, this is often used in a
+
+68
+00:04:34,697 --> 00:04:39,433
+reactive way because it's got many of the
+same properties that we have with an
+
+69
+00:04:39,433 --> 00:04:43,193
+asynchronous approach.
+On top of the, the Async approach but
+
+70
+00:04:43,193 --> 00:04:47,217
+beneath the next layer up is something
+called the queuing layer.
+
+71
+00:04:47,217 --> 00:04:51,509
+And when the Async layer is done
+processing the incoming events to the
+
+72
+00:04:51,509 --> 00:04:55,143
+point where it might have to block to do
+anything further.
+
+73
+00:04:55,143 --> 00:04:58,925
+It sticks the request onto a queue in the
+queuing layer.
+
+74
+00:04:58,925 --> 00:05:03,475
+That queueing layer is then used to
+service the various threads or proceeses
+
+75
+00:05:03,475 --> 00:05:08,392
+that run in the synchronous service layer.
+And this is the layer where you can have
+
+76
+00:05:08,392 --> 00:05:13,356
+multiple blocking threads or processes
+that sit there waiting for work to come in
+
+77
+00:05:13,356 --> 00:05:16,534
+on the queue.
+And when the work comes in, then they can
+
+78
+00:05:16,534 --> 00:05:21,362
+go ahead and do their own thing without
+worrying about perturbing or interfering
+
+79
+00:05:21,362 --> 00:05:25,561
+with other things taking place in other
+threads or other processes.
+
+80
+00:05:25,561 --> 00:05:30,121
+So that's the base, basic structure
+relationships between the various layers
+
+81
+00:05:30,121 --> 00:05:32,987
+in this pattern.
+You can take a look here for more
+
+82
+00:05:32,987 --> 00:05:37,102
+information about this pattern.
+This also appears as a very detailed
+
+83
+00:05:37,102 --> 00:05:41,392
+description in the POSA2 book.
+Lets take a look at the dynamics of this
+
+84
+00:05:41,392 --> 00:05:46,016
+pattern which may help to explain some of
+the interactions between the different
+
+85
+00:05:46,016 --> 00:05:48,560
+layers.
+So in this approach, the Synchronous
+
+86
+00:05:48,560 --> 00:05:53,180
+services can run concurrently in multiple
+threads of control or processes that can
+
+87
+00:05:53,180 --> 00:05:56,795
+block and make it run concurrently both
+relative to each other.
+
+88
+00:05:56,795 --> 00:06:00,677
+As well as to the processing that's taking
+place in the Async layer.
+
+89
+00:06:00,677 --> 00:06:05,064
+So, typically you might do the event
+handling logic down in the Async layer
+
+90
+00:06:05,065 --> 00:06:08,232
+perhaps using some kind of reactive-like
+approach.
+
+91
+00:06:08,232 --> 00:06:10,750
+And that won't block for any length of
+time.
+
+92
+00:06:10,750 --> 00:06:13,693
+When that is done processing an incoming
+request.
+
+93
+00:06:13,694 --> 00:06:18,324
+That comes from a source of events.
+Then it will typical enque that onto the
+
+94
+00:06:18,324 --> 00:06:22,830
+message que in the queing layer.
+And then one or more threads or processess
+
+95
+00:06:22,830 --> 00:06:27,006
+will wait on that que, pull the request
+off and then run those things to
+
+96
+00:06:27,006 --> 00:06:31,758
+completion at their leisure without
+concern for wheather they're stealing or
+
+97
+00:06:31,758 --> 00:06:34,762
+starving.
+Anybody else out because they have their
+
+98
+00:06:34,762 --> 00:06:38,602
+own threads, they have their own
+independent instruction streams and their
+
+99
+00:06:38,602 --> 00:06:42,046
+own resources and stacks and so on.
+So, let's see how we can apply the
+
+100
+00:06:42,046 --> 00:06:44,929
+Half-Sync/Half-Async pattern to our JAWS
+web server.
+
+101
+00:06:44,929 --> 00:06:49,160
+And first, we'll talk about how we can
+apply the pattern, then we'll talk about
+
+102
+00:06:49,160 --> 00:06:53,351
+how this pattern could actually be
+understood by combining other patterns.
+
+103
+00:06:53,351 --> 00:06:57,720
+So, let's first assume we have some
+bounded number of cores at our disposal.
+
+104
+00:06:57,720 --> 00:07:02,215
+And so, we would allocate some bounded
+number of threads that would be maybe a
+
+105
+00:07:02,215 --> 00:07:04,796
+factor of two larger than the number of
+cores.
+
+106
+00:07:04,796 --> 00:07:09,554
+Doesn't hurt to have some extra threads
+because if one thread is blocked on I/O,
+
+107
+00:07:09,554 --> 00:07:13,827
+other threads can continue to run.
+What we're trying to avoid here is an
+
+108
+00:07:13,827 --> 00:07:18,013
+unbounded number of threads.
+I'd say a thread per request or a thread
+
+109
+00:07:18,013 --> 00:07:22,946
+connection, which could get unwieldy in a
+very dynamic and bursty environment.
+
+110
+00:07:22,946 --> 00:07:27,709
+Each thread in the Synchronous layer is
+now able to block, either because of flow
+
+111
+00:07:27,709 --> 00:07:32,395
+control or it's doing some kind of long
+running right operation, where it has to
+
+112
+00:07:32,395 --> 00:07:37,408
+read from some data or it's grabbed a lock
+or whatever it is that causes it to block.
+
+113
+00:07:37,408 --> 00:07:41,624
+Without having to worry about interfering
+with the quality of service and
+
+114
+00:07:41,624 --> 00:07:45,102
+performance of the other threads at the
+Synchronous layer.
+
+115
+00:07:45,102 --> 00:07:49,932
+That they themselves can also be blocking
+and running on the multiple CPUs as their
+
+116
+00:07:49,932 --> 00:07:53,686
+logic dictates as a general rule of thumb
+it's easy to program.
+
+117
+00:07:53,686 --> 00:07:58,727
+A multi-threaded approach that simply
+reads data in, grabs something, and then
+
+118
+00:07:58,727 --> 00:08:02,371
+sends it back in blocks.
+That's pretty straight forward.
+
+119
+00:08:02,371 --> 00:08:07,483
+We can then use the Half-Sync/Half-Async
+pattern to implement our JAWS web server
+
+120
+00:08:07,483 --> 00:08:12,811
+by combining the reactor pieces that we've
+talked about before with the active object
+
+121
+00:08:12,811 --> 00:08:15,878
+pieces that we've just got done talking
+about.
+
+122
+00:08:15,879 --> 00:08:20,974
+Here's the way we could do this.
+We could have a reactor at the bottom in
+
+123
+00:08:20,974 --> 00:08:26,278
+the Async or reactive service layer that's
+waiting for work to show up on multiple
+
+124
+00:08:26,278 --> 00:08:29,907
+sources of input, multiple sources of
+socket events.
+
+125
+00:08:29,907 --> 00:08:35,005
+And when that work comes in, the work will
+be processed by, say, one of our HTTP
+
+126
+00:08:35,005 --> 00:08:39,869
+service handlers, which will read the
+requests out of the buffer, and when we
+
+127
+00:08:39,869 --> 00:08:42,745
+finally got all the pieces in a get
+request.
+
+128
+00:08:42,745 --> 00:08:47,481
+We can then turn around and stick them
+onto a queue, and that queue will then be
+
+129
+00:08:47,481 --> 00:08:52,484
+used to service the various threads that
+are running in the active object layer.
+
+130
+00:08:52,484 --> 00:08:57,140
+So you can think of the cue and the
+threads as being part of an active object,
+
+131
+00:08:57,140 --> 00:09:00,840
+and the reactor as being used to feed that
+particular cue.
+
+132
+00:09:00,840 --> 00:09:05,083
+And then the threads that are running the
+object layer can DQ the get-request, do
+
+133
+00:09:05,083 --> 00:09:09,528
+the processing, and afford to block.
+The synchronized request queue, of course,
+
+134
+00:09:09,528 --> 00:09:13,558
+is what mediates the interaction between
+the reactive portion and the active
+
+135
+00:09:13,558 --> 00:09:16,299
+portion.
+So we have one thread in the reactor part,
+
+136
+00:09:16,299 --> 00:09:20,524
+multiple threads in the active object
+part, and the queue is part of the active
+
+137
+00:09:20,524 --> 00:09:23,511
+object that's used to feed those threads
+in that pool.
+
+138
+00:09:23,511 --> 00:09:28,110
+If for some reason, flow control occurs in
+one of the threads, not a problem.
+
+139
+00:09:28,110 --> 00:09:32,908
+We're able to keep making progress and
+other threads will not be blocked unduly.
+
+140
+00:09:32,908 --> 00:09:37,084
+So this gives us a nice way to scale up
+our performance without using an
+
+141
+00:09:37,084 --> 00:09:41,980
+unrealistic and unreasonable amount of
+resources to do so, most of which would be
+
+142
+00:09:41,980 --> 00:09:44,288
+wasted.
+So here are some of the benefits and
+
+143
+00:09:44,288 --> 00:09:48,663
+limitations of this particular pattern.
+You can simplify some parts of your design
+
+144
+00:09:48,663 --> 00:09:52,053
+quite nicely, it's easy to block in these
+threads that are spawned.
+
+145
+00:09:52,053 --> 00:09:55,945
+But at the same time, we don't have to
+have a completely multi-threaded solution
+
+146
+00:09:55,945 --> 00:09:59,657
+that would have too many threads running
+around without actually improving
+
+147
+00:09:59,657 --> 00:10:03,188
+anything.
+We could also do a good job of separating
+
+148
+00:10:03,188 --> 00:10:05,873
+concerns.
+So we can end up having things done in
+
+149
+00:10:05,873 --> 00:10:09,709
+such a way where the right concurrency
+model is used at the right layer.
+
+150
+00:10:09,709 --> 00:10:14,003
+We use the reactive approach down below
+because there is not much going on at that
+
+151
+00:10:14,003 --> 00:10:16,255
+layer.
+We have the active approach on top,
+
+152
+00:10:16,255 --> 00:10:18,642
+there's more blocking that may be going
+on.
+
+153
+00:10:18,642 --> 00:10:22,667
+And this allows us to be able to work
+effectively between those different
+
+154
+00:10:22,667 --> 00:10:25,013
+realms.
+Another nice thing is we're able to
+
+155
+00:10:25,013 --> 00:10:28,266
+centralize the communication between the
+various layers.
+
+156
+00:10:28,266 --> 00:10:31,206
+So there's one queue, there's one single
+point to go.
+
+157
+00:10:31,206 --> 00:10:33,966
+We can do all kinds of clever things to
+that queue.
+
+158
+00:10:33,966 --> 00:10:38,059
+We can reorder the events, get requests so
+that they may be able to be run In
+
+159
+00:10:38,059 --> 00:10:42,682
+priority order rather than running in
+arrival order, which could give preference
+
+160
+00:10:42,682 --> 00:10:46,836
+to certain clients that are perhaps
+higher-paying customers or gold card
+
+161
+00:10:46,836 --> 00:10:50,382
+customers as, as opposed to bronze card
+customers and so on.
+
+162
+00:10:50,382 --> 00:10:54,873
+So we have a lot of flexibility by the
+fact that there's this extra queue that's
+
+163
+00:10:54,873 --> 00:10:58,903
+used to mediate between the async part and
+the sync part that's on top.
+
+164
+00:10:58,903 --> 00:11:02,442
+Naturally, there's some limitations you
+have to be aware of.
+
+165
+00:11:02,442 --> 00:11:07,236
+There can be boundary crossing penalties
+that in, are incurred when you go from the
+
+166
+00:11:07,236 --> 00:11:10,694
+reactive, or async portion, up to the
+synchronous portion.
+
+167
+00:11:10,694 --> 00:11:14,988
+They'll be additional context switching to
+do between threads, additional
+
+168
+00:11:14,988 --> 00:11:18,154
+synchronization.
+Data movement costs, if you go between
+
+169
+00:11:18,154 --> 00:11:21,547
+different threads that are running in the
+same on different cores.
+
+170
+00:11:21,547 --> 00:11:25,344
+In some kind of multi core environment.
+There will also typically be dynamic
+
+171
+00:11:25,344 --> 00:11:27,655
+memory allocation.
+And dynamic memory release.
+
+172
+00:11:27,655 --> 00:11:30,606
+So these are things that start to add up
+if you're not careful.
+
+173
+00:11:30,606 --> 00:11:33,989
+And once again, if you do long running
+operations, it's not a big deal.
+
+174
+00:11:33,989 --> 00:11:38,959
+But if you do short running operations,
+this could be prohibitively expensive from
+
+175
+00:11:38,959 --> 00:11:42,862
+an overhead point of view.
+Another downside with this pattern is that
+
+176
+00:11:42,862 --> 00:11:46,822
+the higher level services may not be able
+to benefit from some efficient
+
+177
+00:11:46,822 --> 00:11:50,902
+asynchronous I/O support that's built into
+certain operating systems.
+
+178
+00:11:50,902 --> 00:11:54,547
+We will talk about a pattern later called
+the proactor pattern.
+
+179
+00:11:54,547 --> 00:11:57,407
+That allows us to alleviate this
+particular downside.
+
+180
+00:11:57,407 --> 00:12:01,561
+And then the final problem which we always
+have whenever we deal with concurrency
+
+181
+00:12:01,561 --> 00:12:05,062
+there's lots of stuff going on.
+There's multiple threads of control
+
+182
+00:12:05,062 --> 00:12:09,171
+running, there's reactive stuff.
+If the async layer is driven by callbacks.
+
+183
+00:12:09,172 --> 00:12:13,476
+That itself can be complicated, or
+interrupts, even more complicated because
+
+184
+00:12:13,476 --> 00:12:17,508
+you have timing properties that are
+difficult to emulate and to debug and to
+
+185
+00:12:17,508 --> 00:12:21,220
+test, that only run in certain ways in the
+production environments.
+
+186
+00:12:21,220 --> 00:12:25,578
+So when you use any kind of concurrency
+pattern, it really pays to think carefully
+
+187
+00:12:25,578 --> 00:12:29,866
+about the different pieces, what the
+various constraints are, what the various
+
+188
+00:12:29,866 --> 00:12:33,690
+responsibilities are.
+And use that to help shape the way in
+
+189
+00:12:33,690 --> 00:12:38,528
+which you set up your debugging
+environment and the way which you think
+
+190
+00:12:38,528 --> 00:12:42,726
+about the various states and interactions
+in your program.

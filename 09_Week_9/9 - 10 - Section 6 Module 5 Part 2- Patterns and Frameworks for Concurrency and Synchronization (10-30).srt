@@ -1,0 +1,688 @@
+1
+00:00:00,012 --> 00:00:08,712
+Welcome to part 2, of the module
+discussing patterns and frameworks for
+
+2
+00:00:08,712 --> 00:00:17,448
+concurrency and syncronization.
+In the previous part of this module.
+
+3
+00:00:17,448 --> 00:00:23,392
+We talked about the active object pattern.
+Now, we're going to describe the ACE task
+
+4
+00:00:23,392 --> 00:00:28,348
+framework, which can be used to implement
+the active object pattern.
+
+5
+00:00:28,348 --> 00:00:34,281
+As well as other patterns for concurrency.
+The classes in the ACE task framework
+
+6
+00:00:34,281 --> 00:00:40,791
+provide a producer-consumer concurrency
+model that can be used to associate one or
+
+7
+00:00:40,791 --> 00:00:46,836
+more threads of control with a message
+queue and other state associated with a
+
+8
+00:00:46,836 --> 00:00:53,208
+service or an application object such as
+methods, fields, other kinds of data.
+
+9
+00:00:53,208 --> 00:00:58,853
+Typically application classes will inherit
+from the ACE task base class, override its
+
+10
+00:00:58,853 --> 00:01:04,166
+methods and these methods are then called
+back by the ACE task framework in order to
+
+11
+00:01:04,166 --> 00:01:09,171
+be able to decouple the thread in which
+invocations are made from the thread in
+
+12
+00:01:09,171 --> 00:01:13,791
+which these invocations are actually
+executed in one or more methods of
+
+13
+00:01:13,791 --> 00:01:16,861
+control.
+Naturally the, the classes in this
+
+14
+00:01:16,861 --> 00:01:21,689
+particular framework are guided in part by
+the active object pattern and related
+
+15
+00:01:21,689 --> 00:01:24,578
+patterns.
+Let's talk about some of the various
+
+16
+00:01:24,578 --> 00:01:27,563
+classes that are part of the ACE task
+framework.
+
+17
+00:01:27,563 --> 00:01:32,465
+One of the first classes we'll discuss is
+something called the ACE message block,
+
+18
+00:01:32,465 --> 00:01:36,622
+which is essentially a composite that
+allows you to put together.
+
+19
+00:01:36,623 --> 00:01:41,809
+Messages made out of building block parts
+that can be chained together for various
+
+20
+00:01:41,809 --> 00:01:46,773
+types of efficient encapsulation and
+de-encapsulation of messages that may end
+
+21
+00:01:46,773 --> 00:01:52,374
+up flowing across networks, for example.
+Another capability in this framework is
+
+22
+00:01:52,374 --> 00:01:57,288
+the ACE Message Queue class which is
+essentially a doubly linked list of ACE
+
+23
+00:01:57,288 --> 00:02:02,358
+message blocks That can be used to
+in-queue and de-queue messages, either, in
+
+24
+00:02:02,358 --> 00:02:07,272
+a, synchronized way, between multiple
+threads, or simply used as a regular
+
+25
+00:02:07,272 --> 00:02:10,264
+message queue within one thread of
+control.
+
+26
+00:02:10,264 --> 00:02:15,790
+The next part of this, is something called
+the ACE thread manager, which is a helper
+
+27
+00:02:15,790 --> 00:02:20,568
+class that can be used to portably spawn
+one or more threads of control.
+
+28
+00:02:20,569 --> 00:02:23,651
+On different operating system
+environments.
+
+29
+00:02:23,651 --> 00:02:28,937
+And then the last piece in this framework
+is something called the ACE task class
+
+30
+00:02:28,937 --> 00:02:32,098
+itself.
+And this is the primary unit that's used
+
+31
+00:02:32,098 --> 00:02:37,719
+to be able to queue messages, run various
+service processing operations concurrently
+
+32
+00:02:37,719 --> 00:02:42,801
+and[UNKNOWN] for subclasses to inherit And
+customize its hook method, fill an
+
+33
+00:02:42,801 --> 00:02:47,960
+additional state and in general run things
+in a concurrent, various concurrent
+
+34
+00:02:47,960 --> 00:02:50,506
+models.
+Take a look at this URL for more
+
+35
+00:02:50,506 --> 00:02:54,631
+information about ACE task.
+And of course this also appears in the
+
+36
+00:02:54,631 --> 00:02:58,211
+book on C++ network programming.
+With ACE in frameworks.
+
+37
+00:02:58,211 --> 00:03:03,113
+So let's talk now about the ACE task class
+itself, we'll talk about the ACE message
+
+38
+00:03:03,113 --> 00:03:06,416
+queue class later.
+The ACE task class brings together a
+
+39
+00:03:06,416 --> 00:03:10,394
+number of different things.
+It has a message queue that can be used to
+
+40
+00:03:10,394 --> 00:03:15,018
+decouple data and requests that come in
+from one thread From the time when they're
+
+41
+00:03:15,018 --> 00:03:19,506
+processed, and the thread in which they're
+processed, by some other threads or
+
+42
+00:03:19,506 --> 00:03:22,659
+threads later.
+You can take an ACE-task object and you
+
+43
+00:03:22,659 --> 00:03:25,719
+can activate it.
+Which means 1 or more threads will then
+
+44
+00:03:25,719 --> 00:03:28,937
+start to run.
+And these threads, threads can then run in
+
+45
+00:03:28,937 --> 00:03:33,590
+the background and process the requests
+that come to them via the message cue.
+
+46
+00:03:33,590 --> 00:03:39,185
+The hook methods that ace tasks provides
+can be selectively overridden in order to
+
+47
+00:03:39,185 --> 00:03:44,855
+be able to handle various application or
+service specific concurrency and queuing
+
+48
+00:03:44,855 --> 00:03:49,326
+disciplines and models.
+By inheriting from a service object which
+
+49
+00:03:49,326 --> 00:03:54,418
+in turn inherits an ACE event handler, you
+can use instances of ACE task both to be
+
+50
+00:03:54,418 --> 00:03:59,282
+linked dynamically, as well as to be run
+by callbacks reactively from the, the
+
+51
+00:03:59,282 --> 00:04:04,146
+reactor and we'll see how we use this a
+little bit later when we generalize the
+
+52
+00:04:04,146 --> 00:04:09,310
+application of this framework to other
+more complex and currency patterns.
+
+53
+00:04:09,310 --> 00:04:15,872
+From a commonality and a variability point
+of view, an ACE_Task hides the variability
+
+54
+00:04:15,872 --> 00:04:19,956
+of concurrent processing and queuing by a
+common API.
+
+55
+00:04:19,956 --> 00:04:25,338
+With a certain set of templates and a
+certain set of hook methods you override
+
+56
+00:04:25,338 --> 00:04:30,954
+and customize in various ways Let's talk a
+bit about each of these hook methods.
+
+57
+00:04:30,954 --> 00:04:34,001
+There are 4 of them that are important to
+understand.
+
+58
+00:04:34,001 --> 00:04:37,375
+The first method is, is very simple.
+It's the open method.
+
+59
+00:04:37,375 --> 00:04:40,460
+And it's essentially a form of a virtual
+constructor.
+
+60
+00:04:40,460 --> 00:04:44,665
+And it's used to be called to initialize
+an ACE task when it starts to run.
+
+61
+00:04:44,665 --> 00:04:49,283
+And the most common thing it does.
+Is it turns around and calls activate in
+
+62
+00:04:49,283 --> 00:04:54,519
+order to convert the object into an active
+object, and I'll show you how that works
+
+63
+00:04:54,519 --> 00:04:58,393
+in just a moment.
+Another very important method for ACE task
+
+64
+00:04:58,393 --> 00:05:02,119
+is the put method.
+And this method is used to pass a message
+
+65
+00:05:02,119 --> 00:05:06,032
+from someplace else.
+Perhaps another ACE task, perhaps some
+
+66
+00:05:06,032 --> 00:05:11,151
+other part of the software, like the
+reactive layer for example, and pass that.
+
+67
+00:05:11,152 --> 00:05:15,799
+Message to the task and then the task can
+figure out what to do with it.
+
+68
+00:05:15,799 --> 00:05:20,845
+It might chose to perform the work
+immediately or it might choose to enqueue
+
+69
+00:05:20,845 --> 00:05:24,293
+the work and then run it later in its
+service method.
+
+70
+00:05:24,293 --> 00:05:28,161
+The service method.
+Typically runs in one or more threads of
+
+71
+00:05:28,161 --> 00:05:32,892
+control that execute in the background as
+part of the active object pattern.
+
+72
+00:05:32,892 --> 00:05:37,708
+And these service method calls will wait
+for work to show up on the message que,
+
+73
+00:05:37,708 --> 00:05:42,740
+which is synchronized, and when work shows
+up, perhaps being put there by someone
+
+74
+00:05:42,740 --> 00:05:46,561
+else, then it, the service hook method
+removes the message.
+
+75
+00:05:46,561 --> 00:05:51,192
+Figures out what the work request is,
+performs the work, and then perhaps goes
+
+76
+00:05:51,192 --> 00:05:55,155
+back to waiting for the next message to
+show up on the message queue.
+
+77
+00:05:55,155 --> 00:05:58,872
+The final hook method we'll talk about
+here is the close method.
+
+78
+00:05:58,872 --> 00:06:03,639
+It's purpose is simply to be called back
+when the thread executing the service hook
+
+79
+00:06:03,639 --> 00:06:08,597
+finishes and it gives a chance to clean up
+anything that might need to be cleaned up.
+
+80
+00:06:08,598 --> 00:06:13,019
+You will have as many calls to close as
+there are threads that are running the
+
+81
+00:06:13,019 --> 00:06:15,654
+service methods as part of the active
+object.
+
+82
+00:06:15,654 --> 00:06:20,421
+And there are some mechanisms you can use
+to figure out whether you're the, the last
+
+83
+00:06:20,421 --> 00:06:25,113
+hook method to be called the last close
+method to be called when the last thread
+
+84
+00:06:25,113 --> 00:06:29,425
+exits from the active object.
+Let's talk now about how you actually go
+
+85
+00:06:29,425 --> 00:06:33,532
+about activating an ACE task.
+So when you call the activate method to
+
+86
+00:06:33,532 --> 00:06:36,943
+make it become an active object, several
+things happen.
+
+87
+00:06:36,943 --> 00:06:40,272
+First let's talk briefly about when this
+might occur.
+
+88
+00:06:40,273 --> 00:06:44,895
+We'll talk shortly about the thread per
+connection, or TPC HTTP handler.
+
+89
+00:06:44,895 --> 00:06:49,581
+And that's going to use activate to create
+a single thread of control for every
+
+90
+00:06:49,581 --> 00:06:53,183
+connection and every get request that
+comes to the server.
+
+91
+00:06:53,183 --> 00:06:58,433
+Later, we will also talk about another
+variant in our pattern language, that's
+
+92
+00:06:58,433 --> 00:07:03,597
+the thread pool HTTP task, which be part
+of the Half-Sync/Half-Async solution.
+
+93
+00:07:03,597 --> 00:07:07,715
+In this case we actually spawn a pool
+threads, perhaps 8 threads.
+
+94
+00:07:07,716 --> 00:07:12,670
+Which we could also use through activate.
+So activate gives us tremendous
+
+95
+00:07:12,670 --> 00:07:17,150
+flexibility to spawn different numbers of
+threads that'll run in the background in
+
+96
+00:07:17,150 --> 00:07:20,292
+an active object.
+When you call activate, what actually
+
+97
+00:07:20,292 --> 00:07:24,351
+happens under the hood, is that it uses
+some mechanisms available in ACE.
+
+98
+00:07:24,351 --> 00:07:29,652
+It goes ahead and calls the ACE thread
+manager spawn method and that in turn will
+
+99
+00:07:29,652 --> 00:07:35,252
+reach down into the low level operating
+system portability layer and call whatever
+
+100
+00:07:35,252 --> 00:07:38,491
+OS specific thread creation routine in
+needed.
+
+101
+00:07:38,491 --> 00:07:44,282
+Which in turn will create a stack to run
+the thread on and passed into that, that
+
+102
+00:07:44,282 --> 00:07:48,396
+thread function will be the address of the
+task itself.
+
+103
+00:07:48,396 --> 00:07:52,296
+The thread start function is something
+called service run.
+
+104
+00:07:52,296 --> 00:07:57,753
+And as you can see here on this particular
+diagram, what service run does is it plays
+
+105
+00:07:57,753 --> 00:08:02,014
+the role of an adapter.
+To take the task object that past in and
+
+106
+00:08:02,014 --> 00:08:06,966
+then call it service hook method back in a
+new separate throttle control.
+
+107
+00:08:06,966 --> 00:08:09,891
+So that's how you make things run
+actively.
+
+108
+00:08:09,891 --> 00:08:15,405
+Naturally it's quite easy to port this to
+other platforms, which already done for
+
+109
+00:08:15,405 --> 00:08:19,304
+you, of course by ACE.
+So you can easily port this to run on
+
+110
+00:08:19,304 --> 00:08:24,590
+POSx, you can port it to run on VXworks.
+Other environments that have different
+
+111
+00:08:24,590 --> 00:08:28,453
+models for threading.
+It's also worth just noting briefly that
+
+112
+00:08:28,453 --> 00:08:32,703
+this way of doing things is not unlike the
+way that Java threads work.
+
+113
+00:08:32,703 --> 00:08:37,359
+In Java threads, you call start on a
+thread in order to be able to create a new
+
+114
+00:08:37,359 --> 00:08:41,094
+thread under the hood, and then it's run
+method is called.
+
+115
+00:08:41,095 --> 00:08:44,999
+Likewise with ACE task, you call activate
+on ACE task object.
+
+116
+00:08:44,999 --> 00:08:49,889
+And that creates a new thread or threads,
+and then you could have their service,
+
+117
+00:08:49,889 --> 00:08:54,378
+hope that its called on that object.
+The main difference between a job of
+
+118
+00:08:54,378 --> 00:08:58,352
+thread and ACE task is that its task can
+spawn a pool of threads.
+
+119
+00:08:58,352 --> 00:09:02,240
+As opposed to one thread.
+And secondly an ACE Task can also have a
+
+120
+00:09:02,240 --> 00:09:06,819
+message queue associated with it.
+So it can process and store those requests
+
+121
+00:09:06,819 --> 00:09:11,529
+and do various kinds of patterns like
+active object or Half-Sync/Half-Async.
+
+122
+00:09:11,529 --> 00:09:16,935
+So to summarize this particular discussion
+about the ACE Task framework It provides a
+
+123
+00:09:16,935 --> 00:09:21,585
+nice, extensible object oriented
+concurrency capability that can spawn
+
+124
+00:09:21,585 --> 00:09:26,843
+threads in the context of an object, so
+it's an object oriented concurrency model.
+
+125
+00:09:26,843 --> 00:09:31,561
+And then it allows you to be able to
+transfer and queue messages between the
+
+126
+00:09:31,561 --> 00:09:35,187
+different threads.
+You can use this particular framework for
+
+127
+00:09:35,187 --> 00:09:39,282
+various things, we're going to focus first
+on using it for active objects, where
+
+128
+00:09:39,282 --> 00:09:43,629
+we're trying to decouple the thread that
+invokes an operation from the thread that
+
+129
+00:09:43,629 --> 00:09:47,274
+runs the operation.
+And we'll be using a subset of the full
+
+130
+00:09:47,274 --> 00:09:51,370
+blown active object pattern to do this,
+because that's going to give us just the
+
+131
+00:09:51,370 --> 00:09:55,411
+features we need without incurring
+additional complexity or overhead.
+
+132
+00:09:55,411 --> 00:10:00,037
+And then later, in a different part of
+this module, we'll come along and show how
+
+133
+00:10:00,037 --> 00:10:04,867
+we can use the ACE task object oriented
+concurrency model for a more sophisticated
+
+134
+00:10:04,867 --> 00:10:08,126
+concurrency pattern called
+Half-Sync/Half-Async.
+
+135
+00:10:08,126 --> 00:10:13,244
+And this will allow some parts to remain
+synchronous or reactive, and then we'll be
+
+136
+00:10:13,244 --> 00:10:17,369
+able to connect those things up.
+With the various threads and a pool of
+
+137
+00:10:17,369 --> 00:10:21,858
+threads managed by an active object, So
+you'll get a chance to see this framework
+
+138
+00:10:21,858 --> 00:10:23,802
+in a couple of different contexts.

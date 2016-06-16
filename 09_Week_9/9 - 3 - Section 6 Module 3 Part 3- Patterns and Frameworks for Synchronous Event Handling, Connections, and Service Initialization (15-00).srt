@@ -1,0 +1,1054 @@
+1
+00:00:00,012 --> 00:00:06,375
+Hello, an welcome to part three in the
+module on patterns and frameworks for
+
+2
+00:00:06,375 --> 00:00:13,629
+syncronous event handling, connection
+establishment and service initilazation.
+
+3
+00:00:13,629 --> 00:00:20,163
+In previous parts of this module we first
+described the reactor and acceptor
+
+4
+00:00:20,163 --> 00:00:25,359
+conector patterns and then we talked about
+the way in which.
+
+5
+00:00:25,359 --> 00:00:30,814
+The adaptive communication environment, or
+ACE implements the reactor pattern in the
+
+6
+00:00:30,814 --> 00:00:35,332
+form of the ACE reactor framework.
+And now we're going to talk about how to
+
+7
+00:00:35,332 --> 00:00:38,606
+apply the reactor framework to our JAWS
+web server.
+
+8
+00:00:38,606 --> 00:00:43,716
+This particular example will be a very
+simple path through our pattern language.
+
+9
+00:00:43,716 --> 00:00:47,926
+We're going to be using the wrapper
+facades we talked about before.
+
+10
+00:00:47,926 --> 00:00:52,154
+And we'll be combining it with parts of
+the reactor framework in order to be able
+
+11
+00:00:52,154 --> 00:00:55,877
+to have a reactive solution.
+Later, we'll go ahead and generalize this
+
+12
+00:00:55,877 --> 00:00:59,964
+and aplly some other patterns to implement
+other variations in this particular
+
+13
+00:00:59,964 --> 00:01:03,318
+pattern language.
+Here's a high level view that illustrates
+
+14
+00:01:03,318 --> 00:01:07,247
+how this particular design is going to
+work using a reactive approach.
+
+15
+00:01:07,247 --> 00:01:12,362
+What'll happen here is that we'll create
+something called an HTTP_Event_Acceptor
+
+16
+00:01:12,362 --> 00:01:15,223
+which registers itself with the
+ACE_Reactor.
+
+17
+00:01:15,223 --> 00:01:20,034
+The flow of control will then be turned
+over to the ACE_Reactor which will wait
+
+18
+00:01:20,034 --> 00:01:24,411
+for clients to send events.
+When a client connects, that'll cause the
+
+19
+00:01:24,411 --> 00:01:27,384
+reactor to dispatch the handle input
+method.
+
+20
+00:01:27,384 --> 00:01:32,614
+On the HTTP event acceptor, which will act
+as a factory to create the appropriate
+
+21
+00:01:32,614 --> 00:01:36,646
+HTTP event handler.
+Which will then register itself back with
+
+22
+00:01:36,646 --> 00:01:40,092
+the reactor.
+That's the connection establishment and
+
+23
+00:01:40,092 --> 00:01:44,186
+service initialization faze.
+Then when a client sends over a get
+
+24
+00:01:44,186 --> 00:01:49,506
+request or some other type of request, the
+reactor will turn around and dispatch the
+
+25
+00:01:49,506 --> 00:01:53,476
+handle input method.
+On the corresponding HTTP event handler.
+
+26
+00:01:53,476 --> 00:01:58,242
+Which will read the request, figure out
+the corresponding URI that was part of the
+
+27
+00:01:58,242 --> 00:02:01,872
+request message.
+Remember map that, and then transmit that
+
+28
+00:02:01,872 --> 00:02:04,501
+back to the client and then clean itself
+up.
+
+29
+00:02:04,501 --> 00:02:08,467
+And these are the basic steps.
+And you can imagine having multiple
+
+30
+00:02:08,467 --> 00:02:13,507
+different clients connected and these
+kinds of things taking place concurrently,
+
+31
+00:02:13,507 --> 00:02:18,514
+all driven by callbacks using ACE reactor.
+Here's a particular view that illustrates
+
+32
+00:02:18,514 --> 00:02:22,488
+how this works, it's kind of another
+variant of this particular design.
+
+33
+00:02:22,488 --> 00:02:26,514
+You can see here how we have an ACE
+reactor at the core of everything, it's
+
+34
+00:02:26,514 --> 00:02:30,339
+running in one thread of control and it
+handles two types of events.
+
+35
+00:02:30,339 --> 00:02:33,701
+It handles Except Events And it also
+handles data events.
+
+36
+00:02:33,701 --> 00:02:38,261
+So, not surprisingly, those are the kinds
+of things that we'll be using to register
+
+37
+00:02:38,261 --> 00:02:42,221
+with the reactor for to tell it to
+dispatch it when accepts and, and reads
+
+38
+00:02:42,221 --> 00:02:44,827
+occur.
+We're going to define two different types
+
+39
+00:02:44,827 --> 00:02:49,292
+of event handlers to make all this work.
+One of these types of event handlers we've
+
+40
+00:02:49,292 --> 00:02:54,320
+already mentioned, which is the http.
+Event handler, and this is the one that's
+
+41
+00:02:54,320 --> 00:02:59,043
+going to process the get requests.
+And under the hood, it's going to have an
+
+42
+00:02:59,043 --> 00:03:04,035
+instance of an ACE sock stream that it
+will use to read the data in and then send
+
+43
+00:03:04,035 --> 00:03:08,646
+the results back to the connected client.
+We will also have the http.
+
+44
+00:03:08,646 --> 00:03:13,230
+Event Acceptor and that's a factory that
+knows how to create the
+
+45
+00:03:13,230 --> 00:03:18,390
+HTTP_Event_Handlers and internal to the
+factory, it has an instance of
+
+46
+00:03:18,390 --> 00:03:24,238
+ACE_SOCK_Acceptor and it uses the sock
+acceptor in order to be able to initialize
+
+47
+00:03:24,238 --> 00:03:29,661
+the corresponding ACE_SOCK_Stream When a
+connection request comes in.
+
+48
+00:03:29,661 --> 00:03:33,384
+Lets take a little bit of time and look
+through some of the code here, I'm sure
+
+49
+00:03:33,384 --> 00:03:37,241
+there's a couple of different pieces.
+We first start by talking about the http
+
+50
+00:03:37,241 --> 00:03:41,146
+event acceptor which inherents from ACE
+event handler in this particular case.
+
+51
+00:03:41,146 --> 00:03:44,864
+So that means it can be registers with a
+reactor and dispatched by the reactor
+
+52
+00:03:44,864 --> 00:03:47,856
+event.
+We define this, this factory object called
+
+53
+00:03:47,856 --> 00:03:52,893
+the ACE sock acceptor that knows how to
+receive connection accept connections from
+
+54
+00:03:52,893 --> 00:03:55,944
+clients.
+We use the default reactor singleton.
+
+55
+00:03:55,944 --> 00:04:00,435
+Which allows us to have a single place
+where we drive everything by one reactor
+
+56
+00:04:00,435 --> 00:04:05,266
+in our process that we're using for this.
+There, there are ways to override this if
+
+57
+00:04:05,266 --> 00:04:09,804
+you don't like to use singletons.
+This is a very convenient way to do it.
+
+58
+00:04:09,805 --> 00:04:14,399
+We then have a, an open hook method, which
+is going to be used to initialize SOCK
+
+59
+00:04:14,399 --> 00:04:18,815
+Acceptor to listen on the right port in
+this case it would probably default to
+
+60
+00:04:18,815 --> 00:04:21,926
+port 80 but you could override that if you
+wanted to.
+
+61
+00:04:21,926 --> 00:04:24,759
+And then it'll also go ahead and register
+itself.
+
+62
+00:04:24,759 --> 00:04:29,802
+It registers this with the corresponding
+reactor and says please call me back when
+
+63
+00:04:29,802 --> 00:04:33,904
+the accept event occurs.
+When, when a client connects, when the
+
+64
+00:04:33,904 --> 00:04:38,181
+accept event bubbles up from deep in the
+bowels of the operating system.
+
+65
+00:04:38,181 --> 00:04:42,807
+We've, I've omitted some of the error
+checking here just to avoid making the
+
+66
+00:04:42,807 --> 00:04:46,743
+code really convoluted.
+In, in real life, of course, there would
+
+67
+00:04:46,743 --> 00:04:50,303
+be more error checking.
+Let's take a look at the handle_close
+
+68
+00:04:50,303 --> 00:04:52,757
+method.
+This is the one that's called back when
+
+69
+00:04:52,757 --> 00:04:56,675
+this particular object goes away, say,
+when the reactor's shutting down.
+
+70
+00:04:56,675 --> 00:05:01,154
+In this particular case, it goes ahead and
+shuts down the acceptor and then it goes
+
+71
+00:05:01,154 --> 00:05:04,351
+and deletes itself.
+It's perfectly to do delete this in this
+
+72
+00:05:04,351 --> 00:05:07,408
+case, though you have to be careful with
+this in practice.
+
+73
+00:05:07,408 --> 00:05:11,702
+There's also a method that's called
+get_handle, and the reactor uses this to
+
+74
+00:05:11,702 --> 00:05:16,057
+do a little bit of Doubled dispatching
+with the acceptor to get the handle it's
+
+75
+00:05:16,057 --> 00:05:19,482
+going to use to listen on by its
+synchronous I/O multiplexer.
+
+76
+00:05:19,482 --> 00:05:23,008
+The most interesting method here is the
+handle_input method.
+
+77
+00:05:23,008 --> 00:05:27,366
+This is what gets called back by the
+reactor automatically when a connection
+
+78
+00:05:27,366 --> 00:05:30,398
+shows up.
+We'll talk about this method in a second
+
+79
+00:05:30,398 --> 00:05:33,271
+after we talk about the
+HTTP_Event_Handler.
+
+80
+00:05:33,271 --> 00:05:37,452
+Here is the HTTP event handler.
+This is also an Ace event handler so it
+
+81
+00:05:37,452 --> 00:05:40,164
+can be dispatched by the reactor
+framework.
+
+82
+00:05:40,164 --> 00:05:44,714
+As you can see it has an instance of an
+Ace sock stream, which will be connected
+
+83
+00:05:44,714 --> 00:05:49,400
+by the acceptor to correspond to the
+connection with the client, that's in data
+
+84
+00:05:49,400 --> 00:05:53,731
+mode or the ability to send and receive
+data on it, It also has an activation
+
+85
+00:05:53,731 --> 00:05:58,204
+method called open and we'll look and see
+how that's used by the acceptor in a
+
+86
+00:05:58,204 --> 00:06:00,922
+moment.
+It's got a little accessor method to give
+
+87
+00:06:00,922 --> 00:06:04,826
+back a reference to the underlying
+ACE_SOCK_Stream and we'll use this in
+
+88
+00:06:04,826 --> 00:06:09,114
+order to access that whenever we need to
+access the connection to the client once
+
+89
+00:06:09,114 --> 00:06:12,818
+it's connected.
+There's a Handle input method, which'll be
+
+90
+00:06:12,818 --> 00:06:17,601
+used when the, get request, or other kinds
+of HTTP messages show up from clients.
+
+91
+00:06:17,601 --> 00:06:22,151
+And then there's the Handle Close method
+that's used when we're going to be shut
+
+92
+00:06:22,151 --> 00:06:25,646
+down, when we're all done processing, or
+if a error occurs.
+
+93
+00:06:25,646 --> 00:06:30,758
+Now that we understand a little bit about
+HTTP Event Handlers, let's talk about how
+
+94
+00:06:30,758 --> 00:06:34,316
+the Handle input method of the HTTP event
+acceptor works.
+
+95
+00:06:34,316 --> 00:06:38,994
+Handle input is called back when a
+connection arrives from the clients and as
+
+96
+00:06:38,994 --> 00:06:42,947
+you can see in this particular example, it
+does several things.
+
+97
+00:06:42,947 --> 00:06:47,467
+It goes ahead and it creates an event
+handler that knows how to handle HTTP
+
+98
+00:06:47,467 --> 00:06:52,573
+events, get request for example, and then
+it goes ahead and accepts the connection
+
+99
+00:06:52,573 --> 00:06:57,273
+and stores it into its SOCK_STREAM.
+And then it turns around and it says to
+
+100
+00:06:57,273 --> 00:07:02,821
+this newly created Event_Handler, please
+activate yourself, by calling the OpenHook
+
+101
+00:07:02,821 --> 00:07:05,938
+method.
+What the OpenHook method does as we show
+
+102
+00:07:05,938 --> 00:07:11,030
+here is this turns around and registers
+itself, the Event_Handler back with the
+
+103
+00:07:11,030 --> 00:07:14,857
+same reactor that's being used to drive
+the Acceptor logic.
+
+104
+00:07:14,857 --> 00:07:20,518
+So now both Connection accept events and
+read events, which correspond to get
+
+105
+00:07:20,518 --> 00:07:25,738
+messages, are going to be handled
+reactively by the same event loop, by the
+
+106
+00:07:25,738 --> 00:07:31,189
+same event loop object, the reactor.
+Now when a get request shows up from a
+
+107
+00:07:31,189 --> 00:07:34,004
+client.
+The reactor will call back to the handle
+
+108
+00:07:34,004 --> 00:07:38,137
+input hook method on the http event
+handler, and that does a couple of things.
+
+109
+00:07:38,137 --> 00:07:42,559
+And notice this logic will start to look
+very, very familiar because we use it over
+
+110
+00:07:42,559 --> 00:07:45,804
+and over again.
+What it does is it goes ahead and extracts
+
+111
+00:07:45,804 --> 00:07:49,536
+out The path name, from the stream it was
+passed from the client.
+
+112
+00:07:49,536 --> 00:07:53,721
+So it extracts to get, requires and
+extracts the path-name from there.
+
+113
+00:07:53,721 --> 00:07:58,271
+It then goes ahead and memory maps that
+file the content that was requested by
+
+114
+00:07:58,271 --> 00:08:02,957
+that path-name and then it turns around
+and sends the result back to the client,
+
+115
+00:08:02,957 --> 00:08:07,426
+as a, as, a pointer to contiguous memory
+object using memory mapped IO.
+
+116
+00:08:07,426 --> 00:08:11,656
+Now, of'course be aware that a real
+Production web server would do a lot more
+
+117
+00:08:11,656 --> 00:08:15,344
+things than I'm showing you here.
+I am just showing you parts that real,
+
+118
+00:08:15,344 --> 00:08:18,250
+that focus on, the networking and
+concurrency portions.
+
+119
+00:08:18,250 --> 00:08:22,218
+So there's other patterns other
+capabilities that we're not talking about.
+
+120
+00:08:22,218 --> 00:08:26,224
+That would be part of a broader pattern
+language for a full featured web server.
+
+121
+00:08:26,224 --> 00:08:31,690
+When we're done, when we're finished
+setting the file, we go ahead and close
+
+122
+00:08:31,690 --> 00:08:35,642
+things down.
+And that will cause the stream to be shut
+
+123
+00:08:35,642 --> 00:08:40,827
+down, and we'll end up deleting the HTTP
+event handler that was allocated
+
+124
+00:08:40,827 --> 00:08:44,127
+dynamically.
+Note the similarity here between the
+
+125
+00:08:44,127 --> 00:08:48,537
+handle input logic for doing the get
+method path name extraction The memory
+
+126
+00:08:48,537 --> 00:08:53,227
+mapping the file and the transmitting of
+that content back to the client with the
+
+127
+00:08:53,227 --> 00:08:56,702
+logic we had in our earlier wrapper facade
+base solution.
+
+128
+00:08:56,702 --> 00:09:00,778
+Its virtually identical and many of the
+other solutions are almost identical too.
+
+129
+00:09:00,778 --> 00:09:04,684
+So you kind get the sent you could reuse a
+lot of this logic over and over again in
+
+130
+00:09:04,684 --> 00:09:08,448
+different configurations.
+So now let's go ahead and talk about how
+
+131
+00:09:08,448 --> 00:09:12,680
+we could use the ACE reactor portion.
+We talked about how to subclass event
+
+132
+00:09:12,680 --> 00:09:17,035
+handler and be able to have an acceptor
+and a handler for get requests for HTTP,
+
+133
+00:09:17,035 --> 00:09:21,323
+let's now talk about how we could combine
+all the pieces together with the ACE
+
+134
+00:09:21,323 --> 00:09:26,131
+reactor class that we talked about before.
+So keep in mind that the ACE reactor is
+
+135
+00:09:26,131 --> 00:09:30,746
+going to allow us to run our web server in
+a single thread of control But we'll be
+
+136
+00:09:30,746 --> 00:09:35,929
+able to handle connection and get requests
+that come in simultaneously, from multiple
+
+137
+00:09:35,929 --> 00:09:39,300
+clients, except they'll be handled in a
+reactive way.
+
+138
+00:09:39,300 --> 00:09:43,905
+To do this we're going to define a little
+helper class that we'll use quite a bit
+
+139
+00:09:43,905 --> 00:09:48,536
+throughout the rest of this section.
+This class is called the reactor HTTP
+
+140
+00:09:48,536 --> 00:09:51,734
+server.
+As you can see, it's got an interesting
+
+141
+00:09:51,734 --> 00:09:56,668
+use of templates and subclassing.
+It's parameterized by a template and then
+
+142
+00:09:56,668 --> 00:10:00,324
+that template is then used as a base class
+for this class.
+
+143
+00:10:00,324 --> 00:10:04,830
+And we're going to actually pass in
+different kinds of acceptors in this
+
+144
+00:10:04,830 --> 00:10:08,682
+particular example.
+There's a constructor that we use to pass
+
+145
+00:10:08,682 --> 00:10:13,368
+in rvrc command line parameters As well as
+a pointer to the reactor that's going to
+
+146
+00:10:13,368 --> 00:10:17,137
+be used to run the event loop.
+Let's take a look at how that constructor
+
+147
+00:10:17,137 --> 00:10:20,203
+would be implemented.
+As you can see here, we turn around and
+
+148
+00:10:20,203 --> 00:10:24,473
+initialize the underlying exceptor base
+class, passing in the reactor pointer, so
+
+149
+00:10:24,473 --> 00:10:27,781
+it, it knows who its associated with,
+which reactor it belongs to.
+
+150
+00:10:27,781 --> 00:10:31,947
+We then do a little bit of parsing of the
+Arc V parameter to get the appropriate
+
+151
+00:10:31,947 --> 00:10:35,512
+Port number to listen on.
+We'll defort, default of course to port
+
+152
+00:10:35,512 --> 00:10:39,330
+80, that's the canonial port number but
+you can change that if you want.
+
+153
+00:10:39,330 --> 00:10:43,376
+We then create an address using a trait so
+we can write this in a generic way.
+
+154
+00:10:43,376 --> 00:10:47,542
+As long as our acceptor supports a trait
+called pier adder, then we can pass in
+
+155
+00:10:47,542 --> 00:10:51,001
+many different kinds Of acceptors using
+generic programming.
+
+156
+00:10:51,001 --> 00:10:54,789
+And then we'd turn around and we'd say
+acceptor, please go ahead and start
+
+157
+00:10:54,789 --> 00:10:58,507
+listening for things to occur.
+And if something were to go wrong, we'd
+
+158
+00:10:58,507 --> 00:11:01,994
+tell the reactor please shut yourself
+down, we're going to bail out.
+
+159
+00:11:01,994 --> 00:11:04,467
+So that's the basic logic of this helper
+class.
+
+160
+00:11:04,467 --> 00:11:08,177
+And we'll use this helper class in other
+parts of the solution as well.
+
+161
+00:11:08,177 --> 00:11:12,506
+Here, then, is the main program.
+This also will be very common.
+
+162
+00:11:12,506 --> 00:11:15,882
+You'll see things looking like this quite
+a bit.
+
+163
+00:11:15,882 --> 00:11:20,161
+We go ahead and type DEF.
+An instantiation of our reactor HTTP
+
+164
+00:11:20,161 --> 00:11:23,082
+server.
+Parameterized with the HTTP event
+
+165
+00:11:23,082 --> 00:11:27,822
+acceptor, which we just created.
+We'll then go ahead and make ourselves the
+
+166
+00:11:27,822 --> 00:11:30,951
+reactor of that loop object to control the
+event loop.
+
+167
+00:11:30,951 --> 00:11:35,166
+We will make a new instance of this
+typedef HTTP Server Daemon and we pass a
+
+168
+00:11:35,166 --> 00:11:39,525
+pointer to the reactor into that so it can
+know how to clean itself up later.
+
+169
+00:11:39,525 --> 00:11:43,671
+And then we turn around and run the
+reactor event loop, and, henceforth,
+
+170
+00:11:43,671 --> 00:11:48,426
+everything else is driven by callbacks
+using the magic of inversion of control.
+
+171
+00:11:48,426 --> 00:11:53,189
+So you can see that the logic here is very
+clean, very connonical, as you see later
+
+172
+00:11:53,189 --> 00:11:57,875
+we can generalize this particular approach
+quite a bit to do other concurrency
+
+173
+00:11:57,875 --> 00:12:01,731
+models, handle other things beside web
+server so on and so forth.
+
+174
+00:12:01,731 --> 00:12:06,497
+So we got a very clean starting point for
+future exten, extension and evolution of
+
+175
+00:12:06,497 --> 00:12:09,412
+our design.
+Sometimes it's hard when you look at
+
+176
+00:12:09,412 --> 00:12:13,381
+source code to really see how the various
+callbacks are taking place and the
+
+177
+00:12:13,381 --> 00:12:16,991
+relationships between the various objects
+involved in the design.
+
+178
+00:12:16,991 --> 00:12:20,219
+So the next couple slides I'm going to
+kind of walk you through.
+
+179
+00:12:20,220 --> 00:12:25,806
+A sequence diagram illustrating how the
+reactor and the HTTP event acceptor and
+
+180
+00:12:25,806 --> 00:12:31,546
+the HTTP event handler talk to each other,
+in order to carry out the processing logic
+
+181
+00:12:31,546 --> 00:12:35,491
+I just showed you in code.
+We start out by having the, the main
+
+182
+00:12:35,491 --> 00:12:40,099
+program register an acceptor who's
+interested in accept events, we saw that
+
+183
+00:12:40,099 --> 00:12:44,995
+earlier When a connection arrives the
+reactor then calls back through the handle
+
+184
+00:12:44,995 --> 00:12:50,107
+input method on that acceptor which turns
+around and creates and event handler, that
+
+185
+00:12:50,107 --> 00:12:54,859
+http event handle then registers itself
+with a reactor and says, please call me
+
+186
+00:12:54,859 --> 00:12:59,108
+back when read events occur.
+Such as the get request that comes in from
+
+187
+00:12:59,108 --> 00:13:03,596
+a client, and then finally when that data
+shows up the reactor calls back to that
+
+188
+00:13:03,596 --> 00:13:06,582
+event handler.
+And it goes ahead and cracks open the
+
+189
+00:13:06,582 --> 00:13:10,937
+message, pulls out the various parts, the
+path name, memory maps the file, and
+
+190
+00:13:10,937 --> 00:13:14,117
+transmits it back to the client, a very
+simple example.
+
+191
+00:13:14,117 --> 00:13:18,478
+I, you'll see later that when we step back
+and look at this logic we can actually
+
+192
+00:13:18,478 --> 00:13:22,558
+apply some Gang of Four patterns, such as
+the Template Method Pattern.
+
+193
+00:13:22,559 --> 00:13:28,014
+And we can use this refactoring in order
+to help drive the main logic and algorithm
+
+194
+00:13:28,014 --> 00:13:32,586
+of the acceptor connector pattern, which
+we'll talk about shortly.
+
+195
+00:13:32,586 --> 00:13:37,727
+So to summarize this section, the ace
+reactor version of the web server is much
+
+196
+00:13:37,727 --> 00:13:43,128
+more modular and extensible than the
+raptor facade version that we saw before.
+
+197
+00:13:43,128 --> 00:13:47,392
+Or even though it does essentially the
+same thing, its done in a way that's easy
+
+198
+00:13:47,392 --> 00:13:51,808
+to understand, the wrapper facades help to
+resolve accidental complexities with
+
+199
+00:13:51,808 --> 00:13:54,796
+programming to low level IPC mechanisms
+like sockets.
+
+200
+00:13:54,796 --> 00:13:58,123
+But it doesn't really address
+architectural considerations.
+
+201
+00:13:58,123 --> 00:14:02,353
+It doesn't really provide you with the
+framework for being able to extend it and
+
+202
+00:14:02,353 --> 00:14:05,086
+hence evolve your software in more
+flexible way.
+
+203
+00:14:05,086 --> 00:14:09,699
+The reactor framework in contrast provides
+a nice archetictural perspective.
+
+204
+00:14:09,699 --> 00:14:12,740
+That's why it's viewed as an archetictural
+pattern.
+
+205
+00:14:12,740 --> 00:14:17,019
+Its core processing logic as we saw here
+was very similar and very simple.
+
+206
+00:14:17,019 --> 00:14:21,693
+But the way in which we can extend this as
+you'll see later is much more powerful.
+
+207
+00:14:21,693 --> 00:14:26,862
+We'll be able to add lots more capability.
+And as, most importantly, as we go through
+
+208
+00:14:26,862 --> 00:14:31,954
+many more parts of the pattern language,
+we'll be able to come up with ways to work
+
+209
+00:14:31,954 --> 00:14:36,970
+around some of the limitations with the
+reactor pattern in particular it's non
+
+210
+00:14:36,970 --> 00:14:42,138
+preemptibility and non scalability by
+coupling it wiht othe patterns to provide
+
+211
+00:14:42,138 --> 00:14:45,570
+much more effective thread-pool based
+approaches.

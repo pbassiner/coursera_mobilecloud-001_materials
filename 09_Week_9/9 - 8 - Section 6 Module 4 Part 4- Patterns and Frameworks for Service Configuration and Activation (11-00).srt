@@ -1,0 +1,773 @@
+1
+00:00:00,012 --> 00:00:06,566
+Welcome to Part 4 in the module on
+Patterns and Frameworks for Service
+
+2
+00:00:06,566 --> 00:00:12,342
+Configuration and Activation.
+In previous parts of this module, we
+
+3
+00:00:12,342 --> 00:00:18,326
+described the component configurator
+pattern, and we discussed the ACE Service
+
+4
+00:00:18,326 --> 00:00:24,750
+configurator framework that realizes this
+pattern in portable ways on many different
+
+5
+00:00:24,750 --> 00:00:29,159
+operating system environments.
+We then discussed how to apply this
+
+6
+00:00:29,159 --> 00:00:33,581
+particular pattern in the implementation
+in ACE to make our JAWS web server more
+
+7
+00:00:33,581 --> 00:00:38,069
+configurable, more extensible, more
+dynamically changeable and assembable at
+
+8
+00:00:38,069 --> 00:00:40,884
+run time.
+And now we're going to talk about another
+
+9
+00:00:40,884 --> 00:00:45,428
+pattern that goes a little bit further to
+make it possible to be able to create
+
+10
+00:00:45,428 --> 00:00:50,306
+server instances, dynamically in response
+to incoming requests from clients.
+
+11
+00:00:50,306 --> 00:00:53,706
+And this will be what's called the
+activator pattern.
+
+12
+00:00:53,706 --> 00:00:58,752
+We'll use the activator pattern to further
+extend our pattern language for JAWS, so
+
+13
+00:00:58,752 --> 00:01:03,720
+that not only are we going to use wrapper
+facade for portability, reactor for event
+
+14
+00:01:03,720 --> 00:01:08,184
+handling, acceptor connector for
+connection establishment and service
+
+15
+00:01:08,184 --> 00:01:12,864
+initialization, and component configurator
+for dynamically composing the
+
+16
+00:01:12,864 --> 00:01:17,341
+implementations of our server.
+We're also going to be able to activate
+
+17
+00:01:17,341 --> 00:01:20,919
+our server process on the fly, when client
+requests come in.
+
+18
+00:01:20,919 --> 00:01:25,012
+So let's first start by talking about the
+motivation for why you might want to use
+
+19
+00:01:25,012 --> 00:01:28,838
+this pattern in the first place.
+The main reason for using this pattern is
+
+20
+00:01:28,838 --> 00:01:33,077
+to try to minimize resource utilization.
+Imagine you're in an environment that's
+
+21
+00:01:33,077 --> 00:01:37,164
+resource constrained, you don't have all
+the memory in the world, and it may also
+
+22
+00:01:37,164 --> 00:01:41,528
+be somewhat dynamic, there may be periods
+of time when there's lots of requests.
+
+23
+00:01:41,528 --> 00:01:45,972
+There may be other points of time where
+there's not a lot of requests for certain
+
+24
+00:01:45,972 --> 00:01:49,311
+kinds of services.
+So keeping processes running all the time,
+
+25
+00:01:49,311 --> 00:01:53,721
+even when they're not being accessed, may
+not be the most effective way of utilizing
+
+26
+00:01:53,721 --> 00:01:57,572
+the resources.
+So how can we go about trying to make this
+
+27
+00:01:57,572 --> 00:02:01,491
+work effectively?
+Well, one thing we might want to do, is
+
+28
+00:02:01,491 --> 00:02:07,091
+apply the activator pattern, in order to
+activate and deactivate server resources
+
+29
+00:02:07,091 --> 00:02:10,666
+dynamically, based on access patterns by
+clients.
+
+30
+00:02:10,666 --> 00:02:15,709
+In our particular case, of course, we're
+focusing on activating and deactivating
+
+31
+00:02:15,709 --> 00:02:20,381
+our JAWS web server processes, but in
+other cases, of course, it could be used
+
+32
+00:02:20,381 --> 00:02:24,775
+for other examples as well.
+The activator pattern automates scalable,
+
+33
+00:02:24,775 --> 00:02:29,885
+on-demand activation and deactivation of
+services, that run in so-called service
+
+34
+00:02:29,885 --> 00:02:35,068
+execution contexts, think process in this
+particular case, in order to run services
+
+35
+00:02:35,068 --> 00:02:40,124
+that are accessed by many clients, without
+consuming resources excessively.
+
+36
+00:02:40,124 --> 00:02:45,350
+Another way to look at this, from a
+structural point of view, is we want to
+
+37
+00:02:45,350 --> 00:02:50,831
+find some way to allow clients to activate
+servers, to run services using an
+
+38
+00:02:50,831 --> 00:02:56,834
+activator as an intermediary, in order to
+get the job done, in order to start things
+
+39
+00:02:56,834 --> 00:03:00,894
+up on demand.
+This particular pattern appears very
+
+40
+00:03:00,894 --> 00:03:05,264
+briefly in the POSA 4 book.
+A longer version of the pattern can be
+
+41
+00:03:05,264 --> 00:03:10,148
+found at the URL, at this particular link
+and it's, it's appeared several other
+
+42
+00:03:10,148 --> 00:03:15,338
+places, and this is the latest incarnation
+of describing this particular pattern.
+
+43
+00:03:15,338 --> 00:03:20,292
+This is a dynamic view of how things work.
+Basically what happens is, a client comes
+
+44
+00:03:20,292 --> 00:03:25,092
+along and it invokes an operation that
+causes a request to be send to a server.
+
+45
+00:03:25,092 --> 00:03:29,916
+But rather than going directly to the
+server first, its actually intercepted by
+
+46
+00:03:29,916 --> 00:03:34,668
+an activator, and the activator checks to
+figure out how to run the service, and
+
+47
+00:03:34,668 --> 00:03:39,420
+then it goes ahead typically and launches
+a server process, and then passes the
+
+48
+00:03:39,420 --> 00:03:42,731
+request on to the server process to carry
+out the work.
+
+49
+00:03:42,731 --> 00:03:47,062
+You can do these things at various
+granularities, you can activate these
+
+50
+00:03:47,062 --> 00:03:51,677
+things on each method call, on each
+transaction, you can keep them running for
+
+51
+00:03:51,677 --> 00:03:54,386
+a while.
+There are different ways to go ahead and,
+
+52
+00:03:54,386 --> 00:03:58,065
+and structure the particular dynamic
+activations of this approach.
+
+53
+00:03:58,065 --> 00:04:02,899
+So let's talk about how we might apply the
+activator pattern to the JAWS web server
+
+54
+00:04:02,899 --> 00:04:05,846
+example.
+What we're going to do, is we're going to
+
+55
+00:04:05,846 --> 00:04:10,177
+leverage something called lnetd, which is
+a very common and popular UNIX
+
+56
+00:04:10,177 --> 00:04:13,648
+superserver.
+There's actually implementations of Inetd
+
+57
+00:04:13,648 --> 00:04:17,599
+for other platforms as well.
+Inetd supports two different kinds of
+
+58
+00:04:17,599 --> 00:04:21,037
+services.
+Internal services, that run in the Inetd
+
+59
+00:04:21,037 --> 00:04:26,570
+process itself, and these include very
+short lived services like echo or daytime.
+
+60
+00:04:26,570 --> 00:04:31,412
+It also supports so called external
+services, these are typically longer
+
+61
+00:04:31,412 --> 00:04:35,028
+running operations, that run in separate
+processes.
+
+62
+00:04:35,028 --> 00:04:40,217
+That the Inetd superserver, will go ahead
+and fork and exact and do the appropriate
+
+63
+00:04:40,217 --> 00:04:45,392
+socket, bind, listen accept calls in order
+to carry out getting these services
+
+64
+00:04:45,392 --> 00:04:49,953
+connected to their clients.
+Examples of, of services that run this way
+
+65
+00:04:49,953 --> 00:04:55,112
+would be things like FTP or secure FTP,
+TelNet or secure shells, or even HTTP, web
+
+66
+00:04:55,112 --> 00:04:57,913
+services what we are going to be doing
+here.
+
+67
+00:04:57,913 --> 00:05:03,291
+Take a look at this link on Wikipedia, to
+find out more information to find out more
+
+68
+00:05:03,291 --> 00:05:07,024
+information about what Inetd is, and how
+it work works.
+
+69
+00:05:07,024 --> 00:05:11,021
+So let's talk about how this might
+actually play our in practice.
+
+70
+00:05:11,021 --> 00:05:15,991
+So, a client would go ahead and establish
+a connection on some server, at whatever
+
+71
+00:05:15,991 --> 00:05:19,083
+port number it thinks the web server's
+running at.
+
+72
+00:05:19,083 --> 00:05:22,282
+Let's just use port 80 to make things more
+concrete.
+
+73
+00:05:22,282 --> 00:05:27,888
+What would actually happen would be that
+the Inetd superserver, would be listening
+
+74
+00:05:27,888 --> 00:05:32,220
+on that particular port.
+And it would do this, because it would
+
+75
+00:05:32,220 --> 00:05:37,160
+read a directive out of a configuration
+file, called etc inetd.conf.
+
+76
+00:05:37,160 --> 00:05:42,402
+And this configuration file will tell it,
+to run a certain service at a particular
+
+77
+00:05:42,402 --> 00:05:47,253
+port number, and have a certain demon
+process launchable when a connection
+
+78
+00:05:47,253 --> 00:05:50,147
+request on that port comes in from a
+client.
+
+79
+00:05:50,147 --> 00:05:54,642
+When a client goes ahead and connects to
+that port number, the Inetd superserver
+
+80
+00:05:54,642 --> 00:05:59,198
+will accept that connection, spawn the
+appropriate server process, in this case
+
+81
+00:05:59,198 --> 00:06:02,529
+it might be running the JAWS web server
+implementation.
+
+82
+00:06:02,529 --> 00:06:06,842
+And then once that web server
+implementation is running, then when the
+
+83
+00:06:06,842 --> 00:06:11,660
+client send the get request to what they
+think is Port 80m that is no longer being
+
+84
+00:06:11,660 --> 00:06:16,551
+serviced by Inetd its now being serviced
+by the server that was spout on demand by
+
+85
+00:06:16,551 --> 00:06:19,432
+Inetd.
+So that server of course receive the get
+
+86
+00:06:19,432 --> 00:06:23,968
+request, do the processing in the ways
+we've seen before, and then send that
+
+87
+00:06:23,968 --> 00:06:27,940
+result back to the client.
+The client doesn't really know this has
+
+88
+00:06:27,940 --> 00:06:32,910
+been done by a superserver, it just thinks
+its been initiated, and talking directly
+
+89
+00:06:32,910 --> 00:06:36,860
+to the server the whole time.
+Which is some of the powerful pieces of
+
+90
+00:06:36,860 --> 00:06:40,671
+using this particular implementation of
+the activator pattern.
+
+91
+00:06:40,671 --> 00:06:45,024
+This design will use memory more
+efficiently, because the server will only
+
+92
+00:06:45,024 --> 00:06:47,966
+run when it's actually being accessed by a
+client.
+
+93
+00:06:47,966 --> 00:06:52,319
+This makes sense, of course, if you don't
+have an environment where there is
+
+94
+00:06:52,319 --> 00:06:55,775
+continual workload.
+If you had continual workload, you're
+
+95
+00:06:55,775 --> 00:06:59,728
+probably better off just launching the
+server, and keeping it running
+
+96
+00:06:59,728 --> 00:07:02,599
+indefinitely.
+Because there is some overhead to,
+
+97
+00:07:02,600 --> 00:07:07,117
+shutdown and restart the server processes
+on demand, every time a client request
+
+98
+00:07:07,117 --> 00:07:09,742
+shows up.
+So lets talk about some of the benefits
+
+99
+00:07:09,742 --> 00:07:13,762
+and limitations of this pattern.
+Some of the benefits obviously are the
+
+100
+00:07:13,762 --> 00:07:17,531
+fact that we're not going to use resources
+unless we absolutely need them.
+
+101
+00:07:17,531 --> 00:07:21,563
+We're not going to be allocating virtual
+memory, we're not going to be taking up
+
+102
+00:07:21,563 --> 00:07:25,127
+slots in the process table.
+We're not going to be doing other things
+
+103
+00:07:25,127 --> 00:07:29,742
+that will otherwise make the resource
+utilization higher, if nobody is actually
+
+104
+00:07:29,742 --> 00:07:33,183
+availing themselves of our resources that
+we're providing.
+
+105
+00:07:33,183 --> 00:07:37,473
+Another benefit we get from this, is we're
+able to get a nice, easy coarse grain
+
+106
+00:07:37,473 --> 00:07:41,235
+concurrency model.
+What we basically get here, is a process
+
+107
+00:07:41,235 --> 00:07:45,000
+per request, or a process per connection
+like approach.
+
+108
+00:07:45,000 --> 00:07:49,560
+And, that will allow us to be able to get
+around some of the limitations we've
+
+109
+00:07:49,560 --> 00:07:54,252
+talked about to this point, by using the
+reactor pattern to have only one thread of
+
+110
+00:07:54,252 --> 00:07:56,997
+control to process the request from
+clients.
+
+111
+00:07:56,997 --> 00:08:01,029
+Now we could have as many processes as
+there are clients, that are sending us get
+
+112
+00:08:01,029 --> 00:08:04,193
+requests and making connections, at any
+given point in time.
+
+113
+00:08:04,193 --> 00:08:08,164
+You have to be careful there, of course,
+because you might end up having a lot of
+
+114
+00:08:08,164 --> 00:08:12,312
+resources tied up that could be dealt
+better with other concurrency models, like
+
+115
+00:08:12,312 --> 00:08:16,041
+the thread pools, we'll talk about later
+when we get to those sections.
+
+116
+00:08:16,041 --> 00:08:20,671
+Modularity, testability and reusability
+can also be approved by this approach,
+
+117
+00:08:20,671 --> 00:08:25,499
+because we're building our components out
+of more modular pieces, where we can do
+
+118
+00:08:25,499 --> 00:08:28,983
+them in isolation.
+We can test them, and then only when we're
+
+119
+00:08:28,983 --> 00:08:33,330
+convinced that they are going to work
+properly, do we go ahead and integrate
+
+120
+00:08:33,330 --> 00:08:37,656
+them in to our actual environment.
+Needless to say, as with all different
+
+121
+00:08:37,656 --> 00:08:42,011
+patterns and all different approaches,
+there are some limitations with this
+
+122
+00:08:42,011 --> 00:08:44,284
+approach.
+So, not unlike with component
+
+123
+00:08:44,284 --> 00:08:48,838
+configurator, you don't necessarily know
+what's going to run, until the requests
+
+124
+00:08:48,838 --> 00:08:52,345
+start showing up from clients.
+And so, there may be some determi,
+
+125
+00:08:52,345 --> 00:08:55,421
+determinism issues that may take longer to
+start things up.
+
+126
+00:08:55,421 --> 00:08:59,715
+You probably don't want to run an
+implementation of this pattern in a real
+
+127
+00:08:59,715 --> 00:09:03,809
+time system, because things will take
+different amounts of time to run.
+
+128
+00:09:03,809 --> 00:09:07,907
+The first time you run something may be
+different from the next time, because it
+
+129
+00:09:07,907 --> 00:09:12,263
+may still be running the next time, and
+that may be a problem for schedulability
+
+130
+00:09:12,263 --> 00:09:15,583
+analysis and so on.
+Another problem, not unlike component
+
+131
+00:09:15,583 --> 00:09:19,548
+configuration and the component
+configurator pattern, is what do you do
+
+132
+00:09:19,548 --> 00:09:23,542
+about reliability or security?
+When you're starting to launch things
+
+133
+00:09:23,542 --> 00:09:27,622
+dynamically, you have to be careful that
+people don't slip in trojan horses, that
+
+134
+00:09:27,622 --> 00:09:31,762
+get launched, that do malware or nefarious
+things to the state of your, your system
+
+135
+00:09:31,762 --> 00:09:35,007
+while it's running.
+For that reason, by the way, people have
+
+136
+00:09:35,007 --> 00:09:38,547
+begun to move away to some extent from
+using the Init.D approach in some
+
+137
+00:09:38,547 --> 00:09:42,627
+environments, where they can't have full
+trust and control over what's actually
+
+138
+00:09:42,627 --> 00:09:45,502
+being run.
+And of course another issue, is just
+
+139
+00:09:45,502 --> 00:09:49,800
+potential for increased run time, overhead
+and infrastructure complexity.
+
+140
+00:09:49,800 --> 00:09:54,238
+There are more moving parts, there are
+conceivably more things to go wrong.
+
+141
+00:09:54,239 --> 00:09:58,073
+There's this additional latency for
+launching the servers on demand.
+
+142
+00:09:58,073 --> 00:10:02,367
+The concurrency model we talked about,
+process per connection, process per
+
+143
+00:10:02,367 --> 00:10:06,460
+request, may be heavier weight than you
+really want to use in practice.
+
+144
+00:10:06,460 --> 00:10:11,932
+It turns out, as we've discussed here,
+that you can easily combine these patterns
+
+145
+00:10:11,932 --> 00:10:17,458
+for service configuration and activation.
+So, in this particular example here, we
+
+146
+00:10:17,458 --> 00:10:22,617
+can use the activator pattern to bring in
+a server process on demand when a client
+
+147
+00:10:22,617 --> 00:10:27,160
+connects, and we could also use the ACE
+service configurator, service
+
+148
+00:10:27,160 --> 00:10:31,934
+configuration framework, in order to
+configure the state of the services
+
+149
+00:10:31,934 --> 00:10:36,672
+running in that server, when it's brought
+in and started dynamically.
+
+150
+00:10:36,672 --> 00:10:41,778
+So this gives you a tremendous amount of
+flexibility and control, over what kinds
+
+151
+00:10:41,778 --> 00:10:46,459
+of things are running, and when they run.
+And you just have to make sure you have a
+
+152
+00:10:46,459 --> 00:10:50,485
+good grasp of the patterns, a good
+understanding of the frameworks, and a
+
+153
+00:10:50,485 --> 00:10:54,775
+deep knowledge of the security
+implications and reliability implications,
+
+154
+00:10:54,775 --> 00:10:59,065
+to make sure these approaches work
+properly for the environments in which you
+
+155
+00:10:59,065 --> 00:10:59,485
+run.

@@ -1,0 +1,743 @@
+1
+00:00:00,012 --> 00:00:06,561
+Welcome to Part 2, in the module on
+Patterns and Frameworks For Service
+
+2
+00:00:06,561 --> 00:00:13,169
+Configuration and Activation.
+In the previous part of this module, we
+
+3
+00:00:13,169 --> 00:00:18,336
+had talked about the component
+configurator pattern.
+
+4
+00:00:18,337 --> 00:00:23,077
+Now, we're going to describe how ACE
+implements this pattern as part of the ACE
+
+5
+00:00:23,077 --> 00:00:27,484
+Service Configurator Framework.
+Naturally, there are other ways to
+
+6
+00:00:27,484 --> 00:00:32,211
+implement this pattern, we'll be focusing
+on the way in which we do it in ACE.
+
+7
+00:00:32,211 --> 00:00:37,167
+So, let's motivate the need and the way in
+which this framework is going to act to
+
+8
+00:00:37,167 --> 00:00:41,047
+begin with.
+Capturing and managing the life cycles of
+
+9
+00:00:41,047 --> 00:00:46,069
+services involve a number of different
+aspects, it involved dealing with
+
+10
+00:00:46,069 --> 00:00:50,672
+initialization aspects.
+It involved dealing with aspects having to
+
+11
+00:00:50,672 --> 00:00:56,054
+do with execution control, running event
+loops, suspending, resuming, services
+
+12
+00:00:56,054 --> 00:01:00,317
+under various conditions and so on.
+And of course it also deals with
+
+13
+00:01:00,317 --> 00:01:05,511
+termination or finalization, shutting
+things down when they're no longer needed.
+
+14
+00:01:05,511 --> 00:01:10,002
+If you implement these things in a very Ad
+Hoc way, you can end up with solutions
+
+15
+00:01:10,002 --> 00:01:14,556
+that are tightly coupled, difficult to
+evolve, and difficult to maintain over
+
+16
+00:01:14,556 --> 00:01:17,291
+time.
+Because each service will be done in a
+
+17
+00:01:17,291 --> 00:01:21,927
+slightly different way, and it'll be hard
+to control them in a uniform and
+
+18
+00:01:21,927 --> 00:01:25,714
+centralized manner.
+So to avoid this, we have developed a
+
+19
+00:01:25,714 --> 00:01:29,683
+framework called the ACE Service
+Configurator Framework.
+
+20
+00:01:29,683 --> 00:01:34,369
+And that classes in this framework allow
+applications to defer certain
+
+21
+00:01:34,369 --> 00:01:40,219
+configuration and implementation decisions
+about the services that they provide until
+
+22
+00:01:40,219 --> 00:01:43,405
+late in their life cycle, late in their
+design.
+
+23
+00:01:43,405 --> 00:01:49,325
+Namely at installation time or even during
+run time, applications are services that
+
+24
+00:01:49,325 --> 00:01:54,886
+use this particular framework, inherit
+from a base class called the ACE service
+
+25
+00:01:54,886 --> 00:02:00,696
+object, and then they override some of its
+methods and the ACE Service Configurator
+
+26
+00:02:00,696 --> 00:02:06,112
+Framework then invokes these methods.
+In order to configure and control the life
+
+27
+00:02:06,112 --> 00:02:09,195
+cycle of the absent services using the
+framework.
+
+28
+00:02:09,195 --> 00:02:13,138
+We'll talk about a number of these
+different classes in a moment.
+
+29
+00:02:13,138 --> 00:02:17,834
+Of course, these classes correspond
+closely to the roles and responsibilities
+
+30
+00:02:17,834 --> 00:02:20,757
+defined in the component configurator
+pattern.
+
+31
+00:02:20,757 --> 00:02:25,083
+Here's a brief summary of the key classes
+that are part of the ACE Service
+
+32
+00:02:25,083 --> 00:02:28,882
+Configurator Framework.
+One of the core classes is called ACE
+
+33
+00:02:28,882 --> 00:02:33,249
+service object, which is this base class
+that provides a number of hook methods.
+
+34
+00:02:33,249 --> 00:02:37,607
+These hook methods are used to control
+various life cycle activities of a service
+
+35
+00:02:37,607 --> 00:02:40,659
+or a component while it's being brought in
+to existence.
+
+36
+00:02:40,659 --> 00:02:46,060
+While it's being executed, and when it's
+being finalized and shut down is also
+
+37
+00:02:46,060 --> 00:02:49,568
+another class called the ACE service
+repository.
+
+38
+00:02:49,568 --> 00:02:54,380
+And this is use to store instances of ACE
+service objects.
+
+39
+00:02:54,380 --> 00:02:59,200
+Because we are going to be able to
+configure the application services
+
+40
+00:02:59,200 --> 00:03:04,346
+dynamically, we need to have a common
+place to go to learn what services are
+
+41
+00:03:04,346 --> 00:03:07,569
+actually provided at any given point in
+time.
+
+42
+00:03:07,569 --> 00:03:12,325
+And so, the service repository is used to
+keep track of that kind of information.
+
+43
+00:03:12,325 --> 00:03:17,368
+Then finally, we have another class called
+the ACE service config and this class is
+
+44
+00:03:17,368 --> 00:03:22,478
+essentially a, an orchestrator or a facade
+It's used to provide an interpreter that
+
+45
+00:03:22,478 --> 00:03:26,858
+reads a scripting language that can be
+used to dictate what services are
+
+46
+00:03:26,858 --> 00:03:30,671
+configured or unconfigured, suspended,
+resumed, and so on.
+
+47
+00:03:30,671 --> 00:03:35,177
+You can take a look at this URL for more
+information about the ACE Service
+
+48
+00:03:35,177 --> 00:03:40,127
+Configurator Framework, which also of
+course appears in some of the, the books
+
+49
+00:03:40,127 --> 00:03:43,706
+on ACE as well.
+So let's talk a bit about the ACE service
+
+50
+00:03:43,706 --> 00:03:47,136
+object class.
+This is a base class that the framework
+
+51
+00:03:47,136 --> 00:03:51,987
+uses to invoke various kinds of hook
+methods to control the life cycle of the
+
+52
+00:03:51,987 --> 00:03:55,326
+services.
+And here are some of the different types
+
+53
+00:03:55,326 --> 00:04:00,099
+of life cycle methods it supports.
+It has a pair of methods for being able to
+
+54
+00:04:00,099 --> 00:04:05,199
+initialize and finalize, or terminate or
+shut down a service object that's under
+
+55
+00:04:05,199 --> 00:04:09,361
+the control of the framework.
+It also provides hook methods for being
+
+56
+00:04:09,361 --> 00:04:13,836
+able to suspend and resume a service.
+There could be certain situations where
+
+57
+00:04:13,836 --> 00:04:18,432
+you don't want the service to be active.
+Perhaps you're updating some of the data
+
+58
+00:04:18,432 --> 00:04:22,196
+it uses, or you're changing it's
+implementation for some reason.
+
+59
+00:04:22,196 --> 00:04:26,434
+And so you can suspend it temporarily, so
+events are not dispatched to it.
+
+60
+00:04:26,434 --> 00:04:30,665
+And after you're done, you can then go
+ahead and resume it, so it can continue to
+
+61
+00:04:30,665 --> 00:04:34,643
+process requests that it's getting from
+wherever its clients come from.
+
+62
+00:04:34,643 --> 00:04:38,744
+Yet another capability provided by the
+ACE_Service_Object is a way to report
+
+63
+00:04:38,744 --> 00:04:41,885
+information about the dynamically
+configured service.
+
+64
+00:04:41,886 --> 00:04:44,645
+You might way what its purpose is, as a
+stray.
+
+65
+00:04:44,646 --> 00:04:50,418
+You might contain it's current status it's
+load, whether it's active or inactive, the
+
+66
+00:04:50,418 --> 00:04:55,332
+port numbers or other addressing
+information needed for clients to be able
+
+67
+00:04:55,332 --> 00:05:00,444
+to connect to it and so on and so forth.
+By inheriting from the ACE event handler
+
+68
+00:05:00,444 --> 00:05:05,141
+ACE service object is also capable of
+being dispatched by the ACE reactor
+
+69
+00:05:05,141 --> 00:05:09,992
+framework so these frameworks work
+together to provide you with a number of
+
+70
+00:05:09,992 --> 00:05:13,659
+capabilities.
+From a commonality and variability point
+
+71
+00:05:13,659 --> 00:05:18,247
+of view the ACE service object class
+allows us to handle the variability of
+
+72
+00:05:18,247 --> 00:05:21,448
+life cycle operations, within a common
+interface.
+
+73
+00:05:21,448 --> 00:05:26,338
+So we have these hook methods that may
+differ but they're all managed in a common
+
+74
+00:05:26,338 --> 00:05:30,812
+way, a common uniform interface.
+Let's now talk about the ACE service
+
+75
+00:05:30,812 --> 00:05:34,210
+config class.
+This is a class that basically provides a
+
+76
+00:05:34,210 --> 00:05:36,810
+facade.
+It hides all the complexity of the
+
+77
+00:05:36,810 --> 00:05:42,066
+internal details of the framework, and
+it's used to integrate and provide certain
+
+78
+00:05:42,066 --> 00:05:45,557
+capabilities.
+One of the capabilities it provides is it
+
+79
+00:05:45,557 --> 00:05:49,069
+provides a way for it to interpret a
+scripting language.
+
+80
+00:05:49,069 --> 00:05:54,129
+That provides various directives that can
+be used to do certain side effects to the
+
+81
+00:05:54,129 --> 00:05:58,685
+state of your application process.
+One thing you can do is you can indicate
+
+82
+00:05:58,685 --> 00:06:03,074
+how to locate and initialize service
+implementations during run time.
+
+83
+00:06:03,074 --> 00:06:07,825
+You could also tell it to suspend and
+resume these various kinds of operations
+
+84
+00:06:07,825 --> 00:06:10,852
+as well.
+It's also possible to use this class to
+
+85
+00:06:10,852 --> 00:06:15,402
+trigger reconfigurations of the services
+dynamically and we'll look at some
+
+86
+00:06:15,402 --> 00:06:19,672
+examples a little bit later that
+illustrate this in the context of our web
+
+87
+00:06:19,672 --> 00:06:22,522
+server.
+There's a couple of different types of,
+
+88
+00:06:22,522 --> 00:06:27,282
+of, services that are provided by the
+service configurator framework and the ACE
+
+89
+00:06:27,282 --> 00:06:30,832
+service config class.
+The most common kind are the dynamic
+
+90
+00:06:30,832 --> 00:06:33,841
+services.
+These are services whose implementations
+
+91
+00:06:33,841 --> 00:06:37,999
+can exist in DLLs or shared libraries that
+are linked into the address space
+
+92
+00:06:37,999 --> 00:06:42,411
+dynamically as the process is running.
+It's also possible to support certain
+
+93
+00:06:42,411 --> 00:06:46,861
+kinds of statically configured services.
+These are services that are actually
+
+94
+00:06:46,861 --> 00:06:51,992
+linked with the initial executable.
+But who's existence can come and go based
+
+95
+00:06:51,992 --> 00:06:56,506
+on directives that are interpreted by our
+scripting language.
+
+96
+00:06:56,506 --> 00:07:02,742
+Once again from a common [unknown] point
+of view, this particular class handles the
+
+97
+00:07:02,742 --> 00:07:08,705
+variability of static and dynamic service
+configuration within a common set of
+
+98
+00:07:08,705 --> 00:07:13,122
+interfaces.
+These directives are essentially commands
+
+99
+00:07:13,122 --> 00:07:18,702
+that can be passed to the service
+configurative framework in various ways
+
+100
+00:07:18,702 --> 00:07:22,697
+to, to dictate or designate the way in
+which behaves.
+
+101
+00:07:22,697 --> 00:07:26,919
+Here's a particular example that
+illustrates a scripting file that shows
+
+102
+00:07:26,919 --> 00:07:30,103
+how to instruct the service configurator
+framework.
+
+103
+00:07:30,103 --> 00:07:35,781
+To dynamically link in a particular DLL,
+extract out a factory function that can be
+
+104
+00:07:35,781 --> 00:07:40,803
+used to make an instance of an HTTP
+server, and then go ahead and initialize
+
+105
+00:07:40,803 --> 00:07:45,906
+this listening on a certain port number,
+and if all goes well to register the
+
+106
+00:07:45,906 --> 00:07:51,009
+resulting configured object that was
+dynamically linked into the service
+
+107
+00:07:51,009 --> 00:07:55,256
+repository, so it can be manipulated and
+accessed at run time.
+
+108
+00:07:55,256 --> 00:07:59,614
+Ace Service Configurator Framework
+supports a number of different types of
+
+109
+00:07:59,614 --> 00:08:02,732
+directives.
+It supports dynamic linking directives,
+
+110
+00:08:02,732 --> 00:08:06,969
+static initialization directives.
+It supports a directive for removing
+
+111
+00:08:06,969 --> 00:08:11,410
+something that was either linked
+statically or dynamically to shut it down.
+
+112
+00:08:11,410 --> 00:08:15,027
+It supports directives for suspending and
+resuming services.
+
+113
+00:08:15,027 --> 00:08:19,373
+And it also makes it possible to
+dynamically configure certain hierarchy
+
+114
+00:08:19,373 --> 00:08:22,715
+composed services.
+We won't talk about that much at all in
+
+115
+00:08:22,715 --> 00:08:25,729
+this example.
+But it's yet a further way of being able
+
+116
+00:08:25,729 --> 00:08:30,285
+to integrate dynamic composition with
+other capabilities that ace provides, in
+
+117
+00:08:30,285 --> 00:08:35,495
+terms of layered service composition.
+We're going to focus primarily, primarily
+
+118
+00:08:35,495 --> 00:08:38,245
+on the dynamic, static, and remove
+directives.
+
+119
+00:08:38,245 --> 00:08:42,195
+As we illustrate some of the examples
+we'll talk about later on.
+
+120
+00:08:42,195 --> 00:08:47,313
+There's two primary ways that you can tell
+the service configurator framework to, to
+
+121
+00:08:47,313 --> 00:08:50,803
+process directives.
+One way is to give it a file named by
+
+122
+00:08:50,803 --> 00:08:55,497
+default as SVC conf or service conf.
+This file contains a set of directives
+
+123
+00:08:55,497 --> 00:09:00,297
+that illustrate what needs to be done and
+we'll look at a some examples in more
+
+124
+00:09:00,297 --> 00:09:04,364
+detail In just a moment.
+You can also create strings from whatever
+
+125
+00:09:04,364 --> 00:09:09,182
+source you want, from some kind of editor,
+you could pass them over a network, or
+
+126
+00:09:09,182 --> 00:09:13,927
+whatnot, and then be able to pass these
+things as processing directives to the
+
+127
+00:09:13,927 --> 00:09:17,197
+ACE_Service_Config object in one fell
+swoop.
+
+128
+00:09:17,197 --> 00:09:21,875
+And that way, you can have even more
+fine-grained control over how you manage
+
+129
+00:09:21,875 --> 00:09:26,981
+configuration and reconfiguration.
+So, to summarize this particular section.
+
+130
+00:09:26,981 --> 00:09:32,241
+The ACE service configurator framework
+improves the extensibility of servers like
+
+131
+00:09:32,241 --> 00:09:37,421
+JAWS, by deferring the implementations of
+some of their components, and objects or
+
+132
+00:09:37,421 --> 00:09:42,887
+services until late in the design cycle.
+When they have enough information to make
+
+133
+00:09:42,887 --> 00:09:47,363
+an informed design choice.
+These late binding capabilities provide a
+
+134
+00:09:47,363 --> 00:09:50,258
+number of benefits to application
+developers.
+
+135
+00:09:50,258 --> 00:09:54,595
+One of these benefits is that the apps
+themselves are composed out of very
+
+136
+00:09:54,595 --> 00:09:59,565
+modular services that can be developed
+independently, and tested independently,
+
+137
+00:09:59,565 --> 00:10:03,896
+and then brought together and integrated
+Into a complete solution at the
+
+138
+00:10:03,896 --> 00:10:07,183
+appropriate time.
+When you have the right information to
+
+139
+00:10:07,183 --> 00:10:10,712
+make the right choice.
+This also allows this, this decomposition
+
+140
+00:10:10,712 --> 00:10:14,114
+capability allows developers to focus on
+things in isolation.
+
+141
+00:10:14,114 --> 00:10:18,063
+They can focus on the functionality.
+They can focus on the optimization.
+
+142
+00:10:18,063 --> 00:10:23,179
+Without prematurely committing themselves
+to a particular assembly of the different
+
+143
+00:10:23,179 --> 00:10:27,729
+services, which gives you more control
+over how your systems will evolve over
+
+144
+00:10:27,729 --> 00:10:31,036
+time, because they're built in more
+decomposable ways.
+
+145
+00:10:31,036 --> 00:10:35,802
+And then the last capability we get from
+this late binding is the ability to change
+
+146
+00:10:35,802 --> 00:10:40,571
+our mind at installation time or run time
+when he have the information we need.
+
+147
+00:10:40,571 --> 00:10:46,087
+As we go through the next part, we'll
+discuss some examples and illustrate how
+
+148
+00:10:46,087 --> 00:10:51,233
+this framework can be applied more
+specifically to extend and enhance the
+
+149
+00:10:51,233 --> 00:10:52,325
+JAWS webserver

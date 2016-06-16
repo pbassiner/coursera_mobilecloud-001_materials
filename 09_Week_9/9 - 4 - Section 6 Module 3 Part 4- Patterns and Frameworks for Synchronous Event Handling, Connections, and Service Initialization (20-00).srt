@@ -1,0 +1,1488 @@
+1
+00:00:00,012 --> 00:00:06,757
+Hello, and welcome to Part 4 in the module
+on Patterns and Frameworks for Synchronous
+
+2
+00:00:06,757 --> 00:00:12,734
+Event Handling, Connection establishment
+and Service initialization.
+
+3
+00:00:12,734 --> 00:00:18,140
+In the previous parts of this module, we
+first described the reactor and
+
+4
+00:00:18,140 --> 00:00:24,260
+Acceptor-Connector patterns, which are
+patterns that abstract away from event
+
+5
+00:00:24,260 --> 00:00:29,930
+handling details in order to allow
+application processing to be decoupled
+
+6
+00:00:29,930 --> 00:00:34,803
+from service, initialization, and
+connection establishment.
+
+7
+00:00:34,803 --> 00:00:39,506
+We then talk about the ACE Reactor
+framework and how it implements the ACE
+
+8
+00:00:39,506 --> 00:00:44,162
+mechanisms for the Reactor pattern.
+And then we talked about how we could
+
+9
+00:00:44,162 --> 00:00:49,037
+apply the ACE Reactor Framework to our
+JAWS Web Server to provide a very simple
+
+10
+00:00:49,037 --> 00:00:53,036
+event-driven solution.
+In this particular part of the module,
+
+11
+00:00:53,036 --> 00:00:57,548
+we're going to go ahead and describe the
+ACE Acceptor-Connector framework.
+
+12
+00:00:57,548 --> 00:01:02,432
+And then, illustrate how we can apply that
+to a different version of the JAWS Web
+
+13
+00:01:02,432 --> 00:01:05,220
+Server.
+This different version is going to be a
+
+14
+00:01:05,220 --> 00:01:09,851
+slightly different path through our
+pattern language we've been describing.
+
+15
+00:01:09,851 --> 00:01:14,721
+In this particular path, we're going to
+still use the wrapper facade pattern in
+
+16
+00:01:14,721 --> 00:01:19,965
+order to abstract a way from the tedious
+and error-prone and non--portable system
+
+17
+00:01:19,965 --> 00:01:24,905
+programming methods by using nice,
+cohesive, more modular object-oriented
+
+18
+00:01:24,905 --> 00:01:28,809
+wrapper facades.
+We're going to apply the Reactor framework
+
+19
+00:01:28,809 --> 00:01:32,813
+to be able to decouple the even
+dispatching and detection into
+
+20
+00:01:32,813 --> 00:01:37,316
+multiplexing logic from the processing
+behavior of those events.
+
+21
+00:01:37,316 --> 00:01:41,636
+And we're going to join this up with the
+Acceptor-Connector pattern and the ACE
+
+22
+00:01:41,636 --> 00:01:46,256
+Connector framework in order to be able to
+get even further accessibility and reuse
+
+23
+00:01:46,256 --> 00:01:49,641
+from our infrastructure.
+So as you'll see, even though the
+
+24
+00:01:49,641 --> 00:01:53,733
+processing logically do is almost
+identical to what we did in the previous
+
+25
+00:01:53,733 --> 00:01:58,155
+solution, it's even less code we have to
+worry about to write the bug maintain and
+
+26
+00:01:58,155 --> 00:02:01,136
+evolve.
+To motivate the ACE Acceptor-Connector
+
+27
+00:02:01,136 --> 00:02:05,228
+framework, let's first kind of step back
+and talk about different types of
+
+28
+00:02:05,228 --> 00:02:08,302
+connection-oriented network application
+roles.
+
+29
+00:02:08,303 --> 00:02:13,204
+There's two roles that are most important.
+The connection role, which determines how
+
+30
+00:02:13,204 --> 00:02:17,222
+apps establish connections.
+And then there's also the communication
+
+31
+00:02:17,222 --> 00:02:21,574
+role, which determines whether an app
+place the role of a client or a server or
+
+32
+00:02:21,574 --> 00:02:25,166
+both.
+The connection roles are typified by being
+
+33
+00:02:25,166 --> 00:02:29,566
+either active or passive.
+The active side is the Connector part.
+
+34
+00:02:29,566 --> 00:02:35,066
+The passive side is the Acceptor part and
+then the communication role is the part
+
+35
+00:02:35,066 --> 00:02:40,666
+that interacts irrespective of whether it
+was started as active or passive role.
+
+36
+00:02:40,666 --> 00:02:45,490
+It's also important to realize the
+fundamental asymmetry that exists in these
+
+37
+00:02:45,490 --> 00:02:50,522
+connection-oriented environments.
+So servers often, but not always, play the
+
+38
+00:02:50,522 --> 00:02:55,842
+passive accept role where they listen on a
+particular port for someone to connect to
+
+39
+00:02:55,842 --> 00:02:58,679
+them.
+Conversely, clients often, though not
+
+40
+00:02:58,679 --> 00:03:03,267
+always play a more active role, they are
+going to initiate a connection to a
+
+41
+00:03:03,267 --> 00:03:06,515
+particular port that a server is listening
+on.
+
+42
+00:03:06,515 --> 00:03:11,872
+By factoring out these different roles and
+responsibilities, we can greatly reduce
+
+43
+00:03:11,872 --> 00:03:16,696
+the amount of tedious and error-prone code
+that has to be written by application
+
+44
+00:03:16,696 --> 00:03:21,232
+developers and has to be ported to
+different platforms has to be evolved and
+
+45
+00:03:21,232 --> 00:03:26,104
+maintained and so on over the life cycle.
+And in general, if you don't have to write
+
+46
+00:03:26,104 --> 00:03:30,589
+it, don't write it, leverage it from some
+place else much less problematic and
+
+47
+00:03:30,589 --> 00:03:33,512
+expensive down the road.
+So let's talk now about the
+
+48
+00:03:33,512 --> 00:03:38,229
+Acceptor-Connector Framework in ACE.
+The classes in this framework decouple the
+
+49
+00:03:38,229 --> 00:03:42,162
+connection establishment and
+initialization of cooperating peer
+
+50
+00:03:42,162 --> 00:03:46,854
+services or, or service handlers in a
+networked application from the processing
+
+51
+00:03:46,854 --> 00:03:51,132
+performed by these service handlers once
+they're actually connected and
+
+52
+00:03:51,132 --> 00:03:54,222
+initialized.
+So you can imagine there's a variety of
+
+53
+00:03:54,222 --> 00:03:58,681
+reasons for doing this kind of decoupling.
+It reduces the amount of code.
+
+54
+00:03:58,681 --> 00:04:02,031
+And it also gives you more flexibility
+from a design point of view.
+
+55
+00:04:02,031 --> 00:04:05,970
+For example, sometimes it's the case that
+the servers are the active initiators of
+
+56
+00:04:05,970 --> 00:04:09,967
+connections, sometimes the client's are
+the active initiators of connections.
+
+57
+00:04:09,967 --> 00:04:14,194
+In a web server environment, the clients
+are the active initiators; in other
+
+58
+00:04:14,194 --> 00:04:18,321
+environments, say network management, it
+might be the servers that do that.
+
+59
+00:04:18,321 --> 00:04:23,087
+By decoupling these roles, we can make the
+service handler behavior be independent
+
+60
+00:04:23,087 --> 00:04:27,779
+from whether they're established actively
+or passively, which means more reuse,
+
+61
+00:04:27,779 --> 00:04:31,367
+better architecture, easier to explain,
+easier to evolve.
+
+62
+00:04:31,367 --> 00:04:36,337
+In the Acceptor-Connector Framework, the
+applications will typically subclass from
+
+63
+00:04:36,337 --> 00:04:41,286
+the ACE Service Handler base class.
+The ACE Service Handler class itself is
+
+64
+00:04:41,286 --> 00:04:45,595
+actually a subclass of other classes as
+we'll talk about.
+
+65
+00:04:45,595 --> 00:04:49,493
+It, itself, inherits from things like ACE
+Task, which inherit from other parts of
+
+66
+00:04:49,493 --> 00:04:52,546
+ACE we'll get to later.
+When you inherit from a service handler,
+
+67
+00:04:52,546 --> 00:04:56,130
+there's certain methods you typically
+override, in order to be able to kind of
+
+68
+00:04:56,130 --> 00:04:59,586
+clean things up clean up the, the service
+handlers when they go away.
+
+69
+00:04:59,586 --> 00:05:03,222
+And you also typically override some
+methods having to do with how you activate
+
+70
+00:05:03,222 --> 00:05:06,264
+the service handler.
+[inaudible] and activation here
+
+71
+00:05:06,264 --> 00:05:10,051
+corresponds to the different ways you want
+it once it's been created.
+
+72
+00:05:10,051 --> 00:05:14,477
+Some of those different activation modes
+include reactive processing as well as
+
+73
+00:05:14,477 --> 00:05:19,027
+various types of concurrent processing,
+such as multithreading, using thread per
+
+74
+00:05:19,027 --> 00:05:23,512
+connection, thread pools, multiprocessing
+a processor pool, or a process per
+
+75
+00:05:23,512 --> 00:05:27,744
+connection, and so on and so forth.
+These kinds of decisions can be left as
+
+76
+00:05:27,744 --> 00:05:30,797
+late binding decisions in the way which
+about your system.
+
+77
+00:05:30,797 --> 00:05:34,992
+Naturally, the, the particular roles and
+classes in ACE and its Acceptor-Connector
+
+78
+00:05:34,992 --> 00:05:39,122
+Framework follow along with the roles and
+responsibilities that are designated in
+
+79
+00:05:39,122 --> 00:05:42,999
+the Acceptor-Connector patterns.
+So it's really easy to follow on with the
+
+80
+00:05:42,999 --> 00:05:46,900
+framework if you know the pattern.
+Here is a quick synopsis, of the key
+
+81
+00:05:46,900 --> 00:05:50,122
+classes, in the ACE Acceptor-Connector
+framework.
+
+82
+00:05:50,122 --> 00:05:54,808
+Ace Service Handler, is the core piece
+that, that embodies the application or
+
+83
+00:05:54,808 --> 00:05:59,771
+service specific processing logic.
+That's where the interesting business work
+
+84
+00:05:59,771 --> 00:06:02,819
+gets done.
+Then we have the ACE Acceptor, which is
+
+85
+00:06:02,819 --> 00:06:07,051
+the part that's a factory that creates.
+The service handlers and gets them
+
+86
+00:06:07,051 --> 00:06:10,374
+connected when a client goes ahead and
+connects to the acceptor.
+
+87
+00:06:10,374 --> 00:06:14,345
+And then, on the inverse side, we have the
+ACE Connector, which is the part that
+
+88
+00:06:14,345 --> 00:06:18,371
+initializes a service handler when it
+connects it to a corresponding acceptor
+
+89
+00:06:18,371 --> 00:06:22,141
+that's running somewhere else.
+And we'll talk through these different
+
+90
+00:06:22,141 --> 00:06:26,289
+examples and you'll see lots of ways in
+which they could be customized and applied
+
+91
+00:06:26,289 --> 00:06:29,596
+for various use cases.
+Take a look at this URL if you'd like to
+
+92
+00:06:29,596 --> 00:06:33,500
+learn more about this particular
+framework, and of course, there's even
+
+93
+00:06:33,500 --> 00:06:37,962
+more discussion in the various books, the
+POSA2 book and the various books on ACE.
+
+94
+00:06:37,962 --> 00:06:42,193
+Let's now do a little bit of, of a deep
+dive into the capabilities and structure
+
+95
+00:06:42,193 --> 00:06:46,163
+on the ACE Service Handler class.
+This class provides synchronous and
+
+96
+00:06:46,163 --> 00:06:50,311
+reactive data transfer capabilities, and
+as you can see, it has a bunch of
+
+97
+00:06:50,311 --> 00:06:55,139
+interesting things going on in terms of
+how it's associated with other classes in
+
+98
+00:06:55,139 --> 00:06:59,394
+ACE or other classes you might find.
+One of the things that the ACE Service
+
+99
+00:06:59,394 --> 00:07:03,950
+Handler provides is an inter-process
+communication or IPC endpoint that's used
+
+100
+00:07:03,950 --> 00:07:07,284
+to communicate with its peer connected
+service handler.
+
+101
+00:07:07,284 --> 00:07:13,018
+And as it turns out, this particular peer
+is going to be connected by the acceptor.
+
+102
+00:07:13,018 --> 00:07:17,744
+The service handler also codifies certain
+best practices related to reactive network
+
+103
+00:07:17,744 --> 00:07:20,520
+services.
+So, out of the box, if you do nothing else
+
+104
+00:07:20,520 --> 00:07:25,074
+and you create a service handler subclass,
+it's going to be able to register itself
+
+105
+00:07:25,074 --> 00:07:29,562
+automatically with a reactor and be driven
+by a reactive callbacks that we talked
+
+106
+00:07:29,562 --> 00:07:32,196
+about before.
+So, it registers itself with its
+
+107
+00:07:32,196 --> 00:07:36,917
+corresponding reactor when it's created.
+And then it can also be used to, to shut
+
+108
+00:07:36,917 --> 00:07:41,954
+things down and clean up its resources,
+including its IPC mechanism when its going
+
+109
+00:07:41,954 --> 00:07:46,689
+to be destroyed later in its life cycle.
+The service handlers can also participate
+
+110
+00:07:46,689 --> 00:07:51,041
+with other concurrency models that are
+provided through various frameworks and
+
+111
+00:07:51,041 --> 00:07:55,700
+patterns that are used with ACE, things
+like Active Object, Half-Sync/Half-Async.
+
+112
+00:07:55,700 --> 00:08:00,188
+So we'll often end up spawning pools of
+threads or we'll connect together service
+
+113
+00:08:00,188 --> 00:08:04,346
+handlers with active objects that
+themselves contain pools of threads, in
+
+114
+00:08:04,346 --> 00:08:08,570
+order to be able to get more concurrent
+behavior if a reactive approach alone
+
+115
+00:08:08,570 --> 00:08:13,551
+doesn't work scalable or correctly in the
+environment that you're trying to use it.
+
+116
+00:08:13,551 --> 00:08:17,781
+And it gets this capability because it
+inherits of something called ACE Task.
+
+117
+00:08:17,781 --> 00:08:21,630
+And we will talk about the ACE Task
+Framework in the next module in next
+
+118
+00:08:21,630 --> 00:08:25,072
+modules in the course.
+Not right away, but we'll call, come to
+
+119
+00:08:25,072 --> 00:08:28,528
+those later.
+The ACE Service Handler basically gets
+
+120
+00:08:28,528 --> 00:08:32,246
+these capabilities from ACE and it gets a
+number of capabilities.
+
+121
+00:08:32,246 --> 00:08:36,861
+In fact, it gets concurrency In queuing,
+synchronization, dynamic configuration,
+
+122
+00:08:36,861 --> 00:08:39,379
+and event handling, from other parts of
+ACE.
+
+123
+00:08:39,379 --> 00:08:44,585
+This is a good example of how frameworks
+can give you quite a bang for your buck,
+
+124
+00:08:44,585 --> 00:08:50,425
+or from your non-buck if it open source by
+being able to associate canonical control
+
+125
+00:08:50,425 --> 00:08:55,545
+flow, and canonical domain specific
+structures and funcitonality into the
+
+126
+00:08:55,545 --> 00:08:59,516
+infrastructure, so you don't have to write
+that yourself.
+
+127
+00:08:59,516 --> 00:09:03,938
+From a commonality and variability
+perspective, the ACE Service Handler is
+
+128
+00:09:03,938 --> 00:09:08,768
+going to handle the variability of the
+inter-process communication mechanism and
+
+129
+00:09:08,768 --> 00:09:11,691
+the synchronization mechanism by a common
+API.
+
+130
+00:09:11,691 --> 00:09:16,809
+You can come along and customize this by
+instantiating templates or subclassing and
+
+131
+00:09:16,809 --> 00:09:21,394
+overriding certain hook methods in a very
+convenient and consistent way.
+
+132
+00:09:21,394 --> 00:09:25,954
+Here's a simple illustration that shows
+how you can use the ACE Service Handler
+
+133
+00:09:25,954 --> 00:09:29,523
+with the ACE Reactor.
+This is what you get out of the box if you
+
+134
+00:09:29,523 --> 00:09:33,849
+don't do anything to the contrary.
+Typically, an ACE Service Handler will
+
+135
+00:09:33,849 --> 00:09:38,201
+register itself with an ACE Reactor when
+it's been created by an acceptor or a
+
+136
+00:09:38,201 --> 00:09:41,922
+connector.
+And, then, the ACE Reactor framework will
+
+137
+00:09:41,922 --> 00:09:46,938
+automatically call back to the handle
+input method in the service handler when
+
+138
+00:09:46,938 --> 00:09:52,106
+some kind of data arrives on an endpoint
+with the service handler indicated it was
+
+139
+00:09:52,106 --> 00:09:56,282
+interested in knowing about.
+The Reactor framework can also be
+
+140
+00:09:56,282 --> 00:10:01,007
+responsible for initiating graceful
+shutdown and destruction of service
+
+141
+00:10:01,007 --> 00:10:05,657
+handlers when they are no longer needed,
+for example, when the underlying
+
+142
+00:10:05,657 --> 00:10:09,547
+connection is shut down.
+Once again, offloading a lot of the grubby
+
+143
+00:10:09,547 --> 00:10:13,445
+work from application developers.
+The ACE Acceptor class is a factory that
+
+144
+00:10:13,445 --> 00:10:16,639
+plays the acceptor role in the
+Acceptor-Connector pattern.
+
+145
+00:10:16,639 --> 00:10:21,199
+But keep in mind, we're not really talking
+much about connector in this particular
+
+146
+00:10:21,199 --> 00:10:25,621
+set of slides, because web servers don't
+really do connector roles, but there's
+
+147
+00:10:25,621 --> 00:10:30,175
+lots of other literature and example you
+can learn about the connector portions in
+
+148
+00:10:30,175 --> 00:10:33,656
+the ACE Acceptor-Connector framework if
+you're so inclined.
+
+149
+00:10:33,656 --> 00:10:38,135
+So the ACE Acceptor class decouples
+passive connection establishment and
+
+150
+00:10:38,135 --> 00:10:42,750
+service initialization logic from the
+subsequent processing performed by a
+
+151
+00:10:42,750 --> 00:10:46,914
+service handler once the acceptor has
+created and initialized it.
+
+152
+00:10:46,914 --> 00:10:51,714
+Once again, there's a bunch of interesting
+things going on with this class in terms
+
+153
+00:10:51,714 --> 00:10:55,930
+of its dependencies on other parts of ACE
+and other things you provided via
+
+154
+00:10:55,930 --> 00:10:59,873
+templates and subclassing.
+One thing it provides for example is a
+
+155
+00:10:59,873 --> 00:11:04,163
+parameterized passive mode, IPC endpoint
+that can be used to listen and accept
+
+156
+00:11:04,163 --> 00:11:07,739
+connections from peers.
+And you can provide that as a template
+
+157
+00:11:07,739 --> 00:11:11,407
+parameter as we'll see when we look at the
+code a little bit more.
+
+158
+00:11:11,407 --> 00:11:15,901
+There's also a number of hook methods it
+defines using the Gang of Four template
+
+159
+00:11:15,901 --> 00:11:20,185
+method pattern in order to be able to
+automate certain steps that are used to
+
+160
+00:11:20,185 --> 00:11:24,401
+create service handlers, accept
+connections into them and then activate
+
+161
+00:11:24,401 --> 00:11:29,093
+them to run with the appropriate type of
+concurrency or reactive processing model
+
+162
+00:11:29,093 --> 00:11:32,680
+which we'll look at.
+By inheriting from various parts of ACE
+
+163
+00:11:32,680 --> 00:11:37,295
+for, by inheriting for example from the
+ACE service object class which itself
+
+164
+00:11:37,295 --> 00:11:41,075
+inherits from ace reactor and it's the ACE
+event handler class.
+
+165
+00:11:41,075 --> 00:11:44,601
+You can use these acceptors with the
+reactors, you can link them in
+
+166
+00:11:44,601 --> 00:11:47,546
+dynamically.
+There's lots of things you get as part of
+
+167
+00:11:47,546 --> 00:11:51,204
+the framework that you don't have to worry
+about writing yourself.
+
+168
+00:11:51,204 --> 00:11:56,085
+From a commonality and variability point
+of view, the ACE Acceptor is going to
+
+169
+00:11:56,085 --> 00:12:01,110
+handle the variability of inter-process
+communication mechanism and service
+
+170
+00:12:01,110 --> 00:12:04,762
+handlers in a common way.
+So we'll say by using template
+
+171
+00:12:04,762 --> 00:12:09,921
+instantiation and subclassing you can deal
+with this variability with a common
+
+172
+00:12:09,921 --> 00:12:15,234
+interface, which makes it really easy to
+do plug and play types of extensibility to
+
+173
+00:12:15,234 --> 00:12:19,515
+your software components.
+Here is an example that illustrates the
+
+174
+00:12:19,515 --> 00:12:24,272
+common flow of control between and ACE
+Reactor, an ACE Acceptor, and sometimes a
+
+175
+00:12:24,272 --> 00:12:27,962
+service handler that was parameterized
+into the acceptor.
+
+176
+00:12:27,963 --> 00:12:33,679
+What typically happens is that an acceptor
+will be registered with the Reactor for
+
+177
+00:12:33,679 --> 00:12:38,486
+accept events, which is one of the types
+of events that it knows about.
+
+178
+00:12:38,486 --> 00:12:44,187
+And when an accept event occurs, the
+Reactor will dispatch the acceptors handle
+
+179
+00:12:44,187 --> 00:12:47,950
+input hook method.
+This hook method on acceptor actually
+
+180
+00:12:47,950 --> 00:12:52,760
+plays the role of the template method in
+the Gang of Four pattern as it plays the
+
+181
+00:12:52,760 --> 00:12:55,513
+role of the template method in the
+pattern.
+
+182
+00:12:55,513 --> 00:13:00,397
+And then it calls out to a number of hook
+methods itself to do the various steps in
+
+183
+00:13:00,397 --> 00:13:04,310
+the acceptance algorithm.
+These three steps are making a service
+
+184
+00:13:04,310 --> 00:13:08,799
+handler, creating one as a, as a factory
+method, accepting the service handler,
+
+185
+00:13:08,799 --> 00:13:13,355
+that is accepting the connection from the
+client and then activating the service
+
+186
+00:13:13,355 --> 00:13:16,049
+handler.
+And that activation step can be used to
+
+187
+00:13:16,049 --> 00:13:20,265
+decide what type of reactive or concurrent
+processing will be done by the service
+
+188
+00:13:20,265 --> 00:13:22,870
+center.
+Once again, by default, it uses reactive
+
+189
+00:13:22,870 --> 00:13:25,393
+processing, it registers back with the
+Reactor.
+
+190
+00:13:25,393 --> 00:13:28,933
+Let's now take a look at how this
+Acceptor-Connector implication could be
+
+191
+00:13:28,933 --> 00:13:32,019
+applied to JAWS.
+This will give you a high level view, then
+
+192
+00:13:32,019 --> 00:13:35,727
+we'll look at some of the code.
+From a high level view, this looks almost
+
+193
+00:13:35,727 --> 00:13:40,137
+identical to the example we'd seen before,
+when we talked about the purely reactive
+
+194
+00:13:40,137 --> 00:13:43,768
+based approach.
+The only real difference here is that
+
+195
+00:13:43,768 --> 00:13:49,745
+rather than defining an HTTP Acceptor or
+an HTTP Event Acceptor, and an HTTP Event
+
+196
+00:13:49,745 --> 00:13:53,288
+Handler.
+These are now done for us by the various
+
+197
+00:13:53,288 --> 00:13:56,676
+classes in the Acceptor-Connector
+Framework.
+
+198
+00:13:56,676 --> 00:14:01,642
+So we'll have an HTTP service acceptor
+shown here, which inherits from ACE
+
+199
+00:14:01,642 --> 00:14:04,774
+Acceptor, register itself with the
+Reactor.
+
+200
+00:14:04,774 --> 00:14:09,202
+When a client connects, the Reactor calls
+back to the handle input method of the
+
+201
+00:14:09,202 --> 00:14:13,758
+acceptor, which does that template method
+process that we talked about before to
+
+202
+00:14:13,758 --> 00:14:18,448
+create the appropriate service handler,
+which then registers itself back with the
+
+203
+00:14:18,448 --> 00:14:21,161
+reactor.
+Everything is purely reactive at this
+
+204
+00:14:21,161 --> 00:14:23,849
+point.
+When the client sends a get request, the
+
+205
+00:14:23,849 --> 00:14:28,133
+Reactor calls back to the handle input
+method on the registered HTP Service
+
+206
+00:14:28,133 --> 00:14:30,897
+Handler.
+And that goes ahead and cracks open then
+
+207
+00:14:30,897 --> 00:14:35,317
+message, finds the appropriate content,
+memory maps it, and then sends it back to
+
+208
+00:14:35,317 --> 00:14:37,963
+the client.
+And we'll look at the code in just a
+
+209
+00:14:37,963 --> 00:14:40,574
+second.
+But the good news here is that this set of
+
+210
+00:14:40,574 --> 00:14:43,201
+canonical interactions is very, very
+stylized.
+
+211
+00:14:43,201 --> 00:14:47,497
+Once you understand it for one type of
+application for a web server, you can use
+
+212
+00:14:47,497 --> 00:14:51,368
+it for many, many other things.
+It have nothing whatsoever to do with Web
+
+213
+00:14:51,368 --> 00:14:55,190
+services or HTTP protocol processing.
+So let's take a look at the code and the
+
+214
+00:14:55,190 --> 00:14:58,150
+more detailed design.
+This example's going to show how to use
+
+215
+00:14:58,150 --> 00:15:01,749
+the acceptor and it's service handler
+parts of ACE in order to implement a
+
+216
+00:15:01,749 --> 00:15:05,285
+reactive Web server.
+As you'll see, there's even less code than
+
+217
+00:15:05,285 --> 00:15:09,254
+we looked at before, because the ACE
+Framework is doing almost all the heavy
+
+218
+00:15:09,254 --> 00:15:13,097
+lifting .And you just have to fill in a
+couple of blanks that deals with the
+
+219
+00:15:13,097 --> 00:15:17,444
+processing of the actual protocol that
+corresponds to what we're building, which
+
+220
+00:15:17,444 --> 00:15:20,329
+is a web server.
+So let's start by looking at an HTTP
+
+221
+00:15:20,329 --> 00:15:25,019
+Service Handler which inherits from ACE
+service handler and it's got a couple of
+
+222
+00:15:25,019 --> 00:15:28,267
+methods there.
+As you can see, when it inherits from a
+
+223
+00:15:28,267 --> 00:15:32,890
+service handler, it fills in that template
+to use the SOCK stream, wrapper facade,
+
+224
+00:15:32,890 --> 00:15:37,580
+and something called the null synch, which
+means there's no, no concurrency taking
+
+225
+00:15:37,580 --> 00:15:41,243
+place in this example.
+We'll see later how to override that.
+
+226
+00:15:41,243 --> 00:15:44,396
+And then what it does is it defines the
+handle input method.
+
+227
+00:15:44,396 --> 00:15:48,432
+This is really the only piece of
+application specific processing logic in
+
+228
+00:15:48,432 --> 00:15:52,187
+the whole implementation.
+This is what of course is going to get
+
+229
+00:15:52,187 --> 00:15:56,677
+called back by the Reactor when the get
+request arrives from the client.
+
+230
+00:15:56,677 --> 00:16:01,307
+And as you can see, it does the canonical
+processing we've looked at several times
+
+231
+00:16:01,307 --> 00:16:04,045
+before.
+It gets the path out of the get request
+
+232
+00:16:04,045 --> 00:16:06,811
+that comes in.
+It memory maps that path into the
+
+233
+00:16:06,811 --> 00:16:10,318
+appropriate part of the file system and
+stores it in memory.
+
+234
+00:16:10,318 --> 00:16:14,594
+And then, it goes ahead and transmits the
+content back to the client in one
+
+235
+00:16:14,594 --> 00:16:18,526
+operation using the mechanisms in ACE to
+transmit exactly n bytes.
+
+236
+00:16:18,526 --> 00:16:22,166
+This business logic is really the only
+thing we have to write.
+
+237
+00:16:22,166 --> 00:16:27,142
+Now, naturally in real life, you would add
+a lot more capabilities to do prep servlet
+
+238
+00:16:27,142 --> 00:16:30,224
+processing.
+You might do more sophisticated caching
+
+239
+00:16:30,224 --> 00:16:33,362
+operations.
+You might do various things where you're
+
+240
+00:16:33,362 --> 00:16:37,239
+going to add additional capabilities,
+concurrency and so on.
+
+241
+00:16:37,239 --> 00:16:41,535
+But for now, let's keep it simple, just to
+focus on the patterns and how they get
+
+242
+00:16:41,535 --> 00:16:44,447
+applied.
+This then is the basic service processing
+
+243
+00:16:44,447 --> 00:16:48,112
+logic for the main program.
+We're leveraging a lot of things we've
+
+244
+00:16:48,112 --> 00:16:51,337
+done before.
+We're using our ACE Acceptor and we're
+
+245
+00:16:51,337 --> 00:16:56,727
+parameterizing it with the service handler
+we just wrote, and the ACE SOCK Acceptor
+
+246
+00:16:56,727 --> 00:17:00,135
+to accept the connection that comes from
+the client.
+
+247
+00:17:00,135 --> 00:17:05,197
+We abstantiate this new HTTP Service
+Acceptor into that helper class called
+
+248
+00:17:05,197 --> 00:17:08,271
+Reactor HTTP Server that we looked at
+before.
+
+249
+00:17:08,272 --> 00:17:11,554
+And then the rest of our logic is very
+straightforward.
+
+250
+00:17:11,554 --> 00:17:16,959
+We instantiate the appropriate templates.
+We derive things and use this as we talked
+
+251
+00:17:16,959 --> 00:17:19,798
+about.
+We go ahead and create the ACE Reactor in
+
+252
+00:17:19,798 --> 00:17:24,487
+order to be able to drive the event loop.
+We create an instance of the HTTP Server
+
+253
+00:17:24,487 --> 00:17:28,345
+Daemon passing in the reactor pointer, so
+it registers properly.
+
+254
+00:17:28,346 --> 00:17:31,895
+It can be used to clean things up
+appropriately when everything shuts down
+
+255
+00:17:31,895 --> 00:17:34,835
+later and then we just run the server
+event loop and away we go.
+
+256
+00:17:34,835 --> 00:17:38,981
+So the nice part about this is there just
+isn't a lot of application-specific logic
+
+257
+00:17:38,981 --> 00:17:41,020
+here.
+We're customizing the framework.
+
+258
+00:17:41,020 --> 00:17:44,843
+We're combining the realizations of those
+patterns we talked about before.
+
+259
+00:17:44,843 --> 00:17:49,262
+As we'll also see, this is going to be
+used for much more powerful concurrent
+
+260
+00:17:49,262 --> 00:17:54,092
+mechanisms and much more flexible,
+dynamically configureable mechanisms later
+
+261
+00:17:54,092 --> 00:17:58,362
+and we'll get to that as we explore
+alternative paths through our pattern
+
+262
+00:17:58,362 --> 00:18:01,372
+language.
+So, to summarize this particular module,
+
+263
+00:18:01,372 --> 00:18:06,129
+this particular part of the module the ACE
+Acceptor-Connector Framework decouples
+
+264
+00:18:06,129 --> 00:18:10,752
+JAWS, connection establishment, and
+service handler initialization, from the,
+
+265
+00:18:10,752 --> 00:18:14,801
+the protocol processing for HTTP.
+This separation of concerns allows us to
+
+266
+00:18:14,801 --> 00:18:18,949
+reuse large parts of our solution be able
+to push that in to the infrastructure, so
+
+267
+00:18:18,949 --> 00:18:22,221
+we don't have to worry about it.
+Somebody else can maintain it.
+
+268
+00:18:22,221 --> 00:18:25,106
+Someone else can optimize it.
+Someone else can debug it.
+
+269
+00:18:25,106 --> 00:18:29,430
+Someone else can document it, and so on.
+So we have the generic reusable framework
+
+270
+00:18:29,430 --> 00:18:32,431
+portion that you see here.
+And if we can come along and just
+
+271
+00:18:32,431 --> 00:18:37,330
+specialize a few pieces The business logic
+for processing the get request, as well as
+
+272
+00:18:37,330 --> 00:18:41,884
+the part that's going to be doing the
+acceptance of the connections and that was
+
+273
+00:18:41,884 --> 00:18:45,424
+really no real code.
+We were just customizing templates and a
+
+274
+00:18:45,424 --> 00:18:48,808
+few helper classes.
+One of the things you'll also see by our
+
+275
+00:18:48,808 --> 00:18:53,379
+solution approach here is we're combining
+both white box and black box reuse.
+
+276
+00:18:53,379 --> 00:18:58,057
+Some parts of the white box reuse come
+from the use of these hook methods in the
+
+277
+00:18:58,057 --> 00:19:03,167
+template method that drives the acceptor's
+key algorithm steps to create a service
+
+278
+00:19:03,167 --> 00:19:08,131
+handler accept something into the service
+handler and then activate the service
+
+279
+00:19:08,131 --> 00:19:11,321
+handler.
+Those are done in the white box like way.
+
+280
+00:19:11,321 --> 00:19:15,322
+You can inherit from ACE Acceptor if you
+want to customize any of those steps to do
+
+281
+00:19:15,322 --> 00:19:18,452
+different things.
+We'll see some examples of that later.
+
+282
+00:19:18,452 --> 00:19:22,519
+But at the same time we also get black box
+reuse by being able to plug in various
+
+283
+00:19:22,519 --> 00:19:26,549
+template parameters, so that you don't
+really have to know a lot of the details
+
+284
+00:19:26,549 --> 00:19:29,625
+of how things work.
+You just have to know what type of
+
+285
+00:19:29,625 --> 00:19:33,696
+signatures that are expected by the
+templates that use these template
+
+286
+00:19:33,696 --> 00:19:36,496
+parameters.
+So the end result is a very powerful
+
+287
+00:19:36,496 --> 00:19:41,188
+solution without a whole lot of code to be
+written and it gives us yet one more piece
+
+288
+00:19:41,188 --> 00:19:45,710
+in our ever expanding pattern language for
+high performance web servers.
+
+289
+00:19:45,711 --> 00:19:50,502
+First, at the heart of these framework
+designs are commonality and variability
+
+290
+00:19:50,502 --> 00:19:53,719
+analysis.
+I've talked about a lot of stuff that took
+
+291
+00:19:53,719 --> 00:19:57,473
+years to evolve to figure out what was
+fixed and what varied.
+
+292
+00:19:57,473 --> 00:20:02,231
+We used to go back repeatedly and vary out
+designs as we came up with new insights
+
+293
+00:20:02,231 --> 00:20:06,932
+about commonality and variability.
+So what you're seeing here is the product
+
+294
+00:20:06,932 --> 00:20:11,316
+of a lot of thinking and a lot of
+re-engineering and a lot of refractoring.
+
+295
+00:20:11,316 --> 00:20:15,402
+The key is not just to focus on the
+specific examples of what ACE is doing,
+
+296
+00:20:15,402 --> 00:20:19,754
+but tho think more broadly about a
+methodology for building software that's
+
+297
+00:20:19,754 --> 00:20:24,174
+extensible, and contractible, and
+subsettable for your own application
+
+298
+00:20:24,174 --> 00:20:25,246
+environments.

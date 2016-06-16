@@ -1,0 +1,544 @@
+1
+00:00:00,012 --> 00:00:07,824
+Welcome to part 3 in the module on
+patterns and frameworks for concurrency
+
+2
+00:00:07,824 --> 00:00:13,607
+and synchronization.
+In previous parts of this module, we
+
+3
+00:00:13,607 --> 00:00:18,273
+started by describing the active object
+pattern.
+
+4
+00:00:18,274 --> 00:00:23,362
+And then we talked about the ACE task
+framework, which can be used to implement
+
+5
+00:00:23,362 --> 00:00:28,419
+this and other concurrency patterns.
+Now we're going to explore yet another
+
+6
+00:00:28,419 --> 00:00:33,567
+path through our pattern laguage for JAWS
+to illustrate how we can apply the ACE
+
+7
+00:00:33,567 --> 00:00:38,254
+task and acceptor connector frameworks in
+the context of a web server.
+
+8
+00:00:38,255 --> 00:00:43,201
+This path will be our first true
+multithreaded path through the design.
+
+9
+00:00:43,201 --> 00:00:48,619
+We'll come back and explore a number of
+different multithreaded paths in later
+
+10
+00:00:48,619 --> 00:00:53,122
+parts of this module.
+So this particular example actually builds
+
+11
+00:00:53,122 --> 00:00:58,242
+quite nicely on our previous version.
+That we showed with acceptor connector,
+
+12
+00:00:58,242 --> 00:01:01,091
+which itself built nicely on top of the
+reactor.
+
+13
+00:01:01,091 --> 00:01:05,570
+And w'e're going to add just a few very
+minor tweaks in order to be able to get a
+
+14
+00:01:05,570 --> 00:01:09,226
+new, and more powerful, concurrent
+multi-threaded design.
+
+15
+00:01:09,226 --> 00:01:13,918
+In particular, we're going to start first
+by showing how we can use the ACE service
+
+16
+00:01:13,918 --> 00:01:18,271
+handler, which interits from ACE task, in
+order to be able to spawn off.
+
+17
+00:01:18,271 --> 00:01:23,242
+Separate threads, one per connection.
+And use them to service the incoming
+
+18
+00:01:23,242 --> 00:01:27,296
+requests concurrently.
+So, to do this, we're going to define a
+
+19
+00:01:27,296 --> 00:01:31,316
+class called TPC for thread per
+connection, HTTP handler.
+
+20
+00:01:31,316 --> 00:01:35,691
+And of course, this class will inherit
+from ACE service handler.
+
+21
+00:01:35,691 --> 00:01:39,153
+And it'll use ACE SOCK stream.
+So it'll be able to.
+
+22
+00:01:39,154 --> 00:01:43,164
+Send and receive via the socket wrappers
+we've talked about before.
+
+23
+00:01:43,164 --> 00:01:47,310
+And then it's going to have a hook method
+that will get called back by the ACE
+
+24
+00:01:47,310 --> 00:01:51,933
+Acceptor framework to activate this
+particular object when its been connected
+
+25
+00:01:51,933 --> 00:01:54,996
+and created.
+And unlike before where the activation
+
+26
+00:01:54,996 --> 00:01:59,620
+operation simply register the object back
+with the reactor for a purely reactive
+
+27
+00:01:59,620 --> 00:02:02,805
+solution.
+This time when this happens, we're going
+
+28
+00:02:02,805 --> 00:02:07,329
+to go ahead and activate The object to run
+in a new thread of control.
+
+29
+00:02:07,329 --> 00:02:12,791
+As we saw before, the activate method
+under the hood will spawn a thread and
+
+30
+00:02:12,791 --> 00:02:18,071
+then pass in the service run adapter
+function that's part of the ACE task
+
+31
+00:02:18,071 --> 00:02:22,028
+framework.
+And that will end up calling the service
+
+32
+00:02:22,028 --> 00:02:27,045
+hook method on tpc, HTTP Handler.
+Here's the service method, keep in mind
+
+33
+00:02:27,045 --> 00:02:30,936
+that this method is now running in it's
+own thread of control.
+
+34
+00:02:30,936 --> 00:02:34,971
+And it does pretty much exactly what we
+we've always been doing.
+
+35
+00:02:34,971 --> 00:02:40,069
+It turns around and extracts out the get
+request from the input stream we got from
+
+36
+00:02:40,069 --> 00:02:43,181
+the client, it memory maps that get
+request URI.
+
+37
+00:02:43,181 --> 00:02:46,399
+Finding the appropriate content in the
+file system.
+
+38
+00:02:46,399 --> 00:02:51,004
+And then we turn around and use a send
+operation to send all the end bytes back
+
+39
+00:02:51,004 --> 00:02:53,791
+to the client in one transmission
+operation.
+
+40
+00:02:53,791 --> 00:02:58,621
+So this particular approach runs very
+efficiently, it runs in a seperate thread
+
+41
+00:02:58,621 --> 00:03:01,790
+of control.
+And therefore, if for any reason we have
+
+42
+00:03:01,790 --> 00:03:05,376
+blocking.
+Because of flow control other threads will
+
+43
+00:03:05,376 --> 00:03:09,267
+not be perturbed.
+Here now we illustrate how we can go ahead
+
+44
+00:03:09,267 --> 00:03:14,560
+and extend the ACE acceptor in order to
+provide the next piece of this particular
+
+45
+00:03:14,560 --> 00:03:17,995
+solution.
+So we're going to implement something
+
+46
+00:03:17,995 --> 00:03:23,571
+called a TPC acceptor and this is going to
+be an acceptor for HTTP objects and TPC of
+
+47
+00:03:23,571 --> 00:03:26,707
+course stands for The thread for
+connection.
+
+48
+00:03:26,707 --> 00:03:32,244
+Here's the illustration of how to do this.
+We go ahead and we instantiate the
+
+49
+00:03:32,244 --> 00:03:36,235
+template.
+The ACE acceptor template to make a TPC,
+
+50
+00:03:36,235 --> 00:03:41,345
+HTTP acceptor object class.
+And this of course, we instantiate with a
+
+51
+00:03:41,345 --> 00:03:47,237
+TPC HETP handler that we just looked at.
+And the ACE_SOCK acceptor so we've got all
+
+52
+00:03:47,237 --> 00:03:51,467
+those pieces set up.
+Now we go ahead and reuse our reactor HTP
+
+53
+00:03:51,467 --> 00:03:57,322
+server from our earlier acceptor connector
+example to make our HTTP server demon.
+
+54
+00:03:57,322 --> 00:04:01,378
+And then using this, we create a main
+thread of control.
+
+55
+00:04:01,379 --> 00:04:05,770
+Where we've got for the whole function,
+for the whole program, we make ourselves
+
+56
+00:04:05,770 --> 00:04:08,386
+an ace reactor.
+We go ahead and create an instance
+
+57
+00:04:08,386 --> 00:04:12,733
+dynamically allocated of HTTP server demon
+and we allocate this dynamically so it
+
+58
+00:04:12,733 --> 00:04:16,219
+gets cleaned up properly be the reactor
+when things shut down.
+
+59
+00:04:16,220 --> 00:04:18,971
+And then we go ahead and run the reactors
+event loop.
+
+60
+00:04:18,971 --> 00:04:21,536
+And henceforth everything is driven by
+callbacks.
+
+61
+00:04:21,536 --> 00:04:25,995
+And the neat part about this is, as we'll
+see, there's really nothing much different
+
+62
+00:04:25,995 --> 00:04:29,277
+from our original solution.
+Except now each incoming request is
+
+63
+00:04:29,277 --> 00:04:32,646
+handled in its own.
+Thread of control, using a thread per
+
+64
+00:04:32,646 --> 00:04:36,027
+connection approach.
+With http 1.0, each request is a
+
+65
+00:04:36,027 --> 00:04:39,396
+connection.
+That's a little different with http 1.1,
+
+66
+00:04:39,396 --> 00:04:43,722
+where you can actually send multiple
+requests on a given connection.
+
+67
+00:04:43,722 --> 00:04:47,936
+Note the extensive reuse of the design and
+the code in this example.
+
+68
+00:04:47,936 --> 00:04:51,053
+It looks very much like what you looked at
+before.
+
+69
+00:04:51,053 --> 00:04:55,132
+I didn't choose to illustrate the use of
+the service configurator framework that we
+
+70
+00:04:55,132 --> 00:04:57,361
+talked about before.
+But I could have.
+
+71
+00:04:57,361 --> 00:05:01,320
+That would have been another thing we
+could have done to have dynamically linked
+
+72
+00:05:01,320 --> 00:05:05,332
+these capabilities into the address space
+of the program when it started to run or
+
+73
+00:05:05,332 --> 00:05:08,882
+at run time.
+So to summarize this particular section,
+
+74
+00:05:08,882 --> 00:05:14,162
+only very minor changes were aquired to
+our design and to our implementation in
+
+75
+00:05:14,162 --> 00:05:19,442
+order to go from a reactive approach to
+the active object approach using thread
+
+76
+00:05:19,442 --> 00:05:23,118
+per connection.
+And it just went from this model we had
+
+77
+00:05:23,118 --> 00:05:28,808
+here where you had a reactive call factor
+of an approach using handle input methods.
+
+78
+00:05:28,809 --> 00:05:33,610
+To approach it using active object where
+we were able to create the TCP/HTTP
+
+79
+00:05:33,610 --> 00:05:36,701
+handler that could in its own sort of
+control.
+
+80
+00:05:36,701 --> 00:05:41,761
+The reason why there are so few changes
+required, is because of the fact that we
+
+81
+00:05:41,761 --> 00:05:45,485
+have designed the ACE
+frameworks[INAUDIBLE] Using a very
+
+82
+00:05:45,485 --> 00:05:49,286
+carefully thought out variation oriented
+design method.
+
+83
+00:05:49,286 --> 00:05:53,806
+And what that meant was is we spent quite
+a long time looking for sources of
+
+84
+00:05:53,806 --> 00:05:58,311
+commonality and variability.
+And every place where we found something
+
+85
+00:05:58,311 --> 00:06:02,603
+that could vary, for example
+single-threaded to multi-threaded, we
+
+86
+00:06:02,603 --> 00:06:07,561
+would find a way to make that variation as
+easy to extend and add as possible, with
+
+87
+00:06:07,561 --> 00:06:09,828
+as few.
+Changes to the design, to the
+
+88
+00:06:09,828 --> 00:06:14,096
+architecture, even to the implementation.
+And so that's why we're able to make these
+
+89
+00:06:14,096 --> 00:06:18,296
+changes quite, cleanly without have to
+perturb the rest of the architecture and
+
+90
+00:06:18,296 --> 00:06:21,445
+the rest of the design.
+This is something that typically occurs
+
+91
+00:06:21,445 --> 00:06:25,273
+with experience, it occurs with the
+opportunity to refactor your software and
+
+92
+00:06:25,273 --> 00:06:29,658
+continually improve and evolve it.
+As before, very little code was required
+
+93
+00:06:29,658 --> 00:06:33,081
+to do anything related to the application
+processing.
+
+94
+00:06:33,081 --> 00:06:37,905
+We've seen this same application logic
+repeatedly now and the frameworks, now
+
+95
+00:06:37,905 --> 00:06:43,307
+multiple frameworks from ACE, the reactor,
+accepter-connector, and ACE task took care
+
+96
+00:06:43,307 --> 00:06:46,677
+of the event handling, connection
+establishment.
+
+97
+00:06:46,677 --> 00:06:49,652
+Service initialization, concurrency and so
+on.
+
+98
+00:06:49,652 --> 00:06:54,060
+Like I said we didn't do the service
+configuration part but we easily could
+
+99
+00:06:54,060 --> 00:06:56,928
+have.
+And it all would have fit together nicely
+
+100
+00:06:56,928 --> 00:07:00,487
+in a common model.
+So the generic framework factors out all
+
+101
+00:07:00,487 --> 00:07:03,844
+this code in a common way.
+And we just have to worry about
+
+102
+00:07:03,844 --> 00:07:08,356
+programming variability which also is
+expressed In a common way as well.
+
+103
+00:07:08,356 --> 00:07:11,751
+There's still a role for the reactor
+pattern by the way.
+
+104
+00:07:11,751 --> 00:07:16,412
+It's important to note that we haven't
+completely gone back and erased all the
+
+105
+00:07:16,412 --> 00:07:20,459
+earlier parts of our design.
+We just moved the reactor pattern out of
+
+106
+00:07:20,459 --> 00:07:23,996
+the critical performance sensitive path
+through the code.
+
+107
+00:07:23,996 --> 00:07:28,361
+It works quite nicely when used as a way
+to handle various kinds of events.
+
+108
+00:07:28,361 --> 00:07:32,912
+Such as accept event.
+And we moved it out of the way so that the
+
+109
+00:07:32,912 --> 00:07:38,623
+actual data processing now takes place in
+separate threads of control.

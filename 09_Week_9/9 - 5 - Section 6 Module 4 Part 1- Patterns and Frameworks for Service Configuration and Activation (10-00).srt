@@ -1,0 +1,644 @@
+1
+00:00:00,012 --> 00:00:07,033
+Welcome to Part 1, of the module on
+Patterns and Frameworks for Service
+
+2
+00:00:07,033 --> 00:00:14,312
+Configuration and Activation.
+In this part of the module, we'll begin by
+
+3
+00:00:14,312 --> 00:00:19,375
+describing the Component Configurator
+pattern.
+
+4
+00:00:19,375 --> 00:00:24,739
+To motivate this pattern let's talk about
+enabling and enhancing server
+
+5
+00:00:24,739 --> 00:00:30,331
+configurability and reconfiguarbility.
+The context for this is that some
+
+6
+00:00:30,331 --> 00:00:36,051
+implementations of web server components
+depend on either static or dynamic
+
+7
+00:00:36,051 --> 00:00:39,795
+factors.
+Some of the static factors include things
+
+8
+00:00:39,795 --> 00:00:44,272
+like the number of CPUs or cores available
+when you start to run.
+
+9
+00:00:44,272 --> 00:00:48,634
+Other factors include the version of the
+operating system that you may be using
+
+10
+00:00:48,634 --> 00:00:52,746
+which may have certain enhancements or
+certain optimizations enabled.
+
+11
+00:00:52,746 --> 00:00:57,582
+More dynamic factors include things like
+what the network load is and the workload
+
+12
+00:00:57,582 --> 00:01:00,920
+that's being sent by clients, so what are
+the problems?
+
+13
+00:01:00,920 --> 00:01:06,074
+Well if you prematurely commit yourself to
+particular implementations of the
+
+14
+00:01:06,074 --> 00:01:11,456
+components in the web server this can be
+either inflexible or inefficient because
+
+15
+00:01:11,456 --> 00:01:16,760
+there certain optimizations and design
+decisions you really can't make without
+
+16
+00:01:16,760 --> 00:01:21,664
+having knowledge of takes as you begin to
+launch, or run your application.
+
+17
+00:01:21,664 --> 00:01:26,430
+Moreover, if you fall into the tendency of
+trying to group everything together into
+
+18
+00:01:26,430 --> 00:01:31,122
+one big module, to have all the different
+alternatives covered, you can end up with
+
+19
+00:01:31,122 --> 00:01:35,610
+bloatware which is very large and very
+slow because it won't fit into caches and
+
+20
+00:01:35,610 --> 00:01:39,472
+you're including a lot of capability that
+really isn't needed.
+
+21
+00:01:39,472 --> 00:01:45,078
+So what can we do to address these issues?
+Well, as we'll describe here, we're going
+
+22
+00:01:45,078 --> 00:01:50,148
+to apply the component configurator
+pattern in order to assemble the desired
+
+23
+00:01:50,148 --> 00:01:54,984
+web server components more dynamically
+late in the design cycle either at
+
+24
+00:01:54,984 --> 00:02:00,044
+installation time, or even at run time.
+The component configurator pattern
+
+25
+00:02:00,044 --> 00:02:05,228
+decouples component interfaces from their
+implementations and makes it possible to
+
+26
+00:02:05,228 --> 00:02:10,556
+dynamically configure or reconfigure these
+implementations at various points of time
+
+27
+00:02:10,556 --> 00:02:14,039
+in the life cycle.
+And you can even do this in a way that
+
+28
+00:02:14,039 --> 00:02:18,641
+doesn't require having to shut down and
+restart running applications.
+
+29
+00:02:18,641 --> 00:02:23,679
+And the diagram on this slide illustrates
+the overall structure of this pattern,
+
+30
+00:02:23,679 --> 00:02:28,377
+some portions are infrastructural.
+There's typically some kind of class
+
+31
+00:02:28,377 --> 00:02:33,402
+interface or message interface that you
+inherit or implement that provides you
+
+32
+00:02:33,402 --> 00:02:37,473
+with life cycle operations.
+Things for initializing, finalizing,
+
+33
+00:02:37,473 --> 00:02:41,895
+suspending, resuming and so on the
+components that are being controlled under
+
+34
+00:02:41,895 --> 00:02:44,484
+this pattern.
+There's also a way of being able to
+
+35
+00:02:44,484 --> 00:02:48,824
+restore a group of dynamically and/or
+statically configured components into some
+
+36
+00:02:48,824 --> 00:02:52,916
+kind of repository so we actually know
+what constitutes the space of different
+
+37
+00:02:52,916 --> 00:02:55,947
+implementations available at any given
+point in time.
+
+38
+00:02:55,947 --> 00:03:00,817
+Yet another piece of the structure of the
+solution, is some kind of component
+
+39
+00:03:00,817 --> 00:03:06,289
+configurator that orchestrates the way in
+which various components are dynamically
+
+40
+00:03:06,289 --> 00:03:10,519
+brought in dynamically removed, suspended
+and resumed and so on.
+
+41
+00:03:10,519 --> 00:03:15,915
+What you typically do then is you go ahead
+and you inherit or implement these various
+
+42
+00:03:15,915 --> 00:03:20,612
+hook methods to fill in concrete
+components that will be used and managed
+
+43
+00:03:20,612 --> 00:03:24,651
+in terms of their life cycle by these more
+abstract elements.
+
+44
+00:03:24,651 --> 00:03:29,537
+If you take a look at this URL, you'll
+find a paper that talks in more detail
+
+45
+00:03:29,537 --> 00:03:34,985
+about the component configurator pattern.
+So let's also talk a bit more about the
+
+46
+00:03:34,985 --> 00:03:39,179
+dynamics of this pattern.
+This set of slides illustrates the various
+
+47
+00:03:39,179 --> 00:03:43,794
+ways in which either an application or an
+administrator can interact with the
+
+48
+00:03:43,794 --> 00:03:48,764
+capabilities defined, by the pattern in
+order to configure the system and assemble
+
+49
+00:03:48,764 --> 00:03:53,730
+it more dynamically and more flexibly.
+So typically, under some directive from
+
+50
+00:03:53,730 --> 00:03:56,814
+some place, be it an administrator or
+application.
+
+51
+00:03:56,814 --> 00:04:01,855
+The component configurator is instructed
+to configure a service or a component into
+
+52
+00:04:01,855 --> 00:04:04,701
+the address space of the application
+process.
+
+53
+00:04:04,701 --> 00:04:09,531
+That will then go ahead and look into some
+kind of dynamic link library, or shared
+
+54
+00:04:09,531 --> 00:04:14,234
+object, pull out the various information.
+Typically, in the form of a factory
+
+55
+00:04:14,234 --> 00:04:18,719
+function that will create the appropriate
+instance of the component with its
+
+56
+00:04:18,719 --> 00:04:22,838
+appropriate implementation.
+That will then get stored in the component
+
+57
+00:04:22,838 --> 00:04:27,194
+repository and the service can then begin
+to run, to do whatever it is it needs to
+
+58
+00:04:27,194 --> 00:04:29,726
+do.
+Some examples of capabilities that work
+
+59
+00:04:29,726 --> 00:04:34,014
+like this, historically, have been things
+like loadable device drivers for
+
+60
+00:04:34,014 --> 00:04:37,197
+protocols.
+Things like transfer protocols or device
+
+61
+00:04:37,197 --> 00:04:40,001
+drivers on various kinds of operating
+systems.
+
+62
+00:04:40,001 --> 00:04:44,557
+Java applets have historically worked this
+way, as well as the ability to load
+
+63
+00:04:44,557 --> 00:04:49,177
+components into application servers
+dynamically based on some type of script
+
+64
+00:04:49,177 --> 00:04:53,870
+that's read when they start up.
+We can apply the component configurator
+
+65
+00:04:53,870 --> 00:04:59,014
+pattern to JAWS in a number of ways.
+First, what we can do is we can implement
+
+66
+00:04:59,014 --> 00:05:04,836
+a bunch of different threading models for
+our particular web server, some that would
+
+67
+00:05:04,836 --> 00:05:10,186
+use thread for connection, thread pool.
+Various kinds of asynchronous processing
+
+68
+00:05:10,186 --> 00:05:13,722
+with threads, even more conventional
+reactive processes.
+
+69
+00:05:13,722 --> 00:05:17,998
+And we can have these different
+implementations available and stored in
+
+70
+00:05:17,998 --> 00:05:22,541
+various DLLs or shared libraries.
+And then these shared libraries and DLLs
+
+71
+00:05:22,541 --> 00:05:27,293
+can be used to link in the appropriate
+implementation that's desired under the
+
+72
+00:05:27,293 --> 00:05:31,973
+appropriate circumstance, in which we find
+ourselves when we begin to run our
+
+73
+00:05:31,973 --> 00:05:34,549
+program.
+Key to note that by doing this, the
+
+74
+00:05:34,549 --> 00:05:39,590
+implementation only has to pay the cost in
+terms of memory footprint utilization for
+
+75
+00:05:39,590 --> 00:05:43,355
+the services that it actually uses at any
+given point in time.
+
+76
+00:05:43,355 --> 00:05:47,046
+And moreover, we can change these services
+over time as well.
+
+77
+00:05:47,046 --> 00:05:51,063
+So this leads us into a discussion of some
+of the benefits of using.
+
+78
+00:05:51,064 --> 00:05:54,067
+The component configurate, configurator
+pattern.
+
+79
+00:05:54,067 --> 00:05:58,903
+Chief among these benefits is this paths
+of parsimony you're only paying the costs
+
+80
+00:05:58,903 --> 00:06:03,313
+in terms of memory footprint and
+utilization of the actual components that
+
+81
+00:06:03,313 --> 00:06:07,125
+you need, the ones that you don't need
+don't have to be linked in.
+
+82
+00:06:07,125 --> 00:06:11,307
+You could also centralize the
+administration so all the components can
+
+83
+00:06:11,307 --> 00:06:15,524
+be configured in a uniform common way.
+With a uniform API that's used to
+
+84
+00:06:15,524 --> 00:06:17,976
+initialize them and finalize them and so
+on.
+
+85
+00:06:17,976 --> 00:06:21,886
+Because you're building your components
+out of smaller pieces, and your
+
+86
+00:06:21,886 --> 00:06:26,238
+applications are scripted out of building
+blocks, it enables a much more modular
+
+87
+00:06:26,238 --> 00:06:30,366
+approach to building your software.
+And by doing things like this you also
+
+88
+00:06:30,366 --> 00:06:34,590
+encourage the use of various kinds of unit
+testing, test-driven development,
+
+89
+00:06:34,590 --> 00:06:38,942
+continuous integration where you can
+assemble the different parts and test them
+
+90
+00:06:38,942 --> 00:06:41,770
+in isolation.
+And then integrate them together
+
+91
+00:06:41,770 --> 00:06:45,523
+dynamically to see how they work.
+The last main benefit of component
+
+92
+00:06:45,523 --> 00:06:49,070
+configurator is indeed this concept of
+dynamic configuration.
+
+93
+00:06:49,070 --> 00:06:53,354
+You can wait until late in the design
+cycle to bring in just the elements you
+
+94
+00:06:53,354 --> 00:06:57,632
+need, just when you need them and tune
+them to the particular details of the
+
+95
+00:06:57,632 --> 00:07:02,719
+context or environment, in which they run.
+There are of course some limitations
+
+96
+00:07:02,719 --> 00:07:07,821
+associated with all this flexibility.
+One of that chief limitations is the fact
+
+97
+00:07:07,821 --> 00:07:12,933
+that by bringing together an application
+who components are dictated dynamically,
+
+98
+00:07:12,933 --> 00:07:16,614
+you end up limiting or reducing the amount
+of determinism.
+
+99
+00:07:16,614 --> 00:07:20,432
+It's not always clear.
+What is actually being linked together and
+
+100
+00:07:20,432 --> 00:07:24,332
+whether those things are correctly
+ordered, whether they'll be brought in at
+
+101
+00:07:24,332 --> 00:07:28,241
+the right time, whether they have access
+to each other in an appropriate way.
+
+102
+00:07:28,241 --> 00:07:32,329
+So that makes it a little bit harder to
+know just exactly what your system does.
+
+103
+00:07:32,330 --> 00:07:36,082
+Another consequence of this as well is
+there are certainly robustness and
+
+104
+00:07:36,082 --> 00:07:39,398
+reliability issues.
+Some things might work fine in isolation
+
+105
+00:07:39,398 --> 00:07:41,886
+but when brought together might have
+conflicts.
+
+106
+00:07:41,886 --> 00:07:46,212
+This is particularly true with respect to
+properties like, timing properties, where
+
+107
+00:07:46,212 --> 00:07:50,472
+things may run fine in isolation but when
+you combine them together dynamically, all
+
+108
+00:07:50,472 --> 00:07:53,011
+the sudden their timing properties begin
+to vary.
+
+109
+00:07:53,011 --> 00:07:55,821
+Naturally, there are also some security
+implications.
+
+110
+00:07:55,821 --> 00:08:00,315
+You have to be careful you aren't loading
+Trojan horses into your address space
+
+111
+00:08:00,315 --> 00:08:03,510
+without really knowing what they're going
+to be doing.
+
+112
+00:08:03,510 --> 00:08:07,221
+Another issue is when you start using
+shared libraries or DDLs, some
+
+113
+00:08:07,221 --> 00:08:11,901
+implementations, especially ones that use
+so-called position independent code, to
+
+114
+00:08:11,901 --> 00:08:15,130
+allow the modules to be linked in various
+parts of memory.
+
+115
+00:08:15,130 --> 00:08:19,420
+Those can incur some extra levels of
+overhead for indirection, especially for
+
+116
+00:08:19,420 --> 00:08:23,450
+global variables which may be one reason
+why you should avoid using global
+
+117
+00:08:23,450 --> 00:08:26,083
+variables.
+Yet another reason to avoid using global
+
+118
+00:08:26,083 --> 00:08:29,902
+variables because you could have some run
+time over head by having to go indirect
+
+119
+00:08:29,902 --> 00:08:33,854
+through various types of indirect through
+various kinds of global offset tables.
+
+120
+00:08:33,854 --> 00:08:37,679
+And another issue that you have to deal
+with when you're using this pattern is the
+
+121
+00:08:37,679 --> 00:08:40,045
+potential for overly narrow common
+interfaces.
+
+122
+00:08:40,045 --> 00:08:42,298
+Some things work well with a common
+interface.
+
+123
+00:08:42,298 --> 00:08:46,336
+Other things might require more
+configuration information than you might
+
+124
+00:08:46,336 --> 00:08:50,986
+be able to pass through a common interface
+for all the different types of components.
+
+125
+00:08:50,986 --> 00:08:54,827
+And you may end up trying to fit
+everything into a Procrustean bed where
+
+126
+00:08:54,827 --> 00:08:59,117
+some things don't quite fit and you have
+to stretch them or reinterpret them in a
+
+127
+00:08:59,117 --> 00:09:02,387
+more dynamic way.
+It turns out that these issues can be
+
+128
+00:09:02,387 --> 00:09:05,453
+addressed by proper design of the generic
+interfaces.
+
+129
+00:09:05,454 --> 00:09:11,405
+And we'll talk about this as we go further
+along in this particular module.

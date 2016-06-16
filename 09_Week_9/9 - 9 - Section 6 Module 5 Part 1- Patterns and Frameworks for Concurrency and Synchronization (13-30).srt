@@ -1,0 +1,984 @@
+1
+00:00:00,012 --> 00:00:07,635
+Welcome to Part 1, in the module on
+Patterns and Frameworks for Concurrency
+
+2
+00:00:07,635 --> 00:00:13,797
+and Synchronization.
+In this part of the module, we're going to
+
+3
+00:00:13,797 --> 00:00:20,433
+describe the active object pattern.
+Let's first start by talking about why we
+
+4
+00:00:20,433 --> 00:00:26,061
+need other patterns for concurrency and
+synchronization above and beyond what
+
+5
+00:00:26,061 --> 00:00:30,295
+we've talked about so far.
+If you think about what we've described so
+
+6
+00:00:30,295 --> 00:00:34,717
+far, our main focus has been on patterns
+and frameworks that make our solutions
+
+7
+00:00:34,717 --> 00:00:38,615
+more modular, more extensible, more
+reusable, more configurable.
+
+8
+00:00:38,615 --> 00:00:42,779
+But we haven't really worried too much yet
+about how to make things more high
+
+9
+00:00:42,779 --> 00:00:47,207
+performance, more scalable.
+We did talk a bit about scalability issues
+
+10
+00:00:47,207 --> 00:00:51,485
+when we discussed the activator pattern,
+and I talked about how you can use
+
+11
+00:00:51,485 --> 00:00:55,832
+activator to spawn a process per request
+or a process per connection that's
+
+12
+00:00:55,832 --> 00:01:00,593
+probably okay for some environments, for a
+web server it's a bit overkill to spawn a
+
+13
+00:01:00,593 --> 00:01:05,466
+process per request there's much better
+ways to do it as we'll see here shortly.
+
+14
+00:01:05,467 --> 00:01:10,227
+Likewise, there's also limitations with
+the purely reactive approaches we focused
+
+15
+00:01:10,227 --> 00:01:14,252
+on for the most part up to now.
+A reactive approach is nice, it's very
+
+16
+00:01:14,252 --> 00:01:18,668
+simple, but there's a couple of issues you
+have to be careful of with reactive
+
+17
+00:01:18,668 --> 00:01:23,498
+approaches having to do with some ways in
+which they don't work very effectively
+
+18
+00:01:23,498 --> 00:01:27,845
+with certain properties of the TCP/IP
+protocol, and though they also don't
+
+19
+00:01:27,845 --> 00:01:32,330
+effective leverage the available
+parallelism in modern operating systems,
+
+20
+00:01:32,330 --> 00:01:35,546
+and hardware.
+Let's first talk about the protocol
+
+21
+00:01:35,546 --> 00:01:38,433
+issues.
+Tcp has a nice feature built into it
+
+22
+00:01:38,433 --> 00:01:42,550
+called flow control.
+And the purpose of flow control is to keep
+
+23
+00:01:42,550 --> 00:01:46,397
+a fast sender, like a supercomputer, from
+overwhelming.
+
+24
+00:01:46,397 --> 00:01:51,458
+The buffering and processing resources of
+a slower receiver such as a smartphone.
+
+25
+00:01:51,458 --> 00:01:56,647
+Clearly a super computer can generate data
+a lot faster than a smartphone can consume
+
+26
+00:01:56,647 --> 00:01:59,563
+it no matter how many cores the smartphone
+has.
+
+27
+00:01:59,563 --> 00:02:04,379
+So TCP has this model that says don't send
+more than a certain amount of data at a
+
+28
+00:02:04,379 --> 00:02:07,165
+time.
+And if you try to send more data than the
+
+29
+00:02:07,165 --> 00:02:12,056
+receiver can consume, it exerts flow
+control, which means the sender will block
+
+30
+00:02:12,056 --> 00:02:16,297
+until the flow control abates.
+Well, there's obviously some problems
+
+31
+00:02:16,297 --> 00:02:18,962
+here.
+If we were using a reactive approach and
+
+32
+00:02:18,962 --> 00:02:23,861
+flow control occurs on a connection, the
+server that's reactive will block, waiting
+
+33
+00:02:23,861 --> 00:02:28,346
+for that flow control to abate, and that
+will starve out any other clients from
+
+34
+00:02:28,346 --> 00:02:32,348
+being able to be processed, which
+obviously reduces their quality of
+
+35
+00:02:32,348 --> 00:02:35,045
+service.
+Moreover, you might block because
+
+36
+00:02:35,045 --> 00:02:39,534
+something is temporarily clogged, but you
+could also block because a malicious
+
+37
+00:02:39,534 --> 00:02:43,889
+client has decided to ignore all the data
+being sent to it, in a, as a way to try to
+
+38
+00:02:43,889 --> 00:02:47,577
+provide some kind of denial-of-service
+attack on the server.
+
+39
+00:02:47,577 --> 00:02:51,929
+So we clearly need to have some other
+approach besides a reactive approach.
+
+40
+00:02:51,930 --> 00:02:57,492
+There's another issue that makes reactive
+approaches ineffective as well and that
+
+41
+00:02:57,492 --> 00:03:01,567
+is, they don't scale up.
+If you have hundreds or thousands of users
+
+42
+00:03:01,567 --> 00:03:06,466
+in a big crowd with their smart phones, or
+laptops, or other computing devices, all
+
+43
+00:03:06,466 --> 00:03:11,081
+pounding away at your server, then you're
+simply not going to be able to get any
+
+44
+00:03:11,081 --> 00:03:14,728
+kind of response time if there's one, one
+thread of control.
+
+45
+00:03:14,729 --> 00:03:18,728
+So we clearly have to find a way to
+leverage the available hardware and
+
+46
+00:03:18,728 --> 00:03:22,793
+software much more effectively.
+To do that, we're going to be talking in
+
+47
+00:03:22,793 --> 00:03:26,500
+this part of the module about applying the
+active object pattern.
+
+48
+00:03:26,500 --> 00:03:30,766
+And we're going to use this active object
+pattern to scale up the service
+
+49
+00:03:30,766 --> 00:03:35,736
+performance, the server performance, by
+processing the various HGTP requests, in
+
+50
+00:03:35,736 --> 00:03:39,951
+separate threads of control.
+In particular we're going to have a
+
+51
+00:03:39,951 --> 00:03:45,413
+separate thread of control for each
+connection that comes in from a client.
+
+52
+00:03:45,413 --> 00:03:50,837
+In general the active object pattern
+defines the units of concurrency to be
+
+53
+00:03:50,837 --> 00:03:54,240
+service requests that are run on a
+component.
+
+54
+00:03:54,240 --> 00:03:58,689
+And it arranges to have these requests for
+service work in a manner where the method
+
+55
+00:03:58,689 --> 00:04:02,973
+that requests the service is decoupled
+from the method that executes the service
+
+56
+00:04:02,973 --> 00:04:06,750
+so those can run concurrently.
+We're going to, to talk about a number of
+
+57
+00:04:06,750 --> 00:04:10,971
+different ways in which this pattern can
+be implemented and we're going to start by
+
+58
+00:04:10,971 --> 00:04:13,759
+talking about the structural dimensions at
+first.
+
+59
+00:04:13,759 --> 00:04:17,986
+It's also important to realize as we do
+this discussion that there's many pieces
+
+60
+00:04:17,986 --> 00:04:22,621
+to the complete active object pattern.
+Not all of which are used in practice all
+
+61
+00:04:22,621 --> 00:04:25,594
+the time.
+And so I'll make sure to talk about those
+
+62
+00:04:25,594 --> 00:04:30,371
+issues as we go through this example.
+But first let's talk about the structure.
+
+63
+00:04:30,371 --> 00:04:34,921
+One part of the structure involves the
+client that runs in a thread of control
+
+64
+00:04:34,921 --> 00:04:39,879
+and invokes a method on the active object.
+And this method as we'll see in a second
+
+65
+00:04:39,879 --> 00:04:44,985
+is actually invoked on a proxy, and what
+happens is that proxy converts that method
+
+66
+00:04:44,985 --> 00:04:47,736
+call into a message called a method
+request.
+
+67
+00:04:47,736 --> 00:04:52,842
+And that method request is passed over to
+the active object where it's in queued in
+
+68
+00:04:52,842 --> 00:04:57,466
+some kind of activation list that the
+active objects scheduler manages.
+
+69
+00:04:57,466 --> 00:05:02,282
+And at some later point in time that
+scheduler, running in a separate thread of
+
+70
+00:05:02,282 --> 00:05:06,686
+control from the client, we'll DQ the
+message and do something with it.
+
+71
+00:05:06,686 --> 00:05:10,652
+If you take a look at this URL at the
+bottom of the slide, you'll see a paper
+
+72
+00:05:10,652 --> 00:05:14,096
+that goes into more details about the
+Active Object pattern.
+
+73
+00:05:14,096 --> 00:05:17,686
+This pattern also is described in the
+POSTA2 book in great detail.
+
+74
+00:05:17,686 --> 00:05:21,787
+Here's a dynamic view that gives you a
+little bit more perspective of what's
+
+75
+00:05:21,787 --> 00:05:26,207
+happening as these various interactions
+take place between the various roles in
+
+76
+00:05:26,207 --> 00:05:29,704
+the pattern.
+We start out by having a client invoke a
+
+77
+00:05:29,704 --> 00:05:33,687
+method call on a proxy, and of course, we
+use the proxy pattern.
+
+78
+00:05:33,687 --> 00:05:38,281
+That's a, that's a gang of 4 pattern as
+well as a post to one pattern to be able
+
+79
+00:05:38,281 --> 00:05:42,943
+to decouple the way in which we invoke an
+operation from where the operation
+
+80
+00:05:42,943 --> 00:05:46,370
+actually runs.
+In our particular case, the proxy will
+
+81
+00:05:46,370 --> 00:05:50,962
+convert the method request.
+The method call into a message called a
+
+82
+00:05:50,962 --> 00:05:56,162
+method request and this method request
+basically contains message fields it
+
+83
+00:05:56,162 --> 00:06:00,571
+cooresponds to the data, it keeps track of
+the name of the method.
+
+84
+00:06:00,571 --> 00:06:05,505
+They also have some return information as
+well, and it gets bundled up into an
+
+85
+00:06:05,505 --> 00:06:10,794
+object that you can use to pass from the
+proxy back into the active object portion.
+
+86
+00:06:10,794 --> 00:06:15,612
+The proxy part also creates something
+called a future, and the future is going
+
+87
+00:06:15,612 --> 00:06:20,656
+to be used to pass back to the client
+later, so it can subsequently retrieve the
+
+88
+00:06:20,656 --> 00:06:25,395
+results, if any that occur when the active
+object invokes this request.
+
+89
+00:06:25,395 --> 00:06:30,698
+What happens next is that the method
+request is then passed to the scheduler.
+
+90
+00:06:30,698 --> 00:06:36,444
+And the scheduler then incues this method
+request on an activation list and it gives
+
+91
+00:06:36,444 --> 00:06:40,758
+back the future to the client.
+And then at some point down the road and
+
+92
+00:06:40,758 --> 00:06:44,790
+this, this depends on a variety of
+different factors, depends on scheduling
+
+93
+00:06:44,790 --> 00:06:47,399
+constraints that the scheduler may know
+about.
+
+94
+00:06:47,399 --> 00:06:51,577
+It may depend on certain guard conditions
+that the method request knows about.
+
+95
+00:06:51,577 --> 00:06:56,103
+It may simply run things in FIFO order, it
+all depends on how you implement things.
+
+96
+00:06:56,104 --> 00:07:01,442
+The schedule will then queue the request
+and then later pull it off, convert it
+
+97
+00:07:01,442 --> 00:07:06,730
+back into a method call on to the servant
+that actually carries out the request.
+
+98
+00:07:06,730 --> 00:07:12,096
+And after the servant is done, the servant
+will end up, as a side effect, updating
+
+99
+00:07:12,096 --> 00:07:15,398
+the future so the client can then get the
+result.
+
+100
+00:07:15,398 --> 00:07:20,057
+There's a couple of ways in which clients
+can get results from futures.
+
+101
+00:07:20,057 --> 00:07:23,723
+One way they can do it, is they can
+periodically poll the future and say, is
+
+102
+00:07:23,723 --> 00:07:26,777
+the result ready, is the result ready, is
+the result ready.
+
+103
+00:07:26,777 --> 00:07:30,353
+Or they might do a timed poll where
+they'll say, I'll wait up to a couple
+
+104
+00:07:30,353 --> 00:07:34,313
+seconds for the result, and then I'll go
+off and do some other things, that's one
+
+105
+00:07:34,313 --> 00:07:36,859
+model.
+An alternative model, which is probably
+
+106
+00:07:36,859 --> 00:07:39,398
+more scalable in many ways, is to use
+callbacks.
+
+107
+00:07:39,398 --> 00:07:44,420
+So what happens here is, when the future's
+value is updated, when the server has
+
+108
+00:07:44,420 --> 00:07:49,740
+finished its processing, then a callback
+takes place to deliver those results back
+
+109
+00:07:49,740 --> 00:07:53,251
+to the client.
+So let's talk about how we can apply the
+
+110
+00:07:53,251 --> 00:07:56,213
+active object pattern to our JAWS web
+server.
+
+111
+00:07:56,214 --> 00:08:00,563
+One way to do this, which is supported
+quite nicely in ACE, is to implement
+
+112
+00:08:00,563 --> 00:08:05,249
+active objects by making a very small
+number of tweaks to our existing acceptor
+
+113
+00:08:05,249 --> 00:08:09,350
+connector based version.
+Which itself, as you recall, is based on
+
+114
+00:08:09,350 --> 00:08:12,881
+the a, ACE reactor.
+And just extends that in certain ways.
+
+115
+00:08:12,881 --> 00:08:17,762
+So what we're going to do here is we're
+going to create some new capabilities that
+
+116
+00:08:17,762 --> 00:08:22,487
+inherit from ACE_Acceptor and
+ACE_Service_Handler, and they're going to
+
+117
+00:08:22,487 --> 00:08:27,362
+create new classes that run things as an
+active object as opposed to a reactive
+
+118
+00:08:27,362 --> 00:08:30,752
+approach.
+In particular, we create a new subclass of
+
+119
+00:08:30,752 --> 00:08:35,310
+service handler called TPC, for thread per
+connection, HTTP handler.
+
+120
+00:08:35,310 --> 00:08:39,623
+And that's going to run as an active
+object and it's going to receive the
+
+121
+00:08:39,623 --> 00:08:44,733
+request data that comes in from the client
+on a per connection basis and process that
+
+122
+00:08:44,733 --> 00:08:48,867
+data and then send it back.
+The nice particular way of doing things is
+
+123
+00:08:48,867 --> 00:08:53,491
+it allows us to be able to have different
+threads for different connections, so we
+
+124
+00:08:53,491 --> 00:08:58,021
+have a thread per connection model.
+And if those connections happen to block,
+
+125
+00:08:58,021 --> 00:09:02,427
+then or if those threads happen to block
+while they're processing the data.
+
+126
+00:09:02,428 --> 00:09:06,736
+On the connection to the flow control or
+some other condition, not a problem.
+
+127
+00:09:06,736 --> 00:09:10,711
+Other threads handling other requests from
+other connections can proceed
+
+128
+00:09:10,711 --> 00:09:13,846
+concurrently.
+Notice that this particular way of doing
+
+129
+00:09:13,846 --> 00:09:18,070
+things has a couple of interesting
+variations that are above and beyond what
+
+130
+00:09:18,070 --> 00:09:22,360
+you might expect if you just look at the
+active object pattern description in a
+
+131
+00:09:22,360 --> 00:09:25,357
+simple way.
+One thing to note here, is that part of
+
+132
+00:09:25,357 --> 00:09:30,327
+the processing that's taking place here is
+actually occurring inside the operating
+
+133
+00:09:30,327 --> 00:09:33,667
+system kernel.
+So getting the data that comes in from the
+
+134
+00:09:33,667 --> 00:09:38,147
+network sockets and then converting it
+into something that can be passed as a
+
+135
+00:09:38,147 --> 00:09:40,791
+method request up to the user space
+thread.
+
+136
+00:09:40,791 --> 00:09:44,298
+That's done initially from the, from the
+colonel side.
+
+137
+00:09:44,298 --> 00:09:48,924
+The actual active object portion is
+running in the TPC, HTTP handler in a
+
+138
+00:09:48,924 --> 00:09:52,944
+separate thread of control.
+And so that's going to be able to run
+
+139
+00:09:52,944 --> 00:09:58,326
+separately, but that's passing the data
+between the different layers though this
+
+140
+00:09:58,326 --> 00:10:02,129
+socket connection.
+Another thing to note here is we're only
+
+141
+00:10:02,129 --> 00:10:05,567
+doing a subset of the full blown active
+object pattern.
+
+142
+00:10:05,567 --> 00:10:09,458
+We're not really handling futures.
+We're not really doing servants.
+
+143
+00:10:09,458 --> 00:10:12,944
+We're doing more of the message passing
+variant of this pattern.
+
+144
+00:10:12,944 --> 00:10:17,305
+And if you read the posted two book or the
+other URL I sent you that and showed you
+
+145
+00:10:17,305 --> 00:10:21,337
+before, that will give you an idea of how
+these different variants work.
+
+146
+00:10:21,337 --> 00:10:25,683
+It's actually very common to use the
+variants for a number of reasons we'll
+
+147
+00:10:25,683 --> 00:10:28,606
+talk about.
+So let's talk about some of the benefits
+
+148
+00:10:28,606 --> 00:10:32,375
+and limitations of this pattern.
+Some of the benefits are you could
+
+149
+00:10:32,375 --> 00:10:37,061
+actually use concurrency and simplify
+synchronization complexity by treating
+
+150
+00:10:37,061 --> 00:10:40,124
+method requests as the unit of concurrent
+execution.
+
+151
+00:10:40,124 --> 00:10:44,890
+So this is a fairly intuitive thing for an
+object oriented developer to make a method
+
+152
+00:10:44,890 --> 00:10:48,169
+call on an object.
+And the fact that those methods turn into
+
+153
+00:10:48,169 --> 00:10:52,921
+these messages or method request and are
+run concurrently, that's kind of icing on
+
+154
+00:10:52,921 --> 00:10:55,517
+the cake to be able to get things to run
+better.
+
+155
+00:10:55,517 --> 00:10:59,863
+You can also have a schedule that can use
+various kinds of sophisticated constraint
+
+156
+00:10:59,863 --> 00:11:03,955
+based reasoning and guards and so on, in
+order to determine the order in which to
+
+157
+00:11:03,955 --> 00:11:06,562
+run the request.
+We're not really doing that in our
+
+158
+00:11:06,562 --> 00:11:10,089
+particular example here, we're doing
+things in a more FIFO orient.
+
+159
+00:11:10,089 --> 00:11:13,121
+Order, but the complete pattern can be
+used more flexibly.
+
+160
+00:11:13,121 --> 00:11:16,967
+Another benefit of this pattern, of
+course, is that if your operating system
+
+161
+00:11:16,967 --> 00:11:20,687
+and hardware support it, you can
+transparently leverage the parallelism
+
+162
+00:11:20,687 --> 00:11:23,668
+that's available.
+So you could have these different method
+
+163
+00:11:23,668 --> 00:11:26,338
+requests running in separate threads of
+control.
+
+164
+00:11:26,339 --> 00:11:30,828
+Another benefit that you might be able to
+get from this pattern is that there are
+
+165
+00:11:30,828 --> 00:11:35,316
+times in which the method that invokes the
+operation and the order in which things
+
+166
+00:11:35,316 --> 00:11:39,606
+are invoked will be different from the
+order in which the methods are actually
+
+167
+00:11:39,606 --> 00:11:43,376
+executed by the scheduler.
+You might order things in a way that
+
+168
+00:11:43,376 --> 00:11:47,487
+satisfies scheduling constraints.
+You might order things in a way that
+
+169
+00:11:47,487 --> 00:11:51,677
+satisfies various priorities.
+So higher priority users get preference
+
+170
+00:11:51,677 --> 00:11:54,366
+over lower priority users and so on and so
+forth.
+
+171
+00:11:54,366 --> 00:11:57,375
+So those are some of the, the benefits of
+the pattern.
+
+172
+00:11:57,375 --> 00:12:02,036
+As always, there are some limitations.
+One of the limitations that you often run
+
+173
+00:12:02,036 --> 00:12:06,128
+into with these kinds of concurrency
+models is that there is some overhead
+
+174
+00:12:06,128 --> 00:12:10,550
+incurred With respect to context
+switching, synchronization, data movement,
+
+175
+00:12:10,550 --> 00:12:15,170
+memory allocation, deallocation, copying
+and so on, needed to move things between
+
+176
+00:12:15,170 --> 00:12:19,346
+these different boundaries.
+Between the different thread boundaries.
+
+177
+00:12:19,346 --> 00:12:23,148
+And if you're running long running
+operations, not really an issue.
+
+178
+00:12:23,148 --> 00:12:27,375
+If you're running short running operations
+The overhead may actually swamp the
+
+179
+00:12:27,375 --> 00:12:29,911
+performance benefits, if you're not
+careful.
+
+180
+00:12:29,911 --> 00:12:33,811
+Another potential issue here is that when
+you start having multiple threads of
+
+181
+00:12:33,811 --> 00:12:37,056
+control running, then your debugging can
+be more complicated.
+
+182
+00:12:37,056 --> 00:12:39,936
+It may take a while to figure out how to
+set break points.
+
+183
+00:12:39,936 --> 00:12:43,946
+Some environments don't do a very good job
+of supporting concurrent debugging.
+
+184
+00:12:43,946 --> 00:12:48,005
+And even environments that have pretty
+good support for concurrent debugging.
+
+185
+00:12:48,005 --> 00:12:52,035
+You may experience the condition where the
+behavior you get when you're in the
+
+186
+00:12:52,035 --> 00:12:56,375
+debugger might not match the behavior you
+get when you're running in the production
+
+187
+00:12:56,375 --> 00:12:59,104
+environment.
+Because the scheduling order may be
+
+188
+00:12:59,104 --> 00:13:03,506
+different, things may be serialized and
+synchronized in different ways, so certain
+
+189
+00:13:03,506 --> 00:13:06,332
+types of defects and faults may be hard to
+identify.
+
+190
+00:13:06,332 --> 00:13:10,808
+The last thing I want to reemphasize here
+is that in practice people often use
+
+191
+00:13:10,808 --> 00:13:15,500
+subsets of active object more than they
+will implement the full blown pattern and
+
+192
+00:13:15,500 --> 00:13:20,261
+there's nothing wrong with the it's a very
+useful way to think about structure your
+
+193
+00:13:20,261 --> 00:13:23,342
+software.
+And even if you don't need to have the
+
+194
+00:13:23,342 --> 00:13:28,087
+complete proxy experience, the complete
+server servant experience, even in
+
+195
+00:13:28,087 --> 00:13:32,686
+situations where you don't need
+complicated schedulers with complicated
+
+196
+00:13:32,686 --> 00:13:36,707
+constraints, and so on.
+You can still get a benefit from a design
+
+197
+00:13:36,707 --> 00:13:41,315
+point of view of thinking about your
+program in terms of active objects.

@@ -1,0 +1,1328 @@
+1
+00:00:00,012 --> 00:00:07,204
+Welcome to Part 3 in the Module on
+Patterns and Frameworks for Service
+
+2
+00:00:07,204 --> 00:00:14,295
+Configuration and Activation.
+In previous part of this module, we've
+
+3
+00:00:14,295 --> 00:00:19,163
+described the Component Configurator
+pattern.
+
+4
+00:00:19,163 --> 00:00:24,634
+And also talked about the ACE Service
+Configurator Framework that implements
+
+5
+00:00:24,634 --> 00:00:29,718
+this pattern in a portable fashion across
+a wide range of operating system
+
+6
+00:00:29,718 --> 00:00:33,108
+platforms.
+Now, we're going to talk about how we can
+
+7
+00:00:33,108 --> 00:00:37,972
+apply the ACE Service Configurator
+Framework In the context of another path
+
+8
+00:00:37,972 --> 00:00:42,382
+though our JAWS pattern language for web
+server implementations.
+
+9
+00:00:42,382 --> 00:00:45,891
+This particular path will build on what
+we've done before.
+
+10
+00:00:45,891 --> 00:00:50,727
+We will again use the Wrapper Facade to
+provide us portability for different types
+
+11
+00:00:50,727 --> 00:00:55,487
+of interprocess communication mechanisms
+that we might encounter on different
+
+12
+00:00:55,487 --> 00:00:59,072
+platforms.
+Will also provide a way to use the Reactor
+
+13
+00:00:59,072 --> 00:01:04,022
+Framework to handle event detection, event
+demultiplexing and event handler
+
+14
+00:01:04,022 --> 00:01:08,363
+dispatching when events occur.
+And we'll also provide the Acceptor
+
+15
+00:01:08,363 --> 00:01:13,395
+Connector pattern and its framework
+realization, in order to handle connection
+
+16
+00:01:13,395 --> 00:01:18,802
+establishment and service initialization.
+This time however, we're going to go one
+
+17
+00:01:18,802 --> 00:01:24,028
+step further and we're going to add in
+support for the Component Configurator to
+
+18
+00:01:24,028 --> 00:01:29,204
+allow us to be able to dynamically
+configure certain aspects of our solution.
+
+19
+00:01:29,204 --> 00:01:34,280
+We're going to do this by modifying, to
+just a small extent, the previous example
+
+20
+00:01:34,280 --> 00:01:38,005
+we used for the acceptor connector
+framework solution.
+
+21
+00:01:38,005 --> 00:01:42,736
+If you recall that solution, it had a
+single thread of control that' used the
+
+22
+00:01:42,736 --> 00:01:46,419
+ace reactor, and used the Acceptor
+Connector capability.
+
+23
+00:01:46,419 --> 00:01:51,117
+And when connections came in, those were
+handled by the Acceptor, the HTTP Service
+
+24
+00:01:51,117 --> 00:01:54,135
+Acceptor.
+And passed off, to create an HTTP service
+
+25
+00:01:54,135 --> 00:01:57,090
+handler.
+And then wen get requests showed up, those
+
+26
+00:01:57,090 --> 00:01:59,728
+things were handled by the service
+handlers.
+
+27
+00:01:59,728 --> 00:02:04,087
+And all of this was driven by callbacks
+from the reactor itself.
+
+28
+00:02:04,087 --> 00:02:09,329
+In this particular variation where we
+extend our existing solution, we're going
+
+29
+00:02:09,329 --> 00:02:14,488
+to be able to add in the capability to
+link or unlink the service implementation,
+
+30
+00:02:14,488 --> 00:02:18,409
+the web server implementation, dynamically
+from a script.
+
+31
+00:02:18,409 --> 00:02:23,412
+Let's first start by talking about how we
+might arrange the overall architecture of
+
+32
+00:02:23,412 --> 00:02:24,824
+our revised solution.
+We're going to begin by defining a new
+
+33
+00:02:24,824 --> 00:02:28,979
+class.
+This class is going to be called reactor
+
+34
+00:02:28,979 --> 00:02:33,266
+HTTP service adapter.
+And that name should give you an
+
+35
+00:02:33,266 --> 00:02:37,022
+indication of where we're headed with
+this, to some extent.
+
+36
+00:02:37,023 --> 00:02:42,481
+This particular adapter class is going to
+inherit from ACE servers object.
+
+37
+00:02:42,481 --> 00:02:47,527
+Which means it can be linked in
+dynamically under control of the service
+
+38
+00:02:47,527 --> 00:02:52,332
+configurative framework.
+There are a number of hook methods we can
+
+39
+00:02:52,332 --> 00:02:58,112
+then fill in to dictate the way in which
+objects of reactor HTTP server adapter can
+
+40
+00:02:58,112 --> 00:03:02,451
+be initialized.
+Finalized, suspended, resumed and queried
+
+41
+00:03:02,451 --> 00:03:07,841
+to give you information about what kind of
+capability it provides, what port number
+
+42
+00:03:07,841 --> 00:03:11,932
+it lists it on and so on.
+Also notice that what we do is we're able
+
+43
+00:03:11,932 --> 00:03:15,309
+to reuse our previous reactor HTTP server
+template.
+
+44
+00:03:15,309 --> 00:03:20,223
+And the nice thing about this is we were
+able to apply the Gang of Four Adapter
+
+45
+00:03:20,223 --> 00:03:23,202
+pattern.
+In order to be able to leverage what we
+
+46
+00:03:23,202 --> 00:03:26,581
+had already written.
+In terms of reactive and acceptor
+
+47
+00:03:26,581 --> 00:03:30,102
+connector based server capabilities for
+our web server.
+
+48
+00:03:30,102 --> 00:03:34,636
+While adding in the capability
+transparently for dynamic configuration.
+
+49
+00:03:34,636 --> 00:03:38,685
+And you'll see how this unfolds as we go
+through the discussion.
+
+50
+00:03:38,686 --> 00:03:42,640
+Here's a sequence diagram that kind of
+illustrates the step involved here.
+
+51
+00:03:42,640 --> 00:03:46,428
+Rather than configuring our solution
+statically, which it what we'd done
+
+52
+00:03:46,428 --> 00:03:48,981
+before.
+We've linked everything together with the
+
+53
+00:03:48,981 --> 00:03:51,339
+main program.
+Now, we're going to configure this
+
+54
+00:03:51,339 --> 00:03:54,794
+dynamically under control of the Service
+Configurator framework.
+
+55
+00:03:54,794 --> 00:03:59,016
+And what this framework's going to do is
+it's going to read a configuration script
+
+56
+00:03:59,016 --> 00:04:03,562
+that we'll look at shortly.
+And have this script inform it how to link
+
+57
+00:04:03,562 --> 00:04:08,522
+in a DLL that contains a factory that
+creates a reactor HTTP server adapter
+
+58
+00:04:08,522 --> 00:04:11,752
+object.
+And then this thing will be registered
+
+59
+00:04:11,752 --> 00:04:15,552
+with the reactor.
+And the processing can take place over
+
+60
+00:04:15,552 --> 00:04:19,397
+some period of time.
+And when we're done with it, we can go
+
+61
+00:04:19,397 --> 00:04:22,436
+ahead and shut down this particular
+object.
+
+62
+00:04:22,436 --> 00:04:27,154
+And have it unlinked and removed from
+memory altogether, if we happened to
+
+63
+00:04:27,154 --> 00:04:30,166
+choose to do that.
+Let's take a look at how we might
+
+64
+00:04:30,166 --> 00:04:33,888
+implement the constructor for this
+particular obstruction.
+
+65
+00:04:33,888 --> 00:04:38,066
+It turns out the constructor in this case
+is really the init function.
+
+66
+00:04:38,066 --> 00:04:42,464
+This is a good example of a, of a factory
+method or a virtual constructor as
+
+67
+00:04:42,464 --> 00:04:45,695
+described in the Gang of Four book.
+So the init hook method for a
+
+68
+00:04:45,695 --> 00:04:48,823
+Reactor_HTTP_Server adapter is going to be
+called back by the server configurator
+
+69
+00:04:48,823 --> 00:04:52,196
+framework when it decides that we're going
+to initialize this object dynamically.
+
+70
+00:04:52,196 --> 00:05:00,323
+By this point, by the time this method
+gets called back, the object will have
+
+71
+00:05:00,323 --> 00:05:05,188
+already been created.
+And its implementation will have been
+
+72
+00:05:05,188 --> 00:05:09,600
+dynamically linked in from a dll.
+When the init method is called, it turns
+
+73
+00:05:09,600 --> 00:05:14,570
+around and it creates the appropriate
+Reactor_HTTP_Server, with the appropriate
+
+74
+00:05:14,570 --> 00:05:17,744
+acceptor.
+We'll look that in just a second, that's
+
+75
+00:05:17,744 --> 00:05:21,203
+really not that much different from what
+we did before.
+
+76
+00:05:21,203 --> 00:05:26,231
+And this particular object then will go
+ahead and, and be handled by the reactor.
+
+77
+00:05:26,231 --> 00:05:30,072
+And the, we're going to be using the
+singleton reactor in this case just to
+
+78
+00:05:30,072 --> 00:05:33,462
+keep everything simple.
+In practice, you could make your own
+
+79
+00:05:33,462 --> 00:05:36,456
+reactors if that was important for what
+you're doing.
+
+80
+00:05:36,456 --> 00:05:41,018
+If everything goes well, we return to 0,
+which says we are correctly initialized
+
+81
+00:05:41,018 --> 00:05:45,506
+and that object will then be registered
+with the service repository so it can be
+
+82
+00:05:45,506 --> 00:05:49,322
+Used later and managed it's life cycle can
+be managed dynamically.
+
+83
+00:05:49,322 --> 00:05:54,138
+If something goes wrong, however, we
+return to minus 1, which says oop, things
+
+84
+00:05:54,138 --> 00:05:57,126
+failed.
+Please shut everything down and clean it
+
+85
+00:05:57,126 --> 00:06:02,014
+all up, and unlink this particular file.
+Let's take a look at a couple other, other
+
+86
+00:06:02,014 --> 00:06:05,501
+life cycle methods for the
+Reactor_HTTP_Server adapter.
+
+87
+00:06:05,501 --> 00:06:09,987
+The fini method is what's called when
+we're going to shut things down and what
+
+88
+00:06:09,987 --> 00:06:14,187
+that does is it goes ahead and closes the
+server and that will go ahead and
+
+89
+00:06:14,187 --> 00:06:19,017
+terminate and free up any memory that was
+allocated when this was actually created
+
+90
+00:06:19,017 --> 00:06:22,451
+initially.
+And then things will be unlinked, after
+
+91
+00:06:22,451 --> 00:06:27,833
+fini finishes The service configuration
+framework will unlength the DLL if it was
+
+92
+00:06:27,833 --> 00:06:32,020
+linked in dynamically.
+There's a couple of other life-cycle
+
+93
+00:06:32,020 --> 00:06:35,905
+method shown here.
+We have suspend and resume and as you can
+
+94
+00:06:35,905 --> 00:06:40,663
+see what they do is they use the reactor
+in order to be able to unallocate or
+
+95
+00:06:40,663 --> 00:06:45,806
+temporary suspend the handle That we're
+listening on for incoming requests.
+
+96
+00:06:45,806 --> 00:06:50,096
+So from that period of time after you're
+suspended to when you're resumed, no more
+
+97
+00:06:50,096 --> 00:06:53,417
+requests will be handled.
+Here's an interaction diagram that
+
+98
+00:06:53,417 --> 00:06:57,447
+illustrates some of the steps that are
+taking place as these interactions are
+
+99
+00:06:57,447 --> 00:07:00,186
+going on.
+As always, it's a little hard just by
+
+100
+00:07:00,186 --> 00:07:04,730
+looking at source code To get a good
+feeling for how the dynamic interactions
+
+101
+00:07:04,730 --> 00:07:08,274
+are taking place.
+So a sequence diagram is a good way to get
+
+102
+00:07:08,274 --> 00:07:11,694
+a feeling for that.
+We're going to do a couple things here.
+
+103
+00:07:11,694 --> 00:07:16,244
+We're going to statically configure a
+component, or a service called a service
+
+104
+00:07:16,244 --> 00:07:19,448
+reporter.
+And this is a general purpose useful tool
+
+105
+00:07:19,448 --> 00:07:23,403
+that can report out to the outside world
+or some administrator.
+
+106
+00:07:23,404 --> 00:07:27,653
+What services are actually configured at
+any given point in time into an ACE
+
+107
+00:07:27,653 --> 00:07:30,541
+Service Configurator framework managed
+server.
+
+108
+00:07:30,541 --> 00:07:34,756
+And so this is just a helper class, we're
+not going to talk much about it, just
+
+109
+00:07:34,756 --> 00:07:39,517
+imagine it's something that we could use
+to keep track of what's actually going on,
+
+110
+00:07:39,517 --> 00:07:42,534
+to monitor what is the state of the
+running server.
+
+111
+00:07:42,534 --> 00:07:47,682
+We're also going to be able to dynamically
+link in the particular implementation of
+
+112
+00:07:47,682 --> 00:07:52,407
+our Reactor_HTTP_Server adapter.
+And we'll see how we can change this over
+
+113
+00:07:52,407 --> 00:07:57,127
+time in a subsequent discussion.
+Here's the main program that we'll use to
+
+114
+00:07:57,127 --> 00:08:01,851
+drive everything we're talking about here.
+This is a generic main program.
+
+115
+00:08:01,851 --> 00:08:05,627
+It is intended to be useful as the
+baseline for many different kinds of
+
+116
+00:08:05,627 --> 00:08:09,242
+services and applications.
+In fact when you look at it, you'll see
+
+117
+00:08:09,242 --> 00:08:13,467
+that there is really nothing here that has
+anything, whatsoever to do with web
+
+118
+00:08:13,467 --> 00:08:16,458
+servers.
+What it does is it goes ahead and defines
+
+119
+00:08:16,458 --> 00:08:21,144
+an instance of this service reporter which
+is statically linked, just to illustrate
+
+120
+00:08:21,144 --> 00:08:25,155
+how static configuration works.
+And then it goes ahead and opens up the
+
+121
+00:08:25,155 --> 00:08:29,376
+service configurator, which will then read
+its script file and carry out all the
+
+122
+00:08:29,376 --> 00:08:33,360
+directives in the script file.
+We'll look at the script file in a second.
+
+123
+00:08:33,360 --> 00:08:37,206
+And after that script file is done, all
+the services will be linked in and
+
+124
+00:08:37,206 --> 00:08:40,104
+initialized.
+And then we'll go ahead and run the event
+
+125
+00:08:40,104 --> 00:08:43,690
+loop of the reactor.
+And from that point onwards, everything
+
+126
+00:08:43,690 --> 00:08:47,056
+will be driven as callbacks using the
+reactor pattern.
+
+127
+00:08:47,056 --> 00:08:52,606
+Here's the particular file that we might
+define to implement some of these pieces.
+
+128
+00:08:52,606 --> 00:08:56,799
+As you can see here we're going to
+instantiate an instance of the
+
+129
+00:08:56,799 --> 00:09:02,645
+Reactor_HTTP_Server adapter using our HTTP
+server or service acceptor that we defined
+
+130
+00:09:02,645 --> 00:09:08,142
+in the acceptor connector example.
+And this particular type def will then be
+
+131
+00:09:08,142 --> 00:09:13,422
+used to tell the framework that it's
+possible to dynamically link items of this
+
+132
+00:09:13,422 --> 00:09:17,427
+particular type.
+And that is important so that the symbols
+
+133
+00:09:17,427 --> 00:09:22,707
+are exported properly with whatever
+platform specific details are needed for
+
+134
+00:09:22,707 --> 00:09:28,027
+symbol export from a dll or shared object.
+Here is now an illustration of the service
+
+135
+00:09:28,027 --> 00:09:33,111
+config file we might start out with here.
+Noticed that it does a couple of different
+
+136
+00:09:33,111 --> 00:09:36,057
+things.
+It illustrates how to statically configure
+
+137
+00:09:36,057 --> 00:09:39,465
+the service reporter.
+So that basically says this has been
+
+138
+00:09:39,465 --> 00:09:44,155
+linked with the main program, now just go
+ahead and initialize it to bring it into
+
+139
+00:09:44,155 --> 00:09:47,720
+existence, what its virtual constructor
+its init method.
+
+140
+00:09:47,720 --> 00:09:52,021
+And then we also say dynamically configure
+the web server implementation.
+
+141
+00:09:52,021 --> 00:09:57,411
+This is the one that's the Http server
+game that we talked about before.
+
+142
+00:09:57,411 --> 00:10:03,177
+And what this definition does here is, it
+says, go and link in the HSD dll using
+
+143
+00:10:03,177 --> 00:10:08,421
+whatever platform specific suffix is
+important for your platform.
+
+144
+00:10:08,421 --> 00:10:14,068
+Find a factory function inside that dll
+called make_HTTP_Server_Daemon() call that
+
+145
+00:10:14,068 --> 00:10:19,138
+factory function, get back something
+that's a server instance, a service
+
+146
+00:10:19,138 --> 00:10:23,126
+object, call its init method passing in
+some information.
+
+147
+00:10:23,126 --> 00:10:28,391
+And the information that''ll be passed in
+this case actually can be read using
+
+148
+00:10:28,391 --> 00:10:33,494
+various environment variables that you set
+up when you go ahead and run your
+
+149
+00:10:33,494 --> 00:10:36,341
+programs.
+So you can dictate how these things are,
+
+150
+00:10:36,341 --> 00:10:40,433
+are going to be executed and configured
+based on the environment variables in
+
+151
+00:10:40,433 --> 00:10:44,424
+which you run these applications.
+These particular variables which might
+
+152
+00:10:44,424 --> 00:10:48,838
+include the port number, for example, will
+be passed to the init method when it runs.
+
+153
+00:10:48,838 --> 00:10:54,433
+That will be used to indicate, say where
+the web servers should listen for incoming
+
+154
+00:10:54,433 --> 00:10:59,115
+client connections.
+And after everything works, and assuming
+
+155
+00:10:59,115 --> 00:11:04,757
+the init method doesn't fail, then the
+service object is registered in the
+
+156
+00:11:04,757 --> 00:11:09,580
+service repository, under the name,
+HTTP_Server_Daemon.
+
+157
+00:11:09,580 --> 00:11:13,802
+Here then is some discussion of how we can
+go one step further.
+
+158
+00:11:13,802 --> 00:11:19,384
+So what I showed you here was how we might
+bring an object, a web server object, into
+
+159
+00:11:19,384 --> 00:11:24,714
+its existence when a program starts to
+run, at, in installation time or launch
+
+160
+00:11:24,714 --> 00:11:27,537
+time.
+We're now going to talk about how to
+
+161
+00:11:27,537 --> 00:11:32,593
+reconfigure things as the system is
+actually running without having to stop
+
+162
+00:11:32,593 --> 00:11:38,044
+what's already going and restart all of it
+in a statically compound and statically
+
+163
+00:11:38,044 --> 00:11:41,090
+linked sets.
+So to do this, let's first talk about a
+
+164
+00:11:41,090 --> 00:11:44,600
+limitation about previous solution, our
+previous solution had
+
+165
+00:11:44,600 --> 00:11:48,894
+run_reactor_event_loop() that could not
+easily be terminated gracefully.
+
+166
+00:11:48,894 --> 00:11:53,178
+It would just keep running and the only
+way to shut it down would be to kill the
+
+167
+00:11:53,178 --> 00:11:57,427
+process which might end up leaving things
+in some indeterminate state.
+
+168
+00:11:57,428 --> 00:12:01,947
+Log files might not be flushed properly to
+cache, the file system might not be
+
+169
+00:12:01,947 --> 00:12:04,644
+flushed to disc properly and so on and so
+forth.
+
+170
+00:12:04,644 --> 00:12:07,653
+So let's take a look and see how we can
+improve upon this.
+
+171
+00:12:07,653 --> 00:12:11,702
+What we're going to do is we're going to
+make a new svc.conf file that has a
+
+172
+00:12:11,702 --> 00:12:15,307
+different set of directives.
+And then we're going to instruct the
+
+173
+00:12:15,307 --> 00:12:19,585
+service configurator framework to go
+re-read the service configurator, service
+
+174
+00:12:19,585 --> 00:12:23,010
+config file, and carry out the directives
+that are part of that.
+
+175
+00:12:23,011 --> 00:12:26,240
+[unknown].
+One of the first things we'll do is we'll
+
+176
+00:12:26,240 --> 00:12:30,932
+shut down temporarily this particular
+server but other things that might have
+
+177
+00:12:30,932 --> 00:12:35,624
+been running could continue to run and the
+process is not shut down just the service
+
+178
+00:12:35,624 --> 00:12:38,607
+is taken out.
+We will then go ahead and restart the
+
+179
+00:12:38,607 --> 00:12:43,417
+service and we're also going to start some
+special object called a shutdown a
+
+180
+00:12:43,417 --> 00:12:47,652
+Sever_Shutdown service.
+And this service shutdown service, this
+
+181
+00:12:47,652 --> 00:12:52,602
+Server_Shutdown service, will be used in
+order to gracefully shutdown our web
+
+182
+00:12:52,602 --> 00:12:57,702
+server based on various commands we can
+give it from an administrative interface
+
+183
+00:12:57,702 --> 00:13:02,334
+or even from the svc.conf file itself.
+So let's take a look at how we might
+
+184
+00:13:02,334 --> 00:13:07,020
+implement some of these various pieces.
+Keep in mind that all of what Iu'm talking
+
+185
+00:13:07,020 --> 00:13:11,780
+about now could be devised and added after
+the original server had been launched and
+
+186
+00:13:11,780 --> 00:13:16,348
+was running and handling requests.
+Here's the server shutdown service, which
+
+187
+00:13:16,348 --> 00:13:20,972
+is an ACE service object, an inheritance
+ACE service object, and it has a couple of
+
+188
+00:13:20,972 --> 00:13:25,255
+interesting things.
+It has an init virtual constructor that
+
+189
+00:13:25,255 --> 00:13:30,439
+goes ahead and spawns a new thread of
+control and runs a controller object and
+
+190
+00:13:30,439 --> 00:13:35,231
+we'll talk about what this controller
+function does in just a moment.
+
+191
+00:13:35,231 --> 00:13:40,340
+It then also has a fini method which, when
+called, will create an instance of
+
+192
+00:13:40,340 --> 00:13:45,848
+something called a Quit_Handler and then
+pass that to the reactor via it's notify
+
+193
+00:13:45,848 --> 00:13:48,877
+pipe.
+The notify pipe is used to indicate to a
+
+194
+00:13:48,877 --> 00:13:53,971
+reactor to, to do something sort of in a
+out of band path through the code.
+
+195
+00:13:53,971 --> 00:13:59,287
+Even if it's already blocking, waiting for
+IO to occur on other sources of input.
+
+196
+00:13:59,287 --> 00:14:03,643
+And then we define a macro that says, hey
+this particular service, the
+
+197
+00:14:03,643 --> 00:14:07,353
+Server_Shutdown service, can be linked in
+dynamically.
+
+198
+00:14:07,353 --> 00:14:11,432
+Here's the controller function.
+I've mentioned before this runs in a
+
+199
+00:14:11,432 --> 00:14:15,982
+separate thread of control spawned by the
+ACE thread manager, which provides
+
+200
+00:14:15,982 --> 00:14:20,149
+portable thread spawning on different
+operating system platforms.
+
+201
+00:14:20,149 --> 00:14:25,515
+And what this does is it goes ahead and
+Creates a quit handler object, which we'll
+
+202
+00:14:25,515 --> 00:14:30,875
+look about, look at in just a minute, and
+then it runs a loop waiting for someone to
+
+203
+00:14:30,875 --> 00:14:35,835
+type quit in on the console and when
+someone types in quit, it goes ahead and
+
+204
+00:14:35,835 --> 00:14:40,636
+passes that quit handler object to the
+reactor via it's notify pipe.
+
+205
+00:14:40,636 --> 00:14:43,961
+Let's now take a look at how this is going
+to work.
+
+206
+00:14:43,961 --> 00:14:49,030
+The quit handler is an ace event handler,
+so It has all the various ACE hook
+
+207
+00:14:49,030 --> 00:14:52,510
+methods.
+In this particular case, the two that we
+
+208
+00:14:52,510 --> 00:14:57,569
+care about are the handle exception method
+and the handle close method.
+
+209
+00:14:57,569 --> 00:15:03,185
+When you pass a an event handler object to
+the reactor by it's notify pipe, by
+
+210
+00:15:03,185 --> 00:15:06,853
+default it's handled exception method is
+called.
+
+211
+00:15:06,854 --> 00:15:11,742
+As you can see, in this particular
+example, the handle exception hook method
+
+212
+00:15:11,742 --> 00:15:14,721
+shuts down the reactor event loop
+gracefully.
+
+213
+00:15:14,721 --> 00:15:19,131
+Returns minus 1, which causes the
+handle_close method to be called.
+
+214
+00:15:19,131 --> 00:15:23,591
+And that goes ahead and deletes itself.
+So it cleans up all the memory.
+
+215
+00:15:23,591 --> 00:15:27,436
+And this allows us to shut things down in
+a graceful way.
+
+216
+00:15:27,436 --> 00:15:32,378
+Its okay to delete this in this particular
+context because we don't have anything
+
+217
+00:15:32,378 --> 00:15:35,781
+that depends on that state after this
+particular point.
+
+218
+00:15:35,781 --> 00:15:40,179
+Notice by the way we also make the
+destructor private to ensure we can only
+
+219
+00:15:40,179 --> 00:15:43,458
+allocate instances of the quit handler
+dynamically.
+
+220
+00:15:43,458 --> 00:15:48,222
+This is just a good C++ idiom to know
+about if you want to enforce dynamic
+
+221
+00:15:48,222 --> 00:15:52,423
+allocation of classes.
+Here is that particular sequence diagram
+
+222
+00:15:52,423 --> 00:15:55,964
+illustrating how some of these various
+steps will work.
+
+223
+00:15:55,964 --> 00:16:00,956
+We start out by getting rid of the old
+implementation out with the old and then
+
+224
+00:16:00,956 --> 00:16:06,461
+we bringing in the new we bring back in
+the server the HTTP Daemon server object.
+
+225
+00:16:06,461 --> 00:16:11,419
+And then we bring in the Server_Shutdown
+service object, both are configured in
+
+226
+00:16:11,419 --> 00:16:14,540
+dynamically.
+So, to summarize, a picture that
+
+227
+00:16:14,540 --> 00:16:19,952
+illustrates how everything looks by the
+time we're done reconfiguring our web
+
+228
+00:16:19,952 --> 00:16:23,249
+server.
+It now looks roughly the same as before,
+
+229
+00:16:23,249 --> 00:16:28,838
+with respect to the HTTP processing, using
+the acceptor connector and reactor and
+
+230
+00:16:28,838 --> 00:16:32,393
+wrapper facade capabilities we discussed
+before.
+
+231
+00:16:32,393 --> 00:16:37,685
+But now, it's got one additional piece.
+It's got another thread of control, that
+
+232
+00:16:37,685 --> 00:16:42,463
+runs this controller function.
+And this controller function can be used
+
+233
+00:16:42,463 --> 00:16:46,590
+to pass a quit handler.
+To the reactor to tell it to shut itself
+
+234
+00:16:46,590 --> 00:16:51,328
+down and clean everything up.
+So to summarize this particular section,
+
+235
+00:16:51,328 --> 00:16:56,242
+the ACE service Configurator framework
+makes it possible to configure and
+
+236
+00:16:56,242 --> 00:17:01,000
+reconfigure our services for web
+processing for service reporting, for
+
+237
+00:17:01,000 --> 00:17:06,304
+shutting things down gracefully, and so on
+and so forth, in a way where you can make
+
+238
+00:17:06,304 --> 00:17:11,862
+changes very late in the design cycle.
+If you take a look at the diagram here you
+
+239
+00:17:11,862 --> 00:17:16,362
+can see how we went from our initial
+configuration that was driven by the
+
+240
+00:17:16,362 --> 00:17:21,612
+directives in the original service config
+file, to our new configuration which was
+
+241
+00:17:21,612 --> 00:17:25,433
+dictated by the directives in the new
+service config file.
+
+242
+00:17:25,433 --> 00:17:29,696
+And you can do this, of course, in other
+ways with other services.
+
+243
+00:17:29,697 --> 00:17:34,502
+I'm just illustrating one small piece.
+Moreover, you could also even get further
+
+244
+00:17:34,502 --> 00:17:37,422
+fine grain.
+You could go ahead and have different
+
+245
+00:17:37,422 --> 00:17:40,676
+pieces of the web server modified
+dynamically as well.
+
+246
+00:17:40,676 --> 00:17:44,812
+For example, under different
+circumstances, you might want to change
+
+247
+00:17:44,812 --> 00:17:47,856
+the way in which the caching mechanisms
+would work.
+
+248
+00:17:47,856 --> 00:17:52,482
+Least recently used, least frequently
+used, those policies might differ over
+
+249
+00:17:52,482 --> 00:17:55,176
+time.
+Based on run time load information you
+
+250
+00:17:55,176 --> 00:17:58,134
+would only know after the server had begun
+to run.
+
+251
+00:17:58,134 --> 00:18:02,897
+So to, to sort of summarize the lessons
+learned from what we've discussed so far,
+
+252
+00:18:02,897 --> 00:18:07,441
+we can use the Service Configurator
+capabilities in order to be able to build
+
+253
+00:18:07,441 --> 00:18:12,553
+our web server out of smaller pieces or to
+have multiple different implementations of
+
+254
+00:18:12,553 --> 00:18:17,026
+web servers developed independently and we
+can link these things together
+
+255
+00:18:17,026 --> 00:18:19,932
+dynamically.
+The result is that we can make our
+
+256
+00:18:19,932 --> 00:18:24,352
+decisions at the right time and we have
+enough information to make an informed
+
+257
+00:18:24,352 --> 00:18:28,840
+design and implementation choice and it
+also allows us to be able to pick things
+
+258
+00:18:28,840 --> 00:18:32,658
+that make the most sense depending on the
+context in which we run it.
+
+259
+00:18:32,658 --> 00:18:37,218
+So this is a very powerful framework.
+Obviously not everything should be done
+
+260
+00:18:37,218 --> 00:18:41,434
+according to Service Configurator,
+protocols and Service Configurator
+
+261
+00:18:41,434 --> 00:18:44,126
+policies.
+Some things have to be statically
+
+262
+00:18:44,126 --> 00:18:48,954
+allocated mission critical or safety
+critical code, may not be able to afford
+
+263
+00:18:48,954 --> 00:18:54,168
+the luxury of changing dynamically because
+of security policies or safety policies.
+
+264
+00:18:54,168 --> 00:18:58,694
+But there are many systems where the
+ability to upgrade the behavior of the
+
+265
+00:18:58,694 --> 00:19:03,512
+system on the fly can make the solutions
+much more flexible and tuneable for the
+
+266
+00:19:03,512 --> 00:19:05,472
+environment in which they run.
