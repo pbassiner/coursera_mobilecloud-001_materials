@@ -1,0 +1,338 @@
+1
+00:00:00,000 --> 00:00:08,458
+[MUSIC]
+
+2
+00:00:08,458 --> 00:00:14,190
+So how do we talk to 150,000 servers in
+Amazon EC2?
+
+3
+00:00:14,190 --> 00:00:17,380
+How does a lonely little mobile device,
+that's
+
+4
+00:00:17,380 --> 00:00:21,690
+connected to some network, out in the
+wild.
+
+5
+00:00:21,690 --> 00:00:25,460
+Get access to these thousands of servers,
+
+6
+00:00:25,460 --> 00:00:29,090
+that are sitting in some cloud computing
+environment.
+
+7
+00:00:29,090 --> 00:00:30,690
+So how do we get from there to there?
+
+8
+00:00:32,420 --> 00:00:34,810
+Well the way that we're going to talk
+about getting from the
+
+9
+00:00:34,810 --> 00:00:39,060
+mobile device to the cloud is through the
+use of HTTP.
+
+10
+00:00:39,060 --> 00:00:45,290
+And what you can think of HTTP is, it's
+basically a dialog or a language
+
+11
+00:00:45,290 --> 00:00:50,980
+that a mobile device can use to speak to a
+cloud, it's a protocol, an application
+
+12
+00:00:50,980 --> 00:00:57,030
+protocol, for communicating between
+devices on a network.
+
+13
+00:00:57,030 --> 00:00:58,350
+Now.
+
+14
+00:00:58,350 --> 00:01:03,520
+We're going to use HTTP here as our
+protocol for communication.
+
+15
+00:01:03,520 --> 00:01:05,830
+But it's helpful to have a little bit of
+history.
+
+16
+00:01:05,830 --> 00:01:10,340
+And understand what HTTP, was originally
+built for.
+
+17
+00:01:10,340 --> 00:01:18,330
+HTTP is the protocol, or the way that your
+browser communicates with a web server.
+
+18
+00:01:18,330 --> 00:01:23,410
+In order to retrieve resources from that
+web server such as a web page.
+
+19
+00:01:23,410 --> 00:01:28,930
+So when you go and you log in to Facebook,
+for example, your browser is sending
+
+20
+00:01:28,930 --> 00:01:35,160
+HTTP, probably a series of HTTP requests,
+to one or more Facebook servers.
+
+21
+00:01:35,160 --> 00:01:40,130
+And then that server, or servers that are
+receiving the request or requests.
+
+22
+00:01:40,130 --> 00:01:42,150
+Send data back to your browser.
+
+23
+00:01:43,305 --> 00:01:48,970
+HTTP is a client-server protocol and what
+that means
+
+24
+00:01:48,970 --> 00:01:54,710
+is that, the interactions that are
+mediated
+
+25
+00:01:54,710 --> 00:02:00,750
+via the HTTP protocol, are always
+initiated by a client that wants to.
+
+26
+00:02:00,750 --> 00:02:06,300
+Access or request, some resource on the
+server.
+
+27
+00:02:06,300 --> 00:02:13,440
+So the server has a series of resources,
+that it can provide to
+
+28
+00:02:13,440 --> 00:02:20,190
+the client, and the client sends requests
+for those resources and the server.
+
+29
+00:02:20,190 --> 00:02:23,220
+Returns responses to those requests.
+
+30
+00:02:23,220 --> 00:02:27,930
+And the responses may have the resource
+that was requested or it may have a
+
+31
+00:02:27,930 --> 00:02:30,780
+message indicating why the Server could or
+
+32
+00:02:30,780 --> 00:02:35,370
+couldn't process the request, that the
+client sent.
+
+33
+00:02:35,370 --> 00:02:38,476
+But fundamentally, the HTTP protocol is
+
+34
+00:02:38,476 --> 00:02:42,300
+an application protocol that is
+client-server.
+
+35
+00:02:43,310 --> 00:02:48,550
+So, the client will always be initiating
+the communications.
+
+36
+00:02:48,550 --> 00:02:51,050
+And there are some changes to this with
+newer things
+
+37
+00:02:51,050 --> 00:02:54,070
+like web sockets, that we'll talk about
+later in this course.
+
+38
+00:02:54,070 --> 00:02:58,580
+But in general, the client will always
+start the interaction.
+
+39
+00:03:00,070 --> 00:03:03,580
+And the server will receive the
+interactions.
+
+40
+00:03:03,580 --> 00:03:04,620
+And process them.
+
+41
+00:03:06,100 --> 00:03:11,100
+So, this is the fundamental way, that HTTP
+works.
+
+42
+00:03:11,100 --> 00:03:15,680
+Now the client can be either a mobile
+device as we'll
+
+43
+00:03:15,680 --> 00:03:19,790
+focus on in this class, or it can be a
+browser.
+
+44
+00:03:19,790 --> 00:03:22,470
+So, we can have a mobile device be the
+
+45
+00:03:22,470 --> 00:03:26,330
+client, or we can have a browser be the
+client.
+
+46
+00:03:26,330 --> 00:03:29,710
+Or we could have some other device, maybe
+in
+
+47
+00:03:29,710 --> 00:03:33,530
+the internet of things, we use HTTP as the
+protocol
+
+48
+00:03:33,530 --> 00:03:37,010
+to communicate between different pieces of
+equipment in a
+
+49
+00:03:37,010 --> 00:03:41,500
+factory and the different controllers,
+that are monitoring their status.
+
+50
+00:03:41,500 --> 00:03:44,470
+So HTTP is a general purpose protocol.
+
+51
+00:03:44,470 --> 00:03:50,310
+That can be used, to communicate between a
+client and a server.
+
+52
+00:03:50,310 --> 00:03:55,430
+Now one of the reasons that HTTP has
+become so popular for mobile
+
+53
+00:03:55,430 --> 00:04:01,540
+integration with cloud, is that HTTP is a
+widely used protocol already.
+
+54
+00:04:01,540 --> 00:04:05,160
+All of the websites that you visit are
+already using.
+
+55
+00:04:05,160 --> 00:04:10,760
+HTTP as the protocol that's being used to
+access those web res, resources.
+
+56
+00:04:10,760 --> 00:04:14,450
+So there's already so much infrastructure
+that's been built
+
+57
+00:04:14,450 --> 00:04:16,560
+up and so much investment that has been
+put
+
+58
+00:04:16,560 --> 00:04:20,440
+into HTTP protocol, and so much
+understanding of how
+
+59
+00:04:20,440 --> 00:04:26,180
+the HTTP protocol works, that
+organizations naturally want to reuse.
+
+60
+00:04:26,180 --> 00:04:30,490
+That infrastructure and investment, on
+their mobile platforms.
+
+61
+00:04:30,490 --> 00:04:35,850
+So by using HTTP, they can write a server
+side, that provides access
+
+62
+00:04:35,850 --> 00:04:40,850
+to these resources, which could be a
+service, or could be a web page.
+
+63
+00:04:40,850 --> 00:04:47,020
+And, they can provide a common interface
+to those resources, through HTTP.
+
+64
+00:04:47,020 --> 00:04:53,920
+It's a common protocol and a common server
+site interface, to access those resources.
+
+65
+00:04:53,920 --> 00:04:56,950
+So when a server sends a response back, it
+
+66
+00:04:56,950 --> 00:05:01,240
+doesn't necessarily have to care whether
+the person or thing
+
+67
+00:05:01,240 --> 00:05:04,790
+that's consuming that response is a mobile
+device or a
+
+68
+00:05:04,790 --> 00:05:07,950
+browser, or some other thing that it's
+never seen before.
+
+69
+00:05:07,950 --> 00:05:11,850
+As long as that thing knows how to speak
+the HTTP protocol,
+
+70
+00:05:11,850 --> 00:05:16,730
+it can consume the resources and services,
+that are available on that server.
+

@@ -1,0 +1,293 @@
+1
+00:00:00,274 --> 00:00:08,341
+[MUSIC]
+
+2
+00:00:08,341 --> 00:00:10,786
+So why are we using a web browser
+
+3
+00:00:10,786 --> 00:00:15,650
+protocol to integrate mobile clients with
+cloud services?
+
+4
+00:00:15,650 --> 00:00:18,170
+Why do we want to use HTTP to talk to the
+cloud?
+
+5
+00:00:19,670 --> 00:00:23,080
+Well HTTP provides us a number of nice
+properties.
+
+6
+00:00:23,080 --> 00:00:27,260
+One is, we've got a uniform interface that
+we can provide via
+
+7
+00:00:27,260 --> 00:00:31,750
+HTTP to the services or resources that are
+sitting on the server.
+
+8
+00:00:33,380 --> 00:00:37,460
+And, for example, if a client is a Browser
+
+9
+00:00:37,460 --> 00:00:41,865
+and sends a request over HTTP and that
+Server
+
+10
+00:00:41,865 --> 00:00:45,430
+rec, receives that request, the request is
+exactly the
+
+11
+00:00:45,430 --> 00:00:48,280
+same as if a mobile device had sent it.
+
+12
+00:00:48,280 --> 00:00:53,520
+So, if this is a Mobile device that's
+sending that request, either way
+
+13
+00:00:53,520 --> 00:00:59,080
+on the other side, on the server side,
+that request still has to conform
+
+14
+00:00:59,080 --> 00:01:03,450
+to the same requirements and
+specifications of the HTTP protocol.
+
+15
+00:01:04,560 --> 00:01:07,000
+So we can have a common interface.
+
+16
+00:01:07,000 --> 00:01:11,154
+This is one of the big advantages of
+
+17
+00:01:11,154 --> 00:01:16,639
+using HTTP to interact with cloud
+resources and services.
+
+18
+00:01:17,940 --> 00:01:19,800
+Is we don't have to go and rewrite
+
+19
+00:01:19,800 --> 00:01:22,340
+everything from scratch and figure out a
+whole
+
+20
+00:01:22,340 --> 00:01:27,110
+new way of having our servers accessible
+and
+
+21
+00:01:27,110 --> 00:01:29,530
+having mobile devices able to communicate
+with them.
+
+22
+00:01:29,530 --> 00:01:32,830
+We can reuse what we're already building
+and providing
+
+23
+00:01:32,830 --> 00:01:36,852
+to our browser based clients and the web
+is ubiquitous.
+
+24
+00:01:36,852 --> 00:01:41,230
+Everybody's building websites, everybody's
+supporting web service as it is.
+
+25
+00:01:41,230 --> 00:01:43,721
+Why not reuse this infrastructure for
+mobile?
+
+26
+00:01:43,721 --> 00:01:48,740
+And so that's one of the big reasons
+behind using
+
+27
+00:01:48,740 --> 00:01:54,710
+HTTP to support mobile and cloud
+interactions.
+
+28
+00:01:54,710 --> 00:01:58,030
+Now, we get a number or of other great
+things as well.
+
+29
+00:01:58,030 --> 00:02:01,170
+There's already all kinds of stuff on the
+server side from a
+
+30
+00:02:01,170 --> 00:02:07,460
+framework and programmatic perspective
+that we can use to process HTTP requests.
+
+31
+00:02:07,460 --> 00:02:10,390
+So there's things for doing stuff like
+sessions
+
+32
+00:02:10,390 --> 00:02:15,030
+or remembering when people request
+something, who that
+
+33
+00:02:15,030 --> 00:02:17,660
+person is and what they previously
+requested or
+
+34
+00:02:17,660 --> 00:02:21,190
+what other data is associated with their
+current login.
+
+35
+00:02:22,240 --> 00:02:24,850
+We also get things like Data marshalling.
+
+36
+00:02:26,010 --> 00:02:30,430
+This is very important when you want to
+convert from the format of
+
+37
+00:02:30,430 --> 00:02:34,880
+the HTTP request to some other format that
+you need to process.
+
+38
+00:02:34,880 --> 00:02:37,470
+And there's a huge amount of
+infrastructure that's already
+
+39
+00:02:37,470 --> 00:02:40,640
+been developed, in terms of libraries and
+frameworks, that
+
+40
+00:02:40,640 --> 00:02:44,670
+you can use to program if you use HTTP
+
+41
+00:02:44,670 --> 00:02:48,270
+as your underlying protocol for your
+interaction with the cloud.
+
+42
+00:02:48,270 --> 00:02:54,360
+But there's also a number of other reasons
+that it's really nice to use HTTP.
+
+43
+00:02:54,360 --> 00:02:57,920
+There's also infrastructure that decides,
+how do we
+
+44
+00:02:57,920 --> 00:03:02,310
+load balance and distribute requests
+across our servers?
+
+45
+00:03:02,310 --> 00:03:06,450
+So for example, if you have a million
+people accessing your, your
+
+46
+00:03:06,450 --> 00:03:08,530
+service simultaneously, how are you going
+
+47
+00:03:08,530 --> 00:03:12,280
+to distribute those requests across those
+servers?
+
+48
+00:03:12,280 --> 00:03:17,970
+So, Load Balancing infrastructure for HTTP
+can be reused
+
+49
+00:03:17,970 --> 00:03:23,270
+if we're using HTTP as the communication
+mechanism with the cloud.
+
+50
+00:03:24,270 --> 00:03:29,150
+So there's such a significant investment
+both in the existing frameworks and
+
+51
+00:03:29,150 --> 00:03:32,980
+libraries, the load balancing and other
+
+52
+00:03:32,980 --> 00:03:37,240
+management infrastructure that's been
+developed for HTTP.
+
+53
+00:03:37,240 --> 00:03:42,360
+It's natural to use HTTP as an interaction
+mechanism with the cloud.
+
+54
+00:03:42,360 --> 00:03:45,180
+Now, as we'll see later in the class,
+there's some challenges to
+
+55
+00:03:45,180 --> 00:03:49,500
+using HTTP, particularly when things that
+we would like to do with
+
+56
+00:03:49,500 --> 00:03:54,040
+our mobile services don't fit into the
+client server model where the
+
+57
+00:03:54,040 --> 00:03:59,070
+client is always the mobile device
+requesting some resource from the server.
+
+58
+00:03:59,070 --> 00:04:01,360
+So maybe an email comes into the server
+
+59
+00:04:01,360 --> 00:04:03,310
+and your client needs to be notified about
+it.
+
+60
+00:04:03,310 --> 00:04:06,160
+Well that's difficult to fit into the HTTP
+model.
+
+61
+00:04:06,160 --> 00:04:10,600
+But we'll talk about how we overcome some
+of those challenges later in the lessons.
+

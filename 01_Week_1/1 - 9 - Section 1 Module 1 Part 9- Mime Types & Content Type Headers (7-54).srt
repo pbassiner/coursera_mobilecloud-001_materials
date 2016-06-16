@@ -1,0 +1,447 @@
+1
+00:00:00,029 --> 00:00:08,711
+[MUSIC]
+
+2
+00:00:08,711 --> 00:00:16,130
+Both client and server can send bodies in
+the messages that they send through HTTP.
+
+3
+00:00:16,130 --> 00:00:20,120
+So, for example, a client can include a
+body in
+
+4
+00:00:20,120 --> 00:00:24,780
+the HTTP messages, a request that it sends
+to the server.
+
+5
+00:00:24,780 --> 00:00:27,130
+And that body has some data in it that
+
+6
+00:00:27,130 --> 00:00:30,966
+the server needs to use, to process the
+client's request.
+
+7
+00:00:30,966 --> 00:00:37,180
+Similarly, the, the server can have data
+in the response that it sends back to
+
+8
+00:00:37,180 --> 00:00:42,129
+the client, that the client needs in order
+to receive the results of its request.
+
+9
+00:00:43,150 --> 00:00:48,660
+So, one of the really important issues
+that has to be sorted out in HTTP, is how
+
+10
+00:00:48,660 --> 00:00:54,720
+do the client and server tell each other
+about what the data is
+
+11
+00:00:54,720 --> 00:01:00,960
+and how to interpret the data that's being
+sent in those bodies of the HTTP messages?
+
+12
+00:01:00,960 --> 00:01:03,380
+So, for example, you can imagine that you
+could
+
+13
+00:01:03,380 --> 00:01:08,750
+have an image download service on a
+HTTP-based server.
+
+14
+00:01:08,750 --> 00:01:15,230
+And depending on which image you access,
+it could have a different format.
+
+15
+00:01:15,230 --> 00:01:17,740
+So, for example, the server could store
+images that are in
+
+16
+00:01:17,740 --> 00:01:23,160
+JPEG format, as well as images that were
+in PNG format.
+
+17
+00:01:23,160 --> 00:01:28,320
+And the resource identifier, the URL for
+that
+
+18
+00:01:28,320 --> 00:01:33,470
+particular image, may not actually tell
+you what the format of the image is.
+
+19
+00:01:33,470 --> 00:01:36,800
+It would be a good practice to encode the,
+the correct
+
+20
+00:01:36,800 --> 00:01:42,430
+file extension into the resource,
+potentially, but it doesn't have to.
+
+21
+00:01:42,430 --> 00:01:47,090
+So, when that message comes back from the
+server and has some image
+
+22
+00:01:47,090 --> 00:01:49,820
+data in it, the client needs to be able to
+figure out, is
+
+23
+00:01:49,820 --> 00:01:54,920
+this image data for a JPEG, is this image
+data for a PNG,
+
+24
+00:01:54,920 --> 00:01:59,940
+or even if the server is sending back
+textual data to the client.
+
+25
+00:01:59,940 --> 00:02:04,280
+It may need to tell the client how to
+interpret that textual data.
+
+26
+00:02:04,280 --> 00:02:09,710
+For example, the server could send back
+pure, plain text to the client that
+
+27
+00:02:09,710 --> 00:02:14,080
+the client is just supposed to display and
+not interpret in any special way.
+
+28
+00:02:14,080 --> 00:02:16,890
+Or the server could send back HTML, which
+
+29
+00:02:16,890 --> 00:02:21,110
+the client is expected to render as HTML
+and
+
+30
+00:02:21,110 --> 00:02:24,000
+render all of the proper elements from
+HTML in
+
+31
+00:02:24,000 --> 00:02:27,320
+a user interface, before showing it to the
+user.
+
+32
+00:02:28,320 --> 00:02:32,010
+So in both cases, there's different types
+of data that
+
+33
+00:02:32,010 --> 00:02:35,220
+are being sent back in the body and we
+need way
+
+34
+00:02:35,220 --> 00:02:40,340
+of communicating how to interpret that
+data, what format the client
+
+35
+00:02:40,340 --> 00:02:43,620
+or the server should interpret that data
+as being part of.
+
+36
+00:02:44,760 --> 00:02:51,010
+Now, the way that this is done in HTTP is
+through what's called MIME types.
+
+37
+00:02:52,740 --> 00:03:01,380
+And a MIME type is an identifier for a
+particular type or format of information.
+
+38
+00:03:02,520 --> 00:03:07,880
+And the client and the server communicate
+to each other by passing MIME types
+
+39
+00:03:07,880 --> 00:03:10,640
+back and forth, explaining how to
+interpret
+
+40
+00:03:10,640 --> 00:03:13,280
+the bodies of the messages that they're
+sending.
+
+41
+00:03:14,430 --> 00:03:17,280
+Now, if you go and look at the MIME types,
+you'll see
+
+42
+00:03:17,280 --> 00:03:23,460
+a lot of common things that may seem
+familiar, expressed as MIME types.
+
+43
+00:03:23,460 --> 00:03:31,420
+So, for example, you may see a MIME type
+that looks like image/jpg.
+
+44
+00:03:31,420 --> 00:03:36,710
+And this would be the MIME type for a
+JPEG-encoded image.
+
+45
+00:03:36,710 --> 00:03:44,800
+Similarly, the server could send back
+image/png, indicating this is a PNG image.
+
+46
+00:03:45,820 --> 00:03:53,620
+Or, the server could send back text/plain
+to indicate this is just plain text
+
+47
+00:03:53,620 --> 00:03:59,520
+or text/html.
+
+48
+00:03:59,520 --> 00:04:05,240
+And all of these different MIME types are
+identifiers for a well
+
+49
+00:04:05,240 --> 00:04:11,840
+known format for the data in the body of
+either a request or a response.
+
+50
+00:04:11,840 --> 00:04:17,557
+And the client is supposed to look at
+these and the server is supposed to look
+
+51
+00:04:17,557 --> 00:04:23,664
+at these MIME types, and then based on
+this, decide how to interpret the data.
+
+52
+00:04:23,664 --> 00:04:31,737
+[BLANK_AUDIO]
+
+53
+00:04:31,737 --> 00:04:39,815
+And again, all of this, these different
+MIME types, are typically describing.
+
+54
+00:04:39,815 --> 00:04:46,302
+[BLANK_AUDIO]
+
+55
+00:04:46,302 --> 00:04:49,810
+The body of the request.
+
+56
+00:04:49,810 --> 00:04:56,010
+So, this body is being described by the
+MIME types.
+
+57
+00:04:56,010 --> 00:05:01,300
+The format of that body is being described
+be the more the MIME types.
+
+58
+00:05:01,300 --> 00:05:08,270
+And this allows a client and server to
+send back different types of data for
+
+59
+00:05:08,270 --> 00:05:14,080
+a particular resource, or for a particular
+request, or for a particular response.
+
+60
+00:05:14,080 --> 00:05:19,560
+And indicate to the other end of the
+conversation, how to interpret that data.
+
+61
+00:05:19,560 --> 00:05:22,820
+Now you might say, shouldn't we just
+encode all of this into the URLs?
+
+62
+00:05:22,820 --> 00:05:26,410
+But you can imagine that there may be
+particular
+
+63
+00:05:26,410 --> 00:05:30,220
+resources on the server, for example, that
+we might want
+
+64
+00:05:30,220 --> 00:05:34,980
+to map differently and have different
+formats for it
+
+65
+00:05:34,980 --> 00:05:37,548
+and be able to change those formats in the
+servers.
+
+66
+00:05:37,548 --> 00:05:41,350
+We don't want to couple our URL,
+necessarily, to the exact
+
+67
+00:05:41,350 --> 00:05:44,100
+format that we are going to return the
+data in.
+
+68
+00:05:44,100 --> 00:05:50,620
+So, having MIME types allows us to
+flexibly adapt our bodies and be
+
+69
+00:05:50,620 --> 00:05:54,900
+able to tell the other end of the party,
+how we've decided to format those bodies.
+
+70
+00:05:55,930 --> 00:05:59,450
+So, how do we communicate these MIME types
+that
+
+71
+00:05:59,450 --> 00:06:02,660
+are associate with the bodies of requests
+and responses?
+
+72
+00:06:03,700 --> 00:06:09,150
+This is where the headers in HTTP messages
+come into play.
+
+73
+00:06:09,150 --> 00:06:14,850
+We need to provide meta information to
+either the client or the server, telling
+
+74
+00:06:14,850 --> 00:06:21,330
+it how to interpret the body of the HTTP
+message.
+
+75
+00:06:21,330 --> 00:06:30,440
+And, this meta information gets
+communicated as the content-type
+
+76
+00:06:30,440 --> 00:06:34,370
+header in an HTTP message.
+
+77
+00:06:34,370 --> 00:06:39,779
+And what the content-type header says, is
+this body of this
+
+78
+00:06:39,779 --> 00:06:44,990
+message should be interpreted as a
+particular MIME type.
+
+79
+00:06:46,820 --> 00:06:52,370
+So, the content type communicates
+
+80
+00:06:52,370 --> 00:06:57,365
+the MIME type that's either a,
+
+81
+00:06:57,365 --> 00:07:02,545
+that's associated with the body
+
+82
+00:07:02,545 --> 00:07:07,920
+of either a request or a response.
+
+83
+00:07:07,920 --> 00:07:11,571
+So, we can use the content-type header in
+both
+
+84
+00:07:11,571 --> 00:07:17,660
+request messages, and response messages,
+that include a body.
+
+85
+00:07:17,660 --> 00:07:22,705
+And so, either end of the conversation can
+look at the HTTP
+
+86
+00:07:22,705 --> 00:07:28,710
+content-type header and then determine how
+the body should be interpreted.
+
+87
+00:07:28,710 --> 00:07:34,220
+So, we learned about headers before and we
+saw that there were meta information that
+
+88
+00:07:34,220 --> 00:07:36,730
+helped one end of the conversation to
+
+89
+00:07:36,730 --> 00:07:40,830
+process, or handle, the message in some
+way.
+
+90
+00:07:40,830 --> 00:07:44,055
+And in this case, this is a perfect
+example of how they're used.
+
+91
+00:07:44,055 --> 00:07:48,500
+The content type is telling us the format
+of the body of a request,
+
+92
+00:07:48,500 --> 00:07:53,230
+or of a response, and how the server, or
+the client, should interpret that data
+

@@ -1,0 +1,505 @@
+1
+00:00:00,346 --> 00:00:08,345
+[MUSIC]
+
+2
+00:00:08,345 --> 00:00:11,159
+When we're writing a mobile client or a
+web
+
+3
+00:00:11,159 --> 00:00:15,000
+based client it's going to access
+resources on a server.
+
+4
+00:00:16,240 --> 00:00:19,020
+One of the things that we need to
+understand is how
+
+5
+00:00:19,020 --> 00:00:23,490
+to interpret the response codes that the
+server sends back to us.
+
+6
+00:00:23,490 --> 00:00:27,280
+We have to know how to read what the
+server
+
+7
+00:00:27,280 --> 00:00:30,740
+is telling us happened on the server from
+the numeric code.
+
+8
+00:00:30,740 --> 00:00:34,810
+because this is a really important part of
+writing the logic in
+
+9
+00:00:34,810 --> 00:00:39,340
+our client to appropriately react to what
+took place in the server.
+
+10
+00:00:39,340 --> 00:00:43,850
+We may need to re-send the request or
+re-try it, or we may need to go
+
+11
+00:00:43,850 --> 00:00:47,810
+and look at our code because we see that
+there's an error in how we format it.
+
+12
+00:00:47,810 --> 00:00:50,500
+So let's talk about how response codes
+
+13
+00:00:50,500 --> 00:00:54,410
+are formatted and represented in the http
+protocol.
+
+14
+00:00:55,500 --> 00:00:58,230
+So there's a series of response codes that
+are
+
+15
+00:00:58,230 --> 00:01:04,160
+typically in the range of 100 to into the
+500s.
+
+16
+00:01:04,160 --> 00:01:10,350
+And the one XXX messages whence you will
+see for example.
+
+17
+00:01:10,350 --> 00:01:17,630
+You might have 104, 105 anything in the
+hundred range is an informational message.
+
+18
+00:01:17,630 --> 00:01:19,720
+So the server's telling us something.
+
+19
+00:01:19,720 --> 00:01:21,620
+The quest isn't completely processed yet.
+
+20
+00:01:21,620 --> 00:01:24,160
+But it's giving us some information about
+
+21
+00:01:26,410 --> 00:01:26,750
+your request.
+
+22
+00:01:26,750 --> 00:01:34,479
+Now the next one that we care about are
+things that were successful.
+
+23
+00:01:34,479 --> 00:01:40,750
+So request codes that start with two are
+successful request codes.
+
+24
+00:01:40,750 --> 00:01:45,970
+So you asked for a resource, I found it,
+okay, I'm giving it to you.
+
+25
+00:01:45,970 --> 00:01:48,820
+So one of the really important ones that
+we want
+
+26
+00:01:48,820 --> 00:01:53,990
+to know from the two series is 200 which
+is okay.
+
+27
+00:01:53,990 --> 00:01:58,880
+And this is basically the server telling
+you, you sent me a request,
+
+28
+00:01:58,880 --> 00:02:00,880
+I found the resource, I took whatever
+
+29
+00:02:00,880 --> 00:02:04,040
+action you wanted on that particular
+resource.
+
+30
+00:02:04,040 --> 00:02:06,290
+It's okay, everything worked.
+
+31
+00:02:06,290 --> 00:02:08,720
+And the data that you're getting back in
+the body you can
+
+32
+00:02:08,720 --> 00:02:11,540
+go and interpret it and you can assume
+that things were successful.
+
+33
+00:02:12,990 --> 00:02:16,770
+This is a very important status code to
+know.
+
+34
+00:02:16,770 --> 00:02:20,400
+Now, one thing to remember when you're
+building clients
+
+35
+00:02:20,400 --> 00:02:24,250
+is you should remember the scheme that you
+used.
+
+36
+00:02:24,250 --> 00:02:26,990
+I'm talking about 1XXX, 2XXX.
+
+37
+00:02:26,990 --> 00:02:30,120
+It's important that when you're building
+your
+
+38
+00:02:30,120 --> 00:02:32,890
+logic you be able to quickly differentiate
+
+39
+00:02:32,890 --> 00:02:35,970
+between something that's successful verses
+something that's
+
+40
+00:02:35,970 --> 00:02:40,090
+unsuccessful as I'll show in a second.
+
+41
+00:02:40,090 --> 00:02:44,330
+3XXX is typically redirection.
+
+42
+00:02:44,330 --> 00:02:47,120
+It means that, for example, something has
+moved.
+
+43
+00:02:47,120 --> 00:02:51,230
+The client is going to have to do some
+extra work
+
+44
+00:02:51,230 --> 00:02:56,550
+in order to completely send that request
+and get it processed.
+
+45
+00:02:56,550 --> 00:03:01,910
+So, for example, you know, you asked for a
+request.
+
+46
+00:03:01,910 --> 00:03:07,810
+Are you, you, you sent a request on a
+resource that is now moved somewhere else.
+
+47
+00:03:07,810 --> 00:03:12,400
+And so the server's going to tell you the
+new location of that resource and you are
+
+48
+00:03:12,400 --> 00:03:19,280
+required to resend your request in order
+to have it processed and completed.
+
+49
+00:03:19,280 --> 00:03:21,559
+So this is some type of redirection
+typically.
+
+50
+00:03:23,260 --> 00:03:25,160
+Further work that the client's going to
+have to
+
+51
+00:03:25,160 --> 00:03:28,400
+do in order to get its request completed.
+
+52
+00:03:28,400 --> 00:03:31,870
+So it's not necessarily that the request
+was unsuccessful
+
+53
+00:03:31,870 --> 00:03:34,190
+it was just that we have to do more.
+
+54
+00:03:34,190 --> 00:03:35,990
+We're probably going to have to resend the
+request to
+
+55
+00:03:35,990 --> 00:03:38,650
+a different location that the server's
+going to give us.
+
+56
+00:03:38,650 --> 00:03:41,589
+That's typically what's happening with the
+three series.
+
+57
+00:03:43,340 --> 00:03:45,105
+The next series is 4XXX.
+
+58
+00:03:46,920 --> 00:03:49,820
+And what this is, is you messed up.
+
+59
+00:03:49,820 --> 00:03:51,150
+The client messed up.
+
+60
+00:03:53,730 --> 00:03:57,270
+So the server's going to tell you,
+
+61
+00:03:57,270 --> 00:04:01,070
+that either the resource you requested
+doesn't exist.
+
+62
+00:04:01,070 --> 00:04:03,410
+So for example 404 is a common
+
+63
+00:04:03,410 --> 00:04:07,790
+error code that you're probably going to
+want to handle.
+
+64
+00:04:07,790 --> 00:04:13,146
+And that's that the resource wasn't found
+or you may
+
+65
+00:04:13,146 --> 00:04:18,265
+have, depending on if you're sending
+parameters
+
+66
+00:04:18,265 --> 00:04:23,502
+to the data, you may have a response
+telling you that
+
+67
+00:04:23,502 --> 00:04:28,980
+you've formatted your requests
+incorrectly.
+
+68
+00:04:28,980 --> 00:04:34,809
+So, for an example, in later parts of the
+course, we'll see when we're building
+
+69
+00:04:34,809 --> 00:04:40,326
+in our web-based services and applications
+to handle data from the clients.
+
+70
+00:04:40,326 --> 00:04:46,520
+We actually can enforce the rules that
+certain data is set from the request.
+
+71
+00:04:46,520 --> 00:04:49,810
+And if data that we expect to be there is
+not, we can send
+
+72
+00:04:49,810 --> 00:04:52,500
+back a response code to the client,
+
+73
+00:04:52,500 --> 00:04:55,990
+telling it that its request was formatted
+improperly.
+
+74
+00:04:57,620 --> 00:05:01,440
+And then the next series of response codes
+that
+
+75
+00:05:01,440 --> 00:05:05,270
+we want to be aware of are the five
+series.
+
+76
+00:05:05,270 --> 00:05:07,140
+And what these are are server errors.
+
+77
+00:05:11,740 --> 00:05:16,970
+So this is something bad went wrong on the
+server.
+
+78
+00:05:16,970 --> 00:05:21,970
+So a common one that you'll see is error
+500 which is some
+
+79
+00:05:21,970 --> 00:05:27,020
+error took place on the server you as the
+client need
+
+80
+00:05:27,020 --> 00:05:28,290
+to know about because we didn't
+
+81
+00:05:28,290 --> 00:05:33,010
+successfully complete your request and
+often
+
+82
+00:05:33,010 --> 00:05:37,410
+the body of the message might tell you
+information about the error.
+
+83
+00:05:37,410 --> 00:05:40,670
+So, for example, if you're building a or
+
+84
+00:05:40,670 --> 00:05:46,550
+communication with a Java-based
+application, the application may return
+
+85
+00:05:46,550 --> 00:05:48,290
+a stack trace to you in the body
+
+86
+00:05:48,290 --> 00:05:52,090
+of the message telling you exactly what
+went wrong.
+
+87
+00:05:52,090 --> 00:05:54,360
+Although, you typically don't want to do
+that.
+
+88
+00:05:54,360 --> 00:05:58,700
+You don't want to send to much information
+like a stack trace back in
+
+89
+00:05:58,700 --> 00:06:03,140
+your response to a client because you
+don't want them to know that information.
+
+90
+00:06:03,140 --> 00:06:05,090
+For security purposes you shouldn't be
+doing that.
+
+91
+00:06:05,090 --> 00:06:10,850
+But it is helpful to have information
+about what went wrong to some degree.
+
+92
+00:06:12,260 --> 00:06:18,028
+So when your building a client you want to
+build logic that reads
+
+93
+00:06:18,028 --> 00:06:24,790
+these response codes and then takes the
+appropriate action.
+
+94
+00:06:24,790 --> 00:06:30,990
+So you want to handle the response
+differently based on the code.
+
+95
+00:06:35,890 --> 00:06:42,320
+So you don't want to go and send a request
+and then blindly assume that it was
+
+96
+00:06:42,320 --> 00:06:45,160
+correct, read the data out of the request
+
+97
+00:06:45,160 --> 00:06:47,720
+and for example interpret that data as an
+image.
+
+98
+00:06:48,790 --> 00:06:54,750
+You want to read the response code, see if
+you've gotten for example 200 okay.
+
+99
+00:06:54,750 --> 00:06:58,090
+If you have you can go and interpret that
+data as an image.
+
+100
+00:06:58,090 --> 00:07:02,030
+If you've gotten 5XXX you shouldn't
+interpret that data as an image.
+
+101
+00:07:02,030 --> 00:07:06,170
+You need to interpret as, you know, some
+information related
+
+102
+00:07:06,170 --> 00:07:09,720
+to the error that, that server sent back
+to you.
+
+103
+00:07:09,720 --> 00:07:12,480
+So you need to understand these response
+codes for
+
+104
+00:07:12,480 --> 00:07:15,640
+you clients in order to put the right
+logic
+
+105
+00:07:15,640 --> 00:07:18,730
+in them to evaluate the response that's
+coming back
+
+106
+00:07:18,730 --> 00:07:21,540
+and determine if it was successfully
+completed or not.
+

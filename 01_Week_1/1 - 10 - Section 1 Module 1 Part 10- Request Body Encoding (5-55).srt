@@ -1,0 +1,405 @@
+1
+00:00:00,008 --> 00:00:06,394
+So how
+
+2
+00:00:06,394 --> 00:00:11,740
+do we send data to the server?
+
+3
+00:00:11,740 --> 00:00:14,070
+Well we saw one method of doing this, and
+that was to
+
+4
+00:00:14,070 --> 00:00:19,030
+use query parameters in the URL that we
+were sending to the server.
+
+5
+00:00:19,030 --> 00:00:22,180
+And the server can extract the key value
+pairs
+
+6
+00:00:22,180 --> 00:00:26,420
+that we're sending in that request from
+the URL.
+
+7
+00:00:26,420 --> 00:00:30,490
+But, query parameters don't always make
+sense as
+
+8
+00:00:30,490 --> 00:00:33,560
+the mechanism for sending data to the
+server.
+
+9
+00:00:34,600 --> 00:00:37,770
+So there's another mechanism that we can
+use to send data to the
+
+10
+00:00:37,770 --> 00:00:42,340
+server and that's through sending data in
+the body that we've talked about.
+
+11
+00:00:42,340 --> 00:00:44,820
+So when we send a, a request message, we
+can
+
+12
+00:00:44,820 --> 00:00:49,830
+associate a body with it that we would
+like to place
+
+13
+00:00:53,040 --> 00:00:56,470
+data into, so we can have a body.
+
+14
+00:00:56,470 --> 00:01:00,790
+And as we saw, we can have different mime
+types for that body.
+
+15
+00:01:00,790 --> 00:01:04,640
+But let's talk about the two most common
+mime types that we're
+
+16
+00:01:04,640 --> 00:01:09,170
+going to see in bodies of messages that
+we're sending to the server.
+
+17
+00:01:10,730 --> 00:01:16,240
+If you've ever gone and filled out a form
+on the internet, you've probably used
+
+18
+00:01:16,240 --> 00:01:22,050
+one of these body types, and that's the
+URL encoded form body type.
+
+19
+00:01:22,050 --> 00:01:26,940
+And so what that is is URL encoded is a
+body mime
+
+20
+00:01:26,940 --> 00:01:31,700
+type that tells the server just like we
+did in the query parameters,
+
+21
+00:01:31,700 --> 00:01:34,120
+we're going to have a set of key value
+pairs that are
+
+22
+00:01:34,120 --> 00:01:38,260
+encoded exactly the same way as we would
+put them into the URL.
+
+23
+00:01:38,260 --> 00:01:42,290
+But instead of putting those parameters
+into the query parameter part of the URL,
+
+24
+00:01:42,290 --> 00:01:47,900
+we're instead going to take those key
+value pairs and put them into the body.
+
+25
+00:01:47,900 --> 00:01:53,070
+So we can have URL encoded form data, or
+
+26
+00:01:53,070 --> 00:01:55,879
+data key value pairs, that we're sending
+to the server.
+
+27
+00:01:57,520 --> 00:02:03,150
+There's a second type of mind type that we
+often see for bodies and if you ever
+
+28
+00:02:03,150 --> 00:02:09,150
+uploaded a file through a forum in your
+browser, you've probably used this mime
+
+29
+00:02:09,150 --> 00:02:16,259
+type and that's multipart enc, encoded
+data.
+
+30
+00:02:17,420 --> 00:02:20,300
+And, what multipart does is rather than
+using
+
+31
+00:02:20,300 --> 00:02:24,340
+the typical URL encoding, where we see a
+key
+
+32
+00:02:24,340 --> 00:02:28,120
+equals a value ampersand another key
+equals a value,
+
+33
+00:02:28,120 --> 00:02:31,670
+etc and we have all of the characters
+escape.
+
+34
+00:02:31,670 --> 00:02:37,870
+Instead, multipart has a series of part
+separators that are expressed.
+
+35
+00:02:37,870 --> 00:02:41,530
+And then we'll have data like byte data
+for the different parts.
+
+36
+00:02:41,530 --> 00:02:44,350
+So basically, we can build a message and
+we can
+
+37
+00:02:44,350 --> 00:02:50,220
+express the different parts of that
+message using the multipart encodings.
+
+38
+00:02:50,220 --> 00:02:53,360
+The body is broken into a series of parts,
+
+39
+00:02:53,360 --> 00:02:56,420
+each of which can have its own identifier,
+so essentially
+
+40
+00:02:56,420 --> 00:03:00,160
+its own key, and also its own mime type,
+so
+
+41
+00:03:00,160 --> 00:03:03,690
+that we can interpret what to do with that
+part.
+
+42
+00:03:03,690 --> 00:03:09,820
+So multipart is typically used for
+uploading data like
+
+43
+00:03:09,820 --> 00:03:13,200
+images, or large amounts of data to the
+server.
+
+44
+00:03:13,200 --> 00:03:16,690
+Whereas URL encoded is technically used
+for sending
+
+45
+00:03:16,690 --> 00:03:20,030
+simple key value pair sets to the data.
+
+46
+00:03:20,030 --> 00:03:23,670
+Now you may be asking yourselves, well
+when should I use one or the other?
+
+47
+00:03:23,670 --> 00:03:24,980
+What is the rule?
+
+48
+00:03:26,020 --> 00:03:29,950
+Well there's, the the basic thing you need
+to
+
+49
+00:03:29,950 --> 00:03:34,100
+consider is how much data you're sending
+to the server.
+
+50
+00:03:34,100 --> 00:03:37,290
+Multipart is good for sending a lot of
+data to the server.
+
+51
+00:03:37,290 --> 00:03:39,460
+If you're sending a file to the server,
+
+52
+00:03:39,460 --> 00:03:43,450
+you're uploading some large chunk if
+binary data.
+
+53
+00:03:43,450 --> 00:03:46,250
+Multpart is the appropriate way to do
+that.
+
+54
+00:03:46,250 --> 00:03:49,950
+If you're sending a series of simple key
+values pairs.
+
+55
+00:03:49,950 --> 00:03:52,740
+URL encoded is the way to do it.
+
+56
+00:03:52,740 --> 00:03:58,480
+And one of the reasons for that is that
+URL encoded is going to be more efficient,
+
+57
+00:03:58,480 --> 00:04:00,690
+more space efficient in the size of the
+
+58
+00:04:00,690 --> 00:04:05,210
+message for small amounts of data than a
+multipart.
+
+59
+00:04:05,210 --> 00:04:06,600
+And that's, and the reason is is that if
+
+60
+00:04:06,600 --> 00:04:08,958
+you have a series of short key value
+pairs.
+
+61
+00:04:08,958 --> 00:04:14,718
+In a multipart message, each one of those
+key value pairs has to be broken up and
+
+62
+00:04:14,718 --> 00:04:21,420
+pre-fixed by a specific, message indicator
+in the multipart message.
+
+63
+00:04:21,420 --> 00:04:25,275
+And when you add up all of the overhead of
+this various formatting rules for
+
+64
+00:04:25,275 --> 00:04:28,480
+multipart for small sets of key value
+pairs,
+
+65
+00:04:28,480 --> 00:04:32,425
+it's less efficient than a URL encoded
+message.
+
+66
+00:04:32,425 --> 00:04:35,025
+However, if you're sending a lot of data,
+
+67
+00:04:35,025 --> 00:04:37,690
+multipart is a much more efficient way of
+doing
+
+68
+00:04:37,690 --> 00:04:40,740
+it than URL encoded, because the URL
+encoding rules
+
+69
+00:04:40,740 --> 00:04:44,330
+require a transformation of that data so
+that it
+
+70
+00:04:44,330 --> 00:04:48,140
+meets the URL encoding rules which ends up
+increasing
+
+71
+00:04:48,140 --> 00:04:49,950
+the amount of data that we're actually
+sending to
+
+72
+00:04:49,950 --> 00:04:53,320
+the server in order to safely express what
+we're
+
+73
+00:04:53,320 --> 00:04:56,420
+sending to the server in a URL encoded
+way.
+
+74
+00:04:56,420 --> 00:05:04,090
+So, we can think of this for lots of data
+or binary data like files.
+
+75
+00:05:07,260 --> 00:05:11,810
+And we can think of this as, you know,
+small amounts of data.
+
+76
+00:05:16,350 --> 00:05:18,484
+Or simple key value pairs.
+
+77
+00:05:18,484 --> 00:05:24,227
+And when you're sending
+
+78
+00:05:24,227 --> 00:05:29,120
+request messages, where you're sending
+
+79
+00:05:29,120 --> 00:05:33,600
+data to server, depending on how much data
+you're sending, and
+
+80
+00:05:33,600 --> 00:05:36,640
+sort of the characteristics of that data,
+you will choose
+
+81
+00:05:36,640 --> 00:05:42,200
+a content type that's either URL encoded
+typically or multipart.
+
+82
+00:05:42,200 --> 00:05:45,880
+Now, when we get further into the course,
+we'll see that there's
+
+83
+00:05:45,880 --> 00:05:51,365
+another type that commonly gets used, and
+is popular now, called application/JSON.
+
+84
+00:05:51,365 --> 00:05:54,500
+But we'll talk about that type when we get
+to it later in the course.
+

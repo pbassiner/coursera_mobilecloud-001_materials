@@ -1,0 +1,568 @@
+1
+00:00:00,194 --> 00:00:08,644
+[MUSIC]
+
+2
+00:00:08,644 --> 00:00:13,587
+So what is exactly is a cloud service,
+that a mobile device might talk to,
+
+3
+00:00:13,587 --> 00:00:16,619
+and how do we differentiate and
+understand,
+
+4
+00:00:16,619 --> 00:00:21,080
+how these services differ from the typical
+applications.
+
+5
+00:00:21,080 --> 00:00:23,050
+That we're used to writing.
+
+6
+00:00:23,050 --> 00:00:25,880
+So, let's take a look at an example and
+hopefully it'll
+
+7
+00:00:25,880 --> 00:00:30,630
+help to clarify and better understand what
+a clou, a cloud
+
+8
+00:00:30,630 --> 00:00:34,060
+service is, and what the scope of this
+course is and
+
+9
+00:00:34,060 --> 00:00:35,250
+what are the challenges that we're
+
+10
+00:00:35,250 --> 00:00:37,160
+going to face, when building these
+services.
+
+11
+00:00:38,320 --> 00:00:41,520
+So let's assume we're writing a Java
+application.
+
+12
+00:00:41,520 --> 00:00:47,090
+And what that java application allows us
+to do, is we can capture a video
+
+13
+00:00:48,320 --> 00:00:54,870
+and then we can run a command line utility
+that will be our application.
+
+14
+00:00:54,870 --> 00:01:00,400
+And it will go in save the video, on the
+underline file system.
+
+15
+00:01:02,160 --> 00:01:07,090
+And not only will be going and save the
+video in the underlying file system,
+
+16
+00:01:07,090 --> 00:01:11,460
+but it will also take that video and it
+will save it to a database.
+
+17
+00:01:12,480 --> 00:01:14,750
+So, that we have a record of all
+
+18
+00:01:14,750 --> 00:01:17,350
+of the videos, that we've entered into our
+system.
+
+19
+00:01:17,350 --> 00:01:21,400
+So, this is our service in this case or
+application.
+
+20
+00:01:21,400 --> 00:01:22,520
+That we're going to be building.
+
+21
+00:01:24,690 --> 00:01:26,290
+And we'll assume that there's nothing
+special
+
+22
+00:01:26,290 --> 00:01:28,020
+about this, it's just a Java application.
+
+23
+00:01:29,810 --> 00:01:31,590
+Well, if we're going to be running this
+thing over here
+
+24
+00:01:31,590 --> 00:01:35,330
+from the command line, one of the things
+that we're
+
+25
+00:01:35,330 --> 00:01:38,260
+probably going to want to do, if we're
+writing this
+
+26
+00:01:38,260 --> 00:01:41,240
+in Java is we're goig to have a main
+method.
+
+27
+00:01:41,240 --> 00:01:47,164
+So, we might have a public, static,
+
+28
+00:01:47,164 --> 00:01:53,470
+void, main that takes some arguments.
+
+29
+00:01:56,510 --> 00:01:58,380
+And we could go out and spell out what
+those are.
+
+30
+00:01:59,660 --> 00:02:01,000
+And then in that main method.
+
+31
+00:02:02,080 --> 00:02:05,330
+We might go and do things like you know,
+look
+
+32
+00:02:05,330 --> 00:02:08,940
+for the flags that were passed on the
+command line.
+
+33
+00:02:08,940 --> 00:02:11,680
+So, we can look for flags.
+
+34
+00:02:15,190 --> 00:02:20,440
+We can look for the file that they want to
+add the video.
+
+35
+00:02:22,270 --> 00:02:23,540
+So, look for the video path, and
+
+36
+00:02:25,680 --> 00:02:27,700
+we can do a whole bunch of other stuff.
+
+37
+00:02:27,700 --> 00:02:31,990
+But the key would be, we've got this main
+method, which is part
+
+38
+00:02:31,990 --> 00:02:34,320
+of this application and every time from
+
+39
+00:02:34,320 --> 00:02:37,160
+the command line they invoke our
+application.
+
+40
+00:02:37,160 --> 00:02:43,700
+They're going to be passing commands from
+the command line into our application,
+
+41
+00:02:43,700 --> 00:02:48,735
+so what we have is a stream of commands
+
+42
+00:02:48,735 --> 00:02:54,530
+that are being passed into our
+application.
+
+43
+00:02:54,530 --> 00:02:57,880
+So, every time the user goes and invokes
+this thing from
+
+44
+00:02:57,880 --> 00:03:01,890
+the command line, they're basically
+sending a different command to it.
+
+45
+00:03:01,890 --> 00:03:04,360
+And the tax that they enter in the command
+line is then
+
+46
+00:03:04,360 --> 00:03:09,720
+being passed to our public static void
+main method, where we can
+
+47
+00:03:09,720 --> 00:03:14,170
+start up our application, take action
+based on the data that they
+
+48
+00:03:14,170 --> 00:03:17,240
+passed us, then going store something in a
+database, or do something else.
+
+49
+00:03:18,240 --> 00:03:22,540
+We might also want to issue commands to
+our application.
+
+50
+00:03:22,540 --> 00:03:26,360
+That have it go and query the information
+we've already stored,
+
+51
+00:03:26,360 --> 00:03:31,740
+or be processed based on the information
+we've already set the application.
+
+52
+00:03:31,740 --> 00:03:34,060
+So one of the, the things we might have to
+do then,
+
+53
+00:03:34,060 --> 00:03:39,650
+is provide feedback to the user that's
+sending the commands to the application.
+
+54
+00:03:39,650 --> 00:03:44,150
+So we might have something in our main
+method that's printing out feedback.
+
+55
+00:03:44,150 --> 00:03:50,130
+Using System.out.printline back to the
+user,
+
+56
+00:03:50,130 --> 00:03:56,020
+so that the user can see the results of
+the commands that they're issuing.
+
+57
+00:03:56,020 --> 00:04:00,850
+Or see information that comes out of the
+database that the user is querying.
+
+58
+00:04:01,870 --> 00:04:06,540
+So, not only do we have a situation, where
+we are sending commands and asking.
+
+59
+00:04:06,540 --> 00:04:08,720
+The application to go and store data, but
+we also
+
+60
+00:04:08,720 --> 00:04:12,610
+have situations where we need to, based on
+those commands,
+
+61
+00:04:12,610 --> 00:04:17,620
+go and provide feedback to the user, about
+the success
+
+62
+00:04:17,620 --> 00:04:21,050
+or failure of those commands and any data
+associated with them.
+
+63
+00:04:21,050 --> 00:04:27,120
+So, for example, if the user issues a
+query to see all of the videos created.
+
+64
+00:04:27,120 --> 00:04:30,070
+In a certain time period we'll probably
+want to
+
+65
+00:04:30,070 --> 00:04:33,320
+print out the query back to the command
+line.
+
+66
+00:04:33,320 --> 00:04:37,810
+Similarly if the user issues a query
+that's malformed.
+
+67
+00:04:37,810 --> 00:04:40,740
+We would probably expect the application
+to go
+
+68
+00:04:40,740 --> 00:04:43,760
+in print on the command line an error
+message.
+
+69
+00:04:43,760 --> 00:04:47,200
+Stating what the user did wrong, and
+helping them to
+
+70
+00:04:47,200 --> 00:04:52,180
+figure out how to formulate that command
+correctly and send it.
+
+71
+00:04:52,180 --> 00:04:54,500
+Where if the application went and
+processed the
+
+72
+00:04:54,500 --> 00:04:57,390
+command, and it had a bug in the program
+
+73
+00:04:57,390 --> 00:04:59,990
+and it crashed or [UNKNOWN] we would
+expect to
+
+74
+00:04:59,990 --> 00:05:03,210
+get some feedback telling us that the
+application crashed.
+
+75
+00:05:04,930 --> 00:05:09,720
+So what we'll see is this basic
+architecture of commands being sent to
+
+76
+00:05:09,720 --> 00:05:13,190
+an application processing data in some
+format
+
+77
+00:05:13,190 --> 00:05:16,210
+either storing it or performing some
+analysis
+
+78
+00:05:16,210 --> 00:05:21,540
+on it, and then providing feedback to the
+user based on the success or
+
+79
+00:05:21,540 --> 00:05:23,101
+failure of those commands, and in the
+
+80
+00:05:23,101 --> 00:05:25,320
+results of the execution of those
+commands.
+
+81
+00:05:25,320 --> 00:05:29,030
+That's the basic architecture we're going
+to be working with throughout this class.
+
+82
+00:05:30,190 --> 00:05:33,270
+The big difference is when we go into the
+cloud services
+
+83
+00:05:33,270 --> 00:05:37,560
+model, what we're going to have is, the
+case where we're sending
+
+84
+00:05:37,560 --> 00:05:41,860
+the commands to the application from a
+mobile device, that's not
+
+85
+00:05:41,860 --> 00:05:45,570
+sitting on the same app, the same host as
+that application.
+
+86
+00:05:45,570 --> 00:05:46,750
+So this mobile device is going to be
+
+87
+00:05:46,750 --> 00:05:50,180
+sending this command remotely over the
+internet.
+
+88
+00:05:50,180 --> 00:05:53,230
+To this application and this application's
+going to be living in
+
+89
+00:05:53,230 --> 00:05:59,220
+the cloud and receiving those commands,
+processing data through some data store,
+
+90
+00:05:59,220 --> 00:06:03,000
+saving the information somewhere that's
+being sent to it, and having to
+
+91
+00:06:03,000 --> 00:06:08,250
+remotely send back to the mobile device,
+the results of those commands.
+
+92
+00:06:08,250 --> 00:06:12,890
+So, we have this remote interactions
+that's based on commands being issued to
+
+93
+00:06:12,890 --> 00:06:16,850
+the application and results coming back,
+that we're going to be working with.
+
+94
+00:06:16,850 --> 00:06:19,300
+We're going to be sending data from the
+mobile
+
+95
+00:06:19,300 --> 00:06:22,470
+device, which is the client, to the
+application.
+
+96
+00:06:22,470 --> 00:06:25,110
+It's going to process that information.
+
+97
+00:06:25,110 --> 00:06:27,910
+And in this case, the application is
+going to be a server.
+
+98
+00:06:27,910 --> 00:06:30,100
+And it's going to be living in the cloud
+and then it's going to
+
+99
+00:06:30,100 --> 00:06:34,890
+send the results back to the mobile
+device, so that it can know what happened.
+
+100
+00:06:34,890 --> 00:06:39,710
+So it may be sending back results that say
+here's the result of running your command.
+
+101
+00:06:39,710 --> 00:06:42,030
+It may send results back that say you
+
+102
+00:06:42,030 --> 00:06:44,660
+you know, did not formulate your command
+correctly.
+
+103
+00:06:44,660 --> 00:06:48,630
+Or it may be sending results back saying
+the server had a problem.
+
+104
+00:06:48,630 --> 00:06:50,840
+Here's what the problem was and it
+crashed.
+
+105
+00:06:52,050 --> 00:06:55,530
+And that's the architecture that we're
+going to be building through this class.
+
+106
+00:06:55,530 --> 00:06:59,810
+Is this remote distributed architecture
+where mobile
+
+107
+00:06:59,810 --> 00:07:03,580
+clients, your mobile devices on Android,
+are sending
+
+108
+00:07:03,580 --> 00:07:10,050
+commands over the internet, to a service
+or a server that's living in the cloud.
+
+109
+00:07:10,050 --> 00:07:12,310
+And they're being processed and then
+results
+
+110
+00:07:12,310 --> 00:07:14,130
+are being sent back to the mobile client.
+
+111
+00:07:15,350 --> 00:07:21,089
+And one of the key questions that we have
+to answer and address is, how do
+
+112
+00:07:21,089 --> 00:07:24,629
+we get these commands from the mobile
+device
+
+113
+00:07:24,629 --> 00:07:28,564
+to the server and communicate the results
+back?
+
+114
+00:07:28,564 --> 00:07:31,286
+What are the requirements and rules for
+
+115
+00:07:31,286 --> 00:07:35,090
+that communication with they server that's
+remote?
+
+116
+00:07:35,090 --> 00:07:38,684
+How do we ensure that it's reliable?
+
+117
+00:07:38,684 --> 00:07:41,149
+How do we ensure that it's orderly, and
+done in a
+
+118
+00:07:41,149 --> 00:07:44,410
+way that the server can understand and
+process commands for us?
+

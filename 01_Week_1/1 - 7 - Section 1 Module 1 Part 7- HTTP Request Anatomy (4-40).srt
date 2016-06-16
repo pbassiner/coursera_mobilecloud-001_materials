@@ -1,0 +1,312 @@
+1
+00:00:00,002 --> 00:00:08,389
+[MUSIC]
+
+2
+00:00:08,389 --> 00:00:11,963
+Whenever a client sends a request to a
+server using
+
+3
+00:00:11,963 --> 00:00:15,970
+HTTP, that request has to have a very
+specific format.
+
+4
+00:00:15,970 --> 00:00:18,350
+I mean, just think about it, if you're
+that server
+
+5
+00:00:18,350 --> 00:00:21,290
+receiving all of these requests from all
+over the place.
+
+6
+00:00:21,290 --> 00:00:24,910
+You have to absolutely make sure that they
+all have the same format so
+
+7
+00:00:24,910 --> 00:00:29,030
+you can interpret them properly and figure
+out the right thing to do with them.
+
+8
+00:00:29,030 --> 00:00:33,190
+And that's why HTTP, very strictly
+specifies what the
+
+9
+00:00:33,190 --> 00:00:36,910
+format and the rules are for sending that
+request.
+
+10
+00:00:36,910 --> 00:00:40,139
+So let's talk about the Parts of a
+Request.
+
+11
+00:00:41,330 --> 00:00:43,860
+So we have our HTTP Request.
+
+12
+00:00:43,860 --> 00:00:49,260
+And, each HTTP Request has a number of
+critical, some mandatory
+
+13
+00:00:49,260 --> 00:00:53,270
+and some optional, parts that have to be
+sent to the server.
+
+14
+00:00:53,270 --> 00:00:58,580
+One of the first parts that has to be sent
+to the server is the Request Line.
+
+15
+00:01:00,950 --> 00:01:05,060
+And the Request Line specifies two really
+important things.
+
+16
+00:01:05,060 --> 00:01:08,890
+The first thing is it specifies the
+Request Method.
+
+17
+00:01:12,570 --> 00:01:18,679
+And the second thing that it specifies is
+the Resource.
+
+18
+00:01:21,360 --> 00:01:25,750
+That we want to take action on, which is
+typically specified as a Path.
+
+19
+00:01:27,060 --> 00:01:30,040
+So these are a request part.
+
+20
+00:01:32,000 --> 00:01:34,300
+Now, this is the key thing.
+
+21
+00:01:34,300 --> 00:01:38,280
+We're going to say, server, please go and
+take this action.
+
+22
+00:01:38,280 --> 00:01:40,790
+On this particular Resource.
+
+23
+00:01:40,790 --> 00:01:44,030
+But when that server gets that Request
+there's lots of cases where
+
+24
+00:01:44,030 --> 00:01:49,520
+it may have multiple options for how it
+goes and completes that request.
+
+25
+00:01:49,520 --> 00:01:55,010
+For example, let's say that we have a
+webpage on the server, and it's the
+
+26
+00:01:55,010 --> 00:02:01,740
+homepage of that particular web address,
+so you go to the Equivalent of google.com.
+
+27
+00:02:01,740 --> 00:02:04,300
+Well, sometimes the server needs help
+knowing some
+
+28
+00:02:04,300 --> 00:02:07,270
+information about the client that can help
+it to
+
+29
+00:02:07,270 --> 00:02:10,390
+complete that request, things like the
+language that
+
+30
+00:02:10,390 --> 00:02:14,170
+the client would like to receive the
+response in.
+
+31
+00:02:14,170 --> 00:02:19,730
+So, the next piece of the request is a
+series of Headers.
+
+32
+00:02:19,730 --> 00:02:25,390
+And what we can think of these is extra
+information to help the server.
+
+33
+00:02:29,980 --> 00:02:31,890
+And these were things like the language
+that
+
+34
+00:02:31,890 --> 00:02:34,990
+we would like the response to come back
+in.
+
+35
+00:02:34,990 --> 00:02:42,900
+Or the character set that we would like to
+see the response in, or the content type,
+
+36
+00:02:42,900 --> 00:02:45,560
+what we're sending back to the client so
+
+37
+00:02:45,560 --> 00:02:49,350
+it knows how to interpret it and process
+it.
+
+38
+00:02:49,350 --> 00:02:53,190
+Or possibly something like the cookies or
+small pieces
+
+39
+00:02:53,190 --> 00:02:57,340
+of data that were sent from the server to
+the
+
+40
+00:02:57,340 --> 00:03:00,470
+client in a past request that the client's
+now
+
+41
+00:03:00,470 --> 00:03:03,970
+providing back to the server to help it
+figure out.
+
+42
+00:03:03,970 --> 00:03:09,030
+Where it was or who this person is, and
+associate them with past requests.
+
+43
+00:03:09,030 --> 00:03:13,470
+So the Headers are the second key
+component of a request, and they provide
+
+44
+00:03:13,470 --> 00:03:16,120
+extra information to help the server
+figure
+
+45
+00:03:16,120 --> 00:03:17,920
+out the right way to process the request.
+
+46
+00:03:19,040 --> 00:03:24,250
+A final piece of information that can be
+part of an HTTP Request.
+
+47
+00:03:24,250 --> 00:03:30,430
+Is the Request Body, and the Body is any
+data
+
+48
+00:03:30,430 --> 00:03:36,450
+that the client is sending to the server,
+in order to help it complete the request.
+
+49
+00:03:36,450 --> 00:03:41,598
+Now, this an optional part of a request,
+and not a
+
+50
+00:03:41,598 --> 00:03:47,620
+100% required, but let's distinguish it a
+little bit from the Headers.
+
+51
+00:03:48,630 --> 00:03:51,280
+The Headers are meta information, things
+to help
+
+52
+00:03:51,280 --> 00:03:56,020
+it know the right way to process the
+request.
+
+53
+00:03:56,020 --> 00:04:02,810
+The Body is core data that is being sent
+to the server to process the request.
+
+54
+00:04:02,810 --> 00:04:05,660
+Now one way to think about this is in most
+cases.
+
+55
+00:04:05,660 --> 00:04:08,400
+If you didn't include the Headers, but you
+did
+
+56
+00:04:08,400 --> 00:04:12,110
+include the Body, the server could still
+process the Request.
+
+57
+00:04:12,110 --> 00:04:13,710
+It just may not give it back to you in the
+
+58
+00:04:13,710 --> 00:04:18,230
+format that you expected or exactly the
+way that you expected it.
+
+59
+00:04:18,230 --> 00:04:20,470
+But if you didn't include the Body and the
+server
+
+60
+00:04:20,470 --> 00:04:25,060
+needed the Body, it wouldn't be able to
+process the Request.
+
+61
+00:04:25,060 --> 00:04:27,760
+So the Body is the data the client is
+sending, that
+
+62
+00:04:27,760 --> 00:04:31,530
+the server absolutely has to have in order
+to complete that Request.
+
+63
+00:04:32,820 --> 00:04:35,660
+The Headers are extra information that the
+client is
+
+64
+00:04:35,660 --> 00:04:38,920
+giving the server to help it complete that
+Request.
+

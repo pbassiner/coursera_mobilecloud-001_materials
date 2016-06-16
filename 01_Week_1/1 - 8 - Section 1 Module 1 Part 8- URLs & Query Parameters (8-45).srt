@@ -1,0 +1,553 @@
+1
+00:00:00,000 --> 00:00:09,180
+[MUSIC]
+
+2
+00:00:09,180 --> 00:00:15,870
+So as we've seen, resources play a very
+important role in the HTTP specification.
+
+3
+00:00:15,870 --> 00:00:19,460
+Every time we're sending a request to the
+server, we're asking
+
+4
+00:00:19,460 --> 00:00:24,700
+it to take some action on some resource
+that we're interested in.
+
+5
+00:00:24,700 --> 00:00:30,100
+So, obviously, a really important part of
+understanding how to write clients
+
+6
+00:00:30,100 --> 00:00:35,020
+that operate on HTTP is understanding how
+we talk about resources to
+
+7
+00:00:35,020 --> 00:00:39,150
+the server and how we identify the
+resources that we're interested in
+
+8
+00:00:39,150 --> 00:00:42,960
+so that the server can locate them and
+then take that appropriate action.
+
+9
+00:00:44,300 --> 00:00:50,640
+Now in HTTP, the way that resources are
+identified is with what's called
+
+10
+00:00:50,640 --> 00:00:56,918
+a uniform resource
+
+11
+00:00:56,918 --> 00:01:01,565
+locator
+
+12
+00:01:01,565 --> 00:01:05,940
+or URL, which is what everybody should be
+familiar with.
+
+13
+00:01:07,220 --> 00:01:13,000
+And what a URL consists of is the
+specification of the protocol,
+
+14
+00:01:13,000 --> 00:01:19,331
+which in this case, is http://,
+
+15
+00:01:19,331 --> 00:01:23,200
+a host or server that's going to be talked
+to.
+
+16
+00:01:24,360 --> 00:01:29,640
+Potentially a port number that's preceded
+
+17
+00:01:29,640 --> 00:01:34,670
+by a colon and that is, we're going to
+connect to a specific port on that host.
+
+18
+00:01:35,680 --> 00:01:37,160
+And then a path,
+
+19
+00:01:39,370 --> 00:01:42,700
+that we would like to access, representing
+that resource.
+
+20
+00:01:43,990 --> 00:01:50,710
+So, in this case, this is telling us which
+server to go and talk to on the network.
+
+21
+00:01:52,040 --> 00:01:58,110
+Which port of that server we want to
+deliver our HTTP messages to.
+
+22
+00:01:58,110 --> 00:02:03,380
+So this is typically going to be the port
+that the web application container or
+
+23
+00:02:03,380 --> 00:02:06,441
+web server, whatever the entity is that's
+
+24
+00:02:06,441 --> 00:02:10,070
+providing the server side of the HTTP
+communications.
+
+25
+00:02:10,070 --> 00:02:12,810
+This is going to be the port on this host
+that it's listing.
+
+26
+00:02:13,880 --> 00:02:17,430
+And then finally you have the path to the
+
+27
+00:02:17,430 --> 00:02:20,820
+resource that we are interested in on that
+particular host.
+
+28
+00:02:22,450 --> 00:02:26,170
+So then when the host receives this, what
+it's really interested
+
+29
+00:02:26,170 --> 00:02:29,720
+in is typically the component at the end;
+which is the path.
+
+30
+00:02:29,720 --> 00:02:32,690
+It already knows where it is, it already
+knows its port, but
+
+31
+00:02:32,690 --> 00:02:35,420
+it needs to know the path to the resource
+that you're looking for.
+
+32
+00:02:36,830 --> 00:02:39,700
+One other interesting component of URL's
+that are
+
+33
+00:02:39,700 --> 00:02:43,910
+very important in HTTP communication from
+mobile clients
+
+34
+00:02:43,910 --> 00:02:48,280
+and other clients trying to communicate
+with web
+
+35
+00:02:48,280 --> 00:02:51,500
+based applications is the concept of query
+parameters.
+
+36
+00:02:52,660 --> 00:03:02,381
+So you may have seen some URL's that look
+something like this.
+
+37
+00:03:02,381 --> 00:03:08,633
+And what this is, is at the end of this we
+
+38
+00:03:08,633 --> 00:03:15,080
+have what are called query parameters.
+
+39
+00:03:16,240 --> 00:03:21,050
+And what query parameters are, is they are
+additional information that
+
+40
+00:03:21,050 --> 00:03:25,530
+can be attached to the end of the URL,
+that's passed
+
+41
+00:03:25,530 --> 00:03:26,820
+along to the server in
+
+42
+00:03:26,820 --> 00:03:30,670
+order to communicate information,
+additional information,
+
+43
+00:03:30,670 --> 00:03:36,180
+about what particular aspect of that
+resource the client is interested in.
+
+44
+00:03:37,392 --> 00:03:43,910
+And these query parameters take the form
+of, they must follow
+
+45
+00:03:43,910 --> 00:03:50,810
+a question mark that is placed at the end
+of the core part of the URL.
+
+46
+00:03:50,810 --> 00:03:56,690
+So right after the resource path, we have
+a question mark, which we see right here.
+
+47
+00:03:56,690 --> 00:04:00,630
+And then we have a series of key value
+pairs, where in this case we have a key
+
+48
+00:04:01,980 --> 00:04:08,600
+which is A and then we have the value
+which is B.
+
+49
+00:04:10,010 --> 00:04:13,054
+And so these query parameters follow at
+
+50
+00:04:13,054 --> 00:04:17,340
+the end of the path that's being
+specified.
+
+51
+00:04:17,340 --> 00:04:21,760
+Now if we want to specify multiple query
+parameters, that's also possible too.
+
+52
+00:04:21,760 --> 00:04:25,070
+In this case we only have a single key
+value pair.
+
+53
+00:04:25,070 --> 00:04:27,840
+We have the key A equals B.
+
+54
+00:04:29,080 --> 00:04:31,770
+We can also pass multiple parameters.
+
+55
+00:04:31,770 --> 00:04:37,040
+So for example, if we had a question mark
+and then we had A
+
+56
+00:04:37,040 --> 00:04:42,350
+equals B, we can then add an ampersand to
+
+57
+00:04:43,390 --> 00:04:48,215
+the query path, I mean the query
+parameters.
+
+58
+00:04:48,215 --> 00:04:53,670
+And then we can have a second set of key
+valued pairs.
+
+59
+00:04:53,670 --> 00:04:58,310
+So, in this case we have the first key is
+key 1 which is A.
+
+60
+00:04:58,310 --> 00:05:04,770
+Then, the second key which is key 2, which
+is C.
+
+61
+00:05:04,770 --> 00:05:10,830
+And then we would have B as the first
+value for key 1.
+
+62
+00:05:10,830 --> 00:05:13,710
+And D is the value for key 2.
+
+63
+00:05:13,710 --> 00:05:19,440
+So using query parameters, we can pass
+essentially extra information
+
+64
+00:05:19,440 --> 00:05:22,800
+about a specific aspect of a resource to
+the server.
+
+65
+00:05:22,800 --> 00:05:26,050
+And we can pass as many of these as we
+want up to a limit.
+
+66
+00:05:27,160 --> 00:05:33,900
+Now, we just keep separating these query
+parameters with ampersand in
+
+67
+00:05:33,900 --> 00:05:38,120
+order to understand where the separations
+are between the keys and the values.
+
+68
+00:05:38,120 --> 00:05:42,100
+There are a couple of important concepts
+that we need to
+
+69
+00:05:42,100 --> 00:05:46,440
+know about, if were going to pass query
+parameters to the client.
+
+70
+00:05:46,440 --> 00:05:50,130
+One of those things is we can't have
+certain
+
+71
+00:05:50,130 --> 00:05:56,070
+special characters appear within our query
+parameter values and keys.
+
+72
+00:05:57,070 --> 00:05:59,440
+So as you can imagine on the server side,
+
+73
+00:05:59,440 --> 00:06:03,360
+the server needs to easily be able to
+parse
+
+74
+00:06:03,360 --> 00:06:07,030
+these query parameters by looking for the
+equal signs
+
+75
+00:06:07,030 --> 00:06:10,842
+and the ampersand signs as well as the
+question mark.
+
+76
+00:06:10,842 --> 00:06:15,370
+And if we began inserting these special
+symbols into our query
+
+77
+00:06:15,370 --> 00:06:19,670
+parameters, it'd be hard for the server to
+extract them out.
+
+78
+00:06:19,670 --> 00:06:23,520
+So, by default there are a set of
+
+79
+00:06:23,520 --> 00:06:25,430
+characters that we're allowed to have in
+our
+
+80
+00:06:25,430 --> 00:06:27,190
+query parameters and a set of characters
+that
+
+81
+00:06:27,190 --> 00:06:30,140
+we aren't allowed to have in our query
+parameters.
+
+82
+00:06:30,140 --> 00:06:35,650
+And any of those characters that aren't
+allowed to be in our query parameters have
+
+83
+00:06:35,650 --> 00:06:43,110
+to be actually encoded using a process
+that's called URL encoding.
+
+84
+00:06:43,110 --> 00:06:45,560
+And the idea behind this is, if we want to
+pass a
+
+85
+00:06:45,560 --> 00:06:51,850
+value that has characters that aren't
+allowed in the query parameter spec.
+
+86
+00:06:51,850 --> 00:06:55,660
+What we can do is instead replace those
+
+87
+00:06:55,660 --> 00:06:59,203
+characters, with what are called their URL
+encoded
+
+88
+00:06:59,203 --> 00:07:02,820
+equivalence so that we can still represent
+them,
+
+89
+00:07:02,820 --> 00:07:05,300
+and the server understands how we
+represent them.
+
+90
+00:07:06,580 --> 00:07:09,310
+But when we actually go and look at the
+
+91
+00:07:09,310 --> 00:07:11,760
+characters there itself, none of these
+symbols show up.
+
+92
+00:07:11,760 --> 00:07:16,450
+They get replaced with other things that
+mean the same things.
+
+93
+00:07:16,450 --> 00:07:20,140
+So if we have an equals sign within our
+value for a particular
+
+94
+00:07:20,140 --> 00:07:25,729
+key pair, it will get replaced with the
+URL encoded equivalent of equal sign.
+
+95
+00:07:25,729 --> 00:07:33,110
+Now, you could go and look up all of the
+specific ways that
+
+96
+00:07:33,110 --> 00:07:38,940
+you URL encode different characters into a
+query parameter, but you don't need to.
+
+97
+00:07:38,940 --> 00:07:40,710
+Almost every programming language that
+you're going
+
+98
+00:07:40,710 --> 00:07:43,040
+to work with has libraries and functions
+
+99
+00:07:43,040 --> 00:07:46,470
+available to you to automatically encode
+your
+
+100
+00:07:46,470 --> 00:07:49,990
+query parameters into a properly URL
+encoded string.
+
+101
+00:07:51,050 --> 00:07:52,680
+So you don't need to go and learn
+
+102
+00:07:52,680 --> 00:07:55,660
+them, you just need to understand the
+concept that.
+
+103
+00:07:55,660 --> 00:08:01,070
+If you pass specific things like the equal
+sign or
+
+104
+00:08:01,070 --> 00:08:03,710
+the ampersand or the question mark or the
+slash or
+
+105
+00:08:03,710 --> 00:08:08,850
+space inside of one of your keys or
+values, then
+
+106
+00:08:08,850 --> 00:08:12,620
+you need to make sure that you're URL is
+URL encoded.
+
+107
+00:08:13,800 --> 00:08:17,360
+And so other than that, you don't need to
+do anything.
+
+108
+00:08:17,360 --> 00:08:21,320
+But you do need to understand the cases
+where if you put
+
+109
+00:08:21,320 --> 00:08:25,390
+something into one of your query
+parameters, you need to URL encode it.
+
+110
+00:08:25,390 --> 00:08:28,360
+Often, when we're writing clients, they're
+going to be sending data
+
+111
+00:08:28,360 --> 00:08:31,380
+to the server or sending requests to the
+server, we want
+
+112
+00:08:31,380 --> 00:08:35,570
+to go ahead and URL encode all of our URLs
+that
+
+113
+00:08:35,570 --> 00:08:39,350
+are dynamically constructed with some type
+of data that we're taking in.
+
+114
+00:08:39,350 --> 00:08:41,510
+Because there's a possibility that that
+data may
+
+115
+00:08:41,510 --> 00:08:45,410
+not strictly adhere to the query parameter
+specification.
+

@@ -1,0 +1,332 @@
+1
+00:00:00,449 --> 00:00:08,753
+[MUSIC]
+
+2
+00:00:08,753 --> 00:00:11,267
+So what do we need if we're going to talk
+
+3
+00:00:11,267 --> 00:00:15,090
+to a server that's sitting remote from our
+mobile device?
+
+4
+00:00:15,090 --> 00:00:20,395
+So we've got our mobile device that's
+sitting here, and we're
+
+5
+00:00:20,395 --> 00:00:25,230
+going to communicate between it and some
+cloud resources.
+
+6
+00:00:25,230 --> 00:00:30,151
+So what do we need to do in order to
+support that interaction?
+
+7
+00:00:30,151 --> 00:00:34,150
+Well, one of the most important things we
+have to do
+
+8
+00:00:34,150 --> 00:00:39,260
+is we have to select a protocol for
+talking to that cloud.
+
+9
+00:00:39,260 --> 00:00:41,090
+How do we go in about and talk to
+
+10
+00:00:41,090 --> 00:00:44,200
+the cloud, the cloud, and that's what a
+protocol is.
+
+11
+00:00:44,200 --> 00:00:47,570
+A protocol is a set of rules dictating how
+we
+
+12
+00:00:47,570 --> 00:00:51,900
+communicate with the resources on the
+other end of this network.
+
+13
+00:00:51,900 --> 00:00:54,320
+Now why do we need a protocol, or some
+specialized
+
+14
+00:00:54,320 --> 00:00:57,062
+way of communicating, and what does the
+protocol get us?
+
+15
+00:00:57,062 --> 00:01:00,610
+So if we just go and make a local method
+call,
+
+16
+00:01:00,610 --> 00:01:05,760
+this is going to be, you know, very, very
+fast, nearly instantaneous.
+
+17
+00:01:05,760 --> 00:01:07,460
+But when
+
+18
+00:01:09,910 --> 00:01:12,850
+we go and do some communication over the
+network, for example,
+
+19
+00:01:12,850 --> 00:01:18,120
+we communicate over a cellular connection
+to resources that are sitting
+
+20
+00:01:18,120 --> 00:01:21,230
+in a cloud that could be, you know,
+thousands of miles
+
+21
+00:01:21,230 --> 00:01:27,180
+away, this could be milliseconds to
+seconds to do that communication.
+
+22
+00:01:27,180 --> 00:01:33,130
+So there's a substantial longer period of
+time to establish that connection
+
+23
+00:01:33,130 --> 00:01:37,540
+to transfer data and to receive some type
+of response that we're waiting for.
+
+24
+00:01:38,700 --> 00:01:42,240
+So a big question that comes up is, well,
+how long is too long?
+
+25
+00:01:42,240 --> 00:01:44,740
+When should I disconnect from that server
+and
+
+26
+00:01:44,740 --> 00:01:47,368
+assume that my communication from my
+mobile device failed?
+
+27
+00:01:47,368 --> 00:01:49,940
+because, we've all experienced it, where
+you're driving along
+
+28
+00:01:49,940 --> 00:01:53,440
+and suddenly your call drops because your
+signal goes away.
+
+29
+00:01:53,440 --> 00:01:56,510
+Well how does that cloud know when it's
+
+30
+00:01:56,510 --> 00:01:59,630
+been too long since it's heard something
+from you?
+
+31
+00:01:59,630 --> 00:02:02,130
+Or, what if you go and log in to a
+website, when
+
+32
+00:02:02,130 --> 00:02:07,680
+should it, decide to de-authenticate you
+and make you log in again?
+
+33
+00:02:07,680 --> 00:02:10,700
+All of these things are aspects of the
+protocols that we
+
+34
+00:02:10,700 --> 00:02:15,490
+design in order to communicate with some
+other entity that's farther away.
+
+35
+00:02:16,540 --> 00:02:17,810
+And it's really important to have a
+
+36
+00:02:17,810 --> 00:02:22,370
+robust protocol for this communication to
+ensure that
+
+37
+00:02:22,370 --> 00:02:28,540
+we interact securely and reliably and
+quickly with
+
+38
+00:02:28,540 --> 00:02:30,940
+the resources that we're trying to
+interact with.
+
+39
+00:02:30,940 --> 00:02:33,900
+So to give you an example, think about the
+Mars Rover
+
+40
+00:02:33,900 --> 00:02:37,750
+that, that NASA has launched and been
+controlling from the earth.
+
+41
+00:02:37,750 --> 00:02:40,490
+When they send a message from Earth to the
+
+42
+00:02:40,490 --> 00:02:43,550
+Mars Rover to drive it or control it, it
+can
+
+43
+00:02:43,550 --> 00:02:48,010
+take a substantial period of time for that
+message
+
+44
+00:02:48,010 --> 00:02:51,790
+to receive, to be received on Mars by that
+rover.
+
+45
+00:02:51,790 --> 00:02:55,870
+It's not milliseconds or seconds on the,
+it's on the order of hours.
+
+46
+00:02:55,870 --> 00:02:58,610
+So think about it, you're driving this
+rover, and
+
+47
+00:02:58,610 --> 00:03:01,290
+suddenly it hasn't received a message in
+an hour.
+
+48
+00:03:01,290 --> 00:03:02,760
+What should it do?
+
+49
+00:03:02,760 --> 00:03:03,530
+How should it respond?
+
+50
+00:03:03,530 --> 00:03:06,670
+Should it keep going at 50 miles an hour
+or 10 miles
+
+51
+00:03:06,670 --> 00:03:09,090
+an hour or however fast the rover goes, or
+should it stop?
+
+52
+00:03:09,090 --> 00:03:12,730
+Should it try to return to where it
+started from?
+
+53
+00:03:12,730 --> 00:03:15,350
+So this is what a protocol defines, is
+
+54
+00:03:15,350 --> 00:03:19,740
+it tells you how you communicate with
+another entity.
+
+55
+00:03:19,740 --> 00:03:23,600
+And it defines a syntax, or basically a
+format, for
+
+56
+00:03:23,600 --> 00:03:26,610
+the messages that you can send to that
+other entity.
+
+57
+00:03:26,610 --> 00:03:28,470
+So it says, when I send a message, it has
+
+58
+00:03:28,470 --> 00:03:31,790
+to have these properties to it, and that's
+the syntax.
+
+59
+00:03:33,220 --> 00:03:39,830
+It defines semantics, and this is
+basically the meaning of the messages.
+
+60
+00:03:39,830 --> 00:03:42,330
+So if I send you message A and then I
+
+61
+00:03:42,330 --> 00:03:45,570
+send you message B, here's what I mean by
+that, I
+
+62
+00:03:45,570 --> 00:03:48,000
+don't want you to get confused, I want you
+to
+
+63
+00:03:48,000 --> 00:03:50,780
+understand the semantics of my messages,
+or the meaning of them.
+
+64
+00:03:51,870 --> 00:03:56,510
+And then it spells out the timing, so I if
+I send you
+
+65
+00:03:56,510 --> 00:04:01,120
+message A, how long do I have before I
+should send you message B?
+
+66
+00:04:01,120 --> 00:04:02,920
+Or should I even send you message B at
+all?
+
+67
+00:04:02,920 --> 00:04:05,380
+Should I send you something else instead?
+
+68
+00:04:05,380 --> 00:04:09,720
+So building and selecting the right
+protocol for the interaction with the
+
+69
+00:04:09,720 --> 00:04:14,260
+cloud is one of the most important aspects
+of mobile to cloud interactions.
+

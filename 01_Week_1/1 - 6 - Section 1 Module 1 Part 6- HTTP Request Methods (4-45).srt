@@ -1,0 +1,292 @@
+1
+00:00:00,240 --> 00:00:08,940
+[MUSIC]
+
+2
+00:00:08,940 --> 00:00:13,980
+It's really important to understand the
+details of the HTTP protocol.
+
+3
+00:00:13,980 --> 00:00:18,700
+In order to build and debug effective
+cloud services.
+
+4
+00:00:18,700 --> 00:00:21,420
+So let's talk about those details in some
+more depth.
+
+5
+00:00:22,860 --> 00:00:28,250
+So the HTTP protocol is always organized
+
+6
+00:00:28,250 --> 00:00:33,050
+around a client sending a request to the
+server.
+
+7
+00:00:34,700 --> 00:00:38,770
+So we have our server and our client and
+we have a request that's being sent.
+
+8
+00:00:40,060 --> 00:00:45,390
+Now, one of the key parts of that request
+is the action
+
+9
+00:00:45,390 --> 00:00:50,610
+that the client is asking the server to
+take on its behalf.
+
+10
+00:00:50,610 --> 00:00:54,910
+And so every request has a request method.
+
+11
+00:00:57,500 --> 00:01:03,490
+And the request method, is the action or
+the verb that
+
+12
+00:01:03,490 --> 00:01:07,666
+the client is asking the server to take on
+its behalf.
+
+13
+00:01:07,666 --> 00:01:11,660
+And all requests are dictated as a request
+method that
+
+14
+00:01:11,660 --> 00:01:16,750
+should be applied to a specific resource
+on the server.
+
+15
+00:01:17,980 --> 00:01:22,580
+So for example, when you go and access a
+webpage, using your browser.
+
+16
+00:01:22,580 --> 00:01:30,310
+What you're typically doing is sending a
+request that has the get request method.
+
+17
+00:01:30,310 --> 00:01:35,450
+So it is a get request, and the resource
+is usually some webpage
+
+18
+00:01:35,450 --> 00:01:41,060
+like index.html, which is usually the.
+
+19
+00:01:41,060 --> 00:01:45,740
+Core webpage at a website, when you go to
+that, that address.
+
+20
+00:01:45,740 --> 00:01:51,409
+So the get is the request method, and the
+resource is the index.html.
+
+21
+00:01:51,409 --> 00:01:58,800
+And the resource is typically specified as
+a path to a resource on the server.
+
+22
+00:01:58,800 --> 00:02:01,560
+So the resource will typically be a path.
+
+23
+00:02:03,010 --> 00:02:10,430
+So you'll see something like get, you
+know, /index.html or fu/mypage or
+
+24
+00:02:10,430 --> 00:02:17,629
+some other resource that you would like to
+access.
+
+25
+00:02:17,629 --> 00:02:22,540
+And here again it's a Request method, and
+then a path to a resource.
+
+26
+00:02:23,900 --> 00:02:27,570
+So let's talk about the H [INAUDIBLE]
+request methods.
+
+27
+00:02:27,570 --> 00:02:31,020
+There's a variety of them in the protocol,
+but there's a subset of
+
+28
+00:02:31,020 --> 00:02:33,690
+them that we really care about for
+
+29
+00:02:33,690 --> 00:02:36,190
+communicating between mobile devices and
+the cloud.
+
+30
+00:02:37,220 --> 00:02:40,220
+One of the most important ones that we
+want to understand is Get.
+
+31
+00:02:41,450 --> 00:02:45,010
+Get is a simple request to the server it
+
+32
+00:02:45,010 --> 00:02:47,640
+can be without data or possibly include a
+little
+
+33
+00:02:47,640 --> 00:02:50,050
+bit of data and it's asking the server to
+
+34
+00:02:50,050 --> 00:02:53,550
+get some resource that's there and return
+it to us.
+
+35
+00:02:53,550 --> 00:02:58,680
+So we're going to talk about the important
+
+36
+00:02:58,680 --> 00:03:02,440
+HTTP request methods, that we really care
+about.
+
+37
+00:03:04,450 --> 00:03:08,060
+So, this is one of the HTTP request
+methods is GET.
+
+38
+00:03:09,190 --> 00:03:11,920
+Another really one, important one is POST.
+
+39
+00:03:13,160 --> 00:03:17,600
+POST is typically used when you want to
+send a lot of data to the server.
+
+40
+00:03:17,600 --> 00:03:22,050
+So, for example, if you want to go and
+Post an image to the server
+
+41
+00:03:22,050 --> 00:03:25,210
+that it can then store and serve up at
+some later point in time.
+
+42
+00:03:26,360 --> 00:03:30,100
+Post is probably something you will be
+using to do that.
+
+43
+00:03:30,100 --> 00:03:33,010
+Get you probably aren't going to be
+sending an image through get.
+
+44
+00:03:33,010 --> 00:03:37,150
+You're going to be sending some small
+amount of data through Get.
+
+45
+00:03:37,150 --> 00:03:39,949
+Post is your more general purpose send
+data to the server.
+
+46
+00:03:41,000 --> 00:03:43,620
+These are your two most important, but
+there's two
+
+47
+00:03:43,620 --> 00:03:48,000
+more that's worth knowing about having
+some familiarity with.
+
+48
+00:03:48,000 --> 00:03:53,230
+Another one is Put is asking a server to
+store
+
+49
+00:03:53,230 --> 00:03:57,990
+some data that is contained within the
+request on the server.
+
+50
+00:03:57,990 --> 00:04:02,640
+And the last one you probably want to know
+about is Delete.
+
+51
+00:04:02,640 --> 00:04:04,770
+And it's fairly self explanatory.
+
+52
+00:04:04,770 --> 00:04:08,250
+We weren't asking the server to delete
+some information on the server.
+
+53
+00:04:09,310 --> 00:04:14,757
+So when you're sending HTTP requests,
+you're always going to specify an HTTP
+
+54
+00:04:14,757 --> 00:04:21,663
+request method plus a path or resource.
+
+55
+00:04:22,840 --> 00:04:26,200
+That you want that method to be applied to
+you.
+
+56
+00:04:26,200 --> 00:04:29,520
+So, I want to get this particular
+resource.
+
+57
+00:04:29,520 --> 00:04:32,640
+I want to put this resource on the server
+
+58
+00:04:32,640 --> 00:04:35,660
+or I want to delete this resource in the
+server.
+
+59
+00:04:35,660 --> 00:04:37,680
+So whenever you're sending a request,
+you're always
+
+60
+00:04:37,680 --> 00:04:40,900
+telling the server the specific action or
+request method.
+
+61
+00:04:40,900 --> 00:04:44,470
+That you would like to be taken on that
+particular resource.
+
