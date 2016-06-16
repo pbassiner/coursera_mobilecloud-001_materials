@@ -1,0 +1,699 @@
+1
+00:00:00,008 --> 00:00:05,941
+One of
+
+2
+00:00:05,941 --> 00:00:10,270
+the first things you
+
+3
+00:00:10,270 --> 00:00:15,120
+need to do when you're going to
+optimize your MySQL database and
+
+4
+00:00:15,120 --> 00:00:19,299
+your interactions with it, is to think
+about do what to optimize a particular.
+
+5
+00:00:20,540 --> 00:00:23,990
+Piece of data, and the access
+to that data, for read vs write.
+
+6
+00:00:23,990 --> 00:00:27,690
+And this is a really, a fundamental
+question that you need to ask,
+
+7
+00:00:27,690 --> 00:00:32,710
+because it vastly changes how you want
+to store and interact with that data.
+
+8
+00:00:32,710 --> 00:00:34,810
+So, lets take an example, and
+
+9
+00:00:34,810 --> 00:00:40,060
+we'll relate it back to our original
+Java Map example to help understand why.
+
+10
+00:00:40,060 --> 00:00:44,320
+Knowing if you're going to go for reads
+versus writes is critically important.
+
+11
+00:00:44,320 --> 00:00:48,430
+So let's say that we have a form and
+
+12
+00:00:48,430 --> 00:00:52,580
+we would like users to be able to post
+comments, let's say on our videos.
+
+13
+00:00:52,580 --> 00:00:58,350
+So, users can go and
+they can post a comment.
+
+14
+00:01:01,430 --> 00:01:06,060
+And on the page we would
+like to be able to display,
+
+15
+00:01:06,060 --> 00:01:10,570
+the number of comments,
+that have been posted by each user.
+
+16
+00:01:10,570 --> 00:01:15,700
+So, somewhere on the display if
+the user's comment is there,
+
+17
+00:01:15,700 --> 00:01:20,400
+we might have user foo and we might have
+some number of comments that they've.
+
+18
+00:01:20,400 --> 00:01:24,820
+Posted across all the forums,
+let's say just for sim, simplicity.
+
+19
+00:01:24,820 --> 00:01:28,960
+So, one of the things we need to be
+able to do, is we need to be able to
+
+20
+00:01:28,960 --> 00:01:34,660
+keep track of this count, of the number
+of comments that they posted.
+
+21
+00:01:34,660 --> 00:01:37,710
+So, there's kind of two
+approaches we can do.
+
+22
+00:01:37,710 --> 00:01:40,246
+One approach is,
+we can have a table where.
+
+23
+00:01:40,246 --> 00:01:48,670
+Every time the orig, sum structure where
+every time the user posted a comment,
+
+24
+00:01:48,670 --> 00:01:55,710
+it would be entered as a center
+entity in this particular store.
+
+25
+00:01:55,710 --> 00:01:56,910
+So I'm using this entity.
+
+26
+00:01:59,670 --> 00:02:04,300
+Name very specifically here, because
+we're going to go and create a Java class
+
+27
+00:02:04,300 --> 00:02:08,880
+to represent a comment, and we're going to
+annotate with something like add entity,
+
+28
+00:02:08,880 --> 00:02:12,400
+and each time they create a new comment,
+we're going to create a new instance of
+
+29
+00:02:12,400 --> 00:02:18,520
+that object, and we're going to store
+it in the, list of comment objects.
+
+30
+00:02:18,520 --> 00:02:19,020
+So, we've got.
+
+31
+00:02:20,480 --> 00:02:22,990
+These comment entities are objects,
+
+32
+00:02:22,990 --> 00:02:28,880
+stored objects, that represent each
+time the user goes and posts a comment.
+
+33
+00:02:28,880 --> 00:02:30,510
+And so
+there might be some number of these.
+
+34
+00:02:31,630 --> 00:02:35,050
+Now, the way that we're going to
+generate the number of comments is,
+
+35
+00:02:35,050 --> 00:02:39,980
+each time we load this page,
+a request will go to this table.
+
+36
+00:02:39,980 --> 00:02:49,810
+An we will search, for all comments that,
+where the users of particular users.
+
+37
+00:02:49,810 --> 00:02:59,539
+So find all comments with particular user.
+
+38
+00:03:00,910 --> 00:03:01,680
+And count them.
+
+39
+00:03:03,790 --> 00:03:12,580
+So, as you can see, this is an operation
+that is very cheap from write perspective.
+
+40
+00:03:12,580 --> 00:03:16,720
+And very expensive from
+a read perspective.
+
+41
+00:03:16,720 --> 00:03:20,560
+So if I want to write and add a comment.
+
+42
+00:03:21,560 --> 00:03:26,730
+Then, what I have to do, is just,
+create a new instance of a common object.
+
+43
+00:03:26,730 --> 00:03:27,830
+And add it.
+
+44
+00:03:27,830 --> 00:03:29,990
+And store it so it's persistent.
+
+45
+00:03:29,990 --> 00:03:34,990
+But there's no, locking or any other
+things that I have to worry about because,
+
+46
+00:03:34,990 --> 00:03:38,290
+it will never be the case
+that multiple writers.
+
+47
+00:03:38,290 --> 00:03:41,300
+Hopefully are writing to the same
+comment at the same time.
+
+48
+00:03:41,300 --> 00:03:43,480
+If the user is on the page
+entering a comment and
+
+49
+00:03:43,480 --> 00:03:48,500
+hitting save, they're going to be the only
+one, theoretically, creating that comment.
+
+50
+00:03:48,500 --> 00:03:51,120
+They're hopefully going to
+be on one page at a time.
+
+51
+00:03:51,120 --> 00:03:52,640
+But they're creating one comment.
+
+52
+00:03:53,640 --> 00:03:55,370
+And there's only one person logged in and
+
+53
+00:03:55,370 --> 00:03:59,620
+even if there were, they had multiple
+browser tabs open or for some reason.
+
+54
+00:03:59,620 --> 00:04:03,040
+Their, their child is commenting,
+as well, simultaneously.
+
+55
+00:04:03,040 --> 00:04:05,690
+None of those comments conflict with
+each other because they're all, each,
+
+56
+00:04:05,690 --> 00:04:09,790
+you know, atomic entities that
+would be edited separately.
+
+57
+00:04:09,790 --> 00:04:13,330
+So each time they click Add,
+it's adding a new entity in here.
+
+58
+00:04:13,330 --> 00:04:14,780
+So comic creation,
+
+59
+00:04:14,780 --> 00:04:19,220
+the write, is really cheap because
+there's no locking of the database.
+
+60
+00:04:19,220 --> 00:04:22,490
+No worries that, that multiple people
+would write to the same person and
+
+61
+00:04:22,490 --> 00:04:24,270
+comment at the same time.
+
+62
+00:04:24,270 --> 00:04:27,530
+However, our reads are really expensive.
+
+63
+00:04:27,530 --> 00:04:32,900
+If we think back to that job of map
+example, where when we wanted to know
+
+64
+00:04:32,900 --> 00:04:37,950
+which, people have bought a particular
+item, we had to go an search through and
+
+65
+00:04:37,950 --> 00:04:40,910
+scan through all of the data and
+all of the values.
+
+66
+00:04:40,910 --> 00:04:43,510
+Looking for ones that match
+our particular cr, criteria.
+
+67
+00:04:43,510 --> 00:04:45,800
+In this case we're doing
+something similar.
+
+68
+00:04:45,800 --> 00:04:50,010
+When we want to know the count for
+particular, user,
+
+69
+00:04:50,010 --> 00:04:53,950
+what we have to do is count all
+their comment entity objects and
+
+70
+00:04:53,950 --> 00:04:56,070
+then create the sum of that and
+then return it.
+
+71
+00:04:56,070 --> 00:05:00,488
+So its an expensive read operation so,
+read.
+
+72
+00:05:00,488 --> 00:05:09,110
+Is slow, write,
+is going to be fast in this case.
+
+73
+00:05:09,110 --> 00:05:13,840
+Or at least they're optimized to
+make reads slower and writes faster.
+
+74
+00:05:13,840 --> 00:05:17,890
+Now if we really cared about was
+getting the number of comments quickly,
+
+75
+00:05:17,890 --> 00:05:21,830
+what we could do instead we could have.
+
+76
+00:05:21,830 --> 00:05:26,638
+Another table, and, and we have could
+have entities in this, which it were,
+
+77
+00:05:26,638 --> 00:05:32,188
+comment count.
+
+78
+00:05:32,188 --> 00:05:38,680
+Now, in this case, and
+we'll just go ahead and make this by user.
+
+79
+00:05:40,030 --> 00:05:41,600
+So if you want to know.
+
+80
+00:05:41,600 --> 00:05:44,080
+The number of comments that
+a particular user has left.
+
+81
+00:05:44,080 --> 00:05:48,430
+We're going to do something equivalent
+to what we did with the maps in Java.
+
+82
+00:05:48,430 --> 00:05:51,370
+That is, we're going to create a new map,
+or a new table, or
+
+83
+00:05:51,370 --> 00:05:53,650
+whatever you want to think of it as, and
+
+84
+00:05:53,650 --> 00:05:58,940
+the entities in here are these comment
+count objects that we are persisting.
+
+85
+00:05:58,940 --> 00:06:03,300
+And, every time you want to get the
+comment count, all you have to do is put,
+
+86
+00:06:03,300 --> 00:06:08,020
+pi, push in the, the user as the key,
+and the comment count pops out.
+
+87
+00:06:08,020 --> 00:06:12,760
+So it's a very simple key based lookup to
+get a particular user's, comment count.
+
+88
+00:06:13,850 --> 00:06:20,080
+But, the difference is, that every
+time that we go and add a comment now.
+
+89
+00:06:20,080 --> 00:06:23,570
+We're going to also have to go and
+update the comment count.
+
+90
+00:06:23,570 --> 00:06:27,000
+So read, or so writes are getting
+more expensive, because now if
+
+91
+00:06:27,000 --> 00:06:32,100
+we add a new comment object, we also have
+to go here and update the comment count.
+
+92
+00:06:32,100 --> 00:06:35,540
+And we might want to do this in
+a transaction, so that it's atomic, and
+
+93
+00:06:35,540 --> 00:06:39,850
+you can't add an object here and then not
+have it update here, or update here and
+
+94
+00:06:39,850 --> 00:06:40,790
+not work over here.
+
+95
+00:06:40,790 --> 00:06:43,500
+So we might have some transaction issues.
+
+96
+00:06:43,500 --> 00:06:47,450
+We also might have the case where if now,
+if this users child is,
+
+97
+00:06:47,450 --> 00:06:52,590
+is creating comments at the same time
+we can't just assume that we don't
+
+98
+00:06:52,590 --> 00:06:54,420
+have to worry about locking.
+
+99
+00:06:54,420 --> 00:06:58,780
+We have to lock this object particularly
+if there's any situation where
+
+100
+00:06:58,780 --> 00:07:02,070
+the user could be multi,
+logged in multiple times.
+
+101
+00:07:02,070 --> 00:07:03,480
+Somebody else is using as a count.
+
+102
+00:07:03,480 --> 00:07:07,010
+Now, maybe that doesn't make sense,
+but you could think of scenarios where
+
+103
+00:07:07,010 --> 00:07:11,080
+you could have multiple
+writers to the same object.
+
+104
+00:07:11,080 --> 00:07:15,310
+In this case, we have multiple
+potential writers to the comment count.
+
+105
+00:07:15,310 --> 00:07:20,980
+So if the user posts multiple comments in
+a very short order from multiple tabs or
+
+106
+00:07:20,980 --> 00:07:22,870
+something else in their browser.
+
+107
+00:07:22,870 --> 00:07:26,700
+They will all simultaneously be trying
+to create common objects here, and
+
+108
+00:07:26,700 --> 00:07:30,220
+then simultaneously trying to
+be write to the common account.
+
+109
+00:07:30,220 --> 00:07:36,450
+So we'll have to do some locking on,
+this particular account,
+
+110
+00:07:36,450 --> 00:07:41,000
+to make sure that we don't end
+up with inconsistent data.
+
+111
+00:07:41,000 --> 00:07:44,470
+Also we'll probably want to have some type
+of transaction to make sure you can't add
+
+112
+00:07:44,470 --> 00:07:46,450
+a comment and not update the account.
+
+113
+00:07:46,450 --> 00:07:47,950
+Or vice versa.
+
+114
+00:07:47,950 --> 00:07:53,931
+So, in this style over here, the writes
+
+115
+00:07:53,931 --> 00:08:01,281
+are slow, and the reads are fast.
+
+116
+00:08:01,281 --> 00:08:05,590
+So, this is a thing you're
+going to see over and
+
+117
+00:08:05,590 --> 00:08:08,090
+over when you're designing for NoSQL.
+
+118
+00:08:08,090 --> 00:08:12,270
+And trying to figure out,
+how do I design my entities to fetch them?
+
+119
+00:08:12,270 --> 00:08:15,760
+Well, we can go and
+we can duplicate some of the data.
+
+120
+00:08:15,760 --> 00:08:21,000
+We're suddenly having another
+representation of the comment count, and
+
+121
+00:08:21,000 --> 00:08:25,780
+we can just make this a Java class called
+comment count, there's a key for users,
+
+122
+00:08:25,780 --> 00:08:32,340
+but the downside is that suddenly we are,
+sort of, making our writes more expensive.
+
+123
+00:08:32,340 --> 00:08:36,590
+However we don't have to have this thing
+we can just have a list of comment
+
+124
+00:08:36,590 --> 00:08:40,710
+objects, that are essentially being added
+each time we persist a comment object
+
+125
+00:08:40,710 --> 00:08:44,470
+their being added to the table or whatever
+it is that you're storing these things in.
+
+126
+00:08:44,470 --> 00:08:47,620
+But when you need another comment,
+count you have to go and actually
+
+127
+00:08:47,620 --> 00:08:51,190
+scan through all the data like we were
+with the map, and get that count back.
+
+128
+00:08:52,240 --> 00:08:57,480
+So, before you begin doing anything, and
+you want to look at a particular, query,
+
+129
+00:08:57,480 --> 00:08:59,070
+you need to understand,
+how often am I going to be writing?
+
+130
+00:08:59,070 --> 00:09:03,090
+How often am I going to be reading?
+
+131
+00:09:03,090 --> 00:09:05,310
+Is it more important
+that my writes be fast or
+
+132
+00:09:05,310 --> 00:09:07,780
+more important that my reads be fast?
+
+133
+00:09:07,780 --> 00:09:10,700
+And that's what you're going to need
+to know in order to begin to make
+
+134
+00:09:10,700 --> 00:09:14,480
+reasoned decisions about how you
+should structure your classes that
+
+135
+00:09:14,480 --> 00:09:16,090
+are annotated with entity and
+
+136
+00:09:16,090 --> 00:09:20,610
+store, or how you're, structuring
+your classes that are annotated
+
+137
+00:09:20,610 --> 00:09:25,940
+with whatever you're going to use to math
+them into the underlying NoSQL data store.
+
+138
+00:09:25,940 --> 00:09:28,590
+If you're going to be writing a whole lot.
+
+139
+00:09:28,590 --> 00:09:31,460
+People are going to be writing lots
+of comments and you want to make
+
+140
+00:09:31,460 --> 00:09:36,300
+comment writing really fast, then you'll
+probably go for something like this.
+
+141
+00:09:36,300 --> 00:09:41,720
+If, however, every time that you load this
+page there's thousands of comments, and
+
+142
+00:09:41,720 --> 00:09:46,050
+getting the number of comments for,
+for each user is incredibly slow and
+
+143
+00:09:46,050 --> 00:09:49,350
+is the bottleneck, then you're going to
+want to do something like this.
+
+144
+00:09:49,350 --> 00:09:54,120
+And so until you know, what is the, the,
+what is it you're trying to optimize for?
+
+145
+00:09:54,120 --> 00:09:57,810
+Are you trying to optimize for writes or
+are you trying to optimize for reads?
+
+146
+00:09:57,810 --> 00:10:01,750
+You really can't go forward with figuring
+out how to structure your data to make it
+
+147
+00:10:01,750 --> 00:10:02,440
+easy to access.
+

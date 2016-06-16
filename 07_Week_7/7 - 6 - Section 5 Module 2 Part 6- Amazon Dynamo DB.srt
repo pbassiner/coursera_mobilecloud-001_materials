@@ -1,0 +1,810 @@
+1
+00:00:00,000 --> 00:00:08,913
+[MUSIC]
+
+2
+00:00:08,913 --> 00:00:12,186
+One of the nice things about the cloud
+is that it doesn't require you to do
+
+3
+00:00:12,186 --> 00:00:14,680
+everything yourself from scratch.
+
+4
+00:00:14,680 --> 00:00:19,080
+So, although we may want control over
+the database that we're using and
+
+5
+00:00:19,080 --> 00:00:21,150
+we may want to set up
+a particular database and
+
+6
+00:00:21,150 --> 00:00:24,820
+configure it a specific way,
+we don't have to do that necessarily.
+
+7
+00:00:24,820 --> 00:00:28,700
+We can also essentially
+outsource the management, and
+
+8
+00:00:28,700 --> 00:00:33,430
+scaling of our database to somebody
+else by using database as a service.
+
+9
+00:00:33,430 --> 00:00:37,080
+Now there are lots of different
+databases of services that you can use,
+
+10
+00:00:37,080 --> 00:00:42,240
+we're going to talk in particular on
+this lecture about Amazon's DynamoDB,
+
+11
+00:00:42,240 --> 00:00:46,480
+which is a DB that's backed
+by solid state devices.
+
+12
+00:00:46,480 --> 00:00:50,710
+And has a nice property that
+you can specifically ask and
+
+13
+00:00:50,710 --> 00:00:54,570
+allocate the number of reads or
+writes per second that you would like your
+
+14
+00:00:54,570 --> 00:01:00,790
+application to have and then Dynamo will
+charge you for that provision to capacity.
+
+15
+00:01:00,790 --> 00:01:05,540
+So, this is a nice capability in that
+not only can we outsource our database.
+
+16
+00:01:05,540 --> 00:01:08,710
+And, you know, not deal with
+how we set up and maintain, and
+
+17
+00:01:08,710 --> 00:01:10,210
+manage it, and try to scale it.
+
+18
+00:01:10,210 --> 00:01:13,720
+But we can also specifically
+buy them out of
+
+19
+00:01:13,720 --> 00:01:16,640
+reader right capacity that we
+actually need for application, and
+
+20
+00:01:16,640 --> 00:01:20,660
+be guaranteed that we can get
+it by contract from Amazon.
+
+21
+00:01:20,660 --> 00:01:25,480
+So, what we're going to do now is, again,
+we're going to be using spring data,
+
+22
+00:01:25,480 --> 00:01:27,370
+just like we did before.
+
+23
+00:01:27,370 --> 00:01:32,530
+And we've seen how we can use spring
+data within memory, we can use it
+
+24
+00:01:33,680 --> 00:01:37,850
+with H2, or HSQLDB,
+we can use it with Mongo.
+
+25
+00:01:37,850 --> 00:01:42,210
+And now we're going to see how we
+can take this same abstraction.
+
+26
+00:01:42,210 --> 00:01:45,330
+And we can use it to connect to Dynamo,
+
+27
+00:01:45,330 --> 00:01:50,270
+where Amazon's database is a service, or
+their high performance key value score,
+
+28
+00:01:50,270 --> 00:01:52,200
+if you want to think about it
+in terms of a key value score.
+
+29
+00:01:53,300 --> 00:01:59,000
+So, very quickly we can go and again
+switch over to a new type of database.
+
+30
+00:01:59,000 --> 00:02:01,420
+So let's look at this
+example in specific code, and
+
+31
+00:02:01,420 --> 00:02:06,495
+what we need to in order to connect
+our application to DynamoDB.
+
+32
+00:02:07,580 --> 00:02:11,710
+So, if you'll open up the video class and
+we're going to start by looking at
+
+33
+00:02:11,710 --> 00:02:15,340
+this specific changes to the video class,
+because they're connected to
+
+34
+00:02:15,340 --> 00:02:18,860
+the configuration changes that
+we have to make in Amazon.
+
+35
+00:02:18,860 --> 00:02:20,140
+So if you open up,
+
+36
+00:02:20,140 --> 00:02:25,820
+the video class underneath the
+org.magnum.mobilecloud.video.repository,
+
+37
+00:02:25,820 --> 00:02:28,780
+package and open up this video class.
+
+38
+00:02:28,780 --> 00:02:32,820
+What we'll see is we have the same
+video class that we had before, but
+
+39
+00:02:32,820 --> 00:02:34,080
+we're starting to see a theme here.
+
+40
+00:02:34,080 --> 00:02:37,570
+We've seen it throughout this course,
+we're just changing the annotations or
+
+41
+00:02:37,570 --> 00:02:39,170
+the meta information.
+
+42
+00:02:39,170 --> 00:02:44,900
+In order to support persisting or
+saving these objects in DynamoDB.
+
+43
+00:02:44,900 --> 00:02:46,710
+So we're still doing the same
+thing we did before,
+
+44
+00:02:46,710 --> 00:02:48,680
+we're mapping our objects into a database.
+
+45
+00:02:49,680 --> 00:02:52,160
+So let's take a look at this
+very first annotation, and
+
+46
+00:02:52,160 --> 00:02:53,410
+we're going to look at the work,
+
+47
+00:02:53,410 --> 00:02:59,080
+the work we have to do on the Amazon side
+in order to support this annotation.
+
+48
+00:02:59,080 --> 00:03:01,560
+So the first thing we're going to
+do is we're going to tell.
+
+49
+00:03:01,560 --> 00:03:04,100
+Spring the data dynamo,
+
+50
+00:03:04,100 --> 00:03:09,210
+the particular dynamo table that
+we want to store these objects in.
+
+51
+00:03:09,210 --> 00:03:12,270
+So in this case,
+we're adding the @dynamo table annotation,
+
+52
+00:03:12,270 --> 00:03:15,080
+and then we're specifying
+the table name is videos.
+
+53
+00:03:16,160 --> 00:03:19,950
+So what this means is,
+if we go to our AWS console,
+
+54
+00:03:19,950 --> 00:03:23,280
+is that we need to create a videos table.
+
+55
+00:03:23,280 --> 00:03:26,330
+So, we'll go ahead and
+create the videos table.
+
+56
+00:03:26,330 --> 00:03:29,030
+And then the next thing we're going to
+see, is that there's, it's asking us for
+
+57
+00:03:29,030 --> 00:03:31,340
+the type of primary key.
+
+58
+00:03:31,340 --> 00:03:34,380
+Now, Dynamo is a key value store, but
+
+59
+00:03:34,380 --> 00:03:39,400
+it has this concept of a hash key and
+a range key.
+
+60
+00:03:39,400 --> 00:03:43,260
+So the way to think of the hash key is the
+hash key is just purely the typical keys
+
+61
+00:03:43,260 --> 00:03:44,710
+that we've seen before.
+
+62
+00:03:44,710 --> 00:03:48,790
+So we've had a, a key mapped to a value,
+
+63
+00:03:48,790 --> 00:03:53,850
+the way to think of the hash key
+is that if we want a key that's
+
+64
+00:03:53,850 --> 00:03:58,280
+a combination of a key,
+where the key is something like,
+
+65
+00:03:58,280 --> 00:04:02,100
+let's say we want to store all of
+the events for a particular conference, or
+
+66
+00:04:02,100 --> 00:04:07,170
+we want to store all of the videos
+uploaded by a particular user.
+
+67
+00:04:07,170 --> 00:04:11,550
+We can make the first part
+of the key the user, and
+
+68
+00:04:11,550 --> 00:04:16,050
+then the range part of the key
+the particular ID of a video.
+
+69
+00:04:16,050 --> 00:04:20,420
+So if we wanted to quickly go and
+scan through all of the videos that have
+
+70
+00:04:20,420 --> 00:04:23,530
+been uploaded by a particular user,
+we could use the hash part of the key,
+
+71
+00:04:23,530 --> 00:04:28,610
+which would be the user ID, to go and
+scan all of the unique keys that were
+
+72
+00:04:28,610 --> 00:04:32,500
+created by that user ID plus
+an individual video ID.
+
+73
+00:04:32,500 --> 00:04:33,720
+So.
+
+74
+00:04:33,720 --> 00:04:38,060
+Really, what a hash and range key are,
+is they're a composite key,
+
+75
+00:04:38,060 --> 00:04:42,480
+where the key part is something that's
+like a common prefix, almost like,
+
+76
+00:04:42,480 --> 00:04:44,780
+the user ID that stored the video.
+
+77
+00:04:44,780 --> 00:04:48,830
+And the range key is an extra bit of
+information that when combined with
+
+78
+00:04:48,830 --> 00:04:50,290
+the user, there are,
+
+79
+00:04:50,290 --> 00:04:54,660
+when combined with the hash key,
+creates an overall unique key.
+
+80
+00:04:54,660 --> 00:04:58,660
+So there'll be, there could be
+potentially if your using a hash and
+
+81
+00:04:58,660 --> 00:05:04,760
+a range key there could be potential
+multiple keys that have the same hash key.
+
+82
+00:05:04,760 --> 00:05:08,070
+But they all would combine
+with their range key,
+
+83
+00:05:08,070 --> 00:05:10,760
+the combination of the two will be unique.
+
+84
+00:05:10,760 --> 00:05:15,160
+If you don't use a range key, then the
+hash key always have to, has to be unique,
+
+85
+00:05:15,160 --> 00:05:19,790
+so if you use a hash key, just a hash key,
+it always has to be unique for
+
+86
+00:05:19,790 --> 00:05:21,820
+each object that you're storing.
+
+87
+00:05:21,820 --> 00:05:26,440
+If you use a hash and a range key, then
+the combination of them has to be unique,
+
+88
+00:05:26,440 --> 00:05:29,720
+but the individual hash
+key may not be unique.
+
+89
+00:05:29,720 --> 00:05:34,790
+So, this is kind of a nice
+capability of Amazon's DynamoDB, and
+
+90
+00:05:34,790 --> 00:05:36,550
+it can be helpful in many situations.
+
+91
+00:05:36,550 --> 00:05:38,800
+In this case, we're not going
+to use a hash and range key,
+
+92
+00:05:38,800 --> 00:05:40,840
+we're just going to use a hash key.
+
+93
+00:05:40,840 --> 00:05:45,700
+So if we go back and
+we look at our video class,
+
+94
+00:05:45,700 --> 00:05:50,700
+we'll see this ID which looks suspiciously
+like an ID that we've been using to
+
+95
+00:05:50,700 --> 00:05:54,360
+store our videos before although we're
+using a string rather than a long.
+
+96
+00:05:54,360 --> 00:05:56,910
+And if we go down to the getter for
+the ID,
+
+97
+00:05:56,910 --> 00:06:03,510
+what we'll see is it's
+annotated with @dynamoDHashKey.
+
+98
+00:06:03,510 --> 00:06:06,360
+And then at that arrow
+DB autogenerating key.
+
+99
+00:06:06,360 --> 00:06:12,280
+So basically what this is telling Spring
+Data Dynamo is that you should use this
+
+100
+00:06:12,280 --> 00:06:19,250
+particular property, this ID property,
+as the unique hash key for the object.
+
+101
+00:06:19,250 --> 00:06:24,420
+And you'll want it to be automatically
+generated by Spring data DynamoDB when
+
+102
+00:06:24,420 --> 00:06:28,270
+it's saved into the database and
+assigned to this value.
+
+103
+00:06:28,270 --> 00:06:30,800
+So if we go back to
+the setup of our table,
+
+104
+00:06:30,800 --> 00:06:33,980
+what we need to do is choose a hash key,
+since we only have a hash key in
+
+105
+00:06:33,980 --> 00:06:37,930
+this class and
+we need to set it to the ID property.
+
+106
+00:06:37,930 --> 00:06:43,540
+So this, whatever we're putting into
+the hash attribute name needs to match up
+
+107
+00:06:43,540 --> 00:06:48,520
+with what we're specifying as the DynamoDB
+hash key in our particular object.
+
+108
+00:06:49,560 --> 00:06:53,149
+So, once we've done that and
+aligned that, we can continue on.
+
+109
+00:06:54,850 --> 00:06:58,210
+Now we get to another interesting
+part of DynamoDB, and
+
+110
+00:06:58,210 --> 00:07:03,050
+that's the ability to actually specify
+the read and write capacity, or number of
+
+111
+00:07:03,050 --> 00:07:07,420
+reads per second that are 4 kilobytes, or
+writes per second that are 4 kilobyte.
+
+112
+00:07:07,420 --> 00:07:10,100
+That we like to have Amazon support for
+us.
+
+113
+00:07:10,100 --> 00:07:13,300
+So, this is a nice capabilities that
+we don't have to worry about how we
+
+114
+00:07:13,300 --> 00:07:17,250
+scale our database up to that
+particular quality of service.
+
+115
+00:07:17,250 --> 00:07:19,740
+We can just ask Amazon for
+it and pay for it.
+
+116
+00:07:19,740 --> 00:07:23,040
+We're going to go ahead
+in this case just use
+
+117
+00:07:23,040 --> 00:07:27,370
+a simple example of one read per second,
+and we're going to click through and
+
+118
+00:07:27,370 --> 00:07:33,960
+finish completing this table,
+which will now show up in Amazon.
+
+119
+00:07:33,960 --> 00:07:38,810
+When we go back, we have now created,
+our Dynamo table, for
+
+120
+00:07:38,810 --> 00:07:44,180
+the videos, and the other thing we've done
+is we've annotated the particular get
+
+121
+00:07:44,180 --> 00:07:50,150
+method that has the ID that we care
+about with the appropriate DynamoDB
+
+122
+00:07:50,150 --> 00:07:55,130
+hash key and auto generated key
+annotations that we need to tell Dynamo,
+
+123
+00:07:55,130 --> 00:07:59,070
+that's what we want to use as
+the unique ID of the object.
+
+124
+00:07:59,070 --> 00:08:01,240
+And we want it to be automatically
+generated by Dynamo.
+
+125
+00:08:02,800 --> 00:08:06,940
+Then we also have the app
+DynamoDB attributes that
+
+126
+00:08:06,940 --> 00:08:10,700
+are then placed on each of the different
+member variables, the getters for
+
+127
+00:08:10,700 --> 00:08:14,820
+those member variables that we
+would like to persist into Dynamo.
+
+128
+00:08:14,820 --> 00:08:17,830
+So one thing to note is if
+you have other methods.
+
+129
+00:08:17,830 --> 00:08:21,860
+That are simple get named methods,
+like get foo, and
+
+130
+00:08:21,860 --> 00:08:26,280
+foo is some property that you calculate
+but isn't necessarily a member variable.
+
+131
+00:08:26,280 --> 00:08:30,880
+If you add @dynamoDB attribute to it,
+dynamo will try to store that.
+
+132
+00:08:30,880 --> 00:08:35,540
+So you want to make sure that if
+you add @dynamoDB attribute to
+
+133
+00:08:35,540 --> 00:08:36,710
+a particular getter,
+
+134
+00:08:36,710 --> 00:08:39,520
+that it's actually a member variable in
+something that you can persist and set.
+
+135
+00:08:40,540 --> 00:08:44,020
+But that's the main work,
+just like we did before with Mongo DB and
+
+136
+00:08:44,020 --> 00:08:45,980
+when we did with Data JPA.
+
+137
+00:08:45,980 --> 00:08:47,550
+We had to go and
+
+138
+00:08:47,550 --> 00:08:52,450
+add annotations to our video class to
+explain how to map it into the database.
+
+139
+00:08:52,450 --> 00:08:57,080
+We've done the same thing with
+that half DynamoDB annotations.
+
+140
+00:08:57,080 --> 00:09:00,070
+We can now go and
+take a look at the video repository.
+
+141
+00:09:00,070 --> 00:09:02,860
+And one of the nice things that
+we'll see in this particular case,
+
+142
+00:09:02,860 --> 00:09:06,040
+is we don't have to make any
+changes to our video repository.
+
+143
+00:09:06,040 --> 00:09:10,950
+It's still extending the cred
+repository that we extended before.
+
+144
+00:09:10,950 --> 00:09:16,440
+And just like with Mongo DB, we're not
+making any changes to the underlying
+
+145
+00:09:16,440 --> 00:09:21,810
+find methods, we still can support
+the custom queries, like find by name.
+
+146
+00:09:21,810 --> 00:09:26,890
+All of these things are still working just
+like they were before, so, we're, we're
+
+147
+00:09:26,890 --> 00:09:33,720
+getting this benefit of having spring data
+as an abstraction layer between our app.
+
+148
+00:09:35,250 --> 00:09:39,990
+And our custom code and all the different
+databases that needs spring data that we
+
+149
+00:09:39,990 --> 00:09:41,630
+might want to go and use.
+
+150
+00:09:41,630 --> 00:09:44,750
+So just by plugging in
+the right annotations,
+
+151
+00:09:44,750 --> 00:09:50,430
+we can swap out the database underneath
+because of this nice abstraction layer.
+
+152
+00:09:50,430 --> 00:09:53,636
+And with some simple annotations
+with our objects we can change.
+
+153
+00:10:10,555 --> 00:10:15,477
+Repository implementation creators, so
+just like with the other examples where we
+
+154
+00:10:15,477 --> 00:10:19,636
+used spring data, we're not actually
+creating the implementation of
+
+155
+00:10:19,636 --> 00:10:24,210
+the repository ourselves, we're just
+providing the interface for it that we
+
+156
+00:10:24,210 --> 00:10:29,580
+want to be created based on the underlying
+database that we're connecting to.
+
+157
+00:10:29,580 --> 00:10:34,240
+So, this is another example where this
+abstraction spring data separates us with
+
+158
+00:10:34,240 --> 00:10:38,300
+just a little bit of annotation
+changes we can get to a new database.
+
+159
+00:10:38,300 --> 00:10:41,100
+And there will be cases where
+it's helpful to know and
+
+160
+00:10:41,100 --> 00:10:45,330
+look at a particular database's format and
+how it does things like the hash and
+
+161
+00:10:45,330 --> 00:10:51,960
+range keys in DynamoDB or the ability
+to provision through put in DynamoDB.
+
+162
+00:10:51,960 --> 00:10:56,580
+Or a more understanding more about
+Mongo's documented oriented data store.
+
+163
+00:10:56,580 --> 00:11:01,620
+But we can still very quickly move between
+these databases, and then figure out
+
+164
+00:11:01,620 --> 00:11:04,880
+what other things that we need to know
+about that particular database, and
+
+165
+00:11:04,880 --> 00:11:07,190
+will they affect our application at all.
+
+166
+00:11:07,190 --> 00:11:10,200
+And in many cases they won't, and
+we won't have to worry about them,
+
+167
+00:11:10,200 --> 00:11:15,130
+we just can swap out underneath
+Spring Data if we focus on key value is
+
+168
+00:11:15,130 --> 00:11:17,100
+a sort of abstraction that we're using
+

@@ -1,0 +1,573 @@
+1
+00:00:00,267 --> 00:00:09,777
+[MUSIC]
+
+2
+00:00:09,777 --> 00:00:13,263
+One approach that you can use,
+for optimizing for
+
+3
+00:00:13,263 --> 00:00:17,164
+reads is to try to group all
+the data that you'll need for
+
+4
+00:00:17,164 --> 00:00:22,720
+a particular query into an entity that
+you can fetch by a, a key in one go.
+
+5
+00:00:22,720 --> 00:00:26,160
+So let me give you an example of this.
+
+6
+00:00:26,160 --> 00:00:31,190
+Let's say that I have, the comments
+page that we described before.
+
+7
+00:00:31,190 --> 00:00:34,330
+And so for each of these comments,
+we're going to have
+
+8
+00:00:34,330 --> 00:00:39,030
+the user name that posted it, we're
+going to have their particular comment and
+
+9
+00:00:39,030 --> 00:00:44,710
+then we might have maybe the home town or
+the country of the.
+
+10
+00:00:45,750 --> 00:00:46,250
+user.
+
+11
+00:00:47,670 --> 00:00:51,530
+And maybe we have Belgium,
+some other information.
+
+12
+00:00:51,530 --> 00:00:54,160
+And so we have a set of these comments.
+
+13
+00:00:54,160 --> 00:00:57,790
+Now, one way that we could support this,
+
+14
+00:00:57,790 --> 00:01:03,870
+is we could have a set of user entities,
+where each one has a name.
+
+15
+00:01:05,630 --> 00:01:06,690
+And a country.
+
+16
+00:01:09,180 --> 00:01:17,370
+And then we can have a set of comment
+entries, where each comment in,
+
+17
+00:01:17,370 --> 00:01:23,312
+in as well as having the text for
+it has the user ID.
+
+18
+00:01:24,390 --> 00:01:25,930
+Or key for the user that created it.
+
+19
+00:01:25,930 --> 00:01:30,480
+So every time we want to go and
+create this particular page,
+
+20
+00:01:30,480 --> 00:01:34,150
+what we have to do,
+is we're going to first query for
+
+21
+00:01:34,150 --> 00:01:38,460
+all of the keys or all of the comments,
+for that particular page.
+
+22
+00:01:38,460 --> 00:01:41,340
+So we'd probably also have some,
+you know, page or
+
+23
+00:01:41,340 --> 00:01:45,530
+product ID or something to associate
+comments and go and search for comments.
+
+24
+00:01:45,530 --> 00:01:47,610
+That are relevant to display here.
+
+25
+00:01:47,610 --> 00:01:49,920
+So we get the list of
+all the comments back.
+
+26
+00:01:51,200 --> 00:01:54,480
+Now, once we've gotten that list
+of comments back we can go and
+
+27
+00:01:54,480 --> 00:01:59,470
+get the user ID's for each user that are
+in this table and hopefully be smart about
+
+28
+00:01:59,470 --> 00:02:05,290
+it and, and only then query for
+the name and country of all the users.
+
+29
+00:02:05,290 --> 00:02:09,400
+That are in this table, are that are in
+this list of comments, and then we go and
+
+30
+00:02:09,400 --> 00:02:10,940
+get back to user and name and
+
+31
+00:02:10,940 --> 00:02:14,550
+country for each particular
+user that posted a comment.
+
+32
+00:02:15,790 --> 00:02:21,030
+Now, this is certainly one way to do it
+and helps us, you know, keep our database
+
+33
+00:02:21,030 --> 00:02:25,760
+more normalized, because we're only
+storing name and country in one place.
+
+34
+00:02:25,760 --> 00:02:27,540
+With the down side is, is that we go and
+
+35
+00:02:27,540 --> 00:02:31,820
+get this list of comments and then we have
+to go down and get this list of users,
+
+36
+00:02:31,820 --> 00:02:35,670
+in order to display the users name and
+the country that their from.
+
+37
+00:02:36,680 --> 00:02:39,980
+So, when we display this
+page we essentially have two
+
+38
+00:02:39,980 --> 00:02:42,420
+round trips that we're dealing with.
+
+39
+00:02:42,420 --> 00:02:44,610
+Another way to do it would be.
+
+40
+00:02:44,610 --> 00:02:48,390
+Rather than having a separate comment and
+
+41
+00:02:48,390 --> 00:02:53,010
+user, what we can do is we
+can have a separate user.
+
+42
+00:02:53,010 --> 00:02:58,168
+But our comment can
+directly embed the user,
+
+43
+00:02:58,168 --> 00:03:04,750
+name, and country into the comment object.
+
+44
+00:03:04,750 --> 00:03:07,760
+So this way, when we need to go and
+display this page.
+
+45
+00:03:07,760 --> 00:03:11,460
+So let's call this approach 1,
+and we'll call this approach 2.
+
+46
+00:03:11,460 --> 00:03:16,750
+We'll put a little versus here to show
+that these things aren't related.
+
+47
+00:03:16,750 --> 00:03:19,520
+When we need to display this page,
+all we do is go down and
+
+48
+00:03:19,520 --> 00:03:23,060
+fetch the list of the comet entities,
+or objects.
+
+49
+00:03:23,060 --> 00:03:24,170
+And return it, and
+
+50
+00:03:24,170 --> 00:03:29,200
+we can instantly display the page, because
+we have all of the information we need.
+
+51
+00:03:29,200 --> 00:03:32,470
+So, if this is a mobile device, and
+
+52
+00:03:32,470 --> 00:03:35,990
+we want to very quickly give it
+all the information that it needs.
+
+53
+00:03:35,990 --> 00:03:38,750
+Now, obviously, the server would
+be doing these two round trips.
+
+54
+00:03:38,750 --> 00:03:41,960
+So, the mobile device, hopefully,
+isn't doing theses round trips.
+
+55
+00:03:41,960 --> 00:03:45,310
+This should be something that's done on
+the server, even if we doing it this way.
+
+56
+00:03:45,310 --> 00:03:48,680
+But either way, we're going to
+data back to that mobile client to
+
+57
+00:03:48,680 --> 00:03:54,910
+display much faster if we have an entity
+that has exactly the information
+
+58
+00:03:54,910 --> 00:04:00,070
+that is needed to display this
+particular page in the mobile interface.
+
+59
+00:04:00,070 --> 00:04:06,340
+So, if we design our entities in ways that
+give us exactly the data that we need,
+
+60
+00:04:06,340 --> 00:04:08,310
+it can make it much faster.
+
+61
+00:04:08,310 --> 00:04:11,830
+Another way that we could do this
+is if we new we weren’t going to
+
+62
+00:04:11,830 --> 00:04:17,750
+have to many comments, and we weren’t
+going to be writing to them to often.
+
+63
+00:04:17,750 --> 00:04:22,770
+We could even take all the comments for
+a particular product, and have a single
+
+64
+00:04:24,310 --> 00:04:29,740
+comments, for let's say product.
+
+65
+00:04:33,330 --> 00:04:39,830
+Entity that directly inside of it
+stores the raw text of all of this.
+
+66
+00:04:39,830 --> 00:04:44,230
+So, in this case, we have multiple of
+these comment objects that we're going to
+
+67
+00:04:44,230 --> 00:04:49,470
+be fetching, that we could just as
+easily have a single aggregate object.
+
+68
+00:04:49,470 --> 00:04:52,240
+That puts all of
+the information that we need to
+
+69
+00:04:52,240 --> 00:04:57,980
+display this page into one entity that we
+just look up with one key value look up.
+
+70
+00:04:57,980 --> 00:05:01,760
+So there's lots of different
+approaches and they'll give you
+
+71
+00:05:01,760 --> 00:05:06,870
+different performance and different ones
+will makes sense in different cases.
+
+72
+00:05:06,870 --> 00:05:09,500
+Probably in most cases if your
+really trying to optimize for
+
+73
+00:05:09,500 --> 00:05:13,730
+the reads, it maybe makes more sense to do
+something like this, but maybe it doesn't.
+
+74
+00:05:13,730 --> 00:05:17,120
+Maybe it makes sense to have comments for
+product and embed them all.
+
+75
+00:05:17,120 --> 00:05:18,650
+ANd you really have to look at each case.
+
+76
+00:05:19,790 --> 00:05:23,970
+Now the downside is,
+here we have normalized data, so
+
+77
+00:05:23,970 --> 00:05:27,600
+if the user wants to go and
+update the country that they live in.
+
+78
+00:05:27,600 --> 00:05:31,980
+They, they are currently in the US and
+they are moving to France.
+
+79
+00:05:31,980 --> 00:05:34,270
+Now they're going to have to go and
+update their France, you know,
+
+80
+00:05:34,270 --> 00:05:39,160
+their country, if they're currently,
+in France and they're moving to the US,
+
+81
+00:05:39,160 --> 00:05:41,770
+we're going to have to go and
+update their country.
+
+82
+00:05:41,770 --> 00:05:45,720
+Well, here, that's no big deal,
+we just go and update the user entity.
+
+83
+00:05:46,790 --> 00:05:49,940
+If we do it here, now we have problem.
+
+84
+00:05:49,940 --> 00:05:53,960
+We have to, if we, they update their
+country we also have to go in and
+
+85
+00:05:53,960 --> 00:06:01,170
+update every instants in the comment
+entries, where their countries shows up.
+
+86
+00:06:01,170 --> 00:06:05,050
+So we have to find every
+one of that users comment,
+
+87
+00:06:05,050 --> 00:06:08,640
+we then have to find the country field
+in it and that were in the value or
+
+88
+00:06:08,640 --> 00:06:11,570
+however it's been stored and
+update it, over and over.
+
+89
+00:06:11,570 --> 00:06:14,460
+And similarly we'd have to do
+something like that for here.
+
+90
+00:06:14,460 --> 00:06:18,380
+So that, that denormalization,
+and these different approaches,
+
+91
+00:06:18,380 --> 00:06:20,670
+they can make reads really, really fast.
+
+92
+00:06:20,670 --> 00:06:22,310
+But they make, make writes or
+
+93
+00:06:22,310 --> 00:06:27,150
+changing just one entry in
+the data really expensive.
+
+94
+00:06:27,150 --> 00:06:31,050
+So, you have to be careful that if you're
+going to go for a model like this.
+
+95
+00:06:31,050 --> 00:06:36,870
+Or a model like this, that the data that
+you're denormalizing into these things,
+
+96
+00:06:36,870 --> 00:06:40,410
+hopefully is not something
+that will change frequently.
+
+97
+00:06:40,410 --> 00:06:44,690
+So if you were duplicating over and
+over, you don't want that data item that
+
+98
+00:06:44,690 --> 00:06:49,740
+you're duplicating over and over, to be
+something that will change frequently.
+
+99
+00:06:49,740 --> 00:06:53,700
+So, username for example,
+you can have a system where you could say,
+
+100
+00:06:53,700 --> 00:06:59,080
+a user cannot change their name, as long
+as they are having an account with me.
+
+101
+00:06:59,080 --> 00:07:02,590
+I'm going to have them have the same
+username, they can never change it.
+
+102
+00:07:02,590 --> 00:07:05,050
+They can change their email address
+to their hearts content, but
+
+103
+00:07:05,050 --> 00:07:06,890
+the can't change their username.
+
+104
+00:07:06,890 --> 00:07:10,690
+So going in duplicating username,
+in all of the comments,
+
+105
+00:07:10,690 --> 00:07:12,780
+probably isn't going to hurt you.
+
+106
+00:07:12,780 --> 00:07:16,360
+But if they can change their username or
+you're doing first and
+
+107
+00:07:16,360 --> 00:07:19,960
+last name and the person can
+change their name potentially or
+
+108
+00:07:19,960 --> 00:07:22,950
+you're going to allow them to,
+then suddenly it is expensive.
+
+109
+00:07:22,950 --> 00:07:26,400
+So you have to think through those
+issues when you're trying to
+
+110
+00:07:26,400 --> 00:07:30,180
+make a design decision about whether
+you're going to do something like this.
+
+111
+00:07:30,180 --> 00:07:33,420
+Or you're going to try to optimize it and
+make it a really fast read that has all of
+
+112
+00:07:33,420 --> 00:07:36,570
+the information already embedded into
+the entities that you're getting back,
+
+113
+00:07:36,570 --> 00:07:39,420
+or the single entity
+that you're getting back.
+
+114
+00:07:39,420 --> 00:07:43,290
+But you are understanding that you
+are going to pay a price if any of
+
+115
+00:07:43,290 --> 00:07:45,810
+this duplicated data ends up changing.
+
+116
+00:07:45,810 --> 00:07:46,450
+And that price is,
+
+117
+00:07:46,450 --> 00:07:49,260
+is you're going to have to search through
+all these entities and change it.
+
+118
+00:07:49,260 --> 00:07:53,220
+And ten or 100 or
+1,000 places rather than one place.
+
+119
+00:07:53,220 --> 00:07:58,230
+So, every time you duplicate that data
+you're adding write overhead if you try to
+
+120
+00:07:58,230 --> 00:07:59,590
+go and update it in some way.
+

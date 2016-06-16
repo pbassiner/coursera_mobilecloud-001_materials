@@ -1,0 +1,504 @@
+1
+00:00:00,334 --> 00:00:08,676
+[MUSIC]
+
+2
+00:00:08,676 --> 00:00:14,110
+A lot of times, we also want to
+optimize for writes, as well as reads.
+
+3
+00:00:14,110 --> 00:00:18,980
+So, let's say that we have that
+same page that we're going to
+
+4
+00:00:18,980 --> 00:00:21,900
+display all of the comments.
+
+5
+00:00:21,900 --> 00:00:26,400
+And we decide that at the top of
+the page we want to in one place display
+
+6
+00:00:26,400 --> 00:00:30,680
+the total number of comments or
+reviews or whatever it is.
+
+7
+00:00:31,950 --> 00:00:35,080
+At the top of the page so that the person
+knows without even having to go scroll
+
+8
+00:00:35,080 --> 00:00:39,880
+through the list how many comments have
+been, put in on that particular product.
+
+9
+00:00:41,140 --> 00:00:46,710
+Now one way that we could
+do this is we could have a,
+
+10
+00:00:46,710 --> 00:00:51,868
+let's say this is a product page,
+we're going to say number of
+
+11
+00:00:51,868 --> 00:00:58,217
+comments, per product.
+
+12
+00:00:58,217 --> 00:01:01,620
+Now this would be really good from
+a read perspective because we
+
+13
+00:01:01,620 --> 00:01:04,490
+can just look up the particular product
+and we'll get the number of comments.
+
+14
+00:01:05,490 --> 00:01:10,260
+Now you can imagine though if this is
+a really hot product and you have hundreds
+
+15
+00:01:10,260 --> 00:01:15,830
+of people who are simultaneously
+commenting on this particular product,
+
+16
+00:01:15,830 --> 00:01:22,135
+what that means is is that
+we have simultaneous writes
+
+17
+00:01:22,135 --> 00:01:26,593
+to this particular object.
+
+18
+00:01:26,593 --> 00:01:28,790
+So what's going to happen is,
+
+19
+00:01:28,790 --> 00:01:32,590
+is that writing is going to become
+a bottleneck because each of
+
+20
+00:01:32,590 --> 00:01:37,540
+the writers is going to have to lock this
+particular object, is going to update it.
+
+21
+00:01:37,540 --> 00:01:41,630
+And then release that lock before the next
+writer can get in and, and update it.
+
+22
+00:01:41,630 --> 00:01:44,920
+So, this becomes a bottleneck for writing.
+
+23
+00:01:48,940 --> 00:01:52,780
+This is not ideal if we are going
+to have heavy write contention.
+
+24
+00:01:53,960 --> 00:01:57,340
+Now one way we could deal with this is,
+we could go back to the model where we
+
+25
+00:01:57,340 --> 00:02:02,450
+have multiple, product entity,
+entries or entities.
+
+26
+00:02:05,330 --> 00:02:10,960
+And then we have all these different
+products and we can simply, you know,
+
+27
+00:02:10,960 --> 00:02:15,130
+query and count how many there are.
+
+28
+00:02:15,130 --> 00:02:20,050
+But obviously,
+that's not as fast as we'd like it to be.
+
+29
+00:02:20,050 --> 00:02:23,310
+Another interesting way that we can
+do this, so we can start with here.
+
+30
+00:02:23,310 --> 00:02:25,960
+We could also try something like this.
+
+31
+00:02:25,960 --> 00:02:28,590
+Another way that we can do it,
+is we would like,
+
+32
+00:02:28,590 --> 00:02:35,440
+lets say to increase the number of, of
+writes that can go through simultaneously.
+
+33
+00:02:35,440 --> 00:02:38,190
+So we'd like to allow to parallel writes.
+
+34
+00:02:38,190 --> 00:02:43,090
+Is rather than having this,
+we can move to a model where we
+
+35
+00:02:43,090 --> 00:02:51,060
+have, number of comments, product,
+
+36
+00:02:51,060 --> 00:02:56,330
+and we'll call this shard one.
+
+37
+00:02:56,330 --> 00:02:57,750
+I'll say what a shard is in a minute.
+
+38
+00:02:59,090 --> 00:03:06,365
+And then, we have number,
+comments, product,
+
+39
+00:03:06,365 --> 00:03:11,560
+shard N, and the idea is, is that,
+
+40
+00:03:11,560 --> 00:03:21,280
+we create multiple copies of this
+number of comments per product.
+
+41
+00:03:22,310 --> 00:03:28,890
+And then when we want to write an updated
+value what we do is we come in here and
+
+42
+00:03:28,890 --> 00:03:34,040
+we randomly choose, one of the particular
+entities that's in here, or
+
+43
+00:03:34,040 --> 00:03:37,750
+we have some selection scheme,
+but we can just randomly choose.
+
+44
+00:03:37,750 --> 00:03:41,660
+And if we know, for example,
+that there are N different shards, and
+
+45
+00:03:41,660 --> 00:03:46,460
+basically what a shard in this case is
+is we're going to take the counter, and
+
+46
+00:03:46,460 --> 00:03:48,740
+we're going to split it
+up into multiple counts.
+
+47
+00:03:49,830 --> 00:03:55,020
+So, if we want to split this counter into
+ten different shards, what we would do.
+
+48
+00:03:55,020 --> 00:03:59,490
+As we would create ten different entities
+that are entires that count that
+
+49
+00:03:59,490 --> 00:04:01,790
+have a partial count inside of them.
+
+50
+00:04:02,840 --> 00:04:10,154
+And at any point in time,
+if we want to go and
+
+51
+00:04:10,154 --> 00:04:16,048
+get the true count then we query and
+
+52
+00:04:16,048 --> 00:04:20,340
+count up to, N entries.
+
+53
+00:04:20,340 --> 00:04:24,567
+So where is this one, over here,
+we're going to query and
+
+54
+00:04:24,567 --> 00:04:27,340
+count all entries, of the products.
+
+55
+00:04:29,740 --> 00:04:32,780
+Alright this should actually be
+comment of the product comment.
+
+56
+00:04:34,820 --> 00:04:39,080
+Rather than going and querying all cont,
+counts, of the product comments,
+
+57
+00:04:40,080 --> 00:04:47,150
+over here, all we have to do is go and
+query up to n entries of comment products.
+
+58
+00:04:47,150 --> 00:04:51,050
+I mean, comments for produc,
+for a particular product.
+
+59
+00:04:51,050 --> 00:04:54,920
+And we get back all of these different
+shards, we basically query for
+
+60
+00:04:54,920 --> 00:04:57,450
+all of them, and
+then we sum up their values.
+
+61
+00:04:58,480 --> 00:05:01,340
+So, rather than having
+just a single value,
+
+62
+00:05:01,340 --> 00:05:04,460
+we will get all of these and
+add them together.
+
+63
+00:05:04,460 --> 00:05:09,774
+Basically, we will sum
+
+64
+00:05:10,836 --> 00:05:16,960
+values, to get the count.
+
+65
+00:05:16,960 --> 00:05:20,540
+So, when a, a comment is added,
+basically what will happen is,
+
+66
+00:05:20,540 --> 00:05:22,570
+if we add a new comment here,
+
+67
+00:05:22,570 --> 00:05:28,380
+when we go to write to the database we
+will randomly select one of the shards.
+
+68
+00:05:28,380 --> 00:05:30,030
+That we are going to update the count for.
+
+69
+00:05:30,030 --> 00:05:32,880
+We'll pick that shard,
+we will increment its count,
+
+70
+00:05:32,880 --> 00:05:34,880
+and then save it back in the database.
+
+71
+00:05:35,990 --> 00:05:39,870
+If another writer comes in,
+they at ex, exactly the same time,
+
+72
+00:05:39,870 --> 00:05:44,730
+and they randomly choose,
+hopefully they will get a different shard.
+
+73
+00:05:44,730 --> 00:05:50,650
+So, we can control the contention that
+we have on our different shards by,
+
+74
+00:05:50,650 --> 00:05:53,150
+deciding how many
+different shards we have.
+
+75
+00:05:53,150 --> 00:05:56,170
+And we can also balance how
+much effort it is to go and
+
+76
+00:05:56,170 --> 00:06:00,460
+read the count, by determining how much,
+how many shards we have.
+
+77
+00:06:00,460 --> 00:06:02,080
+The more shards we have,
+
+78
+00:06:02,080 --> 00:06:05,270
+the more expensive it is
+to read the count back out.
+
+79
+00:06:05,270 --> 00:06:10,330
+But, the more shards we have
+the greater the greater number of
+
+80
+00:06:10,330 --> 00:06:14,400
+writers that can come in and
+write concurrently to the count.
+
+81
+00:06:14,400 --> 00:06:17,690
+So, we can balance and
+basically trade off reads and
+
+82
+00:06:17,690 --> 00:06:23,470
+writes by determining how many times we
+duplicate and have partial counts in here.
+
+83
+00:06:23,470 --> 00:06:28,200
+So, we are essentially duplicating data
+we're basically taking an object breaking
+
+84
+00:06:28,200 --> 00:06:33,400
+it apart, in this case taking a count,
+breaking it apart into multiple entries.
+
+85
+00:06:33,400 --> 00:06:37,220
+And then allowing writers to select
+any of the entries to update and
+
+86
+00:06:37,220 --> 00:06:38,050
+then when we go and
+
+87
+00:06:38,050 --> 00:06:43,050
+actually get the true value, we're getting
+all of the entries and summing them.
+
+88
+00:06:43,050 --> 00:06:47,180
+But, whereas over here when we had
+individual product comment entries and
+
+89
+00:06:47,180 --> 00:06:50,640
+we were counting all of them,
+we had just a,
+
+90
+00:06:50,640 --> 00:06:55,510
+our work was proportional to
+the number of product comment entries.
+
+91
+00:06:55,510 --> 00:07:00,300
+Over here, our work to sum is proportional
+to the number of shards we create.
+
+92
+00:07:00,300 --> 00:07:04,150
+So we can flexibly balance out
+the number of shards that we have.
+
+93
+00:07:05,600 --> 00:07:08,180
+Now how does this work in
+terms of randomly choosing?
+
+94
+00:07:08,180 --> 00:07:09,560
+Well, when we go to get the key,
+
+95
+00:07:09,560 --> 00:07:14,840
+let's say that product ID is
+the first part of the key.
+
+96
+00:07:14,840 --> 00:07:23,370
+The second part of the key can be a number
+between zero and the number of shards.
+
+97
+00:07:23,370 --> 00:07:28,120
+So if you want to randomly select a
+particular entity, you put in the product
+
+98
+00:07:28,120 --> 00:07:32,370
+ideas the first part of the key, and then
+you randomly choose a number between zero
+
+99
+00:07:32,370 --> 00:07:36,350
+and the number of shards, and you provide
+it as a second point part of the key.
+
+100
+00:07:36,350 --> 00:07:39,610
+And then you simply grab that object,
+update it, and save it.
+
+101
+00:07:39,610 --> 00:07:44,850
+And then if you want all of the product
+entities, and you want to sum them up,
+
+102
+00:07:44,850 --> 00:07:49,740
+you simply go and get all of the entities
+that have a particular product ID, and
+
+103
+00:07:49,740 --> 00:07:54,540
+then the number of shards you get
+product ID one, product ID two.
+
+104
+00:07:54,540 --> 00:07:58,960
+And depending on your database,
+it may even support Some type of
+
+105
+00:07:58,960 --> 00:08:02,090
+prefixed based query across the keys.
+
+106
+00:08:02,090 --> 00:08:04,800
+Where you can ask for all of the keys
+that have a particular prefix.
+

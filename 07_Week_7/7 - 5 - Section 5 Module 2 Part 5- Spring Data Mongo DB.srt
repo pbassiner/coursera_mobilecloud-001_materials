@@ -1,0 +1,797 @@
+1
+00:00:00,000 --> 00:00:08,848
+[MUSIC]
+
+2
+00:00:08,848 --> 00:00:12,299
+We've talked about NoSQL databases,
+primarily from the point of
+
+3
+00:00:12,299 --> 00:00:15,748
+view that they're simple key value stores,
+where we have a key and
+
+4
+00:00:15,748 --> 00:00:19,770
+we have a value, and the database doesn't
+really care much about the value.
+
+5
+00:00:20,830 --> 00:00:24,570
+Well, let's talk a little bit about
+a different type of database that's
+
+6
+00:00:24,570 --> 00:00:27,250
+a document oriented database.
+
+7
+00:00:27,250 --> 00:00:33,110
+So, when we have documents,
+we can have a database like MongoDB,
+
+8
+00:00:33,110 --> 00:00:38,780
+which we're going to be talking about,
+that can view a, a value that's
+
+9
+00:00:38,780 --> 00:00:43,539
+stored in it as a structured document
+that has different properties or fields.
+
+10
+00:00:44,612 --> 00:00:49,810
+So, MongoDB is a document
+orientated database, and
+
+11
+00:00:49,810 --> 00:00:54,260
+we can use it in Spring, just like we have
+other databases that we've connected to.
+
+12
+00:00:54,260 --> 00:00:58,060
+The In-memory databases that we've
+been using for the examples.
+
+13
+00:00:58,060 --> 00:01:00,470
+But, we can simply,
+doing a little bit of work,
+
+14
+00:01:00,470 --> 00:01:02,920
+we can swap out that in-memory database.
+
+15
+00:01:02,920 --> 00:01:05,930
+And use a much more powerful
+data store like Mongo.
+
+16
+00:01:05,930 --> 00:01:10,110
+Now, to do this, it's helpful to
+understand a few of the concepts.
+
+17
+00:01:10,110 --> 00:01:16,100
+One of the concepts is that natively
+internally Mongo views documents
+
+18
+00:01:16,100 --> 00:01:22,140
+as JSON objects or BSON as is what it
+uses internally or calls its documents.
+
+19
+00:01:22,140 --> 00:01:26,320
+But you can think of them as essentially
+JSON objects that are being stored.
+
+20
+00:01:27,400 --> 00:01:31,160
+So when you go and
+you put in a key, the value for
+
+21
+00:01:31,160 --> 00:01:36,520
+this key is going to be JSON that's
+being stored in the database.
+
+22
+00:01:36,520 --> 00:01:39,000
+So just like you had before
+where you could go and
+
+23
+00:01:39,000 --> 00:01:43,230
+look up and object by a key, you can
+still do that, except that you have,
+
+24
+00:01:43,230 --> 00:01:47,750
+know that what you're looking up is a
+document that has a JSON like structures.
+
+25
+00:01:47,750 --> 00:01:51,160
+They call their BSON, but
+it's essentially a JSON like structure.
+
+26
+00:01:52,340 --> 00:01:56,060
+Now, this is really nice because
+we're very familiar and, and
+
+27
+00:01:56,060 --> 00:01:59,730
+understand how JSON objects
+work after going through all of
+
+28
+00:01:59,730 --> 00:02:01,730
+the different spring examples
+that we've been working with.
+
+29
+00:02:01,730 --> 00:02:07,160
+So now we can take the concepts of how
+we've been marshalling objects in JSON,
+
+30
+00:02:07,160 --> 00:02:11,130
+and we can move that into our database as
+well, and begin thinking about how we go
+
+31
+00:02:11,130 --> 00:02:16,446
+and do searches on the database and store
+things in terms of JSON like objects.
+
+32
+00:02:16,446 --> 00:02:21,270
+Now, it may seem like it's going to
+take a lot of work to get from the,
+
+33
+00:02:21,270 --> 00:02:24,870
+the video service, and the other
+applications that we've been building so
+
+34
+00:02:24,870 --> 00:02:27,450
+far, to something that's
+connected to MongoDB.
+
+35
+00:02:27,450 --> 00:02:32,690
+But what we can see is that
+the distractions that we have,
+
+36
+00:02:32,690 --> 00:02:36,160
+where normally we have our
+application that we produce, and
+
+37
+00:02:36,160 --> 00:02:38,998
+then we're sitting on top of Spring data.
+
+38
+00:02:38,998 --> 00:02:44,020
+And our repositories,
+so we might have one or
+
+39
+00:02:44,020 --> 00:02:48,410
+more repository interfaces here
+that we're using from spring data.
+
+40
+00:02:48,410 --> 00:02:54,850
+That spring data can isolate us from a lot
+of the changes of the underlying database.
+
+41
+00:02:54,850 --> 00:03:01,300
+So if we've been using this
+HSQLDV that maybe in memory,
+
+42
+00:03:01,300 --> 00:03:06,570
+we can suddenly swap to Mongo and
+
+43
+00:03:06,570 --> 00:03:10,890
+spring data can isolate us from a lot
+of those changes to our application.
+
+44
+00:03:10,890 --> 00:03:13,920
+You would think you would have to
+make in order to make that switch.
+
+45
+00:03:13,920 --> 00:03:16,890
+And the other part of this that's
+helping us to do that separation is
+
+46
+00:03:16,890 --> 00:03:19,360
+this idea of you know,
+
+47
+00:03:19,360 --> 00:03:24,080
+object relational mapping to a database or
+mapping our objects into a database.
+
+48
+00:03:24,080 --> 00:03:25,170
+Because you can think about it, we,
+
+49
+00:03:25,170 --> 00:03:30,770
+we're, we've gotten really good at using
+Jackson to map our objects into JSON.
+
+50
+00:03:30,770 --> 00:03:33,420
+We've gotten really good
+at using spring data, and
+
+51
+00:03:33,420 --> 00:03:38,580
+the repositories, and JPA to map our
+objects into database rows and columns.
+
+52
+00:03:38,580 --> 00:03:41,020
+But with Mongo,
+we can simply switch over and
+
+53
+00:03:41,020 --> 00:03:46,540
+begin having spring data map our objects
+into the documents that Mongo cares about.
+
+54
+00:03:46,540 --> 00:03:51,120
+Now, one thing that I should also mention,
+before we get too much farther along here,
+
+55
+00:03:51,120 --> 00:03:54,900
+is that, because Mongo is
+a document orientated database,
+
+56
+00:03:54,900 --> 00:03:59,770
+it doesn't have this concept of a strict
+schema that has to be adhered to.
+
+57
+00:03:59,770 --> 00:04:04,570
+So, the values, as long as they fit the,
+the sort of JSON, or
+
+58
+00:04:04,570 --> 00:04:08,370
+VSON model,
+that Mongo's using underneath the hood.
+
+59
+00:04:08,370 --> 00:04:11,240
+They can have any number of properties and
+be flexible.
+
+60
+00:04:11,240 --> 00:04:15,860
+So they still fit this noSQL model,
+gret flexibility in what we're storing,
+
+61
+00:04:15,860 --> 00:04:18,460
+being able to change things over time.
+
+62
+00:04:18,460 --> 00:04:22,260
+So, what we're going to do now is let's
+take a look at the actual code and
+
+63
+00:04:22,260 --> 00:04:26,830
+the changes that we need to make to
+the video service that was built on top of
+
+64
+00:04:26,830 --> 00:04:28,400
+spring data rest.
+
+65
+00:04:28,400 --> 00:04:32,350
+And see what we get and
+how we get to Mongo DB.
+
+66
+00:04:33,460 --> 00:04:34,570
+So, the first thing we're going to do,
+
+67
+00:04:34,570 --> 00:04:38,840
+is we're going to open up the application
+class that we've seen in all of
+
+68
+00:04:38,840 --> 00:04:40,330
+these examples.
+
+69
+00:04:40,330 --> 00:04:42,690
+And it looks very similar
+to what we've seen before.
+
+70
+00:04:42,690 --> 00:04:46,570
+We still have a repository
+rest in VC configuration.
+
+71
+00:04:46,570 --> 00:04:51,520
+So we know that we're going to be using
+Spring Data Resp to serve data out of
+
+72
+00:04:51,520 --> 00:04:55,650
+the database, and
+to give it a restful API.
+
+73
+00:04:55,650 --> 00:05:00,010
+We still have our original date
+video service API for the client.
+
+74
+00:05:00,010 --> 00:05:05,060
+That allows the client to find
+particular videos by name or duration.
+
+75
+00:05:05,060 --> 00:05:09,040
+Go and list the different videos
+that are in the repository.
+
+76
+00:05:09,040 --> 00:05:09,810
+And then if we go and
+
+77
+00:05:09,810 --> 00:05:15,260
+look at our repository, we're going to
+begin to see something slightly different.
+
+78
+00:05:15,260 --> 00:05:17,340
+So if you'll remember before,
+
+79
+00:05:17,340 --> 00:05:23,720
+when we were using JPA,
+we were extending a CRUD repository.
+
+80
+00:05:23,720 --> 00:05:27,050
+Now, the one of the main changes that
+we're going to have to make in order to
+
+81
+00:05:27,050 --> 00:05:29,550
+switch over to Mongo.
+
+82
+00:05:29,550 --> 00:05:32,750
+Is we're going to have
+to tell Spring to begin
+
+83
+00:05:32,750 --> 00:05:36,910
+using a Mongo repository
+instead of a CRUD repository.
+
+84
+00:05:36,910 --> 00:05:41,890
+Now, we're having to change our code,
+but the nice thing about this is,
+
+85
+00:05:41,890 --> 00:05:45,200
+that all of the users of
+the interface from a,
+
+86
+00:05:45,200 --> 00:05:50,150
+from a, a used user inner you know,
+approach to using that interface,
+
+87
+00:05:50,150 --> 00:05:53,110
+there's no real difference in
+what we're going to be changing.
+
+88
+00:05:53,110 --> 00:05:58,460
+So we're not changing individual methods
+or return values on this interface,
+
+89
+00:05:58,460 --> 00:06:03,170
+all we're doing is changing the interface
+that this interface extends.
+
+90
+00:06:03,170 --> 00:06:08,200
+So, the classes that
+depend on this interface
+
+91
+00:06:08,200 --> 00:06:13,020
+wouldn't be impacted by our change of
+switching from one database to Mongo.
+
+92
+00:06:13,020 --> 00:06:16,240
+So this is one of the nice things
+that we're getting from Spring Data,
+
+93
+00:06:16,240 --> 00:06:21,190
+is that this abstraction layer is helping
+to separate us from the details of
+
+94
+00:06:21,190 --> 00:06:24,050
+the individual database and
+allow us to decide.
+
+95
+00:06:24,050 --> 00:06:26,850
+We, we know longer want to target
+this database we want to target this
+
+96
+00:06:26,850 --> 00:06:33,190
+database without breaking all of the users
+of that particular repository interface.
+
+97
+00:06:33,190 --> 00:06:37,540
+So, as we'll see, we still have all of
+the same things that we had before.
+
+98
+00:06:37,540 --> 00:06:43,150
+We still have the annotations and
+the same parameters for
+
+99
+00:06:43,150 --> 00:06:46,330
+Spring Data Res, we're still
+passing parameters the same way.
+
+100
+00:06:46,330 --> 00:06:51,350
+And we're still inheriting the normal
+find methods and delete methods and
+
+101
+00:06:51,350 --> 00:06:54,819
+other things from the parent
+repository that we're extending.
+
+102
+00:06:56,090 --> 00:06:59,760
+Now the other change we have
+to make is we have to go and
+
+103
+00:06:59,760 --> 00:07:05,140
+update our video object to no
+longer use the JPA annotation, but
+
+104
+00:07:05,140 --> 00:07:10,880
+instead to include the annotations for
+Spring Data Mongo.
+
+105
+00:07:10,880 --> 00:07:14,400
+And in, in this case it's
+actually quite simple to do this,
+
+106
+00:07:14,400 --> 00:07:18,150
+because all we have to do is to
+have one annotation in order to
+
+107
+00:07:18,150 --> 00:07:24,130
+get our videos stored in Mongo DB and
+that's to add an add ID annotation.
+
+108
+00:07:24,130 --> 00:07:28,210
+When specifies the member variable
+that we want to be the key when we're
+
+109
+00:07:28,210 --> 00:07:30,540
+storing these objects in the database.
+
+110
+00:07:31,630 --> 00:07:33,420
+So with very little change,
+
+111
+00:07:33,420 --> 00:07:37,820
+all we're doing is taking changing
+the annotations in our video objects, and
+
+112
+00:07:37,820 --> 00:07:42,330
+then if we go and look at the repository,
+we're changing what we're extending.
+
+113
+00:07:42,330 --> 00:07:45,860
+But all of this is working within the same
+framework that we've gotten used to
+
+114
+00:07:45,860 --> 00:07:48,200
+with Spring Data and Spring Data Res.
+
+115
+00:07:48,200 --> 00:07:50,950
+We're just slightly changing
+how we're annotating and how
+
+116
+00:07:50,950 --> 00:07:54,690
+we're extending this interface, but we're
+still not implementing the interface,
+
+117
+00:07:54,690 --> 00:08:00,254
+trying to figure out how we go about,
+in change and use queries for MongoDB.
+
+118
+00:08:00,254 --> 00:08:06,070
+From the, the programmatic point of view
+of storing objects and retrieving objects,
+
+119
+00:08:06,070 --> 00:08:09,270
+we're still doing all of the same things
+that we did before with spring data, and
+
+120
+00:08:09,270 --> 00:08:12,950
+we're still exposing all of these
+objects via spring data reps.
+
+121
+00:08:12,950 --> 00:08:15,210
+So, this is the beautiful thing again.
+
+122
+00:08:15,210 --> 00:08:16,480
+By using spring and
+
+123
+00:08:16,480 --> 00:08:22,210
+spring data, we're, separating us from
+the details of these underlying databases.
+
+124
+00:08:22,210 --> 00:08:24,230
+And how we query them, and, and
+
+125
+00:08:24,230 --> 00:08:28,590
+deal with the different variations
+in their representations.
+
+126
+00:08:28,590 --> 00:08:32,690
+But, we also gain all
+of these benefits of,
+
+127
+00:08:32,690 --> 00:08:36,350
+one person is going to go, an,
+an expert presumably, is going to go and
+
+128
+00:08:36,350 --> 00:08:39,140
+create the different mappings
+down to these databases.
+
+129
+00:08:39,140 --> 00:08:43,100
+We also gain from their domain
+knowledge of knowing the right way to
+
+130
+00:08:43,100 --> 00:08:46,490
+go from objects to
+the particular database.
+
+131
+00:08:46,490 --> 00:08:50,710
+So we can reuse all of this, this great
+knowledge from the domain experts to know
+
+132
+00:08:50,710 --> 00:08:55,870
+how to do this translation layer
+down to each individual database.
+
+133
+00:08:55,870 --> 00:09:01,510
+So, this is the complete application for
+Spring MongoDB.
+
+134
+00:09:01,510 --> 00:09:04,650
+If you want to go through and
+add some extra customization,
+
+135
+00:09:04,650 --> 00:09:09,440
+you don't have to have this annotation but
+we have the at enable Mongo Repositories.
+
+136
+00:09:09,440 --> 00:09:13,840
+And if you wanted to go and configure some
+of the ways that Mongo DB gets setup,
+
+137
+00:09:13,840 --> 00:09:16,590
+you can add this to
+your application class.
+
+138
+00:09:16,590 --> 00:09:18,550
+And then again setting it up.
+
+139
+00:09:18,550 --> 00:09:24,700
+One of the other small changes that we
+have to make is in our build.gradal file.
+
+140
+00:09:24,700 --> 00:09:27,348
+We have to go and add the dependency.
+
+141
+00:09:27,348 --> 00:09:34,170
+For the MongoDB database driver and other
+dependencies that are needed by Spring.
+
+142
+00:09:34,170 --> 00:09:37,370
+And then the final thing that's
+helpful to people is this example is
+
+143
+00:09:37,370 --> 00:09:42,150
+going to assume that you're
+running the database locally.
+
+144
+00:09:42,150 --> 00:09:45,710
+But if you decided that you wanted to
+go and connect to a remote database.
+
+145
+00:09:45,710 --> 00:09:50,730
+There is an applications.properties file
+underneath source main resources, and
+
+146
+00:09:50,730 --> 00:09:54,980
+if we go and look at that file,
+we see that we have the ability to change
+
+147
+00:09:54,980 --> 00:10:00,570
+the database host where this MongoDB
+database lives, as well as the port.
+
+148
+00:10:00,570 --> 00:10:04,420
+Now, or we could go and specify
+the connection URI with user name and
+
+149
+00:10:04,420 --> 00:10:07,140
+password, or a specific database
+that we wanted to connect to.
+
+150
+00:10:08,370 --> 00:10:12,770
+So, what we've seen from this is,
+is that spring data, and
+
+151
+00:10:12,770 --> 00:10:16,880
+spring data rest gave us this
+great abstraction that protects us
+
+152
+00:10:16,880 --> 00:10:21,130
+from complicated changes when we
+decide to switch between databases.
+
+153
+00:10:21,130 --> 00:10:23,860
+Now there may be circumstances
+where things are hard to map into
+
+154
+00:10:23,860 --> 00:10:27,430
+another database, and it may not
+fully protect us to those things.
+
+155
+00:10:27,430 --> 00:10:32,330
+But in most cases we can simply
+switch to the appropriate subset of
+
+156
+00:10:32,330 --> 00:10:35,950
+spring data that we want to use for
+the particular database that we want.
+
+157
+00:10:35,950 --> 00:10:38,740
+And spring data can figure
+out the right way to map
+
+158
+00:10:38,740 --> 00:10:41,230
+our objects into that new database.
+
+159
+00:10:41,230 --> 00:10:47,150
+So in this case, by simply adding the at
+id annotation to our video and changing
+
+160
+00:10:47,150 --> 00:10:51,700
+the, the, the annotations describing
+how we want to persist that object.
+
+161
+00:10:51,700 --> 00:10:56,640
+And by changing,
+slightly our repository interface to
+
+162
+00:10:56,640 --> 00:11:00,350
+extend a different interface
+rather than crud repository.
+
+163
+00:11:00,350 --> 00:11:02,420
+Suddenly we're able to
+take our objects and
+
+164
+00:11:02,420 --> 00:11:06,380
+automatically map them into
+the documents that Mongo DB stores.
+
