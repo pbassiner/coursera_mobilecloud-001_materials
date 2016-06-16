@@ -1,0 +1,628 @@
+1
+00:00:00,131 --> 00:00:09,196
+[MUSIC]
+
+2
+00:00:09,196 --> 00:00:12,930
+One consideration when you're
+building your application and
+
+3
+00:00:12,930 --> 00:00:17,870
+deploying it to the Cloud, is what
+style of, services you're going to use.
+
+4
+00:00:17,870 --> 00:00:21,330
+Are you going to use
+Infrastructure as a service.
+
+5
+00:00:21,330 --> 00:00:24,830
+Which is typically called IaaS, or
+
+6
+00:00:24,830 --> 00:00:29,180
+you're going to use Platform as a Service,
+or PaaS.
+
+7
+00:00:29,180 --> 00:00:33,470
+And this is one of the big
+decisions that you'll have to make.
+
+8
+00:00:33,470 --> 00:00:37,590
+When you're trying to figure out how
+you're going to build your application,
+
+9
+00:00:37,590 --> 00:00:39,950
+and how you're going to
+deploy it into the cloud.
+
+10
+00:00:41,260 --> 00:00:43,470
+So let's talk about what each
+of these things are, and
+
+11
+00:00:43,470 --> 00:00:46,100
+compare and contrast them a little bit.
+
+12
+00:00:46,100 --> 00:00:49,900
+You can think of infrastructure
+as a service as the closest thing
+
+13
+00:00:49,900 --> 00:00:52,580
+to basically buying a new
+machine in the cloud.
+
+14
+00:00:52,580 --> 00:00:56,240
+You're asking the cloud provider to go,
+and turn on
+
+15
+00:00:56,240 --> 00:01:01,210
+a virtual machine typically that has some
+configuration that you know how to use.
+
+16
+00:01:01,210 --> 00:01:05,410
+So there, that cloud provider will go,
+and turn on the base virtual machine or
+
+17
+00:01:05,410 --> 00:01:08,330
+container or whatever it is,
+and then you will go and
+
+18
+00:01:08,330 --> 00:01:12,050
+stack on top of it the different
+components of your application,
+
+19
+00:01:12,050 --> 00:01:19,530
+maybe your, controllers, maybe you'll
+go and stack some other utilities.
+
+20
+00:01:19,530 --> 00:01:20,480
+On top of this thing.
+
+21
+00:01:20,480 --> 00:01:24,500
+Maybe you'll put a database on a node, and
+you'll begin stacking all the different
+
+22
+00:01:24,500 --> 00:01:29,310
+pieces that you need for your application
+on top of this virtual machine.
+
+23
+00:01:30,340 --> 00:01:34,190
+Now the nice thing that this gives you,
+is it gives you the flexibility to
+
+24
+00:01:34,190 --> 00:01:38,780
+control the type, and
+configuration of the virtual machine.
+
+25
+00:01:38,780 --> 00:01:42,150
+It gives you the ability to control
+all of the different pieces that go in
+
+26
+00:01:42,150 --> 00:01:46,950
+that virtual machine, and it gives you
+control of things like security, you can
+
+27
+00:01:46,950 --> 00:01:52,380
+decide what the controllers can, and can't
+access under on the underlying machine,
+
+28
+00:01:52,380 --> 00:01:57,585
+what APIs are available to them, you can
+mix and match things that are written in
+
+29
+00:01:57,585 --> 00:02:01,600
+C++, and are built just for that Linux
+virtual machine you're running on.
+
+30
+00:02:01,600 --> 00:02:03,180
+With your Java code, and
+
+31
+00:02:03,180 --> 00:02:06,600
+easily build up a very custom
+environment that you want to run in.
+
+32
+00:02:07,630 --> 00:02:12,210
+Now the downside of this is all of this
+customization that you're doing means that
+
+33
+00:02:12,210 --> 00:02:13,920
+it's something very specific to you.
+
+34
+00:02:13,920 --> 00:02:20,130
+So you're also going to have to manually
+decide all of the auto scaling policies,
+
+35
+00:02:20,130 --> 00:02:21,370
+and how you scale up.
+
+36
+00:02:23,610 --> 00:02:27,520
+You're going to have to build your own
+infrastructure to configure machines.
+
+37
+00:02:28,590 --> 00:02:33,300
+So you'll need to have scripts to
+automate the setup of these machines,
+
+38
+00:02:33,300 --> 00:02:36,200
+to automatically monitor these machines.
+
+39
+00:02:36,200 --> 00:02:40,730
+So you'll need to know what's running and
+be able to track it and monitor it.
+
+40
+00:02:40,730 --> 00:02:45,370
+You'll need to be able to
+handle load by auto-scaling.
+
+41
+00:02:45,370 --> 00:02:51,090
+You'll need to do all kinds of different
+things, that are certainly doable and
+
+42
+00:02:51,090 --> 00:02:56,210
+within your realm of capabilities,
+but you become responsible for
+
+43
+00:02:56,210 --> 00:03:01,400
+all of the aspects of not only setting up,
+and configuring these virtual machines.
+
+44
+00:03:01,400 --> 00:03:04,790
+But launching them, monitoring them,
+handling the load and
+
+45
+00:03:04,790 --> 00:03:06,530
+auto scaling as needed.
+
+46
+00:03:06,530 --> 00:03:10,720
+So infrastructure as a service gives
+you the bare metal to build your
+
+47
+00:03:10,720 --> 00:03:11,610
+application on top of.
+
+48
+00:03:11,610 --> 00:03:15,320
+But you become responsible for
+all of the monitoring, and
+
+49
+00:03:15,320 --> 00:03:18,590
+management capabilities of,
+of dealing with those machines.
+
+50
+00:03:19,710 --> 00:03:27,420
+With platform as a service what you
+do is you provide your application.
+
+51
+00:03:27,420 --> 00:03:32,180
+So in this case it would be your web
+application, like a war file which would
+
+52
+00:03:32,180 --> 00:03:35,710
+have the controllers, and other things
+that were going to handle the request.
+
+53
+00:03:36,750 --> 00:03:39,244
+And the platform as a service.
+
+54
+00:03:39,244 --> 00:03:42,388
+[MUSIC]
+
+55
+00:03:42,388 --> 00:03:45,180
+Is what takes your application.
+
+56
+00:03:45,180 --> 00:03:48,390
+Automatically for
+you configures a web container.
+
+57
+00:03:49,560 --> 00:03:52,640
+Configures the underlying virtual
+machine that it's running on.
+
+58
+00:03:52,640 --> 00:03:55,040
+Decides all of the security settings.
+
+59
+00:03:55,040 --> 00:03:57,280
+Decides when to scale it up or down.
+
+60
+00:03:57,280 --> 00:03:59,190
+How much capacity it needs.
+
+61
+00:03:59,190 --> 00:04:01,400
+And runs it for you.
+
+62
+00:04:01,400 --> 00:04:05,150
+Now the advantage of hte platform
+as a service is it takes away this,
+
+63
+00:04:05,150 --> 00:04:09,770
+this complexity of how do I go,
+and actually set up my machines?
+
+64
+00:04:09,770 --> 00:04:13,170
+When should I add machines,
+how should I monitor them?
+
+65
+00:04:13,170 --> 00:04:17,930
+And it gives you all of the tools to
+support the actual execution, and
+
+66
+00:04:17,930 --> 00:04:19,750
+running of your application.
+
+67
+00:04:19,750 --> 00:04:21,250
+And to.
+
+68
+00:04:21,250 --> 00:04:25,070
+You can give it hints as to what you're
+expecting in terms of performance so
+
+69
+00:04:25,070 --> 00:04:29,690
+that it can try to automatically
+scale your application for you.
+
+70
+00:04:29,690 --> 00:04:33,270
+It can also give you all kinds of tools,
+that are tightly coupled to that
+
+71
+00:04:33,270 --> 00:04:38,170
+platform that can tell you things like
+collecting the request logs across all of
+
+72
+00:04:38,170 --> 00:04:40,860
+the machines that you have
+running with your application.
+
+73
+00:04:40,860 --> 00:04:43,090
+So that you can go and look across.
+
+74
+00:04:43,090 --> 00:04:44,190
+A thousand machines and
+
+75
+00:04:44,190 --> 00:04:47,090
+see the requests that are coming in and
+what they're logging.
+
+76
+00:04:47,090 --> 00:04:51,880
+Or if you want to go and look at
+the performance of how your application is
+
+77
+00:04:51,880 --> 00:04:55,900
+interacting with the database,
+that the PaaS system has created or
+
+78
+00:04:55,900 --> 00:04:57,650
+the platform as a service,
+you can go in and
+
+79
+00:04:57,650 --> 00:05:01,700
+look at that, because they provide
+you tools to give you those metrics.
+
+80
+00:05:01,700 --> 00:05:04,500
+So with platform as a service,
+you get that advantage,
+
+81
+00:05:04,500 --> 00:05:08,470
+that you have all of the management
+infrastructure provided for
+
+82
+00:05:08,470 --> 00:05:11,790
+you and built for you, and
+you are getting to use it for
+
+83
+00:05:11,790 --> 00:05:15,690
+free you just have to go to build
+something that fits into their model.
+
+84
+00:05:16,920 --> 00:05:19,690
+Now the downside of this approach is that.
+
+85
+00:05:19,690 --> 00:05:24,380
+You typically have to write your
+application to live within the,
+
+86
+00:05:24,380 --> 00:05:26,690
+the limits of what they will allow.
+
+87
+00:05:26,690 --> 00:05:30,880
+So you, you don't get the same
+configurability you do over here with
+
+88
+00:05:30,880 --> 00:05:34,090
+getting to decide exactly which
+database you want to use.
+
+89
+00:05:34,090 --> 00:05:39,020
+Or exactly which set of monitoring
+infrastructure you want to use.
+
+90
+00:05:39,020 --> 00:05:42,770
+Now there are some newer approaches
+that are starting to blend this.
+
+91
+00:05:42,770 --> 00:05:48,060
+Model of infrastructure as a service and
+platform as a service, but right now
+
+92
+00:05:48,060 --> 00:05:52,240
+if you have pure platform as a service or,
+or pure infrastructure as a service,
+
+93
+00:05:52,240 --> 00:05:56,810
+platform as a service is going to be more
+restrictive on what you can and can't do.
+
+94
+00:05:56,810 --> 00:06:00,730
+And more of the set up and
+management infrastructure is going to be
+
+95
+00:06:00,730 --> 00:06:03,250
+taking care of one as
+a platform as a service.
+
+96
+00:06:03,250 --> 00:06:05,980
+Side versus an infrastructure
+services side,
+
+97
+00:06:05,980 --> 00:06:11,510
+so over here you can spend a lot more
+emphasis on just writing your application,
+
+98
+00:06:11,510 --> 00:06:14,150
+and then letting the platform
+as a service go and
+
+99
+00:06:14,150 --> 00:06:18,440
+run it and figure out how to operate
+your application effectively.
+
+100
+00:06:18,440 --> 00:06:20,490
+Make sure it's always available and
+always running.
+
+101
+00:06:21,530 --> 00:06:23,640
+Over here you take over that.
+
+102
+00:06:23,640 --> 00:06:25,700
+Functionality, you have
+to keep it running,
+
+103
+00:06:25,700 --> 00:06:29,100
+you have to scale it, but
+you can decide to do anything you want.
+
+104
+00:06:29,100 --> 00:06:32,330
+If you want to save a file to the virtual
+machine that you're running on,
+
+105
+00:06:32,330 --> 00:06:36,400
+you can do that, whereas over here you
+may not have access to the file system.
+
+106
+00:06:36,400 --> 00:06:42,020
+You may have to use some vendor
+specific API to store that file.
+
+107
+00:06:42,020 --> 00:06:46,940
+So you have a trade off, when you're
+using infrastructures as a service versus
+
+108
+00:06:46,940 --> 00:06:51,200
+platform as a service primarily, and
+how much effort you have to put put into
+
+109
+00:06:51,200 --> 00:06:57,450
+managing, and setting up, and scaling
+the platform that you're running it on.
+
+110
+00:06:57,450 --> 00:07:01,290
+You have a trade off in terms
+of how configurable versus not
+
+111
+00:07:01,290 --> 00:07:02,840
+configurable you are.
+
+112
+00:07:02,840 --> 00:07:07,330
+And then a trade-off in terms of you,
+how tightly coupled you
+
+113
+00:07:07,330 --> 00:07:11,340
+are to standards versus
+a particular vendor's APIs.
+
+114
+00:07:11,340 --> 00:07:14,380
+So there's a number of things to consider.
+
+115
+00:07:14,380 --> 00:07:17,890
+If you're a very small developer, and
+
+116
+00:07:17,890 --> 00:07:22,330
+you don't have a lot of experience
+scaling an app up to huge scales.
+
+117
+00:07:22,330 --> 00:07:25,430
+You might be better off with platform as
+a service, because you're not going to
+
+118
+00:07:25,430 --> 00:07:29,780
+have the capacity to manage
+this application at scale.
+
+119
+00:07:30,800 --> 00:07:34,010
+Particularly not without all of
+the tools that have been built for
+
+120
+00:07:34,010 --> 00:07:37,800
+a platform as a service environment
+like Google app engine.
+
+121
+00:07:37,800 --> 00:07:40,120
+With the an Infrastructure
+as a service environment,
+
+122
+00:07:40,120 --> 00:07:44,340
+just like Pure Amazon EC2 where
+you're setting up virtual machines.
+
+123
+00:07:44,340 --> 00:07:48,050
+This may be great if your in
+an application that has deep expertise in
+
+124
+00:07:48,050 --> 00:07:50,630
+scaling up applications,
+and monitoring them.
+
+125
+00:07:50,630 --> 00:07:53,100
+And you've got all of the tooling and
+infrastructure for it.
+
+126
+00:07:53,100 --> 00:07:55,240
+And it will give you
+greater flexibility and
+
+127
+00:07:55,240 --> 00:07:57,610
+freedom in how you build
+your applications.
+
+128
+00:07:57,610 --> 00:08:01,690
+And not necessarily be tied in to
+one particular vendor's platform.
+
+129
+00:08:01,690 --> 00:08:06,310
+So there's various concerns,
+that you have to think through when
+
+130
+00:08:06,310 --> 00:08:09,530
+you're trying to make this decision,
+between infrastructure as a service versus
+
+131
+00:08:10,590 --> 00:08:14,230
+platform as a service for your cloud
+service to support mobile devices.
+

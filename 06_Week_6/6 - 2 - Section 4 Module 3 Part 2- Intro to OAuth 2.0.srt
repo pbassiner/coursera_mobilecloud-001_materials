@@ -1,0 +1,242 @@
+1
+00:00:00,074 --> 00:00:08,615
+[MUSIC]
+
+2
+00:00:08,615 --> 00:00:12,687
+OAuth is a specification
+that's designed to fix
+
+3
+00:00:12,687 --> 00:00:18,840
+these issues in the typical log in and
+get a session cookie model.
+
+4
+00:00:18,840 --> 00:00:19,810
+So.
+
+5
+00:00:19,810 --> 00:00:25,970
+What OAuth does is give you a way to do
+a lot of things much better in this model.
+
+6
+00:00:25,970 --> 00:00:30,430
+One, is it tries to give you finer control
+
+7
+00:00:32,680 --> 00:00:36,170
+over the resources in a user's account.
+
+8
+00:00:38,660 --> 00:00:44,950
+So, we can begin to say things like, this
+app should have access to upload videos,
+
+9
+00:00:44,950 --> 00:00:46,440
+but not delete videos in my account.
+
+10
+00:00:47,720 --> 00:00:54,874
+It give us a way to revoke access,
+
+11
+00:00:54,874 --> 00:00:58,907
+to individual apps.
+
+12
+00:01:03,054 --> 00:01:06,322
+So, I can say I no longer
+trust this particular app,
+
+13
+00:01:06,322 --> 00:01:10,500
+I will revoke access to it,
+without having to change my password.
+
+14
+00:01:11,790 --> 00:01:20,162
+It allows things like changing a password,
+without revoking access to all of my apps.
+
+15
+00:01:24,813 --> 00:01:27,000
+Or, if you want it to,
+it can revoke access.
+
+16
+00:01:27,000 --> 00:01:30,140
+But it begins to fix
+a bunch of these issues.
+
+17
+00:01:30,140 --> 00:01:32,860
+It can also provide
+a model whereby an app,
+
+18
+00:01:32,860 --> 00:01:37,650
+it can get access to your data or
+some subset of your
+
+19
+00:01:37,650 --> 00:01:42,526
+data without actually directly providing
+your user name and password to the app.
+
+20
+00:01:42,526 --> 00:01:50,970
+So, it doesn't, require,
+
+21
+00:01:50,970 --> 00:01:55,480
+user name, and pass going to the app.
+
+22
+00:01:55,480 --> 00:02:00,590
+So there are models with OAuth,
+where you can actually go and
+
+23
+00:02:00,590 --> 00:02:08,080
+log into a particular website directly
+through your browser or some other client.
+
+24
+00:02:08,080 --> 00:02:11,790
+And then that information that, that app
+needs in order to get access to a part of
+
+25
+00:02:11,790 --> 00:02:17,000
+your account is given to the app
+through another mechanism.
+
+26
+00:02:17,000 --> 00:02:20,330
+So you don't directly have to
+provide your credentials to the app.
+
+27
+00:02:21,700 --> 00:02:27,722
+OAuth is often called the valet
+key of the web, and the reason is,
+
+28
+00:02:27,722 --> 00:02:32,710
+is because to support all these things
+that we talked about, it provides a model
+
+29
+00:02:32,710 --> 00:02:38,125
+where essentially you can create a key
+that can be handed off to an app.
+
+30
+00:02:38,125 --> 00:02:42,050
+That can only access specific
+resources within your account,
+
+31
+00:02:42,050 --> 00:02:44,680
+that you want that app to have access to.
+
+32
+00:02:44,680 --> 00:02:49,020
+So it's like your car when you're going
+to park your car and you give your car to
+
+33
+00:02:49,020 --> 00:02:54,440
+a valet who is going to park the car for
+you, you can give your valet key,
+
+34
+00:02:54,440 --> 00:02:57,900
+which gives them the ability to turn
+on the car, drive it, and park it.
+
+35
+00:02:57,900 --> 00:03:02,980
+And lock the doors, but not get access
+to the glove compartment or the trunk.
+
+36
+00:03:02,980 --> 00:03:08,160
+Where you might be able to store you know,
+sensitive data about yourself.
+
+37
+00:03:08,160 --> 00:03:09,930
+But I guess if it's a car
+you're not storing data.
+
+38
+00:03:09,930 --> 00:03:11,840
+You're probably putting money or
+
+39
+00:03:11,840 --> 00:03:14,170
+other things into the glove compartment or
+the trunk.
+
+40
+00:03:14,170 --> 00:03:17,640
+And so
+the valet key is something that gives
+
+41
+00:03:17,640 --> 00:03:23,100
+the valet access to the part of the car
+that they need, the ability to turn it on,
+
+42
+00:03:23,100 --> 00:03:25,410
+drive it, park it, and lock it.
+
+43
+00:03:25,410 --> 00:03:28,310
+But not access to the parts of the car
+that they don't need access to.
+
+44
+00:03:28,310 --> 00:03:31,800
+In this case,
+the glove compartment or the trunk.
+
+45
+00:03:31,800 --> 00:03:33,440
+So, OAuth has a very similar model.
+
+46
+00:03:33,440 --> 00:03:38,940
+It allows you to create a key that
+you can hand off to a specific app.
+
+47
+00:03:38,940 --> 00:03:43,880
+And that will give that app only
+access to a part of your account.
+
+48
+00:03:43,880 --> 00:03:47,100
+And similarly at any time you can decide,
+you know what,
+
+49
+00:03:47,100 --> 00:03:49,520
+I don't want that app
+to have access anymore.
+
+50
+00:03:49,520 --> 00:03:54,423
+And you can revoke the key that you've
+given into it without revoking your
+
+51
+00:03:54,423 --> 00:03:59,640
+master key, your user name and password
+that you're using to mint these other keys
+

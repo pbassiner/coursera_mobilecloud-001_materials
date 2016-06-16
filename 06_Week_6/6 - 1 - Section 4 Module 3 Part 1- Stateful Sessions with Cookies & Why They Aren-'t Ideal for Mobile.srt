@@ -1,0 +1,796 @@
+1
+00:00:00,000 --> 00:00:09,078
+[MUSIC].
+
+2
+00:00:09,078 --> 00:00:13,166
+Using Session cookies isn't
+really the most convenient way of
+
+3
+00:00:13,166 --> 00:00:18,411
+authenticating mobile devices and, and
+remembering the users associated with
+
+4
+00:00:18,411 --> 00:00:23,540
+the mobile devices that are sending
+requests to your Cloud service.
+
+5
+00:00:23,540 --> 00:00:26,540
+So let me give you some examples
+of why sessions aren't ideal.
+
+6
+00:00:27,760 --> 00:00:30,670
+So let's say that we have a server.
+
+7
+00:00:32,030 --> 00:00:35,390
+And we have access to various
+resources on that server.
+
+8
+00:00:35,390 --> 00:00:40,490
+So we might be able to upload video,
+we might be
+
+9
+00:00:40,490 --> 00:00:44,150
+able to delete video
+that's in our account.
+
+10
+00:00:46,030 --> 00:00:49,600
+And we might be able to get a list
+of the videos that we've uploaded.
+
+11
+00:00:52,540 --> 00:00:57,520
+Now, if I'm writing a cloud
+service that I intend for
+
+12
+00:00:58,550 --> 00:01:05,170
+different mobile apps to use,
+I need a way of allowing some mobile app.
+
+13
+00:01:05,170 --> 00:01:06,420
+That's running our device.
+
+14
+00:01:06,420 --> 00:01:12,740
+So let's say, we've got our Android device
+here, or some other device like an iPhone.
+
+15
+00:01:12,740 --> 00:01:17,570
+We've got all of these different apps.
+
+16
+00:01:17,570 --> 00:01:22,250
+So we've got App 1, App 2,
+and they're going to be
+
+17
+00:01:22,250 --> 00:01:26,150
+sending requests to the server
+to get access to our video data.
+
+18
+00:01:26,150 --> 00:01:29,530
+So you can imagine YouTube and
+other sites deal with stuff like this.
+
+19
+00:01:30,560 --> 00:01:37,750
+And so, App 2 may send request to
+the server to get access to our video.
+
+20
+00:01:37,750 --> 00:01:42,730
+App 1 may send request to our server
+to get access to different aspects of
+
+21
+00:01:42,730 --> 00:01:43,870
+the videos that we've uploaded.
+
+22
+00:01:44,990 --> 00:01:51,100
+Now, how do those apps go and
+establish their identity and
+
+23
+00:01:51,100 --> 00:01:54,790
+associate themselves with me and
+my user account, so
+
+24
+00:01:54,790 --> 00:01:58,190
+that they can get access to my
+information, either upload new videos or
+
+25
+00:01:58,190 --> 00:02:02,240
+delete videos, or
+list the videos that I've uploaded?
+
+26
+00:02:02,240 --> 00:02:06,130
+Well, if we're just using
+the standard session approach, that
+
+27
+00:02:06,130 --> 00:02:10,240
+we've used before where we create session
+cookies after logging in a log in page.
+
+28
+00:02:11,350 --> 00:02:18,990
+Each app would basically display a login
+that would say, you know, give us your
+
+29
+00:02:18,990 --> 00:02:24,560
+username, and it would have a box, and
+then it would have a box for the password.
+
+30
+00:02:24,560 --> 00:02:27,740
+And it would collect all of
+this information from me, and
+
+31
+00:02:27,740 --> 00:02:30,310
+then just pass it along to the server.
+
+32
+00:02:30,310 --> 00:02:33,760
+And each of these apps
+might go about doing that.
+
+33
+00:02:33,760 --> 00:02:37,920
+Now, let's say that I want to
+not have to login every time.
+
+34
+00:02:37,920 --> 00:02:39,440
+Well, this app may say, okay, well,
+
+35
+00:02:39,440 --> 00:02:43,930
+you don't have to login every time, I'll
+just store your username and password.
+
+36
+00:02:43,930 --> 00:02:46,920
+And then this app says, oh,
+I'll store your username and password too.
+
+37
+00:02:47,950 --> 00:02:52,020
+And very quickly we get into this
+situation where our private information,
+
+38
+00:02:52,020 --> 00:02:57,570
+our username and password is being
+stored by all of these different apps.
+
+39
+00:02:57,570 --> 00:03:03,870
+And the security of how well it's stored
+is determined by the weakest link.
+
+40
+00:03:03,870 --> 00:03:07,960
+The, the first app in here that goes and
+stores it in plain text or
+
+41
+00:03:07,960 --> 00:03:12,130
+doesn't do the proper encryption or
+other things hashing to protect it,
+
+42
+00:03:13,390 --> 00:03:18,460
+the, the, the easier it is for
+an attacker to gain access to it.
+
+43
+00:03:18,460 --> 00:03:21,860
+So we don't really like this idea that
+we're going to provide our user name and
+
+44
+00:03:21,860 --> 00:03:23,390
+password to each app.
+
+45
+00:03:23,390 --> 00:03:27,860
+And then each app is going to store that
+information and then provide it over and
+
+46
+00:03:27,860 --> 00:03:29,740
+over again to the server.
+
+47
+00:03:29,740 --> 00:03:33,110
+So that's one disadvantage of this model
+where we're going to use session cookies.
+
+48
+00:03:34,180 --> 00:03:38,510
+Another disadvantage is,
+let's say that I really trust App 2.
+
+49
+00:03:38,510 --> 00:03:40,970
+So this is an app that I really,
+really trust.
+
+50
+00:03:40,970 --> 00:03:42,280
+I give it a little check mark here.
+
+51
+00:03:42,280 --> 00:03:44,500
+I really trust App 2.
+
+52
+00:03:44,500 --> 00:03:49,200
+This is an app that's produced by
+a really well known app developer.
+
+53
+00:03:49,200 --> 00:03:53,730
+But App 1, eh, I sort of trust them,
+but I want to try that app out.
+
+54
+00:03:55,390 --> 00:04:00,250
+Well, even though I trust this
+app a lot more, there's no
+
+55
+00:04:00,250 --> 00:04:05,650
+way that I can differentiate the access
+that they should have to my account.
+
+56
+00:04:05,650 --> 00:04:08,770
+So either one I'm going to give
+my username and password to.
+
+57
+00:04:08,770 --> 00:04:11,450
+They're both going to be able
+to login the server, and
+
+58
+00:04:11,450 --> 00:04:14,010
+they're both going to have
+full access to my account.
+
+59
+00:04:14,010 --> 00:04:18,050
+So they'll both be able to upload videos,
+delete videos, and list videos.
+
+60
+00:04:19,450 --> 00:04:22,650
+And what if I really wanted
+to try this app out,
+
+61
+00:04:22,650 --> 00:04:25,690
+but only give it
+the ability to list videos?
+
+62
+00:04:25,690 --> 00:04:28,540
+Or maybe it only needs to
+access to list videos.
+
+63
+00:04:29,620 --> 00:04:33,490
+So, let's say that this
+is just a viewer browser.
+
+64
+00:04:33,490 --> 00:04:38,950
+Well, it shouldn't have access to
+upload and delete videos if it doesn't
+
+65
+00:04:38,950 --> 00:04:44,750
+need the access, but with this username
+and password model, each app is going to.
+
+66
+00:04:44,750 --> 00:04:50,010
+Potentially store, but at the very risk,
+get access to my username and password,
+
+67
+00:04:50,010 --> 00:04:53,020
+and be able to use it to authenticate
+with the server and do everything.
+
+68
+00:04:54,180 --> 00:05:00,180
+So, I don't really want every app to have
+full access to my account and I especially
+
+69
+00:05:00,180 --> 00:05:04,020
+don't want every app to have full access
+to my account if they don't need it.
+
+70
+00:05:04,020 --> 00:05:06,640
+Because the more times I give
+out my username and password,
+
+71
+00:05:06,640 --> 00:05:13,020
+the more apps that improperly protect it
+or store it, and the less they actually
+
+72
+00:05:13,020 --> 00:05:18,470
+need to use it the more I'm exposing
+myself to a security vulnerability.
+
+73
+00:05:18,470 --> 00:05:21,900
+The more I'm offering up my account
+to be attacked and compromised.
+
+74
+00:05:23,130 --> 00:05:28,360
+So, what we need is a way
+to allow apps to get
+
+75
+00:05:28,360 --> 00:05:33,780
+access to certain resources that
+are associated with my account.
+
+76
+00:05:33,780 --> 00:05:39,140
+So we want one app to just
+have access to list my videos.
+
+77
+00:05:39,140 --> 00:05:42,910
+And maybe we want another app that
+we trust more to have access to
+
+78
+00:05:42,910 --> 00:05:45,250
+listing the videos and to deleting them.
+
+79
+00:05:45,250 --> 00:05:47,380
+So we're going to give this to App 2.
+
+80
+00:05:47,380 --> 00:05:51,010
+This one to one and two, and
+we're not going to give delete access to
+
+81
+00:05:51,010 --> 00:05:54,880
+any of the apps because none of them,
+we don't trust any of the apps that much.
+
+82
+00:05:55,930 --> 00:06:01,560
+Well, this type of model isn't
+supported well by a username and
+
+83
+00:06:01,560 --> 00:06:05,460
+password that generates a session
+cookie that gets stores in an app and
+
+84
+00:06:05,460 --> 00:06:08,010
+used to access data in my account.
+
+85
+00:06:08,010 --> 00:06:11,300
+There's no granularity in
+the control of the access.
+
+86
+00:06:12,560 --> 00:06:15,940
+And we have that fact that either
+we're providing the username and
+
+87
+00:06:15,940 --> 00:06:20,730
+password to the app every single time
+we want to use it, or that app is
+
+88
+00:06:20,730 --> 00:06:26,380
+storing it on disk, so it may be going and
+storing it somewhere on your device.
+
+89
+00:06:26,380 --> 00:06:32,410
+And then this app may be going and storing
+your username and password somewhere else.
+
+90
+00:06:32,410 --> 00:06:34,876
+Otherwise they're forcing
+you to login every time and
+
+91
+00:06:34,876 --> 00:06:37,340
+the app developers don't want to do that.
+
+92
+00:06:37,340 --> 00:06:41,940
+So suddenly we are having our username and
+password stored all over the place.
+
+93
+00:06:41,940 --> 00:06:48,610
+We can't govern access to the resources in
+our account on any type of granular level.
+
+94
+00:06:48,610 --> 00:06:53,080
+And it ends up being a situation
+that's not ideal for
+
+95
+00:06:53,080 --> 00:06:57,580
+a mobile environment and for the concept
+of having different apps that have
+
+96
+00:06:57,580 --> 00:06:59,280
+access to different parts of our account.
+
+97
+00:07:01,000 --> 00:07:04,820
+The model of storing usernames and
+passwords were
+
+98
+00:07:04,820 --> 00:07:09,410
+requiring the user to provide them every
+time also has some other disadvantages.
+
+99
+00:07:09,410 --> 00:07:11,740
+That we don't really
+like in a mobile model.
+
+100
+00:07:11,740 --> 00:07:14,690
+So let's say that we
+have multiple apps again
+
+101
+00:07:14,690 --> 00:07:18,430
+that we are working with that
+we want access to our data.
+
+102
+00:07:18,430 --> 00:07:21,060
+So we have A1 again.
+
+103
+00:07:21,060 --> 00:07:23,310
+And we've got a second app.
+
+104
+00:07:24,330 --> 00:07:29,180
+And maybe you have other apps on
+multiple devices, so we might even have.
+
+105
+00:07:29,180 --> 00:07:30,930
+Other devices where we've got yet
+
+106
+00:07:30,930 --> 00:07:34,655
+more apps that also are getting
+access to our accounts.
+
+107
+00:07:34,655 --> 00:07:38,800
+There we've got a tablet,
+we've got some other things.
+
+108
+00:07:38,800 --> 00:07:40,930
+So we've got all of these different apps.
+
+109
+00:07:40,930 --> 00:07:46,180
+Well, suddenly we're storing our password
+in a lot of different places, for one.
+
+110
+00:07:46,180 --> 00:07:47,460
+If these apps are storing it.
+
+111
+00:07:47,460 --> 00:07:49,490
+Or we're having to type it in over and
+over again.
+
+112
+00:07:49,490 --> 00:07:51,320
+But we're also got some other things.
+
+113
+00:07:51,320 --> 00:07:54,146
+Let's say that,
+these apps are storing our password,
+
+114
+00:07:54,146 --> 00:07:57,320
+when it's very possible they
+are because they want to be convenient.
+
+115
+00:07:58,330 --> 00:08:04,630
+And suddenly I want to change my password,
+because this is something that is a good,
+
+116
+00:08:04,630 --> 00:08:08,330
+typically considered to be a good security
+practice is to continually update and
+
+117
+00:08:08,330 --> 00:08:09,150
+change your password.
+
+118
+00:08:10,300 --> 00:08:13,300
+Well every time I change my password.
+
+119
+00:08:13,300 --> 00:08:17,730
+I'm going to have to go and
+change it here, here, here and here.
+
+120
+00:08:17,730 --> 00:08:21,490
+So, as a user I'm going to start
+feeling probably a little lazier, and
+
+121
+00:08:21,490 --> 00:08:24,080
+thinking I really don't want to go and
+
+122
+00:08:24,080 --> 00:08:27,830
+update my password in ten different
+Apps every time I change it.
+
+123
+00:08:27,830 --> 00:08:29,070
+So, I won't change it as often.
+
+124
+00:08:30,960 --> 00:08:35,940
+Another issue is, that, let's say
+I decide to give this app access.
+
+125
+00:08:37,010 --> 00:08:39,070
+There's no way for
+
+126
+00:08:39,070 --> 00:08:45,190
+the server to participate in the decision
+of what this app should be able to access.
+
+127
+00:08:45,190 --> 00:08:49,980
+So for example, the server may want to
+say this app can only have access to
+
+128
+00:08:49,980 --> 00:08:52,660
+certain things because
+that's just my policy.
+
+129
+00:08:52,660 --> 00:08:56,730
+But the server's not
+involved in this process.
+
+130
+00:08:56,730 --> 00:09:00,560
+You give your user name and password
+to this app, and the app goes off and
+
+131
+00:09:00,560 --> 00:09:01,450
+talks to the server.
+
+132
+00:09:01,450 --> 00:09:06,340
+And the server doesn't get to decide what
+the app can or can't have access too.
+
+133
+00:09:06,340 --> 00:09:10,340
+You tell the server,
+it has access to my whole account.
+
+134
+00:09:10,340 --> 00:09:12,990
+So, the server isn't involved
+in the process access at all.
+
+135
+00:09:14,840 --> 00:09:23,010
+Another thing is, what happens if I decide
+that I no longer trust this app over here?
+
+136
+00:09:23,010 --> 00:09:26,230
+So, I don't trust this app,
+but I trust the other three.
+
+137
+00:09:26,230 --> 00:09:29,670
+Well, the only way to revoke that trust of
+
+138
+00:09:29,670 --> 00:09:32,710
+that first app of it storing
+my username and password.
+
+139
+00:09:32,710 --> 00:09:36,660
+Is have to go, and
+completely change my password,
+
+140
+00:09:36,660 --> 00:09:41,140
+on the server side so
+that this app can no longer log in.
+
+141
+00:09:41,140 --> 00:09:44,760
+And the result is that this app is no
+longer going to have access, this app will
+
+142
+00:09:44,760 --> 00:09:48,670
+no longer have access, and that app
+is going to no longer have access.
+
+143
+00:09:50,360 --> 00:09:54,480
+So this user, name, and
+password to get a session cookie.
+
+144
+00:09:54,480 --> 00:09:57,560
+That model just doesn't
+really make sense for
+
+145
+00:09:57,560 --> 00:10:02,260
+the mobile environment where we'll have
+multiple apps, that will have access
+
+146
+00:10:02,260 --> 00:10:07,650
+to our data, and potentially need access
+to different subsets of our data.
+
+147
+00:10:07,650 --> 00:10:10,840
+And we may trust some apps
+more than other apps.
+
+148
+00:10:10,840 --> 00:10:14,690
+But if we're just sending a password and
+getting a session cookie back.
+
+149
+00:10:14,690 --> 00:10:18,630
+And letting whatever app wants it,
+use it to get access to our full account.
+
+150
+00:10:18,630 --> 00:10:22,150
+We're beginning to create all kinds
+of security problems that are,
+
+151
+00:10:22,150 --> 00:10:27,580
+at least not ideal situations for
+our cloud based service.
+
+152
+00:10:27,580 --> 00:10:31,400
+What we really want to do,
+is we want to be able to control access to
+
+153
+00:10:31,400 --> 00:10:35,140
+the resources that are associated
+with the user's account.
+
+154
+00:10:35,140 --> 00:10:37,540
+At a finer level of granularity.
+
+155
+00:10:37,540 --> 00:10:41,010
+We don't want to train the user
+to just give up their password to
+
+156
+00:10:41,010 --> 00:10:42,620
+any app, at any time.
+
+157
+00:10:42,620 --> 00:10:47,470
+We want the server to be able to make some
+decisions, about which app should and
+
+158
+00:10:47,470 --> 00:10:49,450
+shouldn't have access to a user's data.
+
+159
+00:10:49,450 --> 00:10:54,230
+And we'd also like, for
+the user to be able to go and
+
+160
+00:10:54,230 --> 00:10:56,810
+change their password without.
+
+161
+00:10:56,810 --> 00:11:01,080
+Effecting all of the apps that they
+want to have access to their data.
+
+162
+00:11:01,080 --> 00:11:02,630
+Similarly, we'd like to be able to go and
+
+163
+00:11:02,630 --> 00:11:05,830
+revoke access to our data
+just to a specific app.
+
+164
+00:11:06,980 --> 00:11:09,870
+But, all of these things
+aren't really possible or
+
+165
+00:11:09,870 --> 00:11:13,520
+easy to do at least,
+with the model where you log in, and
+
+166
+00:11:13,520 --> 00:11:17,820
+get a session cookie back that gives
+apps full access to your account
+

@@ -1,0 +1,743 @@
+1
+00:00:00,000 --> 00:00:07,908
+[MUSIC]
+
+2
+00:00:07,908 --> 00:00:09,833
+A beautiful aspect of the cloud,
+
+3
+00:00:09,833 --> 00:00:14,785
+regardless of if you're using platform as
+a service or infrastructure as a service,
+
+4
+00:00:14,785 --> 00:00:19,140
+is that you can take advantage of
+really sophisticated services.
+
+5
+00:00:19,140 --> 00:00:22,700
+That the cloud provider offers,
+that you probably wouldn't be
+
+6
+00:00:22,700 --> 00:00:26,350
+able to cost-effectively, or
+efficiently manage yourself.
+
+7
+00:00:27,360 --> 00:00:31,520
+Now, many of these really complex
+services, things like Big Cable, or
+
+8
+00:00:31,520 --> 00:00:34,810
+Dynamo DB,
+they might going to be outside of your,
+
+9
+00:00:34,810 --> 00:00:38,248
+sort of, area of expertise for
+your particular organization.
+
+10
+00:00:38,248 --> 00:00:42,130
+Or, you maybe a lone developer that's
+building a mobile application and
+
+11
+00:00:42,130 --> 00:00:46,930
+setting up, and managing something
+like Amazon Dynamo DB, and
+
+12
+00:00:46,930 --> 00:00:50,020
+guaranteeing its performance
+could be really hard to do.
+
+13
+00:00:50,020 --> 00:00:54,530
+Amazon however can hire that really
+specific expertise needed to
+
+14
+00:00:54,530 --> 00:00:56,590
+build something like Amazon DB.
+
+15
+00:00:56,590 --> 00:01:01,300
+And actually, you know, monitor it and
+ensure that it scales and ensure it
+
+16
+00:01:01,300 --> 00:01:06,370
+meets its service level agreements to
+you because they're amortizing their
+
+17
+00:01:06,370 --> 00:01:10,760
+costs across thousands of customers
+that are all using that infrastructure.
+
+18
+00:01:10,760 --> 00:01:13,522
+Whereas you would just be
+amortizing your costs across the,
+
+19
+00:01:13,522 --> 00:01:15,480
+you know, the level that you could use it.
+
+20
+00:01:15,480 --> 00:01:18,150
+So it would be harder to amortize
+all of the development and
+
+21
+00:01:18,150 --> 00:01:20,030
+set up and other costs.
+
+22
+00:01:20,030 --> 00:01:24,680
+So all of these cloud services
+that the provider gives you.
+
+23
+00:01:24,680 --> 00:01:28,750
+Allow you to get access to very
+sophisticated capabilities that might,
+
+24
+00:01:28,750 --> 00:01:31,880
+might not be cost effective, or
+might not even really be within the re,
+
+25
+00:01:31,880 --> 00:01:35,820
+the realm of capability for
+your organization to take advantage of
+
+26
+00:01:35,820 --> 00:01:39,540
+without a cloud provider
+there to support it.
+
+27
+00:01:39,540 --> 00:01:43,990
+So one thing you should think about when
+you're building your application is what
+
+28
+00:01:43,990 --> 00:01:50,460
+to offload to the provider,
+versus do yourself.
+
+29
+00:01:53,160 --> 00:01:55,310
+And there's a number of things
+you should think about.
+
+30
+00:01:55,310 --> 00:02:01,340
+One, the cost, is it really going to
+be cheaper for you to do this yourself?
+
+31
+00:02:01,340 --> 00:02:04,830
+And in many cases it's not,
+and this will be cheaper.
+
+32
+00:02:04,830 --> 00:02:10,930
+It, if the cloud provider is amortizing
+this cost across thousands of clients,
+
+33
+00:02:10,930 --> 00:02:13,590
+many cases they can offer
+it cheaper than you can.
+
+34
+00:02:13,590 --> 00:02:19,580
+So for example, Google Drive is
+now incredibly cheap to use.
+
+35
+00:02:19,580 --> 00:02:23,720
+You can get a terabyte of cloud
+storage for ten bucks a month, or
+
+36
+00:02:23,720 --> 00:02:25,430
+something along those lines.
+
+37
+00:02:25,430 --> 00:02:28,710
+And who knows it may be even cheaper
+by the time I'm done with this lecture.
+
+38
+00:02:28,710 --> 00:02:35,994
+So it may be very hard for you to provide
+an equivalent, you know, highly available,
+
+39
+00:02:35,994 --> 00:02:40,560
+highly performing cloud
+data storage system.
+
+40
+00:02:40,560 --> 00:02:42,950
+And to compete with Google or
+maybe you can.
+
+41
+00:02:42,950 --> 00:02:46,120
+So cost should be a big,
+you know, consideration.
+
+42
+00:02:46,120 --> 00:02:48,850
+The cost shouldn't just include,
+how much it would cost you to go,
+
+43
+00:02:48,850 --> 00:02:51,118
+and buy the hard drive and
+connect it to the network.
+
+44
+00:02:51,118 --> 00:02:56,310
+The moment that you incorporate that
+hard drive into your application,
+
+45
+00:02:56,310 --> 00:03:01,050
+you're going to have to manage it and deal
+with it for as long as you're using it.
+
+46
+00:03:01,050 --> 00:03:06,290
+And it may be easy to manage one hard
+drive but as your application scales and
+
+47
+00:03:06,290 --> 00:03:11,650
+grows you're going to suddenly be stuck
+with managing thousands of hard drives,
+
+48
+00:03:12,720 --> 00:03:14,480
+or maybe you're going to
+be dealing with more.
+
+49
+00:03:14,480 --> 00:03:16,410
+And suddenly when you
+start having failures, and
+
+50
+00:03:16,410 --> 00:03:20,450
+you're starting to have to think about
+scalability and dealing with all of
+
+51
+00:03:20,450 --> 00:03:24,200
+the issues regarding buying more
+hard drives, and plugging them in.
+
+52
+00:03:24,200 --> 00:03:27,170
+The management costs may not make sense,
+so
+
+53
+00:03:27,170 --> 00:03:30,460
+in the small it may not
+make sense to you offload.
+
+54
+00:03:30,460 --> 00:03:34,830
+In the large you know, particularly
+if your organization can't scale up
+
+55
+00:03:34,830 --> 00:03:36,970
+fast enough, and
+hire people fast enough, and
+
+56
+00:03:36,970 --> 00:03:41,340
+build all of the expertise to manage
+the things fast enough, it may be much,
+
+57
+00:03:41,340 --> 00:03:44,330
+much more expensive to do it
+yourself than to use a provider.
+
+58
+00:03:44,330 --> 00:03:45,950
+Or maybe it is the other way around, but
+
+59
+00:03:45,950 --> 00:03:50,050
+you have to think about, you know,
+what do you really want to do yourself?
+
+60
+00:03:50,050 --> 00:03:53,520
+If you are a small organization,
+it's going to be very hard to
+
+61
+00:03:53,520 --> 00:03:58,830
+compete with the capabilities that
+the cloud provider can provide for you.
+
+62
+00:03:58,830 --> 00:04:01,770
+And if you are a single
+developer building a mobile app
+
+63
+00:04:01,770 --> 00:04:04,840
+it's going to talk to a cloud service
+you're almost always going to want to
+
+64
+00:04:06,050 --> 00:04:09,730
+tap into the things that
+the providers give you.
+
+65
+00:04:09,730 --> 00:04:12,710
+Now, here's some of the interesting
+capabilities you should be aware of,
+
+66
+00:04:12,710 --> 00:04:14,620
+that are out there in the Clouds.
+
+67
+00:04:15,750 --> 00:04:19,490
+One is CDN, Content Delivery Network.
+
+68
+00:04:19,490 --> 00:04:23,550
+So, the providers will give you the
+ability to take static content that you
+
+69
+00:04:23,550 --> 00:04:26,860
+would like delivered very quickly
+to your mobile clients, and
+
+70
+00:04:26,860 --> 00:04:29,800
+to distribute it and
+cache it across the world.
+
+71
+00:04:29,800 --> 00:04:35,340
+So that whoever is requesting it can
+get a very close and quick copy of it.
+
+72
+00:04:35,340 --> 00:04:38,798
+Another one are their database services,
+particularly for
+
+73
+00:04:38,798 --> 00:04:42,389
+their no SQL databases,
+where you don't have to worry about,
+
+74
+00:04:42,389 --> 00:04:45,456
+how you're going to scale up and
+manage a databases.
+
+75
+00:04:45,456 --> 00:04:50,535
+You can just go and tap into something
+like Big Table or Amazon Dynamo DB or
+
+76
+00:04:50,535 --> 00:04:54,290
+whatever it is,
+what other database you're using.
+
+77
+00:04:55,660 --> 00:04:59,130
+Providing all the infrastructure to
+support the database and manage it,
+
+78
+00:04:59,130 --> 00:05:04,160
+takes so, you know, a lot work, and
+you know you could certainly go and
+
+79
+00:05:04,160 --> 00:05:07,850
+set up your own instance of whatever
+particular database you want.
+
+80
+00:05:07,850 --> 00:05:11,420
+If you really want to do MongoDB and
+manage it yourself.
+
+81
+00:05:11,420 --> 00:05:15,260
+You can do that, or you can try to
+find a provider who will set up, and
+
+82
+00:05:15,260 --> 00:05:20,730
+manage Mongo for you, or a provider
+who has Dynamo DB and tap in it yet.
+
+83
+00:05:20,730 --> 00:05:23,668
+So you need to think about
+content delivery networks,
+
+84
+00:05:23,668 --> 00:05:26,990
+databases, cloud storage.
+
+85
+00:05:26,990 --> 00:05:32,140
+So this is a particularly useful
+thing if you're going to be,
+
+86
+00:05:32,140 --> 00:05:34,600
+for example, uploading videos.
+
+87
+00:05:34,600 --> 00:05:38,520
+And there may be interesting pricing
+symmetries particularly if you're
+
+88
+00:05:38,520 --> 00:05:43,710
+operating a particular provider's cloud,
+that make it make much more
+
+89
+00:05:43,710 --> 00:05:49,720
+sense to also leverage their
+service that they're providing.
+
+90
+00:05:49,720 --> 00:05:54,180
+So to give you an example of this let's
+say you're uploading videos and you,
+
+91
+00:05:54,180 --> 00:05:55,080
+to Amazon's cloud.
+
+92
+00:05:56,100 --> 00:06:00,070
+And you can either upload those videos to
+your servers, that are running on virtual
+
+93
+00:06:00,070 --> 00:06:05,800
+machines in EC2, and then have those
+servers store them directly in S3, or
+
+94
+00:06:05,800 --> 00:06:12,420
+on disk or somewhere else or you can have
+the videos uploaded directly to Amazon S3.
+
+95
+00:06:12,420 --> 00:06:15,950
+Well an interesting thing is all
+of your traffic into S3 to store
+
+96
+00:06:15,950 --> 00:06:18,120
+those videos would be free.
+
+97
+00:06:18,120 --> 00:06:20,180
+You would only pay to serve
+the videos out of S3.
+
+98
+00:06:21,210 --> 00:06:25,460
+However you're traffic to send the videos
+if you route them through Amazon EC2.
+
+99
+00:06:25,460 --> 00:06:30,020
+And then store them on disk or
+send them of to S3 or somewhere else.
+
+100
+00:06:30,020 --> 00:06:32,070
+That traffic isn't free.
+
+101
+00:06:32,070 --> 00:06:35,620
+You, depending on how you're configured
+the IP addresses, you may be paying for
+
+102
+00:06:35,620 --> 00:06:38,940
+the actual bandwidth, but either way,
+you're going to be paying for
+
+103
+00:06:38,940 --> 00:06:42,810
+the fact that your servers are going to
+be tied up to some degree.
+
+104
+00:06:42,810 --> 00:06:47,210
+They're going to be consuming bandwidth
+that's allocated to upload the videos.
+
+105
+00:06:47,210 --> 00:06:50,420
+They're going to be having
+CPU cycles to process and
+
+106
+00:06:50,420 --> 00:06:53,200
+manage those incoming
+requests to upload videos.
+
+107
+00:06:53,200 --> 00:06:56,080
+And then they're going to be using
+up outgoing bandwidth to send those
+
+108
+00:06:56,080 --> 00:06:58,430
+videos wherever they're going to go.
+
+109
+00:06:58,430 --> 00:07:03,051
+So in sit, situations like that, although
+you might like to have that extra layer of
+
+110
+00:07:03,051 --> 00:07:07,479
+control, just going directly to something
+like S3 maybe more cost effective if
+
+111
+00:07:07,479 --> 00:07:09,520
+you're already running on Amazon.
+
+112
+00:07:09,520 --> 00:07:11,780
+So you have to think through those issues.
+
+113
+00:07:12,960 --> 00:07:18,880
+But if there was one issue that I
+think should drive your decision to
+
+114
+00:07:18,880 --> 00:07:25,180
+use a provider services versus your
+own expertise and custom built thing,
+
+115
+00:07:25,180 --> 00:07:30,930
+is to think about if my application
+suddenly scaled up a 1000 times and
+
+116
+00:07:30,930 --> 00:07:32,000
+it happened next month.
+
+117
+00:07:33,090 --> 00:07:36,710
+Could I grow fast enough to support that?
+
+118
+00:07:36,710 --> 00:07:40,530
+Could I grow as an organization and
+hire people fast enough?
+
+119
+00:07:40,530 --> 00:07:44,580
+Could I go and buy physical infrastructure
+if I need to do that fast enough?
+
+120
+00:07:44,580 --> 00:07:47,533
+Could I support all of the things
+that are going to be required,
+
+121
+00:07:47,533 --> 00:07:51,840
+including architectual changes, which
+could be very difficult to implement,
+
+122
+00:07:51,840 --> 00:07:54,730
+in order to support that scale of growth.
+
+123
+00:07:54,730 --> 00:07:59,130
+And if you would all have an app that
+you're expecting to grow like that,
+
+124
+00:07:59,130 --> 00:08:03,270
+then it's, and you can't answer yes to
+that question, then you should go off and
+
+125
+00:08:03,270 --> 00:08:06,470
+think about using the provider's
+services absolutely.
+
+126
+00:08:06,470 --> 00:08:11,960
+Because the fact that you can simply say
+I want more capacity, give it to me,
+
+127
+00:08:11,960 --> 00:08:13,440
+and I will pay you for it.
+
+128
+00:08:13,440 --> 00:08:17,690
+And typically a lot of these things
+get cheaper the more of it you use.
+
+129
+00:08:17,690 --> 00:08:21,960
+Your costs may go down as your capa,
+as your demand goes up.
+
+130
+00:08:21,960 --> 00:08:25,920
+Whereas if you're managing all of
+these architectural, hiring and other
+
+131
+00:08:25,920 --> 00:08:32,050
+complexities to scale your organization,
+your application up and you don't
+
+132
+00:08:32,050 --> 00:08:35,620
+know if you can even do it fast enough if
+your application starts growing quickly.
+
+133
+00:08:35,620 --> 00:08:38,870
+It doesn't make sense to try
+to do it in the first place.
+
+134
+00:08:38,870 --> 00:08:42,050
+Build from the beginning
+with the plan to offload.
+
+135
+00:08:42,050 --> 00:08:43,420
+Now some people get worried about,
+
+136
+00:08:43,420 --> 00:08:48,750
+well what if I get locked into a
+particular, service provider and then for
+
+137
+00:08:48,750 --> 00:08:52,630
+the end of time, I'm going to
+have to have my data over there.
+
+138
+00:08:52,630 --> 00:08:56,440
+It's always possible to build
+your application in smart ways.
+
+139
+00:08:56,440 --> 00:09:01,870
+So using things like dependency injection
+and spring, you can build interfaces that
+
+140
+00:09:01,870 --> 00:09:06,840
+abstract away the details of these
+individual services provided.
+
+141
+00:09:06,840 --> 00:09:09,710
+Now you still have to understand
+how they operate at some level so
+
+142
+00:09:09,710 --> 00:09:14,160
+that you don't treat a no SQL
+database like a relational database.
+
+143
+00:09:14,160 --> 00:09:17,740
+But you can build interfaces
+to help decouple you
+
+144
+00:09:17,740 --> 00:09:21,250
+from their specific APIs and
+implementation.
+
+145
+00:09:21,250 --> 00:09:25,480
+And there are lots of ways to either
+migrate out of a particular provider or
+
+146
+00:09:25,480 --> 00:09:30,170
+to even, you know, distribute your,
+your business across multiple providers.
+
+147
+00:09:30,170 --> 00:09:33,340
+And there are frameworks out there
+that can help you to do that.
+
+148
+00:09:33,340 --> 00:09:37,610
+But when you're building your application,
+think about, can you scale up
+
+149
+00:09:37,610 --> 00:09:41,578
+quickly enough in each of the areas
+that you're going to need scalability?
+
+150
+00:09:41,578 --> 00:09:46,660
+If you can't, very carefully think about
+what cloud provider services are there
+
+151
+00:09:46,660 --> 00:09:51,100
+that you could take advantage of to
+allow yourself to scale quickly.
+
+152
+00:09:51,100 --> 00:09:55,230
+And what would be the cost of doing
+it yourself at a small scale versus
+
+153
+00:09:55,230 --> 00:09:59,010
+a large scale and the same thing for
+using a particular provider.
+

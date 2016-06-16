@@ -1,0 +1,788 @@
+1
+00:00:00,073 --> 00:00:09,174
+[MUSIC]
+
+2
+00:00:09,174 --> 00:00:12,875
+The OAuth specification, or
+the second version of it,
+
+3
+00:00:12,875 --> 00:00:16,734
+OAuth 2.0, was really designed
+to solve a whole host of
+
+4
+00:00:16,734 --> 00:00:21,101
+different authentication
+problems with Web-Based services.
+
+5
+00:00:21,101 --> 00:00:26,691
+Now, there're a variety of different,
+what are called flows within OAuth 2.0,
+
+6
+00:00:26,691 --> 00:00:31,745
+that can be used to authenticate and
+control access to different
+
+7
+00:00:31,745 --> 00:00:35,290
+web-based applications like the ones that
+we're building in our cloud services.
+
+8
+00:00:36,350 --> 00:00:41,290
+But we're going to focus on one specific
+flow that is most relevant if you're
+
+9
+00:00:41,290 --> 00:00:45,440
+building your own
+application to access your
+
+10
+00:00:45,440 --> 00:00:48,180
+own cloud service that you've created.
+
+11
+00:00:48,180 --> 00:00:51,360
+And this type of flow
+doesn't make sense if
+
+12
+00:00:51,360 --> 00:00:54,694
+the application you're
+accessing is not your own.
+
+13
+00:00:54,694 --> 00:00:58,960
+So if you're, if you are either accessing
+a cloud service that you didn't build,
+
+14
+00:00:58,960 --> 00:01:04,120
+or it's somebody's else's application
+accessing your cloud service or
+
+15
+00:01:04,120 --> 00:01:07,980
+your application accessing somebody else's
+cloud service that doesn't make sense.
+
+16
+00:01:07,980 --> 00:01:12,810
+This only makes sense when you are the
+creator of both the application and
+
+17
+00:01:12,810 --> 00:01:13,600
+the cloud service.
+
+18
+00:01:14,640 --> 00:01:21,320
+So this part of OAuth is called
+the Resource Owner Password Grant.
+
+19
+00:01:21,320 --> 00:01:26,300
+Or basically an approach for
+replacing the original username and
+
+20
+00:01:26,300 --> 00:01:29,260
+password approach where we can get
+a session token back, but with
+
+21
+00:01:29,260 --> 00:01:32,930
+something that's more flexible and makes
+more sense from a mobile environment.
+
+22
+00:01:34,030 --> 00:01:36,034
+So the idea behind this is,
+
+23
+00:01:36,034 --> 00:01:40,926
+that we have something that's
+called the Authorization Server.
+
+24
+00:01:47,200 --> 00:01:50,110
+And then we have our Resource Server.
+
+25
+00:01:51,690 --> 00:01:54,870
+And these are just using OAuth terms.
+
+26
+00:01:56,190 --> 00:02:00,370
+What the Resource Server is,
+is it's really the controllers and
+
+27
+00:02:00,370 --> 00:02:01,409
+stuff that you've been writing.
+
+28
+00:02:02,470 --> 00:02:08,490
+This is really the logic behind your
+application that you're building.
+
+29
+00:02:08,490 --> 00:02:11,590
+So, the term Resource Server,
+it doesn't mean anything new,
+
+30
+00:02:11,590 --> 00:02:14,860
+it's just all of the logic that
+you're trying to provide access to.
+
+31
+00:02:14,860 --> 00:02:18,420
+The, the resources, the cloud service
+that you're trying to provide.
+
+32
+00:02:19,940 --> 00:02:22,890
+The Authorization Server is
+the thing that's going to
+
+33
+00:02:22,890 --> 00:02:29,170
+control access to resources.
+
+34
+00:02:29,170 --> 00:02:33,170
+So, it's the thing that's
+going to decide and
+
+35
+00:02:33,170 --> 00:02:36,985
+manage who can access your controllers in
+the different methods in your controllers.
+
+36
+00:02:36,985 --> 00:02:37,786
+It's the way to think it.
+
+37
+00:02:37,786 --> 00:02:43,012
+So, with OAuth 2,
+the way this works with a password grant,
+
+38
+00:02:43,012 --> 00:02:48,339
+is a client comes along, and
+just like before, because this is
+
+39
+00:02:48,339 --> 00:02:53,865
+our own client that we're building and
+not someone else's, and
+
+40
+00:02:53,865 --> 00:03:00,019
+this is a really important point,
+it describes, it shows a login form.
+
+41
+00:03:00,019 --> 00:03:04,532
+So this is going to be like
+on our mobile client, and
+
+42
+00:03:04,532 --> 00:03:11,370
+then it sends a request to the
+authorization server for a password grant.
+
+43
+00:03:11,370 --> 00:03:14,599
+And this is really just a fancy way of
+
+44
+00:03:14,599 --> 00:03:20,747
+saying that it's trying to login
+with your username and password.
+
+45
+00:03:20,747 --> 00:03:23,817
+And what the authorization server does,
+
+46
+00:03:23,817 --> 00:03:28,550
+is it returns something that is
+similar to a session cookie, but
+
+47
+00:03:28,550 --> 00:03:34,440
+it's called a token, and it's going to be
+a piece of data that you can then use.
+
+48
+00:03:34,440 --> 00:03:37,600
+It's the equivalent of that valet key for
+the web.
+
+49
+00:03:37,600 --> 00:03:39,380
+So when you go and
+you're parking your car, and
+
+50
+00:03:39,380 --> 00:03:42,430
+you want to give access to
+the valet to park your car, but
+
+51
+00:03:42,430 --> 00:03:45,950
+you may not want to give them access to
+your trunk, you give them your valet key,
+
+52
+00:03:45,950 --> 00:03:50,790
+which only gives them access to a subset
+of the capabilities of your car.
+
+53
+00:03:51,860 --> 00:03:56,140
+Well the tokens that an authorization
+server returns, can be setup so
+
+54
+00:03:56,140 --> 00:04:00,099
+that they only grant access to
+a certain set of resources.
+
+55
+00:04:01,200 --> 00:04:06,470
+So, the client then gets this token, which
+is long lived and when it wants to go and
+
+56
+00:04:06,470 --> 00:04:13,967
+access a resource,
+it has to use the token to get past and
+
+57
+00:04:13,967 --> 00:04:21,090
+get access to the resource that it wants.
+
+58
+00:04:21,090 --> 00:04:27,810
+And so what happens is,
+that the token is provided to essentially
+
+59
+00:04:27,810 --> 00:04:35,200
+establish your identity just like
+the original session cookie was used to
+
+60
+00:04:35,200 --> 00:04:40,190
+establish your identity, except that this
+token has not only a user identity, but
+
+61
+00:04:40,190 --> 00:04:50,280
+it also has the allowed resources that
+the client is allowed to get access to.
+
+62
+00:04:50,280 --> 00:04:55,660
+So you could have different clients or
+different apps, use this grant.
+
+63
+00:04:55,660 --> 00:05:00,120
+Although just to be clear here,
+if you are the password grant,
+
+64
+00:05:00,120 --> 00:05:03,710
+you should be the one that is
+writing the client application.
+
+65
+00:05:03,710 --> 00:05:07,788
+But the idea is, is that you don't
+have to give up full access.
+
+66
+00:05:07,788 --> 00:05:12,750
+You can login essentially with the
+username and password and get a token back
+
+67
+00:05:12,750 --> 00:05:17,009
+that provides access to an arbitrary
+subset of the resources on the server.
+
+68
+00:05:18,310 --> 00:05:23,960
+The other thing that's important, is that
+what the client is actually storing,
+
+69
+00:05:23,960 --> 00:05:27,800
+which is the token,
+is not your username and password.
+
+70
+00:05:27,800 --> 00:05:31,650
+So if for
+some reason your token is compromised, or
+
+71
+00:05:31,650 --> 00:05:35,815
+your client is compromised, you can
+just revoke that token without having to
+
+72
+00:05:35,815 --> 00:05:38,140
+invoke your username and password.
+
+73
+00:05:38,140 --> 00:05:41,440
+Similarly, you can set it up,
+so that you can go and
+
+74
+00:05:41,440 --> 00:05:46,150
+change your password without
+necessarily revoking all of the tokens.
+
+75
+00:05:46,150 --> 00:05:50,890
+And you can control the timing and
+expiration of these tokens to make it,
+
+76
+00:05:50,890 --> 00:05:54,163
+the client's essentially have to log in
+again at the intervals that you want.
+
+77
+00:05:55,210 --> 00:06:00,260
+So OAuth 2 looks similar to the typical
+log in with your password, and
+
+78
+00:06:00,260 --> 00:06:04,680
+get a session cookie back,
+but it's more sophisticated.
+
+79
+00:06:04,680 --> 00:06:10,150
+It provides token-based access,
+that makes more sense for a mobile client.
+
+80
+00:06:10,150 --> 00:06:14,480
+It also provides finer granularity
+over the control of your resources.
+
+81
+00:06:14,480 --> 00:06:17,900
+And then your resources are really
+the methods on your controllers.
+
+82
+00:06:17,900 --> 00:06:22,070
+So defining which methods on your
+controllers can be accessed and
+
+83
+00:06:22,070 --> 00:06:26,550
+you can change that depending on the
+request and what the client is asking for
+
+84
+00:06:26,550 --> 00:06:29,961
+you can send it back a token that only
+gives it access to the resources or
+
+85
+00:06:29,961 --> 00:06:33,030
+the controller methods
+that it needs access to.
+
+86
+00:06:33,030 --> 00:06:37,350
+And then the client, each client,
+can have its own token that it sends to
+
+87
+00:06:37,350 --> 00:06:45,660
+the authorization server in order to gain
+access to some resource on your server.
+
+88
+00:06:45,660 --> 00:06:47,519
+And again these resources
+are just controllers.
+
+89
+00:06:47,519 --> 00:06:51,308
+So you get a more fine grain access.
+
+90
+00:06:51,308 --> 00:06:57,640
+There're other flows in OOP that allow
+other clients that aren't created by you,
+
+91
+00:06:58,870 --> 00:07:04,610
+to get access to tokens
+without having that app
+
+92
+00:07:04,610 --> 00:07:09,290
+show a login screen that's
+controlled by that client.
+
+93
+00:07:09,290 --> 00:07:14,680
+But, those flows are not exactly relevant
+to us at the moment because we're going to
+
+94
+00:07:14,680 --> 00:07:18,660
+be creating our own client and our own
+service and consuming our own service, so-
+
+95
+00:07:18,660 --> 00:07:20,805
+But if you're interested in them,
+
+96
+00:07:20,805 --> 00:07:26,210
+there're other flows that essentially
+allow these clients to go and
+
+97
+00:07:26,210 --> 00:07:31,209
+ask for access, redirect the user to a
+webpage that's controlled by this server,
+
+98
+00:07:31,209 --> 00:07:36,420
+where the user logs in and then accepts or
+denies access for this particular client.
+
+99
+00:07:36,420 --> 00:07:40,124
+And you've probably seen these types
+of web pages when you're trying to
+
+100
+00:07:40,124 --> 00:07:41,459
+access Google services or
+
+101
+00:07:41,459 --> 00:07:44,935
+Facebook services potentially from
+a client that you are writing.
+
+102
+00:07:46,519 --> 00:07:50,446
+Now, if you were going to implement
+all of this infrastructure for
+
+103
+00:07:50,446 --> 00:07:55,317
+going in, receiving tokens from a server
+and deciding which clients should and
+
+104
+00:07:55,317 --> 00:08:00,115
+shouldn't get tokens, and which clients
+were allowed to ask for tokens, and
+
+105
+00:08:00,115 --> 00:08:04,800
+which token represented access to which
+resources, it'd be a lot of work.
+
+106
+00:08:05,910 --> 00:08:12,987
+But Spring has a built in implementation
+of OAuth 2, and Spring Security.
+
+107
+00:08:12,987 --> 00:08:18,196
+And so what we can do, is we can simply
+configure the existing implementation that
+
+108
+00:08:18,196 --> 00:08:21,367
+spring security provides,
+rather than trying to
+
+109
+00:08:21,367 --> 00:08:26,680
+build our own implementation of
+the complex OAuth 2 specification.
+
+110
+00:08:26,680 --> 00:08:31,610
+And Spring Security's implementation
+provides implementations of all the flows.
+
+111
+00:08:31,610 --> 00:08:36,660
+Not just the password grant flow that
+we're talking about for our mobile client.
+
+112
+00:08:36,660 --> 00:08:37,330
+But luckily for
+
+113
+00:08:37,330 --> 00:08:42,260
+our password grant flow, Spring already
+provides an implementation of that flow.
+
+114
+00:08:42,260 --> 00:08:48,252
+So what we have to do, is if we go back
+and look at the way this works, is we have
+
+115
+00:08:48,252 --> 00:08:54,641
+our Auth server or Authorization server,
+and then we have our resource server.
+
+116
+00:08:59,430 --> 00:09:02,940
+And again, this is your controllers, and
+
+117
+00:09:02,940 --> 00:09:06,653
+the methods on them
+which are the resources.
+
+118
+00:09:06,653 --> 00:09:08,070
+So you have your controllers and
+
+119
+00:09:08,070 --> 00:09:10,700
+methods of the resources that are,
+that resource server.
+
+120
+00:09:11,810 --> 00:09:16,260
+The OAuth server, this is a controller
+provided by Spring Security,
+
+121
+00:09:16,260 --> 00:09:24,210
+that knows how to provide tokens
+
+122
+00:09:24,210 --> 00:09:30,030
+and check tokens on incoming requests.
+
+123
+00:09:30,030 --> 00:09:34,230
+So, this is basically going to
+have a separate endpoint for
+
+124
+00:09:34,230 --> 00:09:38,585
+getting tokens that's going to, depending
+on how you configure it be something like
+
+125
+00:09:38,585 --> 00:09:45,860
+OAuth/token and
+
+126
+00:09:45,860 --> 00:09:50,060
+those requests will be piped into
+this controller from Spring Security.
+
+127
+00:09:51,250 --> 00:09:55,855
+And then when you go and send a request,
+
+128
+00:09:55,855 --> 00:10:01,857
+there will be a filter,
+that's actually going and
+
+129
+00:10:01,857 --> 00:10:08,011
+intercepting the request and
+checking for a token.
+
+130
+00:10:11,463 --> 00:10:16,250
+So, Spring Security is doing
+all of this token work for you.
+
+131
+00:10:16,250 --> 00:10:21,790
+And then depending on what token is
+in there, it figures out what user
+
+132
+00:10:23,230 --> 00:10:27,660
+is accessing it so you can get access
+to information about the user.
+
+133
+00:10:27,660 --> 00:10:34,129
+But the other thing is, is you can provide
+additional security information or
+
+134
+00:10:34,129 --> 00:10:37,267
+annotations on your controllers, so
+
+135
+00:10:37,267 --> 00:10:41,589
+you can basically provide
+security restrictions-
+
+136
+00:10:46,954 --> 00:10:47,930
+Based on OAuth.
+
+137
+00:10:53,850 --> 00:10:59,790
+So we can go and say for example, that,
+if the client is sending a request
+
+138
+00:10:59,790 --> 00:11:06,600
+with a token, that, that token must
+have a particular scope applied to it.
+
+139
+00:11:06,600 --> 00:11:10,230
+So, scopes in OAuth terms are the sort of
+
+140
+00:11:10,230 --> 00:11:14,400
+controls over the sets of resources
+that a client can access.
+
+141
+00:11:14,400 --> 00:11:21,094
+So, similar to, we had users had roles
+when we were doing Spring Security before,
+
+142
+00:11:21,094 --> 00:11:24,746
+which is simple session management.
+
+143
+00:11:24,746 --> 00:11:29,336
+OAuth has the concept of a-
+
+144
+00:11:29,336 --> 00:11:31,624
+OAuth has the concept of the scope, so
+
+145
+00:11:31,624 --> 00:11:36,343
+we can go and add assertions about the
+methods in our controllers saying that,
+
+146
+00:11:36,343 --> 00:11:40,707
+if a client is accessing a particular
+controller method through OAuth,
+
+147
+00:11:40,707 --> 00:11:46,160
+the token that they're providing must
+have a certain scope associate with it.
+
+148
+00:11:46,160 --> 00:11:50,860
+So it's not just a user, but
+it's a particular scope that then defines
+
+149
+00:11:50,860 --> 00:11:55,950
+the actual methods or controllers that,
+that client can get access to.
+
+150
+00:11:55,950 --> 00:12:01,280
+And so, you can take the same username and
+password and dish up different tokens
+
+151
+00:12:01,280 --> 00:12:05,990
+that have different scopes attached to
+them, and then use the different tokens to
+
+152
+00:12:07,310 --> 00:12:11,020
+either be able to or not be able to access
+a particular controller and method.
+
+153
+00:12:11,020 --> 00:12:16,090
+So, each time a client goes and
+asks for a token from the server,
+
+154
+00:12:16,090 --> 00:12:20,010
+the server is going to decide what
+scopes to put into that token.
+
+155
+00:12:20,010 --> 00:12:24,780
+So, the client will say, I would
+like a token that has these scopes.
+
+156
+00:12:24,780 --> 00:12:26,850
+The server will decide if that's okay.
+
+157
+00:12:26,850 --> 00:12:31,620
+If it is, it will create a token
+that specifically has the scopes
+
+158
+00:12:31,620 --> 00:12:35,880
+that the client asked for, and
+then when the client sends a request,
+
+159
+00:12:35,880 --> 00:12:40,990
+if its token has the scope that it needs,
+to get access to that controller method,
+
+160
+00:12:40,990 --> 00:12:41,970
+then the method will proceed.
+
+161
+00:12:43,250 --> 00:12:48,100
+But if the token doesn't have the scope
+that the client needs to get access to
+
+162
+00:12:48,100 --> 00:12:53,000
+that controller method, the request won't
+succeed and the client will be told
+
+163
+00:12:53,000 --> 00:12:55,440
+that it's authorization denied,
+or something like that.
+
+164
+00:12:55,440 --> 00:12:56,160
+Access denied.
+

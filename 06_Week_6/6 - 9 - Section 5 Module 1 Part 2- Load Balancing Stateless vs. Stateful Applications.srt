@@ -1,0 +1,576 @@
+1
+00:00:00,173 --> 00:00:09,092
+[MUSIC]
+
+2
+00:00:09,092 --> 00:00:14,900
+In the cloud, you typically have an
+application that runs on multiple servers.
+
+3
+00:00:14,900 --> 00:00:20,220
+So, for example, if you go and
+deploy your application across 100 or
+
+4
+00:00:20,220 --> 00:00:22,920
+more different servers in the cloud.
+
+5
+00:00:22,920 --> 00:00:28,320
+One of the big concerns
+you have to worry about is
+
+6
+00:00:28,320 --> 00:00:34,850
+how do the incoming requests from various
+clients get routed to the various servers.
+
+7
+00:00:34,850 --> 00:00:38,970
+So we've seen routing within each
+individual server to figure out
+
+8
+00:00:38,970 --> 00:00:40,170
+which servelets.
+
+9
+00:00:40,170 --> 00:00:44,440
+But if we have multiple copies
+of the servelets all running on
+
+10
+00:00:44,440 --> 00:00:46,760
+a different machine, how do we decide,
+
+11
+00:00:46,760 --> 00:00:50,880
+which request should be routed
+to which different machine.
+
+12
+00:00:50,880 --> 00:00:54,890
+And then once we get to that machine, we
+know how the routing is done internally.
+
+13
+00:00:54,890 --> 00:00:59,993
+Internally we use the web.xml, to route.
+
+14
+00:00:59,993 --> 00:01:04,460
+But, up here, how do we do routing?
+
+15
+00:01:05,530 --> 00:01:10,000
+How do we figure out which machine
+should receive the request?
+
+16
+00:01:10,000 --> 00:01:12,590
+How do we get, keep track of
+the loads on the machines and
+
+17
+00:01:12,590 --> 00:01:13,330
+all these different things?
+
+18
+00:01:14,400 --> 00:01:19,490
+Well, what this is called is
+called HTTP load balancing.
+
+19
+00:01:19,490 --> 00:01:24,360
+So typically what we have
+is a load balancer that
+
+20
+00:01:25,570 --> 00:01:30,300
+knows how to look at which
+requests are coming in,
+
+21
+00:01:30,300 --> 00:01:33,060
+and figure out how to allocate
+them to the various machines.
+
+22
+00:01:33,060 --> 00:01:36,110
+And there's lots of different
+approaches for doing this.
+
+23
+00:01:36,110 --> 00:01:40,570
+But one of the simplest approaches is
+just, just to do a round robin scheme.
+
+24
+00:01:40,570 --> 00:01:43,770
+Where when a request comes in
+you allocate it to a machine.
+
+25
+00:01:43,770 --> 00:01:47,170
+When the next request comes in you
+allocate it another machine and
+
+26
+00:01:47,170 --> 00:01:51,920
+so forth and this works very
+well in certain situations.
+
+27
+00:01:53,030 --> 00:01:55,189
+In particular for round robin to work.
+
+28
+00:01:56,470 --> 00:02:00,880
+We want each of the servlets that's
+running on these machines to
+
+29
+00:02:00,880 --> 00:02:02,660
+be stateless and
+
+30
+00:02:02,660 --> 00:02:07,060
+not to care about what client it's talking
+to at that particular point in time.
+
+31
+00:02:07,060 --> 00:02:09,830
+So let's think about this and
+why this matters.
+
+32
+00:02:09,830 --> 00:02:16,390
+Let's say that a browser comes in and it
+begins talking to this particular machine.
+
+33
+00:02:16,390 --> 00:02:22,020
+And it's sending requests to this machine,
+asking it to do something on it's behalf.
+
+34
+00:02:22,020 --> 00:02:25,240
+So, the first sets of
+requests comes in and
+
+35
+00:02:25,240 --> 00:02:27,720
+they're all routed to
+machine one down here.
+
+36
+00:02:28,890 --> 00:02:32,700
+And in the process of that,
+it says, I'm going to log in.
+
+37
+00:02:32,700 --> 00:02:36,840
+So we now logged into
+machine one down here.
+
+38
+00:02:38,250 --> 00:02:41,820
+Now let's say we're using
+round robin routing up here.
+
+39
+00:02:41,820 --> 00:02:46,240
+And the next request comes in and
+it now gets routed to this machine.
+
+40
+00:02:46,240 --> 00:02:49,260
+Well one of the challenges is depending on
+
+41
+00:02:49,260 --> 00:02:53,550
+how we set up our server is this machine
+may not know that I'm logged in.
+
+42
+00:02:53,550 --> 00:02:54,600
+And I may try to go and
+
+43
+00:02:54,600 --> 00:02:58,580
+access some functionality like view
+the balance of my bank account.
+
+44
+00:02:58,580 --> 00:03:02,670
+That this machine says well you
+have to be logged in in order to
+
+45
+00:03:02,670 --> 00:03:06,570
+actually view that information
+that you're trying to see.
+
+46
+00:03:06,570 --> 00:03:09,680
+So one of the challenges that we
+have in a typical scheme where
+
+47
+00:03:09,680 --> 00:03:12,290
+we're doing round robin,
+we're sort of blind routing,
+
+48
+00:03:12,290 --> 00:03:16,330
+where we're saying let's
+balance our load across things.
+
+49
+00:03:16,330 --> 00:03:20,610
+Is we either have to have a way of
+remembering state across all of
+
+50
+00:03:20,610 --> 00:03:21,270
+these requests.
+
+51
+00:03:22,570 --> 00:03:27,100
+Or we have to have a way of routing
+requests more intelligently and
+
+52
+00:03:27,100 --> 00:03:29,870
+these things can affect how
+we set up our servers and
+
+53
+00:03:29,870 --> 00:03:33,180
+distribute the work load across.
+
+54
+00:03:33,180 --> 00:03:35,390
+So how are the ways that
+we could fix this problem?
+
+55
+00:03:36,520 --> 00:03:40,860
+Well, one thing we could do is we could
+say, rather than routing each individual
+
+56
+00:03:40,860 --> 00:03:45,990
+request differently, to a different
+machine, what we'll do is instead,
+
+57
+00:03:45,990 --> 00:03:50,450
+we'll remember which machine
+a particular client was talking to,
+
+58
+00:03:50,450 --> 00:03:55,065
+and we'll always send all the requests for
+that one client to that same machine.
+
+59
+00:03:55,065 --> 00:04:01,820
+So, if one of our mobile phones
+begins talking to the cloud and
+
+60
+00:04:01,820 --> 00:04:06,640
+talking to this individual machine, we
+can make sure that all the requests that
+
+61
+00:04:06,640 --> 00:04:11,318
+are coming in for that one mobile phone,
+always get routed to that one machine.
+
+62
+00:04:11,318 --> 00:04:15,910
+And so if that phone logs in, that machine
+will keep that state in memory and
+
+63
+00:04:15,910 --> 00:04:19,750
+it will remember that,
+that user has logged into that machine.
+
+64
+00:04:19,750 --> 00:04:22,220
+And then if another mobile phone comes in,
+
+65
+00:04:22,220 --> 00:04:25,610
+we may route those requests to
+machine number two down here.
+
+66
+00:04:25,610 --> 00:04:30,300
+And then if that person logs
+in on that particular machine,
+
+67
+00:04:30,300 --> 00:04:33,570
+from their mobile phone,
+we'll keep that state.
+
+68
+00:04:33,570 --> 00:04:37,080
+And so, rather than routing at
+the individual request level.
+
+69
+00:04:37,080 --> 00:04:40,360
+We can route at a higher
+level of individual phones.
+
+70
+00:04:40,360 --> 00:04:42,840
+So one of the things that
+you have to think about is,
+
+71
+00:04:42,840 --> 00:04:44,900
+at what level are we going to route?
+
+72
+00:04:44,900 --> 00:04:50,350
+Is it at the individual, and are we going
+to route them always to the same machine?
+
+73
+00:04:50,350 --> 00:04:52,330
+Or is it at individual request level?
+
+74
+00:04:52,330 --> 00:04:56,380
+And have we built our application in
+such a way that it doesn't matter if
+
+75
+00:04:56,380 --> 00:04:59,420
+each individual request is
+routed to a different server?
+
+76
+00:05:00,850 --> 00:05:06,340
+So one of the important things to know
+is is your application stateless.
+
+77
+00:05:06,340 --> 00:05:09,710
+If your application is completely
+stateless routings really easy.
+
+78
+00:05:09,710 --> 00:05:14,070
+You can route any individual
+request in an individual machine.
+
+79
+00:05:14,070 --> 00:05:18,890
+However if your application is
+stateful it's much more difficult.
+
+80
+00:05:18,890 --> 00:05:20,660
+You have to think about.
+
+81
+00:05:20,660 --> 00:05:21,840
+How you do the routing.
+
+82
+00:05:21,840 --> 00:05:26,630
+And so one thing is you may
+just route requests to the same
+
+83
+00:05:26,630 --> 00:05:29,150
+machine that began
+the conversation with that client.
+
+84
+00:05:29,150 --> 00:05:33,590
+So when a mobile client begins talking to
+this machine you keep routing to that same
+
+85
+00:05:33,590 --> 00:05:40,620
+machine and typically what that's
+called is sticky or sticky sessions.
+
+86
+00:05:40,620 --> 00:05:43,580
+And basically what this
+means is we're going to
+
+87
+00:05:43,580 --> 00:05:48,629
+keep routing to that
+same individual server.
+
+88
+00:05:48,629 --> 00:05:51,770
+Now, another way that we could
+do this is we could make it so
+
+89
+00:05:51,770 --> 00:05:53,800
+that we could route to
+any individual machine.
+
+90
+00:05:53,800 --> 00:05:57,200
+But we could do things
+like session distribution.
+
+91
+00:05:57,200 --> 00:06:01,250
+So we could have, for example we could
+store all of the information about
+
+92
+00:06:01,250 --> 00:06:05,230
+who's logged in or who's not logged in,
+in a central database.
+
+93
+00:06:05,230 --> 00:06:08,080
+That all of our individual
+machines are talking to,
+
+94
+00:06:08,080 --> 00:06:12,570
+and so this one says well it's logged in.
+
+95
+00:06:12,570 --> 00:06:16,750
+It stores that information with
+some other type of token or
+
+96
+00:06:16,750 --> 00:06:19,010
+security information in the database.
+
+97
+00:06:19,010 --> 00:06:22,070
+And then if another request comes into
+this server over here it goes in and
+
+98
+00:06:22,070 --> 00:06:26,640
+checks and says is this person logged
+in or is this client logged in.
+
+99
+00:06:29,000 --> 00:06:31,990
+And what that will tell us is we
+can go and check the database.
+
+100
+00:06:31,990 --> 00:06:37,580
+But because on a central
+persistent mechanism that's
+
+101
+00:06:37,580 --> 00:06:42,630
+shared across all the different servers,
+we don't have to worry about if the first
+
+102
+00:06:42,630 --> 00:06:46,240
+request is routed here and the second
+request is routed there because.
+
+103
+00:06:46,240 --> 00:06:48,950
+The state is not being kept in this layer.
+
+104
+00:06:48,950 --> 00:06:51,910
+Instead the state's being
+kept at a lower layer.
+
+105
+00:06:51,910 --> 00:06:55,470
+So these are some of the concerns that
+you have to worry about when you're
+
+106
+00:06:55,470 --> 00:06:59,970
+load balancing or doing HTTP load
+balancing across your various servers.
+
+107
+00:06:59,970 --> 00:07:04,420
+Is figuring out: is your application
+stateless or is it stateful?
+
+108
+00:07:04,420 --> 00:07:06,180
+And if it's stateful.
+
+109
+00:07:06,180 --> 00:07:07,820
+How are you going to manage that state?
+
+110
+00:07:07,820 --> 00:07:11,840
+Is the state going to lee,
+live on a single machine in its memory?
+
+111
+00:07:11,840 --> 00:07:14,880
+In which case you need to route
+all of your requests from the same
+
+112
+00:07:14,880 --> 00:07:17,880
+client to the same machine over and over.
+
+113
+00:07:17,880 --> 00:07:21,310
+Or is the state distributed
+across multiple machines?
+
+114
+00:07:21,310 --> 00:07:27,020
+Either using an M memory, distributed
+in memory cache, like memcache D, or
+
+115
+00:07:27,020 --> 00:07:30,920
+a database that's connected to
+all of these different machines.
+
+116
+00:07:30,920 --> 00:07:35,530
+In which case, if it's stateful, and it's
+got a, a state distribution mechanism,
+
+117
+00:07:35,530 --> 00:07:38,860
+to where all your servers can see
+that state, then you don't again,
+
+118
+00:07:38,860 --> 00:07:41,550
+don't have to worry so
+much about the routing.
+
+119
+00:07:41,550 --> 00:07:44,530
+So, these are important
+concerns to think about.
+
+120
+00:07:44,530 --> 00:07:46,770
+When you're building your
+HTTP load balancing strategy.
+

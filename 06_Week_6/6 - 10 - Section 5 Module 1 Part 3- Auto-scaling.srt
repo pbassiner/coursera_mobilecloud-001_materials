@@ -1,0 +1,512 @@
+1
+00:00:00,183 --> 00:00:08,870
+[MUSIC]
+
+2
+00:00:08,870 --> 00:00:13,900
+One of the benefits of horizontal scaling
+in the Cloud, is that we can take
+
+3
+00:00:13,900 --> 00:00:19,013
+advantage of the elasticity built into
+the Cloud to help us reduce costs and
+
+4
+00:00:19,013 --> 00:00:25,800
+also be able to respond to fluctuations in
+demand in our application, automatically.
+
+5
+00:00:25,800 --> 00:00:26,780
+So, what do I mean by this?
+
+6
+00:00:26,780 --> 00:00:30,430
+Well, if we are horizontally
+scaling our application, and
+
+7
+00:00:30,430 --> 00:00:33,710
+we are adding machines as we need to,
+to handle the load.
+
+8
+00:00:33,710 --> 00:00:38,680
+Think about what would be required if
+
+9
+00:00:38,680 --> 00:00:42,900
+this was a application that you were
+running in your own data center, or
+
+10
+00:00:42,900 --> 00:00:45,560
+you were buying computers to
+support this application.
+
+11
+00:00:46,740 --> 00:00:51,680
+If you were running on one machine and you
+realized that you needed another machine,
+
+12
+00:00:51,680 --> 00:00:54,820
+you would have to go and
+physically buy a new machine.
+
+13
+00:00:54,820 --> 00:01:00,060
+Set it up in your data center or where
+ever you had that machine co-located, and
+
+14
+00:01:00,060 --> 00:01:03,480
+then support the infrastructure for
+that machine.
+
+15
+00:01:03,480 --> 00:01:05,140
+So, what that means is.
+
+16
+00:01:05,140 --> 00:01:10,230
+One, there's going to be a limited
+responsiveness that you can provide,
+
+17
+00:01:10,230 --> 00:01:11,980
+when you need new capacity.
+
+18
+00:01:11,980 --> 00:01:14,650
+You can't just go and
+turn capacity very quickly,
+
+19
+00:01:14,650 --> 00:01:17,670
+because you have to physically
+go buy a machine and set it up.
+
+20
+00:01:18,670 --> 00:01:21,020
+Similarly, if you go buy a machine and
+
+21
+00:01:21,020 --> 00:01:26,020
+set it up, you really expect all
+that machine's capacity to get used.
+
+22
+00:01:26,020 --> 00:01:30,720
+Otherwise, it's very cost inefficient for
+you, if you see a spike in traffic,
+
+23
+00:01:30,720 --> 00:01:34,090
+you run off and buy a machine, and
+then that spike goes away, and
+
+24
+00:01:34,090 --> 00:01:36,960
+then suddenly you're stuck with this
+machine that you're having to pay for
+
+25
+00:01:36,960 --> 00:01:39,620
+the power for, and you've paid for
+the physical infrastructure for.
+
+26
+00:01:40,660 --> 00:01:43,230
+So, in the Cloud, however,
+
+27
+00:01:43,230 --> 00:01:48,870
+we're buying machines, typically on
+an hourly basis, or, some other billing.
+
+28
+00:01:48,870 --> 00:01:52,020
+And we can allocate new
+machines very quickly.
+
+29
+00:01:52,020 --> 00:01:56,330
+This is the elasticity property,
+is we can allocate new machines as,
+
+30
+00:01:56,330 --> 00:02:00,260
+as quickly as we need to, or there's
+some limit because we have to wait for
+
+31
+00:02:00,260 --> 00:02:03,870
+them to start up, but we can usually
+allocate them pretty quickly.
+
+32
+00:02:03,870 --> 00:02:07,470
+And then, when we're done with them,
+when we can release them.
+
+33
+00:02:07,470 --> 00:02:11,395
+And so this is the property of
+elasticity that we love about the Cloud,
+
+34
+00:02:11,395 --> 00:02:14,970
+because we don't have to go and physically
+buy a machine and get it set up.
+
+35
+00:02:14,970 --> 00:02:19,390
+We don't have to try to plan and
+forecast way into the future in order to
+
+36
+00:02:19,390 --> 00:02:21,770
+make sure that we've set up
+enough physical infrastructure.
+
+37
+00:02:22,840 --> 00:02:26,450
+But, what we do have to do is figure out.
+
+38
+00:02:26,450 --> 00:02:29,900
+When should we go and add a new machine?
+
+39
+00:02:29,900 --> 00:02:34,220
+When do we go and
+set up this N plus 1 machine over here,
+
+40
+00:02:34,220 --> 00:02:40,710
+to add additional load capacity to our a,
+a, application in our Cloud service?
+
+41
+00:02:40,710 --> 00:02:44,630
+And even though we can set up
+new capacity very quickly, and
+
+42
+00:02:44,630 --> 00:02:47,290
+we can tear down new capacity quickly.
+
+43
+00:02:47,290 --> 00:02:50,450
+We need someway of
+monitoring these machines.
+
+44
+00:02:50,450 --> 00:02:54,540
+Now, we could have somebody sitting in
+front of a console all day long, and
+
+45
+00:02:54,540 --> 00:02:56,650
+watching the load on each
+of these machines and
+
+46
+00:02:56,650 --> 00:02:59,760
+manually deciding and
+pressing a button to start things up.
+
+47
+00:02:59,760 --> 00:03:04,140
+But that wouldn't be very efficient and
+I certainly, don't want to sit there and
+
+48
+00:03:04,140 --> 00:03:06,420
+do that job for the rest of my life.
+
+49
+00:03:06,420 --> 00:03:08,620
+But, if for example,
+
+50
+00:03:08,620 --> 00:03:14,160
+we can know what are servers or,
+their behavior's expected to be.
+
+51
+00:03:14,160 --> 00:03:19,040
+If we can measure properties of them such
+as their response time to a request, or
+
+52
+00:03:19,040 --> 00:03:22,280
+the load on their CPU or their disc.
+
+53
+00:03:22,280 --> 00:03:27,620
+We can use that information to figure out,
+when we need to go,
+
+54
+00:03:27,620 --> 00:03:30,570
+and start a new machine.
+
+55
+00:03:30,570 --> 00:03:34,490
+So we can have some
+intelligence that decides,
+
+56
+00:03:34,490 --> 00:03:38,650
+when to bring new capacity online.
+
+57
+00:03:38,650 --> 00:03:42,320
+And then that intelligence can
+automatically interact with our Cloud
+
+58
+00:03:42,320 --> 00:03:48,440
+provider, to add machines as needed,
+or when machines are no longer needed,
+
+59
+00:03:48,440 --> 00:03:51,340
+automatically tell the cloud
+provider what to turn off.
+
+60
+00:03:51,340 --> 00:03:55,640
+So that we're only being charged for
+what we actually need at any given time.
+
+61
+00:03:55,640 --> 00:04:00,040
+And this id i,
+idea of having some intelligence built in,
+
+62
+00:04:00,040 --> 00:04:05,830
+that can automatically add capacity, and
+remove capacity, is called auto-scaling.
+
+63
+00:04:07,210 --> 00:04:12,750
+So this is what allows us to run
+more cost effectively in the Cloud,
+
+64
+00:04:13,850 --> 00:04:17,480
+and it also is what allows us
+to have applications that can
+
+65
+00:04:17,480 --> 00:04:20,250
+automatically grow to make demand.
+
+66
+00:04:20,250 --> 00:04:24,260
+Now one of the things we have to be,
+you know, cognizant of.
+
+67
+00:04:24,260 --> 00:04:26,740
+Is it in a cloud environment.
+
+68
+00:04:26,740 --> 00:04:30,330
+There is a limit to how fast
+we can turn machines on.
+
+69
+00:04:30,330 --> 00:04:34,250
+It does still take time for
+machines to boot up, and to for
+
+70
+00:04:34,250 --> 00:04:38,100
+our application to launch and
+initialize and do whatever else it needs.
+
+71
+00:04:38,100 --> 00:04:41,390
+So, we have to build intelligence that can
+
+72
+00:04:41,390 --> 00:04:46,390
+either forecast well enough to
+predict what the load is going to do.
+
+73
+00:04:46,390 --> 00:04:51,490
+In the next, you know, few minutes or
+hours in order to turn machines on
+
+74
+00:04:51,490 --> 00:04:56,460
+quick enough so that they will be ready
+when our load grows to the rate that we,
+
+75
+00:04:56,460 --> 00:05:00,620
+is going to overflow a particular
+machine or our current capacity.
+
+76
+00:05:00,620 --> 00:05:03,690
+So we have to think about,
+what is our current load?
+
+77
+00:05:03,690 --> 00:05:06,620
+How fast can we add new nodes?
+
+78
+00:05:06,620 --> 00:05:09,520
+And then using that we want to predict,
+
+79
+00:05:09,520 --> 00:05:13,840
+what should be the capacity that we're
+going to need to have in the future.
+
+80
+00:05:13,840 --> 00:05:17,420
+Now all of these things are typically,
+you know, server specific, or
+
+81
+00:05:17,420 --> 00:05:20,980
+application specific things
+that have to be analyzed.
+
+82
+00:05:20,980 --> 00:05:23,730
+But one thing to consider when
+you're building your application and
+
+83
+00:05:23,730 --> 00:05:26,310
+you're going to have
+horizontal scalability.
+
+84
+00:05:26,310 --> 00:05:29,580
+Just thinking about what are the rules
+going to be for when I should bring
+
+85
+00:05:29,580 --> 00:05:34,560
+new machines online, or when I should
+take my existing machines offline.
+
+86
+00:05:34,560 --> 00:05:40,390
+And that's what's going to decide your
+auto-scaling policies that will effect how
+
+87
+00:05:40,390 --> 00:05:45,310
+autonomous your service is and how well
+it can automatically grow in response to
+
+88
+00:05:45,310 --> 00:05:49,870
+traffic, as well as shrink your bill
+in response to lessening traffic.
+
+89
+00:05:50,940 --> 00:05:54,890
+The other thing that's important
+with auto-scaling is that, if for
+
+90
+00:05:54,890 --> 00:05:59,650
+some reason this machine dies, so
+if there's a physical failure or
+
+91
+00:05:59,650 --> 00:06:01,790
+your application crashes.
+
+92
+00:06:01,790 --> 00:06:06,420
+The intelligence can automatically
+see that one of your instances,
+
+93
+00:06:06,420 --> 00:06:09,030
+one of your virtual machines or
+whatever unit you're using,
+
+94
+00:06:09,030 --> 00:06:12,790
+maybe a container if you're using
+something like Docker has died and
+
+95
+00:06:12,790 --> 00:06:14,970
+automatically go and
+allocate a replacement.
+
+96
+00:06:15,980 --> 00:06:17,420
+Now, you can see yet
+
+97
+00:06:17,420 --> 00:06:22,970
+again this is an example where
+statelessness is an important property.
+
+98
+00:06:22,970 --> 00:06:26,380
+If we don't have to worry
+about which machine died,
+
+99
+00:06:26,380 --> 00:06:29,820
+if we don't have to worry about
+the load on a specific machine,
+
+100
+00:06:29,820 --> 00:06:34,880
+it makes it easier for us to just add
+machines and think of things in aggregate.
+
+101
+00:06:34,880 --> 00:06:38,130
+We can just think about,
+how many machines do we have?
+
+102
+00:06:38,130 --> 00:06:39,180
+How much load is on them?
+
+103
+00:06:39,180 --> 00:06:41,720
+Do we need more, or
+do we need fewer machines?
+
+104
+00:06:42,950 --> 00:06:47,050
+If we have specific machines that have
+specific state on them then we start,
+
+105
+00:06:47,050 --> 00:06:50,000
+have to start thinking about
+tracking them individually.
+
+106
+00:06:50,000 --> 00:06:53,900
+And figuring out when a particular
+machines state needs to be replicated on
+
+107
+00:06:53,900 --> 00:06:58,410
+another machine to split the load up, and
+it makes it a much more complex decision.
+
