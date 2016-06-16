@@ -1,0 +1,332 @@
+1
+00:00:00,026 --> 00:00:09,677
+[MUSIC]
+
+2
+00:00:09,677 --> 00:00:15,590
+The dispatcher servlet can pass much more
+sophisticated information than just simply
+
+3
+00:00:15,590 --> 00:00:18,668
+extracting parameters from the HTTP
+request
+
+4
+00:00:18,668 --> 00:00:21,850
+and dumping them into method parameters.
+
+5
+00:00:21,850 --> 00:00:25,562
+You can actually extract entire objects
+from an
+
+6
+00:00:25,562 --> 00:00:29,610
+HTTP request and pass them as method
+parameters.
+
+7
+00:00:29,610 --> 00:00:31,550
+And by objects I mean something more
+
+8
+00:00:31,550 --> 00:00:34,580
+sophisticated than just a string or an
+integer.
+
+9
+00:00:34,580 --> 00:00:40,230
+Actual custom Java objects that you
+specify for your own classes.
+
+10
+00:00:40,230 --> 00:00:41,320
+So let me give you an example.
+
+11
+00:00:41,320 --> 00:00:43,160
+How would we use this?
+
+12
+00:00:43,160 --> 00:00:45,850
+Well, let's say our search method, we
+wanted to have a
+
+13
+00:00:45,850 --> 00:00:50,200
+more sophisticated search capability, and
+to do that we want to create
+
+14
+00:00:50,200 --> 00:00:53,510
+a search object that would specify the
+parameters of the search
+
+15
+00:00:53,510 --> 00:00:57,770
+and hold all the data needed to do our
+more sophisticated search.
+
+16
+00:00:57,770 --> 00:01:02,240
+And let's just assume, we have a sample
+object which has a first name of
+
+17
+00:01:02,240 --> 00:01:06,130
+the person that we're searching for and a
+last name, so we can have two queries.
+
+18
+00:01:06,130 --> 00:01:08,900
+We can have some string that will match
+against the first names
+
+19
+00:01:08,900 --> 00:01:11,600
+and some string or expression that will
+match against the last names.
+
+20
+00:01:11,600 --> 00:01:14,200
+And maybe we had mode so we can
+
+21
+00:01:14,200 --> 00:01:18,230
+do regular expression matching versus non
+regular expression matching.
+
+22
+00:01:18,230 --> 00:01:21,690
+And we wanted to have a sophisticated
+search mechanism.
+
+23
+00:01:21,690 --> 00:01:26,050
+Well we would want to be able to take an
+HTTP request and we want to extract all of
+
+24
+00:01:26,050 --> 00:01:29,000
+this information and then convert it into
+a
+
+25
+00:01:29,000 --> 00:01:33,460
+search object, which the search method
+would operate on.
+
+26
+00:01:33,460 --> 00:01:36,850
+Now of course, we could spell out all of
+these individual things that
+
+27
+00:01:36,850 --> 00:01:39,910
+we contain within the search object as
+
+28
+00:01:39,910 --> 00:01:43,330
+individual method parameters of the search
+method.
+
+29
+00:01:43,330 --> 00:01:47,050
+That kind of limits our flexibility,
+because every time we wanted to
+
+30
+00:01:47,050 --> 00:01:49,710
+add a new parameter, we'd have to go and
+change the search
+
+31
+00:01:49,710 --> 00:01:54,510
+method, and add the appropriate request
+mapping to it, and the actual
+
+32
+00:01:54,510 --> 00:01:57,190
+request parameter or path variable, or
+
+33
+00:01:57,190 --> 00:01:59,980
+however we're going to extract this
+information.
+
+34
+00:01:59,980 --> 00:02:04,145
+So, what we'd really like to do is have a
+single object that is passed
+
+35
+00:02:04,145 --> 00:02:08,850
+into search and then search can do what
+ever it needs from that single object.
+
+36
+00:02:08,850 --> 00:02:10,170
+So how do we do that?
+
+37
+00:02:10,170 --> 00:02:13,600
+Well in Spring what we can do is we can
+create
+
+38
+00:02:13,600 --> 00:02:19,420
+and say well we're going to have a search
+object as a parameter.
+
+39
+00:02:19,420 --> 00:02:21,500
+So we'll call it S.
+
+40
+00:02:21,500 --> 00:02:25,990
+And so when the dispatcher servlet calls
+search, search is going to
+
+41
+00:02:25,990 --> 00:02:31,810
+expect that one of its params is just a
+search object instance.
+
+42
+00:02:31,810 --> 00:02:33,410
+So how does it go about, how do
+
+43
+00:02:33,410 --> 00:02:37,310
+we go about telling the DispatcherServlet
+to convert and
+
+44
+00:02:37,310 --> 00:02:39,775
+assume that all of the parameters within
+the
+
+45
+00:02:39,775 --> 00:02:43,940
+HTTP request are actually an instance of
+this object?
+
+46
+00:02:43,940 --> 00:02:50,553
+And the way we do that is with an
+annotation called at @RequestBody.
+
+47
+00:02:50,553 --> 00:02:56,040
+And what this annotation does is it tells
+it for this particular parameter, search,
+
+48
+00:02:56,040 --> 00:03:00,660
+S, we want you to take all of the HTTP
+request parameters and
+
+49
+00:03:00,660 --> 00:03:06,330
+automatically convert them to an object of
+this type.
+
+50
+00:03:06,330 --> 00:03:09,328
+So because this is a search object the
+dispatcher
+
+51
+00:03:09,328 --> 00:03:12,620
+servlet knows that when it sees
+@RequestBody, then it's
+
+52
+00:03:12,620 --> 00:03:16,100
+going to take all the HTTP request
+parameters and automatically
+
+53
+00:03:16,100 --> 00:03:19,600
+convert them to a object of the type
+search.
+
+54
+00:03:19,600 --> 00:03:26,000
+So we got our search class here and there
+are various automatically
+
+55
+00:03:26,000 --> 00:03:31,310
+preconfigured HTTP objects
+
+56
+00:03:31,310 --> 00:03:37,580
+inside of spring that take care of math
+and these HTTP request params into search.
+
+57
+00:03:37,580 --> 00:03:42,781
+And these are HTTP message converters, so
+whenever an @RequestBody
+
+58
+00:03:42,781 --> 00:03:47,850
+is seen, an HTTP message converter,
+
+59
+00:03:47,850 --> 00:03:52,710
+and I'm just going to abbreviate this to
+make it easier to fit on the board
+
+60
+00:03:52,710 --> 00:03:57,380
+here, is used to look at all of the
+request parameters and then
+
+61
+00:03:57,380 --> 00:04:02,650
+automatically construct an object and map
+all of those
+
+62
+00:04:02,650 --> 00:04:07,490
+request parameters to the various method
+parameters of the getters
+
+63
+00:04:07,490 --> 00:04:11,020
+and setters, as well as the member
+variables within this object.
+
+64
+00:04:11,020 --> 00:04:15,440
+And then once it's constructed and it's
+completely well
+
+65
+00:04:15,440 --> 00:04:18,780
+formed and ready, it then passes it into
+the method.
+
+66
+00:04:18,780 --> 00:04:22,140
+So this is another very important and
+powerful
+
+67
+00:04:22,140 --> 00:04:25,423
+aspect of Spring is this automatic data
+marshaling
+
+68
+00:04:25,423 --> 00:04:29,470
+from HTTP request parameters into objects
+that you
+
+69
+00:04:29,470 --> 00:04:32,140
+want to be passed to your individual
+methods.
+

@@ -1,0 +1,687 @@
+1
+00:00:09,310 --> 00:00:12,170
+So far all the data that we've been
+sending to the
+
+2
+00:00:12,170 --> 00:00:16,310
+server about our videos has just been
+simple string metadata, but
+
+3
+00:00:16,310 --> 00:00:18,700
+what do we do when we actually want to
+send the
+
+4
+00:00:18,700 --> 00:00:22,660
+video data itself which might be hundreds
+of megabytes or gigabytes even.
+
+5
+00:00:22,660 --> 00:00:24,690
+And we want to send this data to the
+
+6
+00:00:24,690 --> 00:00:28,060
+server and have it stored or do something
+with it.
+
+7
+00:00:28,060 --> 00:00:29,890
+How do we go about doing that?
+
+8
+00:00:29,890 --> 00:00:32,724
+Well all of the request that we've been
+sending
+
+9
+00:00:32,724 --> 00:00:35,900
+and, and operating on so far have just
+been simple
+
+10
+00:00:35,900 --> 00:00:39,490
+request where either the parameters were
+provided in a query
+
+11
+00:00:39,490 --> 00:00:44,330
+string or they were URL encoded into the
+request body.
+
+12
+00:00:44,330 --> 00:00:49,140
+But for really large sets of binary data,
+things like video data
+
+13
+00:00:49,140 --> 00:00:52,900
+that we're uploading, we don't want to use
+a URL encoded form body.
+
+14
+00:00:52,900 --> 00:00:56,420
+What we want to use is a multi-part
+request.
+
+15
+00:00:56,420 --> 00:00:59,205
+We want to have the body of our
+
+16
+00:00:59,205 --> 00:01:03,630
+HTTP request that we're sending be
+multipart encoded.
+
+17
+00:01:03,630 --> 00:01:10,150
+Now, what this means is, is that our
+server side has to understand how to
+
+18
+00:01:10,150 --> 00:01:13,990
+accept multipart data, and this is easy to
+
+19
+00:01:13,990 --> 00:01:16,530
+do with the controllers that we've been
+writing.
+
+20
+00:01:16,530 --> 00:01:18,220
+So let's take a look at how we do this.
+
+21
+00:01:19,240 --> 00:01:22,420
+So let's say we go back to our video
+service controller.
+
+22
+00:01:23,460 --> 00:01:26,720
+So we have our video service
+
+23
+00:01:29,530 --> 00:01:31,510
+and it's got all of the nice spring
+annotations
+
+24
+00:01:31,510 --> 00:01:34,750
+on it and we want to accept a video.
+
+25
+00:01:34,750 --> 00:01:37,812
+So let's say we have a new method which is
+
+26
+00:01:37,812 --> 00:01:43,316
+public you know, maybe we'll return a
+[UNKNOWN] or something else.
+
+27
+00:01:43,316 --> 00:01:47,090
+[BLANK_AUDIO]
+
+28
+00:01:47,090 --> 00:01:52,419
+Upload video.
+
+29
+00:01:52,419 --> 00:01:56,218
+So we got our request mapping up here just
+like we normally
+
+30
+00:01:56,218 --> 00:02:02,240
+would, we've got a request, or response
+body mapping for what we're returning.
+
+31
+00:02:02,240 --> 00:02:05,960
+And we want to an accept a parameter that
+is
+
+32
+00:02:05,960 --> 00:02:09,490
+going to be the actual binary data for the
+video.
+
+33
+00:02:09,490 --> 00:02:14,735
+What we can do, is we can add a parameter,
+a request param,
+
+34
+00:02:14,735 --> 00:02:20,704
+[BLANK_AUDIO]
+
+35
+00:02:20,704 --> 00:02:27,254
+for, the video, let's call it Data,
+
+36
+00:02:27,254 --> 00:02:34,225
+and we can set its type to Multipart File.
+
+37
+00:02:34,225 --> 00:02:37,160
+And we'll call this Video Data.
+
+38
+00:02:39,580 --> 00:02:41,730
+And what this parameter is is when you
+
+39
+00:02:41,730 --> 00:02:45,050
+send a multipart request, it doesn't make
+sense,
+
+40
+00:02:45,050 --> 00:02:48,200
+always, to process that request in the
+same
+
+41
+00:02:48,200 --> 00:02:50,710
+way that you did for simple string data.
+
+42
+00:02:50,710 --> 00:02:52,610
+It doesn't make sense to necessarily load
+it all
+
+43
+00:02:52,610 --> 00:02:55,650
+in the memory, and then process it in
+memory.
+
+44
+00:02:55,650 --> 00:03:00,890
+You probably want to, you know, stream
+that data in from the client and stream
+
+45
+00:03:00,890 --> 00:03:05,000
+it to disk as you're receiving it from the
+client, or do something similar to it.
+
+46
+00:03:05,000 --> 00:03:09,650
+You don't want to load a multi gigabyte
+video into memory necessarily
+
+47
+00:03:09,650 --> 00:03:12,880
+and then wait til it's all done and then
+save it to disk.
+
+48
+00:03:12,880 --> 00:03:14,030
+It is using up a lot of memory.
+
+49
+00:03:14,030 --> 00:03:16,587
+You probably want to read it as you're
+getting it and save it,
+
+50
+00:03:16,587 --> 00:03:19,070
+or read it as you're getting it and
+process it in some way.
+
+51
+00:03:19,070 --> 00:03:23,610
+So that's what the multipart file type
+gives us is
+
+52
+00:03:23,610 --> 00:03:27,990
+the ability to, begin streaming and doing
+something with the data.
+
+53
+00:03:27,990 --> 00:03:29,780
+So that we're not just loading huge things
+
+54
+00:03:29,780 --> 00:03:32,840
+in the memory necessarily and doing
+something with them.
+
+55
+00:03:32,840 --> 00:03:35,740
+So, what we do is we get this just
+
+56
+00:03:35,740 --> 00:03:37,850
+as a request param, just like we normally
+would.
+
+57
+00:03:37,850 --> 00:03:40,800
+We just declare it's typed to the
+Multipart File.
+
+58
+00:03:40,800 --> 00:03:43,130
+And if you want to do accept Multiple
+Parameters,
+
+59
+00:03:43,130 --> 00:03:46,840
+you can just make this an array of
+Multipart Files.
+
+60
+00:03:46,840 --> 00:03:51,540
+And then in our method what we're going to
+do is we can get an input stream.
+
+61
+00:03:52,960 --> 00:03:57,640
+And you should be familiar with input
+streams if you have worked with java.
+
+62
+00:03:57,640 --> 00:04:03,721
+From the file, so we can say video data
+get
+
+63
+00:04:03,721 --> 00:04:09,665
+input stream,
+
+64
+00:04:09,665 --> 00:04:14,370
+and we can obtain an input stream from
+this video data.
+
+65
+00:04:14,370 --> 00:04:17,750
+And then we can go off and do something
+with it, like
+
+66
+00:04:17,750 --> 00:04:22,250
+save it to disk, or to a database or
+whatever we're doing.
+
+67
+00:04:24,270 --> 00:04:27,600
+Sending it or streaming it to another
+client, whatever we want to do.
+
+68
+00:04:27,600 --> 00:04:30,220
+And so the multi part file is our
+connection
+
+69
+00:04:30,220 --> 00:04:33,570
+to grab an input string from that video
+data.
+
+70
+00:04:33,570 --> 00:04:37,511
+We can also get the actual file name that
+was provided by the client,
+
+71
+00:04:37,511 --> 00:04:39,656
+for that data from the multipart file
+
+72
+00:04:39,656 --> 00:04:43,000
+element that we're provided as a
+parameter.
+
+73
+00:04:43,000 --> 00:04:46,680
+But this is what gives us the hook into
+that data that's coming in from the
+
+74
+00:04:46,680 --> 00:04:51,660
+client, and allows us to grab a stream and
+process it and do something with it.
+
+75
+00:04:51,660 --> 00:04:55,450
+And also to provide, get access to the
+metadata that
+
+76
+00:04:55,450 --> 00:04:57,940
+the client may have provided about the
+video, like it's name.
+
+77
+00:04:59,190 --> 00:05:01,030
+The second thing that you need to do to
+
+78
+00:05:01,030 --> 00:05:06,453
+enable multipart uploads to your
+controllers is to configure a
+
+79
+00:05:06,453 --> 00:05:12,570
+multipart configuration in your
+application so that Spring knows that
+
+80
+00:05:12,570 --> 00:05:16,050
+you're expecting multipart data and you
+want to handle it.
+
+81
+00:05:16,050 --> 00:05:18,190
+And also to tell us some information it
+needs to now
+
+82
+00:05:18,190 --> 00:05:22,710
+about how big you expect these request to
+be at maximum.
+
+83
+00:05:22,710 --> 00:05:26,360
+And other things like that that help us
+decide is the client trying
+
+84
+00:05:26,360 --> 00:05:30,940
+to upload too much data and attack me, or
+is what they're doing legitimate?
+
+85
+00:05:30,940 --> 00:05:33,170
+So, in order to enable this, in
+
+86
+00:05:33,170 --> 00:05:37,320
+your application class, where you have
+your configuration,
+
+87
+00:05:39,690 --> 00:05:43,120
+you need to add a new bean.
+
+88
+00:05:43,120 --> 00:05:47,430
+And, later, we're going to talk about what
+these beans are doing.
+
+89
+00:05:47,430 --> 00:05:50,002
+But for now, just understand that when you
+want to
+
+90
+00:05:50,002 --> 00:05:52,769
+accept multipart data, this is what you
+have to do.
+
+91
+00:05:52,769 --> 00:05:58,146
+You need to add a method
+
+92
+00:05:58,146 --> 00:06:04,091
+that returns a multipart
+
+93
+00:06:04,091 --> 00:06:09,186
+config element, and
+
+94
+00:06:09,186 --> 00:06:15,978
+we'll just call this method
+
+95
+00:06:15,978 --> 00:06:21,651
+get multipartconfig.
+
+96
+00:06:21,651 --> 00:06:28,360
+And it is going to take no arguments, and
+it's going to be annotated with at bean.
+
+97
+00:06:28,360 --> 00:06:30,963
+Now what this app beam does, and you'll
+learn
+
+98
+00:06:30,963 --> 00:06:34,169
+about it later when we talk about
+dependency injection,
+
+99
+00:06:34,169 --> 00:06:36,438
+is it tells spring that this is some piece
+
+100
+00:06:36,438 --> 00:06:40,250
+of configuration information that it needs
+to know about.
+
+101
+00:06:40,250 --> 00:06:42,692
+And to go and call this method, get this
+
+102
+00:06:42,692 --> 00:06:46,840
+thing back, and then go and use that
+configuration information.
+
+103
+00:06:46,840 --> 00:06:49,602
+In this case use the thing that's being
+returned for
+
+104
+00:06:49,602 --> 00:06:53,132
+a multi part config element to configure
+part of the application.
+
+105
+00:06:53,132 --> 00:06:56,734
+What this multi part config element's
+going to have is
+
+106
+00:06:56,734 --> 00:07:01,450
+information about what you expect from the
+multi part request.
+
+107
+00:07:01,450 --> 00:07:09,630
+So, what we do is we say multipart config
+factory.
+
+108
+00:07:12,030 --> 00:07:14,680
+F equals, and we construct a new one of
+theses.
+
+109
+00:07:14,680 --> 00:07:22,880
+And then we can do things like say
+f.setmaxfilesize,
+
+110
+00:07:22,880 --> 00:07:27,310
+and we can provide some size like 2000
+bytes
+
+111
+00:07:27,310 --> 00:07:32,130
+or whatever it is that you want to limit
+the upload size to be.
+
+112
+00:07:32,130 --> 00:07:36,440
+This will set the maximum file size that
+we want to accept,
+
+113
+00:07:36,440 --> 00:07:39,840
+but, a request could potentially have more
+than one file in it.
+
+114
+00:07:39,840 --> 00:07:42,291
+So, we may also want to set a limit on
+
+115
+00:07:42,291 --> 00:07:45,730
+the total size of any HTTP requests that
+we receive.
+
+116
+00:07:45,730 --> 00:07:50,327
+So we could say f.set max
+
+117
+00:07:50,327 --> 00:07:57,230
+request size, and provide a value for it
+as well.
+
+118
+00:07:57,230 --> 00:08:02,611
+Finally, we just return f.create
+multipartconfig,
+
+119
+00:08:02,611 --> 00:08:07,532
+and Spring will go and take the
+information you told
+
+120
+00:08:07,532 --> 00:08:12,224
+it about, max file size, and request size,
+and
+
+121
+00:08:12,224 --> 00:08:17,376
+other parameters, create multipart
+configuration
+
+122
+00:08:17,376 --> 00:08:22,413
+that can then be used to decide what
+multipart data is
+
+123
+00:08:22,413 --> 00:08:26,761
+accepted, how much, how big the request
+can
+
+124
+00:08:26,761 --> 00:08:31,910
+be, and all of those other types of
+things.
+
+125
+00:08:31,910 --> 00:08:34,560
+Now, if this code seems a little bit
+
+126
+00:08:34,560 --> 00:08:37,820
+boilerplate and you're worried about
+remembering all of it.
+
+127
+00:08:37,820 --> 00:08:39,090
+Don't worry.
+
+128
+00:08:39,090 --> 00:08:40,870
+We've got code samples, so, how you
+
+129
+00:08:40,870 --> 00:08:44,100
+can set up multipart config in your
+application.
+
+130
+00:08:44,100 --> 00:08:48,480
+And the, the truth is, is that this is
+pretty much the same.
+
+131
+00:08:48,480 --> 00:08:51,420
+All you end up doing is needing to know
+about configuring these
+
+132
+00:08:51,420 --> 00:08:54,910
+two things, but the rest of this is pretty
+much the same.
+
+133
+00:08:54,910 --> 00:08:58,340
+Any time you want to accept multipart data
+like video data that
+
+134
+00:08:58,340 --> 00:09:03,460
+you're uploading, you need to add this
+block to your application.
+
+135
+00:09:03,460 --> 00:09:05,544
+You'll want to add an add bin annotated
+
+136
+00:09:05,544 --> 00:09:08,355
+method that returns of multipart config
+element.
+
+137
+00:09:08,355 --> 00:09:11,241
+And, probably even a better name for this
+would be
+
+138
+00:09:11,241 --> 00:09:15,870
+multipartconfig with a lower case m rather
+than get multipart config.
+
+139
+00:09:15,870 --> 00:09:17,996
+And we'll talk about how we do dependency
+
+140
+00:09:17,996 --> 00:09:20,555
+injection and how this is actually used
+later on.
+
+141
+00:09:20,555 --> 00:09:26,396
+But for now just know that if you want to
+accept multipart
+
+142
+00:09:26,396 --> 00:09:31,489
+data, add this to your config, and this
+block is
+
+143
+00:09:31,489 --> 00:09:36,850
+pretty much the same across all the
+applications.
+
+144
+00:09:36,850 --> 00:09:40,583
+You just go and add it to your
+configuration for your application and
+
+145
+00:09:40,583 --> 00:09:45,120
+Spring will pick it up and begin accepting
+multi part requests from clients.
+

@@ -1,0 +1,716 @@
+1
+00:00:00,468 --> 00:00:08,442
+[MUSIC]
+
+2
+00:00:08,442 --> 00:00:14,527
+With Spring we create a series of
+controller objects
+
+3
+00:00:14,527 --> 00:00:21,440
+that have various methods that we want to
+have invoked.
+
+4
+00:00:21,440 --> 00:00:22,490
+By the web container.
+
+5
+00:00:24,180 --> 00:00:30,350
+Which is going to be routing them and to
+do that, we make sure we set up a
+
+6
+00:00:30,350 --> 00:00:36,790
+web container with a dispatcher servlet
+that Spring provides.
+
+7
+00:00:40,420 --> 00:00:42,640
+And then it decides.
+
+8
+00:00:42,640 --> 00:00:46,100
+Which requests go where and the web
+
+9
+00:00:46,100 --> 00:00:49,340
+container routes request to the dispatcher
+servlet.
+
+10
+00:00:50,420 --> 00:00:52,350
+Now, as you can imagine.
+
+11
+00:00:52,350 --> 00:00:55,120
+If we want to set all of this
+infrastructure up from
+
+12
+00:00:55,120 --> 00:00:58,340
+scratch we've got to do a whole bunch of
+different things.
+
+13
+00:00:58,340 --> 00:01:01,010
+One is we've got to provide.
+
+14
+00:01:01,010 --> 00:01:03,830
+The web container with routing
+information, which
+
+15
+00:01:03,830 --> 00:01:06,710
+can be done with something like web.xml
+
+16
+00:01:06,710 --> 00:01:11,720
+or by calling various method calls to tell
+the web container how to route requests.
+
+17
+00:01:12,905 --> 00:01:19,130
+We've got to provide routing information
+to the dispatcher servlet.
+
+18
+00:01:19,130 --> 00:01:21,780
+In order for it to know about our
+different controllers.
+
+19
+00:01:21,780 --> 00:01:24,020
+And we do that with the annotations.
+
+20
+00:01:24,020 --> 00:01:25,680
+So these are usually annotations.
+
+21
+00:01:28,250 --> 00:01:30,950
+But we still have to have the web.xml or
+some
+
+22
+00:01:30,950 --> 00:01:34,590
+configuration file that tells the web
+container to get set up.
+
+23
+00:01:34,590 --> 00:01:38,270
+We also have to do the work of setting up
+the web container.
+
+24
+00:01:38,270 --> 00:01:40,330
+So we might have to set up Tomcat which
+
+25
+00:01:40,330 --> 00:01:43,700
+is a web container or Jetty which is
+another one.
+
+26
+00:01:46,110 --> 00:01:48,200
+And so we'll have to set up the web
+container somewhere
+
+27
+00:01:48,200 --> 00:01:53,930
+and then we'll have to install our
+application with a web.xml and
+
+28
+00:01:53,930 --> 00:01:56,970
+then all of this other stuff comes into
+play and it
+
+29
+00:01:56,970 --> 00:01:59,720
+takes a lot of work to set all of these
+things up.
+
+30
+00:02:00,930 --> 00:02:05,600
+So, Spring, one of the subprojects of
+Spring is
+
+31
+00:02:05,600 --> 00:02:08,860
+a project called Spring Boot that is
+designed to make
+
+32
+00:02:08,860 --> 00:02:11,180
+it really easy to set all of this stuff
+
+33
+00:02:11,180 --> 00:02:15,430
+up for an web application like this that
+we're building.
+
+34
+00:02:15,430 --> 00:02:18,420
+Spring Boot will automatically configure
+all
+
+35
+00:02:18,420 --> 00:02:22,300
+of these various parts of our application.
+
+36
+00:02:22,300 --> 00:02:27,150
+So that we can focus on writing our
+controllers and putting the logic in them.
+
+37
+00:02:27,150 --> 00:02:30,790
+So this is where Spring Boot allows us to
+focus, is where the actual value is.
+
+38
+00:02:30,790 --> 00:02:33,700
+All of this stuff, related to, like, our
+
+39
+00:02:33,700 --> 00:02:37,460
+video service, which is the logic in these
+controllers.
+
+40
+00:02:37,460 --> 00:02:41,990
+And Spring Boot helps to automate a lot of
+this set up.
+
+41
+00:02:41,990 --> 00:02:50,140
+So this is the stuff that Spring Boot
+automates is the set up
+
+42
+00:02:52,580 --> 00:02:55,800
+of this tier in front of all of our
+controllers.
+
+43
+00:02:55,800 --> 00:02:59,220
+Because really all we want to do is focus
+on writing controllers.
+
+44
+00:02:59,220 --> 00:03:02,090
+We don't want to focus on all of this set
+up stuff.
+
+45
+00:03:02,090 --> 00:03:06,360
+In addition to writing our controllers,
+and so Spring Boot makes
+
+46
+00:03:06,360 --> 00:03:10,160
+this happen automatically and it does it
+in a really smart way.
+
+47
+00:03:10,160 --> 00:03:15,280
+We can go and specify as many of the
+different parts of this configuration
+
+48
+00:03:15,280 --> 00:03:20,820
+as we want or as few of them as we want
+and Spring Boot will automatically.
+
+49
+00:03:20,820 --> 00:03:21,940
+Fill in the details.
+
+50
+00:03:21,940 --> 00:03:26,020
+So, if we specify certain parts of this
+configuration Spring Boot
+
+51
+00:03:26,020 --> 00:03:30,470
+will use that information and then build
+everything else around it.
+
+52
+00:03:30,470 --> 00:03:32,600
+If we don't specify anything, we just do
+
+53
+00:03:32,600 --> 00:03:34,910
+the simplest bits of configuration that
+Spring Boot
+
+54
+00:03:34,910 --> 00:03:37,260
+needs it'll automate everything in here
+and make
+
+55
+00:03:37,260 --> 00:03:40,049
+appropriate decisions about the way to
+configure it.
+
+56
+00:03:41,500 --> 00:03:47,128
+A Spring Boot application has a fairly
+simple structure, at least initially.
+
+57
+00:03:47,128 --> 00:03:49,820
+We do two things in Spring Boot
+applications,
+
+58
+00:03:49,820 --> 00:03:51,875
+if we're writing a web application at
+least.
+
+59
+00:03:51,875 --> 00:03:57,660
+One we create our set of controllers that
+are just Java
+
+60
+00:04:00,220 --> 00:04:00,660
+objects.
+
+61
+00:04:00,660 --> 00:04:01,160
+And.
+
+62
+00:04:02,450 --> 00:04:07,220
+This is where most of the logic resides
+for our application.
+
+63
+00:04:07,220 --> 00:04:12,760
+And then the second piece is we create a
+class called Application typically.
+
+64
+00:04:12,760 --> 00:04:15,942
+This is a naming convention that is often
+used
+
+65
+00:04:15,942 --> 00:04:19,220
+but you can call it something else if you
+want.
+
+66
+00:04:19,220 --> 00:04:21,580
+You just have to annotate it properly.
+
+67
+00:04:21,580 --> 00:04:23,760
+And this is where we define
+
+68
+00:04:24,870 --> 00:04:28,040
+the configuration of, of our particular
+application.
+
+69
+00:04:28,040 --> 00:04:30,260
+So this is where we define,
+
+70
+00:04:32,480 --> 00:04:32,990
+our
+
+71
+00:04:35,100 --> 00:04:41,470
+controllers potentially or we tell Spring
+to automatically go and discover them.
+
+72
+00:04:42,480 --> 00:04:44,340
+And configuration.
+
+73
+00:04:45,810 --> 00:04:50,350
+So we can go and override defaults that
+Spring Boot will create.
+
+74
+00:04:50,350 --> 00:04:52,520
+Now, what we do in order to launch Spring
+
+75
+00:04:52,520 --> 00:05:00,240
+Boot is this application has a traditional
+main method, a.
+
+76
+00:05:00,240 --> 00:05:08,390
+Public static void main method that is
+going to be invoked from the command line.
+
+77
+00:05:08,390 --> 00:05:13,280
+And in this main method what we do is
+essentially invoke
+
+78
+00:05:13,280 --> 00:05:17,625
+Spring Boot and we do that typically by
+doing something like Spring
+
+79
+00:05:17,625 --> 00:05:24,930
+application.run
+
+80
+00:05:24,930 --> 00:05:29,310
+and passing then our application
+configuration here.
+
+81
+00:05:29,310 --> 00:05:32,370
+So this is the, the simplest sort of
+
+82
+00:05:33,860 --> 00:05:37,460
+sort of organization of a Spring boot web
+application.
+
+83
+00:05:37,460 --> 00:05:40,510
+We have the appropriate libraries in our
+class path.
+
+84
+00:05:40,510 --> 00:05:42,566
+To launch Spring Boot.
+
+85
+00:05:42,566 --> 00:05:44,550
+And then we have an application class that
+
+86
+00:05:44,550 --> 00:05:47,850
+defines the minimal configuration that
+we're interested in defining.
+
+87
+00:05:47,850 --> 00:05:50,960
+And then we just tell spring
+application.run.
+
+88
+00:05:50,960 --> 00:05:53,690
+And we provide it our, our application
+class.
+
+89
+00:05:53,690 --> 00:05:56,960
+And Spring, from that point, takes over.
+
+90
+00:05:56,960 --> 00:05:59,030
+And it does a whole variety of things.
+
+91
+00:05:59,030 --> 00:06:01,400
+But some of the most important things are.
+
+92
+00:06:01,400 --> 00:06:04,820
+It's going to set up the container, the
+web container.
+
+93
+00:06:08,580 --> 00:06:11,630
+And it's going to be an embedded web
+container.
+
+94
+00:06:11,630 --> 00:06:18,045
+It's going to discover our controllers.
+
+95
+00:06:18,045 --> 00:06:22,283
+[BLANK_AUDIO]
+
+96
+00:06:22,283 --> 00:06:26,053
+It's going to set up the dispatcher
+servlet.
+
+97
+00:06:26,053 --> 00:06:29,990
+[BLANK_AUDIO]
+
+98
+00:06:29,990 --> 00:06:33,490
+I'm just going to invit, abbreviate this
+dispatcher.
+
+99
+00:06:33,490 --> 00:06:35,219
+And then it's going to.
+
+100
+00:06:37,210 --> 00:06:38,530
+We're going to set the web container,
+
+101
+00:06:38,530 --> 00:06:40,120
+we're going to discover our controllers,
+we're going to
+
+102
+00:06:40,120 --> 00:06:44,410
+set up that dispatcher servlet, and we're
+going to tell it about our controllers.
+
+103
+00:06:44,410 --> 00:06:47,270
+And then it's going to go and do any other
+
+104
+00:06:47,270 --> 00:06:52,740
+configuration that we've specified like
+connecting to databases or other stuff.
+
+105
+00:06:52,740 --> 00:06:53,080
+So.
+
+106
+00:06:53,080 --> 00:06:59,620
+[BLANK_AUDIO]
+
+107
+00:06:59,620 --> 00:07:03,206
+So, as you can see, Spring Boot is
+
+108
+00:07:03,206 --> 00:07:08,730
+automating a huge amount of our work for
+us.
+
+109
+00:07:08,730 --> 00:07:10,550
+It's setting up the web container, it's
+find
+
+110
+00:07:10,550 --> 00:07:13,290
+our controller, it's setting up the
+dispatcher servlet.
+
+111
+00:07:13,290 --> 00:07:16,250
+Telling the web container about the
+dispatcher servlet,
+
+112
+00:07:16,250 --> 00:07:19,180
+telling it to, when to request to route
+
+113
+00:07:19,180 --> 00:07:21,165
+to the dispatcher servlet, and by default
+it's
+
+114
+00:07:21,165 --> 00:07:23,330
+going to route all requests to the
+dispatcher servlet.
+
+115
+00:07:23,330 --> 00:07:26,010
+And then it's telling the dispatcher
+servlet about
+
+116
+00:07:26,010 --> 00:07:29,850
+our controllers, and then doing any other
+configuration stuff.
+
+117
+00:07:29,850 --> 00:07:31,430
+And all we had to do was write our
+
+118
+00:07:31,430 --> 00:07:34,850
+controllers which contain the logic that
+we care about.
+
+119
+00:07:34,850 --> 00:07:40,170
+And write this application dot Java class
+to tell Spring
+
+120
+00:07:40,170 --> 00:07:45,760
+Boot which pieces of the configuration we
+want it to, override from its defaults.
+
+121
+00:07:45,760 --> 00:07:49,870
+So we'll give it some initial information
+and hints that it needs to go and get
+
+122
+00:07:49,870 --> 00:07:54,340
+it's job done, and then it will take care
+of all of the rest of this complexity.
+
+123
+00:07:54,340 --> 00:07:56,540
+So for the rest of the course, most of
+what you're
+
+124
+00:07:56,540 --> 00:08:00,890
+going to see in the projects, and the
+example code is that
+
+125
+00:08:00,890 --> 00:08:04,730
+there will be an application.java clas
+that you should always go
+
+126
+00:08:04,730 --> 00:08:08,030
+and look for and that's going to define
+the core of the application.
+
+127
+00:08:08,030 --> 00:08:11,350
+And it'll define that configuration
+information.
+
+128
+00:08:11,350 --> 00:08:13,530
+And then from there, we'll probably have a
+bunch
+
+129
+00:08:13,530 --> 00:08:17,750
+of controller objects which are just plain
+Java objects.
+
+130
+00:08:17,750 --> 00:08:22,730
+That will provide various pieces of the
+logic for our application.
+
+131
+00:08:22,730 --> 00:08:26,340
+And the application is the, the part
+that's tying all of this together.
+
+132
+00:08:26,340 --> 00:08:30,120
+It's the part that's telling Spring Boot,
+where our controllers
+
+133
+00:08:30,120 --> 00:08:32,890
+live or where to go and look for our
+controllers.
+
+134
+00:08:32,890 --> 00:08:37,310
+How to construct them and, as we'll see,
+Spring can automatically
+
+135
+00:08:37,310 --> 00:08:41,200
+instantiate out objects for us and provide
+them the correct parameters.
+
+136
+00:08:41,200 --> 00:08:44,590
+And references to other objects they need
+to get their job done.
+
+137
+00:08:44,590 --> 00:08:46,560
+So Spring is going to go and automate all
+
+138
+00:08:46,560 --> 00:08:49,860
+of this construction effort, and [UNKNOWN]
+this configuration of
+
+139
+00:08:49,860 --> 00:08:52,620
+our web container, and the dispatcher
+servlet, and
+
+140
+00:08:52,620 --> 00:08:55,710
+the connections from our dispatcher
+servlet to our controllers.
+
+141
+00:08:55,710 --> 00:08:58,950
+So at the end, what we do is we just focus
+on this part.
+
+142
+00:08:58,950 --> 00:08:59,500
+We focus.
+
+143
+00:09:03,520 --> 00:09:05,800
+And Spring Boot does this.
+
+144
+00:09:12,960 --> 00:09:15,010
+So this is the automated part.
+
+145
+00:09:18,360 --> 00:09:20,520
+And this is our manual part.
+
+146
+00:09:20,520 --> 00:09:22,900
+That we have to do as developers.
+
+147
+00:09:22,900 --> 00:09:24,720
+So, whenever you see one of the
+
+148
+00:09:24,720 --> 00:09:28,540
+applications go and look for the
+application.Java file.
+
+149
+00:09:28,540 --> 00:09:30,970
+Figure out what it's telling Spring Boot
+to
+
+150
+00:09:30,970 --> 00:09:33,802
+do, what is it configuring Spring Boot
+for.
+
+151
+00:09:33,802 --> 00:09:36,100
+And it'll also give you a hit as to
+
+152
+00:09:36,100 --> 00:09:40,490
+where the key controllers are or other
+objects are.
+
+153
+00:09:40,490 --> 00:09:43,710
+That are going to participate in this
+application and provide some logic.
+

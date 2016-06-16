@@ -1,0 +1,450 @@
+1
+00:00:00,000 --> 00:00:08,678
+[MUSIC]
+
+2
+00:00:08,678 --> 00:00:14,469
+So we've seen how we can take requests
+that are coming from a mobile client, like
+
+3
+00:00:14,469 --> 00:00:19,666
+a mobile device, and create controllers
+that then have methods that are
+
+4
+00:00:19,666 --> 00:00:25,204
+annotated with that request mapping and at
+request pa, parameter or at a path
+
+5
+00:00:25,204 --> 00:00:31,650
+there in order to map those requests into
+invocations of methods on our objects.
+
+6
+00:00:31,650 --> 00:00:36,600
+And to take parameters from the que,
+requests, either in the query
+
+7
+00:00:36,600 --> 00:00:40,960
+string or in the body, if it's a URL
+enphoto, encoded form body
+
+8
+00:00:40,960 --> 00:00:46,810
+or multi-part body or even out of the
+actual request path itself and
+
+9
+00:00:46,810 --> 00:00:50,720
+map those into the method parameters that
+we need to invoke the method.
+
+10
+00:00:51,790 --> 00:00:54,290
+The one thing we haven't talked about is,
+we've only talked
+
+11
+00:00:54,290 --> 00:00:59,190
+about how we get data into our methods to
+invoke them.
+
+12
+00:00:59,190 --> 00:01:00,904
+But we haven't talked about how the data
+
+13
+00:01:00,904 --> 00:01:04,370
+that we're returning from our method
+actually ends
+
+14
+00:01:04,370 --> 00:01:09,385
+up being converted into a response that's
+an
+
+15
+00:01:09,385 --> 00:01:11,450
+HTV response that goes back to the client.
+
+16
+00:01:11,450 --> 00:01:14,270
+And how that gets encoded and how that
+data
+
+17
+00:01:14,270 --> 00:01:17,150
+that we're returning, in this case a Java
+object
+
+18
+00:01:17,150 --> 00:01:20,990
+called contact, actually turns into
+something that can be
+
+19
+00:01:20,990 --> 00:01:23,289
+sent in an HTV response back to the
+client.
+
+20
+00:01:24,340 --> 00:01:27,590
+So let's look at actually how we can do
+that in Spring.
+
+21
+00:01:28,650 --> 00:01:34,110
+So, in Spring, when we declare our
+response,
+
+22
+00:01:34,110 --> 00:01:39,370
+we declare it by specifying what the
+return type is for the method.
+
+23
+00:01:39,370 --> 00:01:43,490
+And what we want to do is we want to tell
+Spring that you should look at the return
+
+24
+00:01:43,490 --> 00:01:48,390
+type, and you should automatically use it
+as the body
+
+25
+00:01:48,390 --> 00:01:51,280
+of the response that you're sending back
+to the client.
+
+26
+00:01:51,280 --> 00:01:59,320
+And we do that by annotating the return
+type of the method with @ResponseBody.
+
+27
+00:01:59,320 --> 00:01:59,820
+And
+
+28
+00:02:02,640 --> 00:02:07,710
+so now, when Spring sees our return type
+of our method, it
+
+29
+00:02:07,710 --> 00:02:12,380
+knows, when I invoke this method, I'm
+going to take the return type,
+
+30
+00:02:12,380 --> 00:02:18,180
+which is a contact, and I'm going to
+encode that contact into
+
+31
+00:02:18,180 --> 00:02:21,360
+the body of the response that I am sending
+back to the client.
+
+32
+00:02:22,730 --> 00:02:27,740
+The way that Spring does this is, it has a
+series of what it calls message converters
+
+33
+00:02:27,740 --> 00:02:32,930
+that can convert data being sent in the
+body of a request from
+
+34
+00:02:32,930 --> 00:02:39,940
+a client into Java Objects and then also
+convert Java Objects back into a body that
+
+35
+00:02:39,940 --> 00:02:45,570
+can be sent out to a, a client that's,
+that requested something from the server.
+
+36
+00:02:45,570 --> 00:02:48,120
+And, in this case, the default way that
+
+37
+00:02:48,120 --> 00:02:50,730
+it, Spring tries to convert our data, is
+it
+
+38
+00:02:50,730 --> 00:02:55,120
+will convert this contact object that
+we're returning into
+
+39
+00:02:55,120 --> 00:03:00,160
+JSON, so that the client can receive JSON
+back.
+
+40
+00:03:00,160 --> 00:03:04,310
+And it will be a JSON object that
+represents the contact.
+
+41
+00:03:04,310 --> 00:03:10,040
+So whenever we go and send a request to
+/search, the dispatcher controller's going
+
+42
+00:03:10,040 --> 00:03:15,100
+to go, it's going to see that slash search
+should be mapped into this search method.
+
+43
+00:03:15,100 --> 00:03:20,250
+Any parameters inside of here that we
+have, request param annotations
+
+44
+00:03:20,250 --> 00:03:23,690
+on or path var annotations, it will get
+the data for them.
+
+45
+00:03:23,690 --> 00:03:27,760
+It will extract them and pass them into
+the correct location in the method.
+
+46
+00:03:27,760 --> 00:03:29,690
+Our method logic's going to get executed.
+
+47
+00:03:29,690 --> 00:03:33,350
+And then our method is going to return a
+contact object,
+
+48
+00:03:33,350 --> 00:03:39,280
+which Spring will then convert because
+we've added the @ResponseBody annotation.
+
+49
+00:03:39,280 --> 00:03:43,120
+It will then see this and know that I need
+to convert
+
+50
+00:03:43,120 --> 00:03:47,270
+this object into the body of the HT
+response that I'm sending back.
+
+51
+00:03:47,270 --> 00:03:49,545
+And it will convert that contact object
+into
+
+52
+00:03:49,545 --> 00:03:53,560
+JSON and place it into the response body.
+
+53
+00:03:53,560 --> 00:04:00,679
+So now we have a complete path from the
+client sending a request.
+
+54
+00:04:01,840 --> 00:04:03,770
+Spring, seeing that request in the
+
+55
+00:04:03,770 --> 00:04:06,850
+dispatcher servlet, figuring out which
+request
+
+56
+00:04:06,850 --> 00:04:11,620
+mapping of all these annotations and all
+the various methods actually maps
+
+57
+00:04:11,620 --> 00:04:16,400
+to the path in the request, figures out
+the correct method to
+
+58
+00:04:16,400 --> 00:04:21,300
+invoke, handles all of the extraction of
+parameters, invokes the method logic.
+
+59
+00:04:21,300 --> 00:04:25,060
+And now finally, takes the return of that
+method,
+
+60
+00:04:25,060 --> 00:04:29,190
+converts it into response body, and turns
+it into JSON.
+
+61
+00:04:29,190 --> 00:04:33,000
+Now, this is a huge amount of work that's
+going on.
+
+62
+00:04:33,000 --> 00:04:38,250
+And what we're going to see is that it's
+actually not a lot of work for us.
+
+63
+00:04:38,250 --> 00:04:41,060
+Spring is doing the heavy lifting for us.
+
+64
+00:04:41,060 --> 00:04:44,930
+All that we're doing is telling Spring a
+little bit extra
+
+65
+00:04:44,930 --> 00:04:48,580
+about our classes and our methods in our
+classes so that
+
+66
+00:04:48,580 --> 00:04:51,560
+Spring can go and invoke the methods that
+we want on
+
+67
+00:04:51,560 --> 00:04:57,590
+our objects and translate between HTV
+requests and invocations of our methods.
+
+68
+00:04:57,590 --> 00:05:02,260
+And translate between the return types of
+our methods and responses
+
+69
+00:05:02,260 --> 00:05:07,050
+that we're sending back that are HTV
+responses back to the clients.
+
+70
+00:05:07,050 --> 00:05:11,890
+And what's really nice is suddenly, if
+you'll remember, we had this original
+
+71
+00:05:11,890 --> 00:05:18,460
+setup where we were sending commands to
+our application.
+
+72
+00:05:21,570 --> 00:05:26,350
+And then we wanted to be able to send
+responses back.
+
+73
+00:05:28,880 --> 00:05:32,230
+And in this case, we've got a simple class
+that we can think of as an
+
+74
+00:05:32,230 --> 00:05:35,350
+application there, Contacts Controller, is
+a component of
+
+75
+00:05:35,350 --> 00:05:38,230
+an application that we can send a command
+to.
+
+76
+00:05:38,230 --> 00:05:41,060
+We can specify how the commands that are
+
+77
+00:05:41,060 --> 00:05:43,520
+being sent, in these cases, HTV requests
+with data
+
+78
+00:05:43,520 --> 00:05:46,490
+in them, get routed to individual methods
+that we
+
+79
+00:05:46,490 --> 00:05:49,810
+need to invoke in order to implement those
+commands.
+
+80
+00:05:49,810 --> 00:05:52,860
+And then we can specify how the return
+types
+
+81
+00:05:52,860 --> 00:05:56,840
+from our methods should be converted back
+into responses.
+
+82
+00:05:56,840 --> 00:06:00,310
+So we've come full circle on that original
+vision.
+
+83
+00:06:00,310 --> 00:06:03,120
+And the other thing is, is rather than
+living on
+
+84
+00:06:03,120 --> 00:06:09,240
+a single host, all of this is happening
+over the internet.
+
+85
+00:06:09,240 --> 00:06:11,640
+So this is running in the cloud on this
+side,
+
+86
+00:06:13,270 --> 00:06:15,690
+and this is running on our mobile client
+over here.
+
+87
+00:06:17,920 --> 00:06:24,950
+So not only are we going and actually
+creating a way of mapping
+
+88
+00:06:24,950 --> 00:06:28,410
+the commands that are being sent to the
+individual objects that were created
+
+89
+00:06:28,410 --> 00:06:32,480
+to build an application, but we're also
+doing it in a distributed manner
+
+90
+00:06:32,480 --> 00:06:37,362
+so that the client can be remote, can send
+the commands over HTDP.
+
+91
+00:06:39,430 --> 00:06:43,840
+And we can handle those HTV commands, map
+them into our objects, and
+
+92
+00:06:43,840 --> 00:06:48,200
+send responses back, and do all of it on
+top of the HTDP protocol.
+

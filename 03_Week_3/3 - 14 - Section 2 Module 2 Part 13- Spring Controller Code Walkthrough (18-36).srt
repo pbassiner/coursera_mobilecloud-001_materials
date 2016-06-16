@@ -1,0 +1,1364 @@
+1
+00:00:00,401 --> 00:00:08,542
+[MUSIC]
+
+2
+00:00:08,542 --> 00:00:11,375
+We've re-factored the video service that
+we
+
+3
+00:00:11,375 --> 00:00:15,130
+built with Servlet to use the Spring
+framework.
+
+4
+00:00:15,130 --> 00:00:17,660
+And what we're going to see it that Spring
+
+5
+00:00:17,660 --> 00:00:21,940
+vastly simplifies our lives, particularly
+with respect to getting
+
+6
+00:00:21,940 --> 00:00:24,700
+data from the client and insuring that
+it's at
+
+7
+00:00:24,700 --> 00:00:29,570
+least minimally validated and in a format
+we expect.
+
+8
+00:00:29,570 --> 00:00:32,960
+And also for getting that data into
+objects
+
+9
+00:00:32,960 --> 00:00:35,760
+that we can actually use and do something
+with.
+
+10
+00:00:35,760 --> 00:00:37,090
+So what we're going to see is in
+
+11
+00:00:37,090 --> 00:00:41,730
+this version, before we had the Servlet
+container
+
+12
+00:00:44,210 --> 00:00:49,330
+that was directly talking to our Servlet,
+which was the video Servlet.
+
+13
+00:00:49,330 --> 00:00:55,040
+This time, the Spring Dispatcher Servlet,
+which we're not even going to see
+
+14
+00:00:55,040 --> 00:00:59,300
+in our code, is what the client is going
+to be talking to.
+
+15
+00:00:59,300 --> 00:01:01,560
+And then that Dispatcher Servlet is going
+to
+
+16
+00:01:01,560 --> 00:01:06,370
+be actually routing requests to our video
+service controller.
+
+17
+00:01:06,370 --> 00:01:11,950
+So we have a video service controller
+object.
+
+18
+00:01:11,950 --> 00:01:16,349
+And this is just a controller, is just a
+Java object
+
+19
+00:01:18,820 --> 00:01:23,970
+with the Spring app controller annotation,
+which is what you'll see.
+
+20
+00:01:23,970 --> 00:01:27,020
+But the key thing to focus on here is how
+
+21
+00:01:27,020 --> 00:01:30,850
+much simpler this version of the service
+is going to be.
+
+22
+00:01:30,850 --> 00:01:35,010
+All we're going to focus on writing is
+really this video service down here.
+
+23
+00:01:35,010 --> 00:01:37,650
+There's not going to be a web.xml anymore.
+
+24
+00:01:37,650 --> 00:01:40,415
+There's not going to be any Servlet that
+we have to write.
+
+25
+00:01:40,415 --> 00:01:43,250
+Spring's going to provide all of that for
+us.
+
+26
+00:01:43,250 --> 00:01:46,410
+And what we're going to focus on is our
+actual logic
+
+27
+00:01:46,410 --> 00:01:50,090
+to do something with the data we're
+getting from the clients.
+
+28
+00:01:50,090 --> 00:01:55,380
+So let's take a look at this, video
+service controller.
+
+29
+00:01:55,380 --> 00:02:01,540
+So, if you go to the project, it's in the
+video controller and retrofit project.
+
+30
+00:02:01,540 --> 00:02:03,620
+The first thing we want to go and look at
+is
+
+31
+00:02:03,620 --> 00:02:08,400
+in the source main Java folder, this video
+service class.
+
+32
+00:02:08,400 --> 00:02:10,520
+And if you open this class up, what you'll
+see
+
+33
+00:02:10,520 --> 00:02:15,480
+is, is just a standard Java class that
+implements an interface.
+
+34
+00:02:15,480 --> 00:02:17,780
+And this interface is one that we define.
+
+35
+00:02:17,780 --> 00:02:20,130
+It's nothing special from Spring.
+
+36
+00:02:20,130 --> 00:02:23,350
+So this is just a Plain Old Java Object,
+or POJO,
+
+37
+00:02:23,350 --> 00:02:28,340
+so nothing is, is, we're not being
+required to inherit from anything.
+
+38
+00:02:28,340 --> 00:02:31,170
+The only thing that's different is we're
+going to mark this
+
+39
+00:02:31,170 --> 00:02:36,220
+class with an annotation that tells Spring
+that it's a controller.
+
+40
+00:02:36,220 --> 00:02:38,940
+In this case it's an @Controller
+annotation.
+
+41
+00:02:38,940 --> 00:02:43,980
+So this little annotation right there is
+giving us a huge amount of power.
+
+42
+00:02:43,980 --> 00:02:46,670
+It's telling Spring, here is a class that
+
+43
+00:02:46,670 --> 00:02:49,410
+doesn't inherit from anything that you
+know about.
+
+44
+00:02:49,410 --> 00:02:53,750
+But you need to look at it and use it like
+it's a controller.
+
+45
+00:02:53,750 --> 00:02:58,420
+So this ability to mark up standard java
+objects with annotations
+
+46
+00:02:58,420 --> 00:03:02,180
+and provide metadata on them that
+otherwise we would have to
+
+47
+00:03:02,180 --> 00:03:06,400
+express somehow through inheritance or the
+implementation of interfaces, sort of
+
+48
+00:03:06,400 --> 00:03:10,240
+gives us greater flexibility in how we
+implement and create our classes.
+
+49
+00:03:10,240 --> 00:03:14,680
+So this simple Java object that's
+annotated with @controller is going to
+
+50
+00:03:14,680 --> 00:03:18,709
+be discovered and loaded by Spring just
+because of the simple annotation.
+
+51
+00:03:20,120 --> 00:03:22,340
+If we look at the video service, we'll
+
+52
+00:03:22,340 --> 00:03:25,590
+actually see this isn't a remarkably
+simple class.
+
+53
+00:03:25,590 --> 00:03:27,430
+Just like in the Servlet, we're going to
+
+54
+00:03:27,430 --> 00:03:30,310
+create a list that we're store the videos
+in.
+
+55
+00:03:30,310 --> 00:03:33,780
+And this is just a standard array list,
+nothing special.
+
+56
+00:03:33,780 --> 00:03:38,585
+And then lay, lower down in the file we
+have two methods that are the
+
+57
+00:03:38,585 --> 00:03:43,050
+equivalents of the methods that we had in
+the Servlet for do git and do post.
+
+58
+00:03:43,050 --> 00:03:45,660
+In this case we have an add video method.
+
+59
+00:03:45,660 --> 00:03:49,190
+So, one of the things to immediately note
+is
+
+60
+00:03:49,190 --> 00:03:54,750
+that spring isn't enforcing any naming
+conventions on our methods.
+
+61
+00:03:54,750 --> 00:03:59,350
+We've got methods that make sense for that
+object, add video.
+
+62
+00:03:59,350 --> 00:04:02,990
+So, the fact that we're not being forced
+to inherit
+
+63
+00:04:02,990 --> 00:04:06,680
+from anything in particular and that we're
+not being enforced
+
+64
+00:04:06,680 --> 00:04:10,760
+on any particular naming conventions in
+this example, it allows
+
+65
+00:04:10,760 --> 00:04:13,080
+us to write an object that makes much more
+sense.
+
+66
+00:04:13,080 --> 00:04:15,990
+You look at this object and you understand
+what the add video
+
+67
+00:04:15,990 --> 00:04:19,540
+method is going to do, even if you don't
+have the source code.
+
+68
+00:04:19,540 --> 00:04:21,150
+It's much more explanatory.
+
+69
+00:04:22,220 --> 00:04:24,910
+Now, what we'll see is that this method,
+
+70
+00:04:24,910 --> 00:04:26,640
+because it doesn't have to follow any
+naming
+
+71
+00:04:26,640 --> 00:04:29,600
+conditions, it does have to provide some
+metadata
+
+72
+00:04:29,600 --> 00:04:33,060
+to Spring to tell it how to use it.
+
+73
+00:04:33,060 --> 00:04:37,320
+So the first thing we see is the
+annotation @requestmapping.
+
+74
+00:04:37,320 --> 00:04:42,460
+And what this does is, the @requestmapping
+tells Spring that this
+
+75
+00:04:42,460 --> 00:04:47,480
+is a method that we want you to route some
+HTTP request into.
+
+76
+00:04:47,480 --> 00:04:52,910
+So, whenever you see a request where the
+path is
+
+77
+00:04:52,910 --> 00:04:57,830
+video service path, and if we see this
+constant just expands to /video,
+
+78
+00:04:57,830 --> 00:05:02,500
+whenever you see a request sent to /video
+that is of
+
+79
+00:05:02,500 --> 00:05:08,620
+type post which we see here, you should
+invoke this method.
+
+80
+00:05:08,620 --> 00:05:13,760
+So, we're, rather than expressing do git,
+do post and
+
+81
+00:05:13,760 --> 00:05:18,820
+changing our method to take a Servlet
+request and a Servlet response, so that
+
+82
+00:05:18,820 --> 00:05:22,370
+we can read from the request parameters as
+strings, and get a
+
+83
+00:05:22,370 --> 00:05:26,450
+writer, and write a response back out,
+it's just a primitive string.
+
+84
+00:05:26,450 --> 00:05:30,355
+We're certainly, actually writing a method
+that looks like a standard
+
+85
+00:05:30,355 --> 00:05:33,870
+method that you would write in Java to do
+something useful.
+
+86
+00:05:33,870 --> 00:05:38,090
+Now, where it also gets interesting is the
+next parameter, or
+
+87
+00:05:38,090 --> 00:05:43,740
+the next annotation, @RequestBody, which
+is attached to the video parameter.
+
+88
+00:05:43,740 --> 00:05:50,840
+So we're expecting this method to take a
+video as input.
+
+89
+00:05:50,840 --> 00:05:53,350
+And what we need to do is we need
+
+90
+00:05:53,350 --> 00:05:57,920
+to tell Spring where it should get that
+video from.
+
+91
+00:05:57,920 --> 00:06:01,950
+In this case, what we're doing is we're
+telling Spring, that we
+
+92
+00:06:01,950 --> 00:06:05,940
+want you to go and look at the body of the
+HTTP request.
+
+93
+00:06:05,940 --> 00:06:12,430
+And we want you to automatically try to
+convert that body into a video object.
+
+94
+00:06:12,430 --> 00:06:14,960
+And there's a lot of different ways, that
+you can
+
+95
+00:06:14,960 --> 00:06:18,590
+tell Spring how to convert a body into an
+object.
+
+96
+00:06:18,590 --> 00:06:22,860
+By default, however, Spring knows how to
+convert
+
+97
+00:06:22,860 --> 00:06:27,910
+JSON, or the Java Script Object Notation,
+into objects.
+
+98
+00:06:27,910 --> 00:06:32,970
+So, if we have a request body that has a
+JSON object
+
+99
+00:06:32,970 --> 00:06:38,960
+encoded into it, not URL encoded, but just
+JSON directly in the request body.
+
+100
+00:06:38,960 --> 00:06:45,850
+The, controller can automatically have
+that data extracted as an object
+
+101
+00:06:45,850 --> 00:06:51,270
+by Spring and then passed into the method
+that we've mapped with @RequestMapping.
+
+102
+00:06:51,270 --> 00:06:55,110
+So we don't have to worry about going and
+figuring out how we take
+
+103
+00:06:55,110 --> 00:06:58,930
+some you know, request Servlet request,
+and
+
+104
+00:06:58,930 --> 00:07:01,510
+extract parameters from it, and extract
+the object.
+
+105
+00:07:01,510 --> 00:07:04,690
+We can just tell Spring, we want whatever
+is in the body of
+
+106
+00:07:04,690 --> 00:07:09,480
+that request to be interpreted as a video
+object, and extracted for us.
+
+107
+00:07:09,480 --> 00:07:12,950
+And Spring is doing this all behind the
+scenes for us.
+
+108
+00:07:12,950 --> 00:07:16,650
+So, if we see now, this method is simple.
+
+109
+00:07:16,650 --> 00:07:20,540
+Even if we didn't have HTTP requests, we
+could still interact with
+
+110
+00:07:20,540 --> 00:07:25,570
+this method and create video objects and
+use the, the logic in it.
+
+111
+00:07:25,570 --> 00:07:30,970
+So it's also decoupling us to some degree
+from the idea of HTTP requests.
+
+112
+00:07:30,970 --> 00:07:35,990
+And then we're just adding the video to
+the list of videos that we've created.
+
+113
+00:07:35,990 --> 00:07:38,120
+So our logic is incredibly simple.
+
+114
+00:07:38,120 --> 00:07:41,220
+We're focusing only on the things that we
+care about.
+
+115
+00:07:41,220 --> 00:07:45,560
+The taking a video and adding it to the
+list.
+
+116
+00:07:45,560 --> 00:07:50,931
+And so if you compare this to our original
+code, which is in the video
+
+117
+00:07:50,931 --> 00:07:56,710
+Servlet, look at all the work that we had
+to do in the video Servlet to handle
+
+118
+00:07:56,710 --> 00:07:58,940
+the post request, to get all the
+parameters
+
+119
+00:07:58,940 --> 00:08:02,290
+out, to validate some minimal information
+about them,
+
+120
+00:08:02,290 --> 00:08:04,620
+and then to actually construct a video and
+
+121
+00:08:04,620 --> 00:08:08,370
+then finally, down here actually add the
+video.
+
+122
+00:08:08,370 --> 00:08:12,560
+All of this was overhead for this tiny
+little method call down here.
+
+123
+00:08:12,560 --> 00:08:15,780
+But if we look in our current version with
+the controller,
+
+124
+00:08:15,780 --> 00:08:20,050
+everything is about this one thing that
+we're actually trying to accomplish.
+
+125
+00:08:20,050 --> 00:08:23,430
+So suddenly we can focus on the logic the
+we actually care
+
+126
+00:08:23,430 --> 00:08:27,710
+about this taking a video and adding it to
+the list of videos.
+
+127
+00:08:27,710 --> 00:08:30,740
+We don't have to focus on the logic to
+construct
+
+128
+00:08:30,740 --> 00:08:33,115
+that video that were going to add to the
+list.
+
+129
+00:08:33,115 --> 00:08:37,170
+So Spring has taken over that work of
+unmarshalling all of that data
+
+130
+00:08:37,170 --> 00:08:42,210
+from the request body into an object that
+we can actually operate on.
+
+131
+00:08:42,210 --> 00:08:47,050
+The other interesting thing to note is
+this @responsebody annotation.
+
+132
+00:08:47,050 --> 00:08:52,030
+You'll notice that we're not taking an
+HTTP response
+
+133
+00:08:52,030 --> 00:08:54,820
+that we can write to any more as a
+parameter.
+
+134
+00:08:54,820 --> 00:08:57,810
+We're not getting a writer and writing out
+what we want
+
+135
+00:08:57,810 --> 00:09:01,030
+to go back to the client or setting the
+content type even.
+
+136
+00:09:01,030 --> 00:09:06,130
+All we're doing is saying @responsebody,
+which tells Spring that I'm going to
+
+137
+00:09:06,130 --> 00:09:11,870
+return an object, or a value of some kind
+and, whatever the return type of this
+
+138
+00:09:11,870 --> 00:09:17,160
+method is, I want you to take it and
+covert it back into a response body
+
+139
+00:09:17,160 --> 00:09:23,670
+automatically, using the same conversion
+that you used to take the parameter in.
+
+140
+00:09:23,670 --> 00:09:28,610
+So in this case, what this means is, is
+that whatever Boolean we return, Spring
+
+141
+00:09:28,610 --> 00:09:30,850
+is automatically going to convert it into
+a
+
+142
+00:09:30,850 --> 00:09:34,030
+JSON representation and return it to the
+client.
+
+143
+00:09:34,030 --> 00:09:36,250
+So we don't even have to worry anymore
+about taking
+
+144
+00:09:36,250 --> 00:09:39,570
+our return value and writing it back to
+the client.
+
+145
+00:09:39,570 --> 00:09:44,070
+We just returned something and tell Spring
+you have to go figure out how you
+
+146
+00:09:44,070 --> 00:09:49,480
+make whatever we return into a H2D
+response that can go back to the client.
+
+147
+00:09:49,480 --> 00:09:52,830
+And as you can imagine, if you threw an
+exception, spring is
+
+148
+00:09:52,830 --> 00:09:57,710
+automatically going to be smart and figure
+out, oh, this method threw an exception.
+
+149
+00:09:57,710 --> 00:10:00,430
+I need to return an error 500.
+
+150
+00:10:00,430 --> 00:10:03,710
+Similarly, you notice we're not returning
+the error
+
+151
+00:10:03,710 --> 00:10:07,300
+400 anymore if the client provides invalid
+data.
+
+152
+00:10:07,300 --> 00:10:12,220
+What's nice is if the client doesn't send
+valid data,
+
+153
+00:10:12,220 --> 00:10:15,890
+that can be converted into a video, Spring
+is automatically
+
+154
+00:10:15,890 --> 00:10:19,290
+going to tell the client and generate that
+error 400
+
+155
+00:10:19,290 --> 00:10:22,270
+for it, to tell it that it sent an invalid
+request.
+
+156
+00:10:22,270 --> 00:10:25,890
+Then if we go down and look at the get
+request, again we see
+
+157
+00:10:25,890 --> 00:10:30,760
+a request mapping, again to the video
+service path, which is /video, and this
+
+158
+00:10:30,760 --> 00:10:34,910
+is the equivalent of the do get method
+that we saw before except that we are
+
+159
+00:10:34,910 --> 00:10:41,960
+scoping this request mapping specifically
+to the get method of HTTP requests.
+
+160
+00:10:41,960 --> 00:10:46,980
+But, the method itself is not polluted
+with any change in our logic.
+
+161
+00:10:46,980 --> 00:10:51,070
+We're just adding metadata that Spring can
+find.
+
+162
+00:10:51,070 --> 00:10:55,070
+And in this case we have a simple method
+that takes no argument, so
+
+163
+00:10:55,070 --> 00:10:58,700
+we're not even going to look at the data
+that's in the request that we're getting.
+
+164
+00:10:58,700 --> 00:11:01,765
+And instead, all we're going to do is
+return a list of videos.
+
+165
+00:11:01,765 --> 00:11:06,770
+And here again, we're using the
+@responsebody to tell
+
+166
+00:11:06,770 --> 00:11:13,060
+Spring go and take whatever list of videos
+I returned to you
+
+167
+00:11:13,060 --> 00:11:17,940
+and automatically convert it back into a
+JSON list of
+
+168
+00:11:17,940 --> 00:11:23,490
+objects, that can be returned to the
+client, in the HTTP response body.
+
+169
+00:11:23,490 --> 00:11:26,700
+So Spring is doing the heavy lifting here
+of setting
+
+170
+00:11:26,700 --> 00:11:30,870
+the appropriate content type for the
+response, converting your list
+
+171
+00:11:30,870 --> 00:11:35,710
+of objects into JSON, encoding those,
+those, that JSON into
+
+172
+00:11:35,710 --> 00:11:39,140
+the HTTP response, and then sending it
+back to the client.
+
+173
+00:11:39,140 --> 00:11:42,770
+But, in your code right here, you're not
+seeing any of that.
+
+174
+00:11:42,770 --> 00:11:44,440
+You don't have to go and pollute your
+code.
+
+175
+00:11:44,440 --> 00:11:49,622
+You're just working with standard Java
+objects that look much more natural than
+
+176
+00:11:49,622 --> 00:11:54,582
+they did when you were trying to write all
+of this special logic for HTTP.
+
+177
+00:11:54,582 --> 00:12:00,869
+So, we've decoupled how we access these
+methods, and how we
+
+178
+00:12:00,869 --> 00:12:07,962
+encode, and, and decode requests and
+responses into just simple logic.
+
+179
+00:12:07,962 --> 00:12:10,282
+We're just adding some metadata to our
+class,
+
+180
+00:12:10,282 --> 00:12:13,270
+and suddenly spring does all the work for
+us.
+
+181
+00:12:13,270 --> 00:12:15,540
+If we go and look at our video object and
+see
+
+182
+00:12:15,540 --> 00:12:20,050
+that we still get the member variables, we
+still have a constructor.
+
+183
+00:12:20,050 --> 00:12:22,150
+The only thing that we've done new is
+
+184
+00:12:22,150 --> 00:12:27,220
+we've added a default constructor that
+takes no parameters.
+
+185
+00:12:27,220 --> 00:12:32,330
+And this is just to help the underlying
+Spring framework infrastructure, be
+
+186
+00:12:32,330 --> 00:12:37,270
+able to instantiate our objects and then
+set all of these values programmatically.
+
+187
+00:12:37,270 --> 00:12:42,360
+Now it's possible to also have a, not have
+the default constructor but it
+
+188
+00:12:42,360 --> 00:12:46,070
+just takes a little bit more annotation
+that I decided to skip for this example.
+
+189
+00:12:47,310 --> 00:12:53,090
+Now the final thing that we need to note
+is we don't have a web.xml file anymore.
+
+190
+00:12:53,090 --> 00:12:56,190
+We've removed that extra piece of
+infrastructure that
+
+191
+00:12:56,190 --> 00:12:57,830
+we had to have and understand how to
+
+192
+00:12:57,830 --> 00:13:01,750
+build to tell the Servlet container about
+our
+
+193
+00:13:01,750 --> 00:13:04,110
+Servlets and how to map requests into
+them.
+
+194
+00:13:04,110 --> 00:13:07,360
+So how does Spring figure out where our
+
+195
+00:13:07,360 --> 00:13:10,240
+controllers are and how they should be put
+together?
+
+196
+00:13:10,240 --> 00:13:13,830
+Well that's what this application class is
+that we're going to look at.
+
+197
+00:13:13,830 --> 00:13:19,970
+So, the application class is now our entry
+point into our application.
+
+198
+00:13:19,970 --> 00:13:23,900
+We simply have a public static void main
+method just like we would
+
+199
+00:13:23,900 --> 00:13:28,100
+with other applications that we wanted to
+be able to have, the executable.
+
+200
+00:13:28,100 --> 00:13:32,030
+And then we ask Spring to go and run our
+application.
+
+201
+00:13:32,030 --> 00:13:35,480
+Now, what this is going to do is Spring is
+going to
+
+202
+00:13:35,480 --> 00:13:37,070
+look at our application in the
+
+203
+00:13:37,070 --> 00:13:40,020
+configuration that we're expressing in it
+at.
+
+204
+00:13:40,020 --> 00:13:43,100
+And then automatically, in this case,
+create
+
+205
+00:13:43,100 --> 00:13:45,830
+a web container, put a Dispatcher Servlet
+
+206
+00:13:45,830 --> 00:13:49,100
+in that web container, and then
+auto-discover
+
+207
+00:13:49,100 --> 00:13:52,320
+all of our controllers in our application.
+
+208
+00:13:52,320 --> 00:13:57,530
+So what this, this application class
+primarily serves to do at this point is
+
+209
+00:13:57,530 --> 00:14:00,400
+to provide these annotations to Spring,
+telling
+
+210
+00:14:00,400 --> 00:14:04,130
+it information about how to construct our
+application.
+
+211
+00:14:04,130 --> 00:14:07,750
+So the first annotation that we see up
+here is @configuration.
+
+212
+00:14:07,750 --> 00:14:12,860
+And all of this is, is an annotation
+that's provided to Spring, to
+
+213
+00:14:12,860 --> 00:14:18,970
+tell it when you are expressing
+configuration information in a class.
+
+214
+00:14:18,970 --> 00:14:20,980
+So Spring will look at this class and
+
+215
+00:14:20,980 --> 00:14:22,959
+know that it should interpret it as a
+configuration.
+
+216
+00:14:24,030 --> 00:14:28,450
+The next thing we're doing is we're saying
+@EnableWebMvc.
+
+217
+00:14:28,450 --> 00:14:32,860
+And what this does is it tells Spring to
+set
+
+218
+00:14:32,860 --> 00:14:36,720
+up a web container with a Dispatcher
+Servlet inside of it.
+
+219
+00:14:36,720 --> 00:14:40,770
+And that, that Dispatcher Servlet should
+be configured
+
+220
+00:14:40,770 --> 00:14:43,880
+to be able to route requests to
+controllers.
+
+221
+00:14:43,880 --> 00:14:47,620
+So this one annotation is doing a huge
+amount of work.
+
+222
+00:14:47,620 --> 00:14:50,100
+It's going and setting up a Dispatcher
+
+223
+00:14:50,100 --> 00:14:52,040
+Servlet, making sure that the web
+container
+
+224
+00:14:52,040 --> 00:14:57,350
+knows about it, and that the web container
+will route requests to that Servlet.
+
+225
+00:14:57,350 --> 00:15:02,550
+So, this is almost taking the place, this
+one line, of our entire web.xml file.
+
+226
+00:15:03,900 --> 00:15:08,180
+The next line is telling Spring that we
+want you
+
+227
+00:15:08,180 --> 00:15:12,280
+to go and look in this Java package for
+all
+
+228
+00:15:12,280 --> 00:15:14,540
+of the objects in there that are important
+to Spring
+
+229
+00:15:14,540 --> 00:15:18,110
+or annotated with Spring information that
+it needs to know.
+
+230
+00:15:18,110 --> 00:15:23,210
+So in this case, the @component scan is
+telling spring
+
+231
+00:15:23,210 --> 00:15:27,650
+to go and automatically look at this
+package down here.
+
+232
+00:15:27,650 --> 00:15:29,450
+And I'm going to close this up to make
+this a little
+
+233
+00:15:29,450 --> 00:15:33,800
+easier to see this controller package
+which is specified right here.
+
+234
+00:15:33,800 --> 00:15:37,670
+And discover any controllers that are in
+here.
+
+235
+00:15:37,670 --> 00:15:40,680
+So this one line tells Spring, no matter
+
+236
+00:15:40,680 --> 00:15:43,350
+how many controllers you have in this
+package, go
+
+237
+00:15:43,350 --> 00:15:46,030
+and look through all the classes and
+discover
+
+238
+00:15:46,030 --> 00:15:48,800
+any class that has controller and set it
+up.
+
+239
+00:15:49,950 --> 00:15:53,950
+And then the final one is
+@enableautoconfiguration.
+
+240
+00:15:53,950 --> 00:15:58,492
+And that tells Spring that if I have asked
+for any type of,
+
+241
+00:15:58,492 --> 00:16:04,080
+of objects that I need for dependencies,
+to automatically go and configure them.
+
+242
+00:16:04,080 --> 00:16:07,170
+And we'll talk more about dependency
+injection later.
+
+243
+00:16:07,170 --> 00:16:11,590
+But these four annotations on this
+configuration class
+
+244
+00:16:11,590 --> 00:16:14,980
+go and set up an entire web container.
+
+245
+00:16:14,980 --> 00:16:21,330
+They create the Dispatcher Servlet that we
+need to route requests to our controllers.
+
+246
+00:16:21,330 --> 00:16:25,160
+They automatically scan the appropriate
+packages
+
+247
+00:16:25,160 --> 00:16:28,310
+that we want to discover our controllers.
+
+248
+00:16:28,310 --> 00:16:30,630
+And then they automatically configure our
+controller
+
+249
+00:16:30,630 --> 00:16:33,360
+with any dependencies we want them to
+have.
+
+250
+00:16:33,360 --> 00:16:35,910
+So, if you look at this application and
+
+251
+00:16:35,910 --> 00:16:39,400
+the source code for this, it's actually
+remarkably simple.
+
+252
+00:16:39,400 --> 00:16:41,580
+It looks like a bigger application than it
+is just because
+
+253
+00:16:41,580 --> 00:16:46,230
+there's so many comments in here
+describing what the different lines do.
+
+254
+00:16:46,230 --> 00:16:49,330
+But the actual logic is remarkably simple.
+
+255
+00:16:49,330 --> 00:16:52,690
+This configuration is a simple class
+called
+
+256
+00:16:52,690 --> 00:16:55,560
+application that has four annotations with
+it.
+
+257
+00:16:55,560 --> 00:17:00,400
+And a main method that delegates to a run
+method in Spring application.
+
+258
+00:17:00,400 --> 00:17:01,700
+It's incredibly simple.
+
+259
+00:17:02,720 --> 00:17:07,420
+The video service class now is really just
+a list with two
+
+260
+00:17:07,420 --> 00:17:12,090
+methods that either add an object to the
+list or return the list.
+
+261
+00:17:12,090 --> 00:17:12,510
+That's it.
+
+262
+00:17:12,510 --> 00:17:16,360
+And then our video class is just simple
+Java object
+
+263
+00:17:16,360 --> 00:17:21,260
+that can be constructed and given some
+information about a video.
+
+264
+00:17:21,260 --> 00:17:24,170
+So, what you can see, is that we've,
+
+265
+00:17:24,170 --> 00:17:28,830
+in, vastly simplified the logic for this
+video service
+
+266
+00:17:28,830 --> 00:17:32,600
+by building on top of Spring and then it's
+starting to do a lot of the hard work
+
+267
+00:17:32,600 --> 00:17:36,100
+and boilerplate code with respect to how
+we
+
+268
+00:17:36,100 --> 00:17:40,000
+take HTTP requests, turn them into objects
+and invoke
+
+269
+00:17:40,000 --> 00:17:43,770
+methods that we care about, return objects
+from those
+
+270
+00:17:43,770 --> 00:17:47,580
+methods and then convert them back into
+HTTP responses.
+
+271
+00:17:47,580 --> 00:17:52,430
+So if we think back to that original
+vision, where we want to allow our clients
+
+272
+00:17:52,430 --> 00:17:58,930
+to essentially send commands to our
+objects that
+
+273
+00:17:58,930 --> 00:18:01,640
+are sitting on the server through the
+network.
+
+274
+00:18:01,640 --> 00:18:04,300
+So this is sent via HTTP.
+
+275
+00:18:05,820 --> 00:18:09,530
+Suddenly we've got all of this covered for
+except that so
+
+276
+00:18:09,530 --> 00:18:15,550
+we can solely focus on writing logic that
+can receive commands.
+
+277
+00:18:15,550 --> 00:18:20,560
+And we can, as we'll see in a minute, do
+the same thing on the client side, so that
+
+278
+00:18:20,560 --> 00:18:26,160
+all of this work to take HTTP, transport
+the commands
+
+279
+00:18:26,160 --> 00:18:30,880
+and get the responses back, we can hide a
+lot of the complexities of the
+
+280
+00:18:30,880 --> 00:18:35,910
+underlying HTTP, protocol by using a
+framework like Spring.
+

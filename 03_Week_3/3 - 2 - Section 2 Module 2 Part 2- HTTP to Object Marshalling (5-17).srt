@@ -1,0 +1,331 @@
+1
+00:00:00,052 --> 00:00:09,190
+[MUSIC]
+
+2
+00:00:09,190 --> 00:00:13,185
+When HTTP requests come into a server they
+typically
+
+3
+00:00:13,185 --> 00:00:17,099
+have some data that the client wants to
+send along.
+
+4
+00:00:17,099 --> 00:00:24,200
+So we'll have, key value pairs that are
+sent along with the request.
+
+5
+00:00:24,200 --> 00:00:26,050
+So these will be things like, the
+
+6
+00:00:26,050 --> 00:00:31,250
+username for a login, and the password
+particularly.
+
+7
+00:00:31,250 --> 00:00:34,700
+Or maybe we're not sending a password
+along, we're sending something else.
+
+8
+00:00:34,700 --> 00:00:39,460
+But, we have a series of key value pairs
+or
+
+9
+00:00:39,460 --> 00:00:42,419
+pieces of data that are encoded in an HTTP
+request.
+
+10
+00:00:45,570 --> 00:00:50,347
+And when we receive those pieces of
+
+11
+00:00:50,347 --> 00:00:55,618
+data on the server side, so when those
+
+12
+00:00:55,618 --> 00:01:01,055
+enter into the server and were received
+
+13
+00:01:01,055 --> 00:01:06,324
+at a servlet, we have to convert those
+
+14
+00:01:06,324 --> 00:01:10,771
+key value pairs, to the objects
+
+15
+00:01:10,771 --> 00:01:15,250
+that we use in the application.
+
+16
+00:01:15,250 --> 00:01:19,520
+So, for example, when you have a servlet
+and it looks
+
+17
+00:01:19,520 --> 00:01:23,480
+at the request, and it's extracting the
+user name and password.
+
+18
+00:01:23,480 --> 00:01:26,750
+And converting those into some
+representation of the user.
+
+19
+00:01:26,750 --> 00:01:28,296
+Maybe, you have a user object.
+
+20
+00:01:28,296 --> 00:01:36,800
+This process of looking at the data that's
+coming in, and extracting information
+
+21
+00:01:36,800 --> 00:01:41,510
+from it and turning it into objects, is
+going to be called data marshalling.
+
+22
+00:01:42,770 --> 00:01:50,520
+So, this is how do we look at the data in
+the incoming request and convert
+
+23
+00:01:50,520 --> 00:01:54,020
+it into objects or data structures, that
+the
+
+24
+00:01:54,020 --> 00:01:57,630
+servlet is actually going to use operate
+on.
+
+25
+00:01:57,630 --> 00:01:59,130
+This is what data marshalling is.
+
+26
+00:01:59,130 --> 00:02:04,870
+And this is a really important concept,
+when you're building cloud-based services.
+
+27
+00:02:04,870 --> 00:02:09,920
+Is figuring out how do you efficiently,
+extract data from requests?
+
+28
+00:02:09,920 --> 00:02:16,120
+How do you specify the format that, that
+data should be placed into the request?
+
+29
+00:02:16,120 --> 00:02:20,140
+And then also if we're sending information
+back tot he
+
+30
+00:02:20,140 --> 00:02:24,650
+clients, how dow we do data marshalling in
+the opposite direction.
+
+31
+00:02:24,650 --> 00:02:30,470
+So, how do we convert our object back to
+key value pairs?
+
+32
+00:02:31,470 --> 00:02:37,430
+That can go into some HTTP response, or
+maybe we convert that
+
+33
+00:02:37,430 --> 00:02:44,550
+into some other format like JSON, or XML.
+
+34
+00:02:44,550 --> 00:02:46,510
+There's a whole bunch of different
+formats,
+
+35
+00:02:46,510 --> 00:02:48,430
+that we could use that we may want
+
+36
+00:02:48,430 --> 00:02:55,970
+to convert this data to, before sending it
+back to the client that requested it.
+
+37
+00:02:55,970 --> 00:03:01,490
+So, this process of taking data in, in one
+format, converting
+
+38
+00:03:01,490 --> 00:03:04,160
+it to objects or data structure that we
+can operate on.
+
+39
+00:03:05,240 --> 00:03:08,830
+Doing computations in order to service
+your requests, and then
+
+40
+00:03:08,830 --> 00:03:11,900
+converting them back to some format that
+we're going to send
+
+41
+00:03:11,900 --> 00:03:15,300
+back to the client be it, JSON or XML or
+
+42
+00:03:15,300 --> 00:03:18,680
+whatever it is, this whole process is
+called data marshaling.
+
+43
+00:03:18,680 --> 00:03:23,420
+And it's a very, very important concept in
+cloud services.
+
+44
+00:03:23,420 --> 00:03:25,580
+Another very important concept.
+
+45
+00:03:25,580 --> 00:03:32,191
+And this, is a process that's called
+object mapping.
+
+46
+00:03:32,191 --> 00:03:37,340
+And you'll see this quite a bit in Java in
+particular, is
+
+47
+00:03:37,340 --> 00:03:42,950
+that you have frameworks that can automate
+this process of converting.
+
+48
+00:03:42,950 --> 00:03:45,408
+So, object mapping in frameworks.
+
+49
+00:03:45,408 --> 00:03:52,233
+Automate the conversion
+
+50
+00:03:52,233 --> 00:03:57,108
+of data to objects
+
+51
+00:03:57,108 --> 00:04:02,310
+and vice-versa.
+
+52
+00:04:02,310 --> 00:04:07,405
+[BLANK_AUDIO]
+
+53
+00:04:07,405 --> 00:04:11,319
+So this is what object mapping is, is,
+we've taken some data,
+
+54
+00:04:11,319 --> 00:04:13,566
+and then we automatically convert it
+
+55
+00:04:13,566 --> 00:04:16,620
+to objects, using some object mapping
+library.
+
+56
+00:04:16,620 --> 00:04:20,270
+And there's a variety of object mapping
+libraries that are available.
+
+57
+00:04:20,270 --> 00:04:26,720
+Things like X Stream, if you're working
+with XML and Java, or things like Jackson
+
+58
+00:04:26,720 --> 00:04:31,720
+if you're working with JSON and Java.
+
+59
+00:04:31,720 --> 00:04:35,580
+And so these libraries help you, so that
+you don't have to write
+
+60
+00:04:35,580 --> 00:04:40,830
+the tedious and error-prone code of
+extracting all of these QV value pairs.
+
+61
+00:04:40,830 --> 00:04:44,040
+From the request figuring out which
+objects they represent in that
+
+62
+00:04:44,040 --> 00:04:48,780
+request, and then constructing those
+objects and calling getters and setters
+
+63
+00:04:48,780 --> 00:04:52,450
+to create the various values in that
+object that you want
+
+64
+00:04:52,450 --> 00:04:55,670
+for the member variables, and then doing
+something with those objects.
+
+65
+00:04:55,670 --> 00:04:57,860
+And then when you're done, taking each
+
+66
+00:04:57,860 --> 00:05:00,090
+getter and setter and extracting the value
+you
+
+67
+00:05:00,090 --> 00:05:04,090
+need, and converting it back to the format
+that you want to send To the client.
+
+68
+00:05:05,130 --> 00:05:07,520
+So, object mapping is a really important
+
+69
+00:05:07,520 --> 00:05:10,120
+process, and a really important tool if
+you
+
+70
+00:05:10,120 --> 00:05:12,640
+have an object mapping library, to help
+
+71
+00:05:12,640 --> 00:05:16,810
+you do data marshalling, and cloud based
+services.
+

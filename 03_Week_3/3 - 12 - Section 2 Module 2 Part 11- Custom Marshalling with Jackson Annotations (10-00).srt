@@ -1,0 +1,638 @@
+1
+00:00:00,334 --> 00:00:08,342
+[MUSIC]
+
+2
+00:00:08,342 --> 00:00:10,942
+It can be helpful to understand how
+
+3
+00:00:10,942 --> 00:00:14,886
+Spring actually converts our objects that
+we return
+
+4
+00:00:14,886 --> 00:00:17,843
+from controller methods or that we pass
+
+5
+00:00:17,843 --> 00:00:22,650
+into controller methods, back and forth
+from JSON.
+
+6
+00:00:22,650 --> 00:00:26,440
+So let's say that we have a controller
+method like,
+
+7
+00:00:29,020 --> 00:00:35,896
+let's call this Video createvideo
+
+8
+00:00:35,896 --> 00:00:39,870
+and we will pass in a video.
+
+9
+00:00:41,120 --> 00:00:46,090
+And I'm going to leave off the annotations
+and other things.
+
+10
+00:00:46,090 --> 00:00:49,190
+And we assume that there's a method body
+here that does something.
+
+11
+00:00:49,190 --> 00:00:53,570
+So, the idea is we want the client to be
+able to, through some request path.
+
+12
+00:00:53,570 --> 00:00:56,170
+And you would assume there was some
+request mapping here.
+
+13
+00:00:56,170 --> 00:00:59,030
+There's at response body in this video.
+
+14
+00:00:59,030 --> 00:01:02,030
+There is at request parameters or at
+request
+
+15
+00:01:02,030 --> 00:01:05,730
+body or whatever it is, on this, video
+parameter.
+
+16
+00:01:05,730 --> 00:01:09,040
+So we're basically, we've already created
+all of the infrastructure.
+
+17
+00:01:09,040 --> 00:01:12,960
+To make this method accessible, [UNKNOWN].
+
+18
+00:01:12,960 --> 00:01:17,370
+Now, one of the questions is how do we
+take in a video from
+
+19
+00:01:17,370 --> 00:01:22,170
+JSON, and then how do we return a video
+and convert it back to JSON.
+
+20
+00:01:22,170 --> 00:01:28,050
+So this is going to JSON and Spring
+probably, and this is going from JSON.
+
+21
+00:01:30,140 --> 00:01:34,630
+So, what is the default mechanism or
+approach
+
+22
+00:01:34,630 --> 00:01:38,250
+that Spring uses to convert to and from
+JSON?
+
+23
+00:01:39,340 --> 00:01:46,410
+By default, to do this, Spring uses a open
+source project called Jackson
+
+24
+00:01:48,730 --> 00:01:53,430
+and these, conversions are part of an, a
+
+25
+00:01:53,430 --> 00:01:57,640
+thing that Jackson supports called the
+object mapper.
+
+26
+00:02:00,280 --> 00:02:04,240
+And the naming is a sort of a give away of
+what this thing does.
+
+27
+00:02:04,240 --> 00:02:08,920
+It maps objects to JSON and it maps JSON
+back to objects.
+
+28
+00:02:08,920 --> 00:02:12,980
+So, with an object mapper, we can go and
+say, convert this object
+
+29
+00:02:12,980 --> 00:02:17,560
+into a JSON string or take this JSON
+string and convert back into
+
+30
+00:02:17,560 --> 00:02:23,120
+an object and we just tell Jackson what
+type of class we're expecting
+
+31
+00:02:23,120 --> 00:02:25,320
+that JSON string to be and then
+
+32
+00:02:25,320 --> 00:02:28,490
+it automatically goes and constructs an
+object.
+
+33
+00:02:28,490 --> 00:02:34,120
+So, let's look at an example of converting
+from JSON to an object with Jackson.
+
+34
+00:02:35,490 --> 00:02:38,060
+First, we need to define our video object
+or
+
+35
+00:02:38,060 --> 00:02:41,630
+our video class that we're going to be
+operating on.
+
+36
+00:02:43,450 --> 00:02:49,370
+So we'll just have a video and let's give
+our class a couple of member variables.
+
+37
+00:02:49,370 --> 00:02:50,240
+Let's have a,
+
+38
+00:02:52,480 --> 00:02:55,200
+string title
+
+39
+00:02:57,390 --> 00:02:58,640
+and maybe private
+
+40
+00:03:01,080 --> 00:03:01,820
+string.
+
+41
+00:03:01,820 --> 00:03:05,200
+And you could have whatever you wanted
+URL.
+
+42
+00:03:06,340 --> 00:03:12,109
+Now, just to be more interesting, let's
+also add a
+
+43
+00:03:14,710 --> 00:03:17,850
+length to our duration
+
+44
+00:03:20,810 --> 00:03:21,460
+to our video.
+
+45
+00:03:22,520 --> 00:03:26,170
+Now, you can imagine that we would go and
+create some getters and setters for these
+
+46
+00:03:26,170 --> 00:03:33,853
+properties so we would have public, String
+getTitle.
+
+47
+00:03:37,420 --> 00:03:44,144
+And similarly, we would have getDuration,
+we
+
+48
+00:03:44,144 --> 00:03:51,550
+would have getURL, and we would also have
+setters.
+
+49
+00:03:51,550 --> 00:03:56,082
+So, we would have
+
+50
+00:03:56,082 --> 00:04:02,140
+public void setTitle.
+
+51
+00:04:02,140 --> 00:04:05,910
+It would take the title in as a parameter.
+
+52
+00:04:05,910 --> 00:04:08,830
+So, if we had this object, we would like
+to
+
+53
+00:04:08,830 --> 00:04:13,650
+be able to map JSON into instances of this
+object.
+
+54
+00:04:13,650 --> 00:04:16,240
+So, let's say that we have JSON that looks
+something like this.
+
+55
+00:04:16,240 --> 00:04:21,403
+So, we have a JSON string that looks like,
+we're just going to create
+
+56
+00:04:21,403 --> 00:04:27,393
+this object and we're
+
+57
+00:04:27,393 --> 00:04:31,806
+going to have title
+
+58
+00:04:31,806 --> 00:04:37,443
+Coursera and then we might have duration,
+
+59
+00:04:37,443 --> 00:04:42,910
+some duration 12345 or
+
+60
+00:04:42,910 --> 00:04:44,320
+something like that.
+
+61
+00:04:44,320 --> 00:04:46,840
+And we would have maybe URL,
+
+62
+00:04:50,230 --> 00:04:50,730
+and
+
+63
+00:04:54,230 --> 00:04:55,659
+we have some URL for this thing.
+
+64
+00:04:56,720 --> 00:05:03,190
+Now, what Jackson does, is by default, you
+can tell it to go
+
+65
+00:05:03,190 --> 00:05:10,100
+and convert JSON into instances of a
+particular class.
+
+66
+00:05:10,100 --> 00:05:14,770
+So in this case, we can go and convert
+this JSON into an instance of video.
+
+67
+00:05:14,770 --> 00:05:18,951
+And the way that Jackson does this is
+first by default, it expects video to
+
+68
+00:05:18,951 --> 00:05:23,688
+have a constructor that takes no arguments
+so that it can construct a new incident.
+
+69
+00:05:23,688 --> 00:05:26,149
+So, what Jackson's going to do is it has a
+
+70
+00:05:26,149 --> 00:05:29,742
+method called read value that will
+basically take this.
+
+71
+00:05:29,742 --> 00:05:32,228
+It will call the constructor for video.
+
+72
+00:05:32,228 --> 00:05:37,501
+It will create a new video object and then
+it will call, as it walks through
+
+73
+00:05:37,501 --> 00:05:42,280
+the JSON, it will call setTitle and it
+will find setTitle method.
+
+74
+00:05:42,280 --> 00:05:45,360
+It will call setDuration and setURL.
+
+75
+00:05:46,430 --> 00:05:53,150
+And each time it finds a new property on
+the object in the JSON,
+
+76
+00:05:53,150 --> 00:06:00,500
+it will look at the appropriate type for
+that, parameter or member variable of the
+
+77
+00:06:00,500 --> 00:06:07,160
+objects based on either the return type
+from the getter or the value that's
+
+78
+00:06:07,160 --> 00:06:10,660
+being passed into the setter and the type
+of parameter being passed into the setter.
+
+79
+00:06:10,660 --> 00:06:14,420
+And it will automatically look at that and
+figure out how it needs
+
+80
+00:06:14,420 --> 00:06:19,920
+to convert from the string or number here
+into a call on the setter.
+
+81
+00:06:19,920 --> 00:06:23,030
+So, it's a lot like what our Spring
+controller is doing where
+
+82
+00:06:23,030 --> 00:06:25,550
+it's automatically, you know, constructing
+our
+
+83
+00:06:25,550 --> 00:06:28,340
+controller objects and calling methods on
+them.
+
+84
+00:06:28,340 --> 00:06:32,780
+In this case, the underlying Jackson
+framework is going and looking
+
+85
+00:06:32,780 --> 00:06:38,000
+at the different pieces of JSON and then
+automatically constructing objects that
+
+86
+00:06:38,000 --> 00:06:42,460
+we tell it to construct and then mapping
+the different properties in
+
+87
+00:06:42,460 --> 00:06:47,790
+those JSON objects to the getters and
+setters inside of our class.
+
+88
+00:06:47,790 --> 00:06:49,857
+So, this will end up calling setTitle.
+
+89
+00:06:49,857 --> 00:06:51,446
+It will call setDuration.
+
+90
+00:06:51,446 --> 00:06:52,658
+It will call setURL.
+
+91
+00:06:52,658 --> 00:06:54,970
+And it will automatically convert the
+values.
+
+92
+00:06:56,000 --> 00:06:59,320
+The other interesting thing about Jackson
+is let's say
+
+93
+00:06:59,320 --> 00:07:04,700
+that video had embedded reference to some
+other object.
+
+94
+00:07:04,700 --> 00:07:07,530
+So, lets say that there was a video type
+object.
+
+95
+00:07:08,800 --> 00:07:14,520
+Jackson, if it saw a property that was
+video type and then specified a new JSON
+
+96
+00:07:14,520 --> 00:07:19,500
+object embedded within it, it would
+automatically extract that object, look at
+
+97
+00:07:19,500 --> 00:07:22,780
+the type that was specified in video where
+it would say video type and
+
+98
+00:07:22,780 --> 00:07:27,450
+then it would construct an instance of
+video type before passing it to video.
+
+99
+00:07:27,450 --> 00:07:31,170
+So Jackson can go and take an entire
+hierarchy of
+
+100
+00:07:31,170 --> 00:07:36,930
+objects or tree of objects specified in
+JSON and convert them
+
+101
+00:07:36,930 --> 00:07:40,800
+into Java objects that we specify through
+a series of
+
+102
+00:07:40,800 --> 00:07:46,490
+classes with getters and setters and, by
+default, no argument constructors.
+
+103
+00:07:46,490 --> 00:07:48,750
+So if you ever go and see some strange
+
+104
+00:07:48,750 --> 00:07:51,240
+errors from Spring, for example, it may
+say, oh, well,
+
+105
+00:07:51,240 --> 00:07:56,040
+your, your format is incorrect, or if it
+sees that
+
+106
+00:07:56,040 --> 00:07:58,540
+there's a property here that's not in the
+class, Jackson
+
+107
+00:07:58,540 --> 00:08:01,170
+will throw an exception saying some
+property that it
+
+108
+00:08:01,170 --> 00:08:05,150
+was expecting wasn't on the class, or vice
+versa you
+
+109
+00:08:05,150 --> 00:08:07,540
+can have properties that are required in
+the class that
+
+110
+00:08:07,540 --> 00:08:10,520
+if they're not present in JSON it will
+throw exceptions.
+
+111
+00:08:10,520 --> 00:08:15,560
+But, Jackson takes this process of going
+from this to instances of
+
+112
+00:08:15,560 --> 00:08:21,360
+that, and automates it, so that you don't
+have to write all of the code to do that.
+
+113
+00:08:21,360 --> 00:08:26,420
+And Jackson is what's sitting underneath
+the covers in Spring, providing this
+
+114
+00:08:26,420 --> 00:08:32,310
+ability to automatically take your
+response body from a controller method and
+
+115
+00:08:32,310 --> 00:08:37,020
+return it back into JSON or take JSON as
+being sent as
+
+116
+00:08:37,020 --> 00:08:40,300
+a parameter to a controller method and
+convert it into an object.
+
+117
+00:08:41,330 --> 00:08:48,600
+One of the other things is, you can go and
+control how Jackson converts your objects
+
+118
+00:08:48,600 --> 00:08:50,950
+to JSON and can goes from JSON back
+
+119
+00:08:50,950 --> 00:08:54,250
+to your objects through a series of
+annotations.
+
+120
+00:08:54,250 --> 00:09:01,620
+So, you can do things like @JSONIgnore
+
+121
+00:09:01,620 --> 00:09:06,270
+to tell Jackson properties of your objects
+that you don't want converted
+
+122
+00:09:06,270 --> 00:09:10,080
+into JSON and brought from JSON back into
+your object
+
+123
+00:09:10,080 --> 00:09:13,380
+to help it know things that you don't,
+care about.
+
+124
+00:09:13,380 --> 00:09:16,090
+There's also the ability to go and specify
+
+125
+00:09:16,090 --> 00:09:19,080
+certain properties that you would like to
+name differently.
+
+126
+00:09:19,080 --> 00:09:21,840
+So the default naming scheme is, it's
+going to take a
+
+127
+00:09:21,840 --> 00:09:27,380
+property, it's going to title case the
+first letter of the property.
+
+128
+00:09:27,380 --> 00:09:32,600
+So, it will go get plus it's going to take
+the first lev, letter and upper case it.
+
+129
+00:09:32,600 --> 00:09:34,726
+So, that gets converted into getTitle.
+
+130
+00:09:34,726 --> 00:09:40,880
+If you had Foo here, that would get
+converted into getFoo.
+
+131
+00:09:40,880 --> 00:09:45,370
+And similarly, if you have a setTitle or a
+get, if you
+
+132
+00:09:45,370 --> 00:09:47,290
+have a getDuration method that's
+automatically
+
+133
+00:09:47,290 --> 00:09:50,580
+going to become the JSON properly
+duration.
+
+134
+00:09:50,580 --> 00:09:55,860
+So, you can also use annotations within
+Jackson to control the naming of the
+
+135
+00:09:55,860 --> 00:09:59,800
+JSON that gets produced or the JSON that
+gets consumed and mapped to your objects.
+

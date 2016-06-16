@@ -1,0 +1,630 @@
+1
+00:00:00,111 --> 00:00:08,772
+[MUSIC].
+
+2
+00:00:08,772 --> 00:00:12,260
+An important Java feature that we're
+going to use
+
+3
+00:00:12,260 --> 00:00:15,930
+over and over in this course is Java
+annotations.
+
+4
+00:00:15,930 --> 00:00:21,390
+So it's really critical that if you don't
+understand Java a, annotations.
+
+5
+00:00:21,390 --> 00:00:26,510
+That you watch this video very carefully
+and pay attention to how they work.
+
+6
+00:00:26,510 --> 00:00:29,190
+Throughout the infrastructure in Java that
+we're going to be
+
+7
+00:00:29,190 --> 00:00:33,490
+using, we're going to see Java annotations
+spread across that infrastructure.
+
+8
+00:00:33,490 --> 00:00:36,710
+And if you don't understand what
+annotations are
+
+9
+00:00:36,710 --> 00:00:38,700
+or how they work, it's going to be very
+
+10
+00:00:38,700 --> 00:00:41,045
+difficult to understand the code examples
+that we're
+
+11
+00:00:41,045 --> 00:00:45,010
+going to be using later on in the course.
+
+12
+00:00:45,010 --> 00:00:48,550
+If you understand Java annotations you're
+free to skip this video.
+
+13
+00:00:48,550 --> 00:00:50,800
+I'm sure that you'll be just fine.
+
+14
+00:00:50,800 --> 00:00:53,070
+If you don't feel completely comfortable
+with them.
+
+15
+00:00:53,070 --> 00:00:55,120
+I think it'd be helpful if you stopped and
+
+16
+00:00:55,120 --> 00:00:57,650
+took some time to watch the entirety of
+this video.
+
+17
+00:00:57,650 --> 00:00:59,469
+So, let's dive into Java annotations.
+
+18
+00:01:01,195 --> 00:01:05,720
+Let's imagine that we're building an
+application and
+
+19
+00:01:05,720 --> 00:01:09,540
+it has a method to store a video.
+
+20
+00:01:09,540 --> 00:01:14,907
+So, we have public, void, store.
+
+21
+00:01:14,907 --> 00:01:18,249
+And we're going to take some information
+about that video.
+
+22
+00:01:20,570 --> 00:01:23,680
+Now, we might do something in here.
+
+23
+00:01:23,680 --> 00:01:28,740
+And let's imagine that, storing a video is
+a protected operation.
+
+24
+00:01:28,740 --> 00:01:31,670
+We don't want anybody to be able to store
+a video.
+
+25
+00:01:31,670 --> 00:01:35,450
+We only want people who are authorized, to
+store video, to be able to do it.
+
+26
+00:01:36,480 --> 00:01:40,130
+So, you would imagine, we'd like to be
+able to express.
+
+27
+00:01:40,130 --> 00:01:46,330
+To other developers, or the framework
+that's running and encapsulating the store
+
+28
+00:01:46,330 --> 00:01:53,340
+method in it's encapsulated object, that
+this is some type of secured method.
+
+29
+00:01:53,340 --> 00:01:55,860
+We'd like a way of expressing that, but
+Java
+
+30
+00:01:55,860 --> 00:01:58,910
+itself doesn't really give us a way to do
+that.
+
+31
+00:01:58,910 --> 00:02:02,750
+We could try to name this something like
+store secured.
+
+32
+00:02:02,750 --> 00:02:06,150
+So that others that came and looked at the
+method
+
+33
+00:02:06,150 --> 00:02:09,390
+would know that this is some type of
+secured method.
+
+34
+00:02:10,560 --> 00:02:13,810
+But then that sort of relies on the naming
+scheme.
+
+35
+00:02:13,810 --> 00:02:17,930
+And if there's some other entity that this
+is incorporated into, it has to
+
+36
+00:02:17,930 --> 00:02:22,250
+do really some complex work with Java
+reflection to get access to that name and.
+
+37
+00:02:22,250 --> 00:02:23,970
+Try to decide if it fits the naming
+
+38
+00:02:23,970 --> 00:02:26,160
+scheme and if we can have different naming
+schemes.
+
+39
+00:02:26,160 --> 00:02:30,370
+And how do we tell at compile time for
+example
+
+40
+00:02:30,370 --> 00:02:33,780
+if they make a mistake or typo in their
+naming scheme.
+
+41
+00:02:35,370 --> 00:02:39,310
+So, we need some way of annotating this
+code with
+
+42
+00:02:39,310 --> 00:02:43,750
+some meaningful expression that we know
+about that means that it's.
+
+43
+00:02:43,750 --> 00:02:45,330
+Secure.
+
+44
+00:02:45,330 --> 00:02:48,250
+So what annotations are are these, these
+
+45
+00:02:48,250 --> 00:02:52,980
+little @, annotations that you see
+throughout code.
+
+46
+00:02:52,980 --> 00:03:00,320
+And basically it's an @ sign with a
+identifier.
+
+47
+00:03:00,320 --> 00:03:03,710
+So this is a simple annotation here.
+
+48
+00:03:03,710 --> 00:03:05,800
+That's been created.
+
+49
+00:03:05,800 --> 00:03:07,510
+That's saying @secured.
+
+50
+00:03:07,510 --> 00:03:11,430
+It's an, it's an additional piece of
+meta-information about this method.
+
+51
+00:03:12,570 --> 00:03:16,330
+And it's simply declare with the @ sign
+followed by some identifier.
+
+52
+00:03:17,390 --> 00:03:23,450
+There's two interesting things that we can
+talk about with this security annotation.
+
+53
+00:03:23,450 --> 00:03:27,740
+One of them, is that secured, actually,
+when it gets created.
+
+54
+00:03:27,740 --> 00:03:29,900
+Somebody has to define secure.
+
+55
+00:03:31,000 --> 00:03:32,770
+And the way that that happens is, they
+define
+
+56
+00:03:32,770 --> 00:03:37,950
+an interface called secured, that has a
+special format.
+
+57
+00:03:37,950 --> 00:03:44,260
+And that format, signals to Java that that
+is a annotation that can be applied.
+
+58
+00:03:44,260 --> 00:03:47,750
+To some Java element, be it a class or
+
+59
+00:03:47,750 --> 00:03:52,142
+a method or other parts like actual member
+variables.
+
+60
+00:03:52,142 --> 00:03:58,260
+So, we have @secured here, and somewhere
+else someone has defined
+
+61
+00:03:58,260 --> 00:04:02,049
+a Java file that's called @secure and has
+an interface in it.
+
+62
+00:04:03,058 --> 00:04:06,780
+And what @secured does, because it's
+defined in
+
+63
+00:04:06,780 --> 00:04:08,020
+a Java file, it means that if we
+
+64
+00:04:08,020 --> 00:04:11,865
+make a typo here, Java won't recognize the
+
+65
+00:04:11,865 --> 00:04:15,050
+@secured and it will give us a compile
+error.
+
+66
+00:04:15,050 --> 00:04:18,780
+So we can create naming schemes for our
+meta information.
+
+67
+00:04:18,780 --> 00:04:27,220
+And attach them to various Java elements
+with these @ annotations @secured and java
+
+68
+00:04:27,220 --> 00:04:29,850
+will check that it can actually find
+
+69
+00:04:29,850 --> 00:04:33,390
+a declared annotation that matches the
+naming.
+
+70
+00:04:33,390 --> 00:04:38,540
+And again we can import the interfaces
+that define these
+
+71
+00:04:38,540 --> 00:04:41,350
+annotations, just like we can import any
+other Java interface.
+
+72
+00:04:41,350 --> 00:04:45,800
+So, somewhere earlier in this class, we
+could have an import statement that
+
+73
+00:04:45,800 --> 00:04:51,840
+defines where exactly you can find that
+particular interface defining and secure.
+
+74
+00:04:52,990 --> 00:04:55,960
+Then, once we've imported it, and we have
+it in our naming space,
+
+75
+00:04:55,960 --> 00:04:59,350
+if we make a typo in it, Java will catch
+it at compile time.
+
+76
+00:04:59,350 --> 00:05:01,240
+So suddenly we have a naming scheme that
+
+77
+00:05:01,240 --> 00:05:05,110
+can actually be enforced and analyzed by
+our compiler.
+
+78
+00:05:06,290 --> 00:05:11,850
+The other interesting thing is we may not
+want our meta information, our
+
+79
+00:05:11,850 --> 00:05:17,780
+names that we are applying to methods like
+secured to be applied in the wrong place.
+
+80
+00:05:17,780 --> 00:05:19,940
+For example, @secured may not make sense.
+
+81
+00:05:19,940 --> 00:05:23,460
+This to apply to a member variable.
+
+82
+00:05:23,460 --> 00:05:25,820
+It only makes sense to methods.
+
+83
+00:05:25,820 --> 00:05:27,930
+And so what Java allows us to do is
+
+84
+00:05:27,930 --> 00:05:31,490
+in the definition of the interface for
+@secured, we
+
+85
+00:05:31,490 --> 00:05:37,360
+can specify the type of Java member or
+element
+
+86
+00:05:37,360 --> 00:05:39,280
+of the source code we want to apply it to.
+
+87
+00:05:39,280 --> 00:05:42,680
+So we can say @secured only applies to
+methods.
+
+88
+00:05:42,680 --> 00:05:45,700
+And so, if somebody tries to add @secured
+above a
+
+89
+00:05:45,700 --> 00:05:49,070
+member variable, Java will flag it as a
+compile error.
+
+90
+00:05:49,070 --> 00:05:52,260
+So it can both check the naming as well
+
+91
+00:05:52,260 --> 00:05:55,690
+as the location that somebody puts one of
+these annotations.
+
+92
+00:05:55,690 --> 00:06:00,390
+So it's giving us a type checking over
+this meta information we're defining.
+
+93
+00:06:00,390 --> 00:06:03,940
+We can say, here is a name that's special
+to us.
+
+94
+00:06:03,940 --> 00:06:07,150
+Here's where we expect it to show up only
+on methods.
+
+95
+00:06:07,150 --> 00:06:10,200
+Now compiler, go and enforce that naming.
+
+96
+00:06:11,200 --> 00:06:15,730
+So we end up with the ability to annotate
+our code and have the compiler enforce it.
+
+97
+00:06:16,750 --> 00:06:20,640
+The other thing that we can do, is we can
+add
+
+98
+00:06:20,640 --> 00:06:26,120
+parameters that are essentially passed
+into the annotation you can think of.
+
+99
+00:06:26,120 --> 00:06:29,450
+But really what that means is that they're
+like attributes of the annotation.
+
+100
+00:06:29,450 --> 00:06:37,930
+So for example we could have an annotation
+that looked like role=user.
+
+101
+00:06:37,930 --> 00:06:38,430
+And
+
+102
+00:06:41,590 --> 00:06:46,320
+in this case role in our interface would
+
+103
+00:06:46,320 --> 00:06:50,510
+be some method, that we define, called get
+roles.
+
+104
+00:06:50,510 --> 00:06:54,650
+So, if we define a get role method in our
+sorry.
+
+105
+00:06:54,650 --> 00:06:57,945
+If we define a roll method, in our
+annotations interface.
+
+106
+00:06:58,990 --> 00:07:03,120
+So, the method, the annotation would look
+something like this, for this.
+
+107
+00:07:03,120 --> 00:07:03,980
+It would look like.
+
+108
+00:07:06,860 --> 00:07:12,012
+We have an @ sign interface, secured.
+
+109
+00:07:12,012 --> 00:07:17,703
+We've defined our secured interface, and
+
+110
+00:07:17,703 --> 00:07:24,240
+this is indicating that it's an
+annotation.
+
+111
+00:07:24,240 --> 00:07:30,085
+And then we would have just a public
+string
+
+112
+00:07:30,085 --> 00:07:36,320
+role method that's defined in that.
+
+113
+00:07:36,320 --> 00:07:42,150
+And so now, certainly we can go and the
+attribute role to our annotation.
+
+114
+00:07:42,150 --> 00:07:48,310
+And Java will check that the value that we
+provide for role is of the right type.
+
+115
+00:07:48,310 --> 00:07:51,810
+So certainly, we can add attributes and
+actual type checking, of
+
+116
+00:07:51,810 --> 00:07:55,280
+the values that we're providing for the
+attributes, on our annotations.
+
+117
+00:07:56,360 --> 00:08:00,550
+And so, this structure, of annotations,
+allows us to mark up our code.
+
+118
+00:08:00,550 --> 00:08:04,680
+By adding these naming schemes to
+particular Java elements
+
+119
+00:08:04,680 --> 00:08:07,920
+that the compiler will enforce are in the
+correct place.
+
+120
+00:08:07,920 --> 00:08:10,500
+As well adding different attributes to the
+
+121
+00:08:10,500 --> 00:08:14,620
+specific annotations to parametrize them
+in different ways.
+
+122
+00:08:14,620 --> 00:08:20,770
+And the compiler will, will not only check
+that the appropriate attributes are on.
+
+123
+00:08:20,770 --> 00:08:24,840
+A annotation but also that the values for
+them are correct.
+
+124
+00:08:24,840 --> 00:08:28,970
+So if we define role here it means that
+every time somebody goes
+
+125
+00:08:28,970 --> 00:08:33,520
+and defines this annotation they are going
+to have to have the role attribute.
+
+126
+00:08:33,520 --> 00:08:38,700
+So, we can go and build these, these
+constructs where we have an annotation
+
+127
+00:08:38,700 --> 00:08:43,240
+that we can now apply specific parts of
+our code and attach meta information.
+
+128
+00:08:43,240 --> 00:08:46,850
+That the compiler checks for us and
+strongly types.
+
+129
+00:08:46,850 --> 00:08:50,900
+And this is going to be the basis
+throughout the course.
+
+130
+00:08:50,900 --> 00:08:53,270
+Some of the things that we're going to see
+are
+
+131
+00:08:53,270 --> 00:08:56,790
+the frameworks that we are building on top
+of, expect you
+
+132
+00:08:56,790 --> 00:08:59,810
+to go and place those annotations in your
+code, so
+
+133
+00:08:59,810 --> 00:09:02,860
+that the framework can understand what to
+do with your code
+

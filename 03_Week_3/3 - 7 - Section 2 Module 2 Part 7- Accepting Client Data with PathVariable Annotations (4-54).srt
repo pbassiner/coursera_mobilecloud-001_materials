@@ -1,0 +1,360 @@
+1
+00:00:00,419 --> 00:00:08,458
+[MUSIC]
+
+2
+00:00:08,458 --> 00:00:12,593
+Data that's sent from the clients to the
+server, doesn't
+
+3
+00:00:12,593 --> 00:00:17,120
+have to just be embedded in the HTTP
+request frames.
+
+4
+00:00:17,120 --> 00:00:20,390
+For example, often we see links where the
+
+5
+00:00:20,390 --> 00:00:23,800
+link itself has some semantic meaning to
+it.
+
+6
+00:00:23,800 --> 00:00:29,710
+So, for example, the path that's specified
+in that link, or the path that's specified
+
+7
+00:00:29,710 --> 00:00:32,340
+in the HP request, actually has data
+
+8
+00:00:32,340 --> 00:00:35,320
+embedded into it that we'd like to
+extract.
+
+9
+00:00:35,320 --> 00:00:37,870
+And this is, for example, a typical thing
+you'll see in
+
+10
+00:00:37,870 --> 00:00:42,600
+a rest architecture, which we'll talk
+about later in this course.
+
+11
+00:00:42,600 --> 00:00:44,770
+So lemme give you an example, let's say.
+
+12
+00:00:44,770 --> 00:00:48,970
+Rather than just sending a request where
+we're embedding all
+
+13
+00:00:48,970 --> 00:00:52,810
+of the search strings into the HP request
+parameters to
+
+14
+00:00:52,810 --> 00:00:56,020
+search in our contacts, let's say, for
+example, we wanted
+
+15
+00:00:56,020 --> 00:01:00,030
+to be able to have links that looked like
+slash search
+
+16
+00:01:02,040 --> 00:01:03,080
+a.
+
+17
+00:01:03,080 --> 00:01:07,158
+And that would return the list of all
+contacts that started with a or
+
+18
+00:01:07,158 --> 00:01:12,110
+slash search ab, and it would give us all
+the contacts that started with ab.
+
+19
+00:01:12,110 --> 00:01:15,420
+And why we, we want to do this?
+
+20
+00:01:15,420 --> 00:01:18,400
+Well, it's usually easier to share a link
+that looks
+
+21
+00:01:18,400 --> 00:01:21,740
+very nice and clean, which is just
+embedded in the
+
+22
+00:01:21,740 --> 00:01:24,640
+path, rather than having a question mark
+in all of
+
+23
+00:01:24,640 --> 00:01:28,050
+these request parameters falling in off
+the end of it.
+
+24
+00:01:28,050 --> 00:01:32,450
+Or in sharing a post, obviously isn't
+something you can do.
+
+25
+00:01:32,450 --> 00:01:35,280
+You can't just share a link for an HTTP
+post.
+
+26
+00:01:35,280 --> 00:01:39,800
+So, often we want to have nice clean
+looking links that are easy
+
+27
+00:01:39,800 --> 00:01:44,429
+to access in the browser and make sense
+for sharing or other purposes.
+
+28
+00:01:45,460 --> 00:01:48,340
+So there's a easy way to do this in
+spring,
+
+29
+00:01:48,340 --> 00:01:52,600
+to extract data that might be specified in
+the request path.
+
+30
+00:01:52,600 --> 00:01:55,330
+Rather than in the request parameters.
+
+31
+00:01:55,330 --> 00:01:56,890
+And the way we do that is first we have
+
+32
+00:01:56,890 --> 00:02:02,170
+to create a request mapping that is to
+something variable.
+
+33
+00:02:02,170 --> 00:02:04,350
+So we're going to say at search.
+
+34
+00:02:04,350 --> 00:02:05,920
+And then we're going to do something
+interesting here.
+
+35
+00:02:05,920 --> 00:02:09,030
+We're going to add a bracket.
+
+36
+00:02:09,030 --> 00:02:12,750
+And we're going to say the string that
+we're searching for.
+
+37
+00:02:12,750 --> 00:02:15,880
+And then we'll close this off.
+
+38
+00:02:15,880 --> 00:02:19,510
+And what this is going to the Spring
+Dispatcher Server
+
+39
+00:02:19,510 --> 00:02:21,780
+to do is to look at the request path.
+
+40
+00:02:21,780 --> 00:02:26,483
+And, anything that is search slash any
+string, or any
+
+41
+00:02:26,483 --> 00:02:31,670
+integer, or anything, is going to be
+routed to this request.
+
+42
+00:02:31,670 --> 00:02:36,730
+So what we're doing here, is we're
+specifying a path variable.
+
+43
+00:02:36,730 --> 00:02:37,640
+And that's what the
+
+44
+00:02:40,340 --> 00:02:43,865
+open braces and closed braces around this
+string.
+
+45
+00:02:43,865 --> 00:02:46,780
+Is just defining a variable and the string
+
+46
+00:02:46,780 --> 00:02:49,030
+doesn't represent the type here, I want to
+know.
+
+47
+00:02:49,030 --> 00:02:52,910
+This is just an arbitrary identifier that
+I'm given for this variable.
+
+48
+00:02:52,910 --> 00:02:57,470
+So I'm saying look for a request, where
+the path has this format, slash
+
+49
+00:02:57,470 --> 00:03:02,889
+search slash some path variable that I'm
+looking for that has a arbitrary value.
+
+50
+00:03:03,890 --> 00:03:08,310
+Now what we then need to do is tell the
+Spring Dispatcher Server, how to
+
+51
+00:03:08,310 --> 00:03:11,070
+extract those path variables that we care
+
+52
+00:03:11,070 --> 00:03:13,840
+about, and get them into the method
+parameters.
+
+53
+00:03:13,840 --> 00:03:22,840
+So what we do, is we say @PathVariable,
+and then we can say, string.
+
+54
+00:03:24,240 --> 00:03:30,870
+And what that will tell spring to do is
+automatically extract, this, string from
+
+55
+00:03:30,870 --> 00:03:38,060
+the path, and, convert it, into, this
+parameter, for the method call.
+
+56
+00:03:39,390 --> 00:03:41,360
+So what this allows us to do.
+
+57
+00:03:41,360 --> 00:03:43,760
+Is to have some of the data embedded in
+
+58
+00:03:43,760 --> 00:03:49,140
+a request parameter, and some data
+embedded in a PathVariable.
+
+59
+00:03:49,140 --> 00:03:51,150
+And we can combine and mix and match
+
+60
+00:03:51,150 --> 00:03:54,240
+these approaches for extracting data from
+the request.
+
+61
+00:03:54,240 --> 00:03:56,960
+We can have some data that lives in the
+PathVariable.
+
+62
+00:03:56,960 --> 00:03:58,750
+Now we can have all of the data living
+
+63
+00:03:58,750 --> 00:04:01,940
+in the request past and extracted via the
+PathVariables,
+
+64
+00:04:01,940 --> 00:04:03,310
+or we can have all of the data living
+
+65
+00:04:03,310 --> 00:04:06,330
+in the request parameters or any mixture
+of them.
+
+66
+00:04:06,330 --> 00:04:10,775
+And all of them serve the same purpose, to
+tell the Dispatch
+
+67
+00:04:10,775 --> 00:04:16,190
+Servlet, how to extract information the
+client has embedded in the request.
+
+68
+00:04:16,190 --> 00:04:21,850
+And convert it into the arguments that are
+needed to the, be passed to the method.
+
+69
+00:04:21,850 --> 00:04:25,310
+So if we want to go and change our
+architecture and change how
+
+70
+00:04:25,310 --> 00:04:29,100
+the data's passed from the client to the
+server, all we have to
+
+71
+00:04:29,100 --> 00:04:34,470
+do is go and update these variables I mean
+these annotations specifying
+
+72
+00:04:34,470 --> 00:04:39,310
+how the method vari, the method parameters
+are mapped by the Dispatcher Server.
+
+73
+00:04:39,310 --> 00:04:42,780
+So we can change this PathVariable to a
+request parameter or this
+
+74
+00:04:42,780 --> 00:04:46,590
+request parameter of PathVariable and we
+can do that over and over.
+
+75
+00:04:46,590 --> 00:04:50,710
+And it separates our logic from the logic
+of extracting
+
+76
+00:04:50,710 --> 00:04:54,320
+the information from the request or from
+the request path
+

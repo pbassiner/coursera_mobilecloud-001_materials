@@ -1,0 +1,431 @@
+1
+00:00:00,370 --> 00:00:08,545
+[MUSIC]
+
+2
+00:00:08,545 --> 00:00:12,510
+Typically, we don't just have data, on the
+server side.
+
+3
+00:00:12,510 --> 00:00:15,820
+We're more building a cloud service for
+mobile devices.
+
+4
+00:00:15,820 --> 00:00:18,760
+We typically, are building applications
+where we have some data that's living
+
+5
+00:00:18,760 --> 00:00:22,100
+on the devices, and some data that's
+living in the server's side.
+
+6
+00:00:22,100 --> 00:00:25,850
+And there's a constant flow of information
+between the two.
+
+7
+00:00:25,850 --> 00:00:28,660
+So, important question is, how do we take
+
+8
+00:00:28,660 --> 00:00:32,740
+data, from the mobile device, send it to
+the
+
+9
+00:00:32,740 --> 00:00:36,840
+server and using a spring controller,
+extract that data
+
+10
+00:00:36,840 --> 00:00:39,670
+from the request, just like we could with
+servlet.
+
+11
+00:00:39,670 --> 00:00:41,090
+With servlets we could.
+
+12
+00:00:41,090 --> 00:00:45,540
+We read, request parameters out of the
+HTTP request object.
+
+13
+00:00:45,540 --> 00:00:48,790
+So how do we do the same the same thing,
+with the spring control?
+
+14
+00:00:49,820 --> 00:00:54,340
+Well, the way that we do this, is first,
+let's say we're going to have a contacts
+
+15
+00:00:54,340 --> 00:00:58,110
+control object and it's as we discussed
+before
+
+16
+00:00:58,110 --> 00:00:59,960
+it's where all the contacts for a user.
+
+17
+00:00:59,960 --> 00:01:05,690
+But let's say, we want to allow users, to
+send a search string.
+
+18
+00:01:05,690 --> 00:01:10,660
+They want to find a specific contact or
+contacts that start with a or c.
+
+19
+00:01:10,660 --> 00:01:11,810
+How do they do that?
+
+20
+00:01:11,810 --> 00:01:13,380
+Well, let's create a method.
+
+21
+00:01:13,380 --> 00:01:14,940
+Let's say, we have a method called,
+
+22
+00:01:16,990 --> 00:01:17,620
+search
+
+23
+00:01:20,260 --> 00:01:21,180
+and.
+
+24
+00:01:21,180 --> 00:01:26,750
+Search is going to take some parameters,
+which I'm going to, fill out on the next
+
+25
+00:01:26,750 --> 00:01:28,100
+line here, but I'm going to just leave
+
+26
+00:01:28,100 --> 00:01:30,270
+some space here where I'll fill these
+parameters out.
+
+27
+00:01:31,940 --> 00:01:35,300
+And then within our method, we actually do
+some work.
+
+28
+00:01:35,300 --> 00:01:39,360
+So, let's say for example, we wanted to
+have a string.
+
+29
+00:01:41,640 --> 00:01:46,320
+Which is the, search string.
+
+30
+00:01:47,760 --> 00:01:52,673
+And then maybe we want to have, an
+integer, which is a search flag,
+
+31
+00:01:52,673 --> 00:01:57,350
+which is a search flag, which tells us,
+how we want it to match.
+
+32
+00:01:57,350 --> 00:01:59,550
+Do we want to match against.
+
+33
+00:01:59,550 --> 00:02:00,970
+The first name or the last name.
+
+34
+00:02:00,970 --> 00:02:05,170
+Or, maybe we want it to indicate, how
+strict it should be in the match.
+
+35
+00:02:05,170 --> 00:02:11,390
+So, how would we go about, telling the
+dispatcher servlet, how to map, the
+
+36
+00:02:11,390 --> 00:02:16,500
+http request parameters, to these
+individual, method
+
+37
+00:02:16,500 --> 00:02:19,139
+parameters, for this method within our
+controller.
+
+38
+00:02:20,170 --> 00:02:24,500
+Or the way that we do that, is first of
+course, we going to have to add
+
+39
+00:02:24,500 --> 00:02:29,410
+an at request mapping annotation, to this
+method
+
+40
+00:02:30,450 --> 00:02:32,980
+so that the dispatcher servlet, knows the
+column.
+
+41
+00:02:32,980 --> 00:02:35,130
+So we will just put at under slash search.
+
+42
+00:02:36,400 --> 00:02:39,300
+So whenever we see slash search, in our
+requests, the
+
+43
+00:02:39,300 --> 00:02:42,590
+dispatcher servlet is going to route it to
+the search method.
+
+44
+00:02:42,590 --> 00:02:46,500
+No we need a way of telling the dispatcher
+servlet, about
+
+45
+00:02:46,500 --> 00:02:49,270
+these method parameters and how we want it
+to fill them in.
+
+46
+00:02:49,270 --> 00:02:54,110
+And then we, way, we do that, is with
+at-request param.
+
+47
+00:02:54,110 --> 00:03:02,470
+And these are params or annotations, that
+can be attached, to, individual.
+
+48
+00:03:03,600 --> 00:03:05,480
+Method parameters.
+
+49
+00:03:05,480 --> 00:03:10,020
+So for example, at request params search,
+but then say go and extract the
+
+50
+00:03:10,020 --> 00:03:13,370
+HTB request parameter, with the key search
+
+51
+00:03:13,370 --> 00:03:16,410
+and map it to this, individual method
+parameter.
+
+52
+00:03:17,490 --> 00:03:22,730
+Similarly we could say, at request param.
+
+53
+00:03:25,810 --> 00:03:26,340
+Flag
+
+54
+00:03:29,250 --> 00:03:32,760
+and the dispatcher server will
+automatically go and look for an
+
+55
+00:03:32,760 --> 00:03:37,550
+HTTP request parameter, with the key flag
+and map to search flag.
+
+56
+00:03:38,690 --> 00:03:41,380
+Now one of the really important things to
+notice here.
+
+57
+00:03:41,380 --> 00:03:44,460
+Is what the dispatcher server is going to
+do for us in this case.
+
+58
+00:03:45,900 --> 00:03:49,420
+The request for param flag, in the HT
+
+59
+00:03:49,420 --> 00:03:52,200
+request, is going to be stored as a
+string.
+
+60
+00:03:52,200 --> 00:03:54,720
+So what that means is, is when the
+dispatcher server
+
+61
+00:03:54,720 --> 00:03:58,890
+extracts that string, it has to convert it
+to an integer.
+
+62
+00:03:58,890 --> 00:04:01,900
+In order to pass it into this method
+force.
+
+63
+00:04:01,900 --> 00:04:07,620
+So the dispatcher server, when you map
+request parameters to method parameters it
+
+64
+00:04:07,620 --> 00:04:13,100
+automatically figures out what the correct
+target type of that parameter is in Java.
+
+65
+00:04:13,100 --> 00:04:15,530
+And it will do the conversion for you.
+
+66
+00:04:15,530 --> 00:04:19,360
+So the dispatcher server will
+automatically go.
+
+67
+00:04:19,360 --> 00:04:20,680
+And look and say, all right.
+
+68
+00:04:20,680 --> 00:04:24,970
+Flag is being mapped to an integer so I
+need to convert flag to
+
+69
+00:04:24,970 --> 00:04:30,410
+an int before I invoke the search method
+with this data from this request.
+
+70
+00:04:30,410 --> 00:04:34,890
+And what's important to note, is all of
+the validation of the type, from
+
+71
+00:04:34,890 --> 00:04:37,200
+that request parameter string is being
+done
+
+72
+00:04:37,200 --> 00:04:40,230
+by the dispatcher servlet for you,
+automatically.
+
+73
+00:04:40,230 --> 00:04:42,350
+And then it's automatically marshalling
+all of that
+
+74
+00:04:42,350 --> 00:04:46,110
+data after extracting it, into your method
+parameters.
+
+75
+00:04:46,110 --> 00:04:49,230
+So then your method, you can write
+standard Java
+
+76
+00:04:49,230 --> 00:04:52,930
+code and logic code that's just OO code
+without having
+
+77
+00:04:52,930 --> 00:04:57,520
+to muck around with the request and the
+extracting data
+
+78
+00:04:57,520 --> 00:05:01,010
+from the requesting and converting it to
+the right types.
+
+79
+00:05:01,010 --> 00:05:03,150
+In handling any errors that occur.
+
+80
+00:05:03,150 --> 00:05:06,180
+The dispatcher server does that
+automatically for you, and
+
+81
+00:05:06,180 --> 00:05:08,480
+that allows you to separate that logic out
+from
+
+82
+00:05:08,480 --> 00:05:11,720
+your code, which really isn't what your
+business logic
+
+83
+00:05:11,720 --> 00:05:13,500
+in this method is supposed to be doing
+anyway.
+
+84
+00:05:13,500 --> 00:05:17,498
+So your cloud service wants to calculate
+something, it wants to do something.
+
+85
+00:05:17,498 --> 00:05:22,620
+It doesn't want to be worried with how
+that request got to the server,
+
+86
+00:05:22,620 --> 00:05:26,630
+what format it got there in, how all the
+data got extracted from it.
+
+87
+00:05:26,630 --> 00:05:29,090
+It just wants to, do some calculations on
+it.
+
+88
+00:05:29,090 --> 00:05:30,860
+So this allows you to simplify your
+
+89
+00:05:30,860 --> 00:05:34,720
+methods and write cleaner, simpler
+methods, by using
+
+90
+00:05:34,720 --> 00:05:37,390
+request parameters in the request mapping
+to extract
+
+91
+00:05:37,390 --> 00:05:39,970
+that data and pass it into your method.
+

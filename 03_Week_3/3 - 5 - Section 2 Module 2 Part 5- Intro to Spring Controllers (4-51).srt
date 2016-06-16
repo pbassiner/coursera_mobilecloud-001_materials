@@ -1,0 +1,303 @@
+1
+00:00:00,160 --> 00:00:09,126
+[MUSIC]
+
+2
+00:00:09,126 --> 00:00:13,022
+Spring controllers, are just standard Java
+objects.
+
+3
+00:00:13,022 --> 00:00:15,560
+There's nothing special about them.
+
+4
+00:00:15,560 --> 00:00:18,070
+So, let me give you an example, let's
+write a simple spring
+
+5
+00:00:18,070 --> 00:00:23,870
+controller and show, how we would connect
+it to the dispatcher servlet.
+
+6
+00:00:23,870 --> 00:00:27,420
+So that dispatcher servlet could route
+requests to
+
+7
+00:00:27,420 --> 00:00:30,690
+that controller, into the appropriate
+methods within the controller.
+
+8
+00:00:31,840 --> 00:00:35,340
+So in order to create a spring controller,
+all
+
+9
+00:00:35,340 --> 00:00:38,180
+we need to do is create a simple class.
+
+10
+00:00:38,180 --> 00:00:44,040
+So in this case, let's create a class
+called, Contacts control
+
+11
+00:00:46,430 --> 00:00:51,280
+and, what you will notice, is that well
+first of
+
+12
+00:00:51,280 --> 00:00:54,730
+you will notice that we have to add class
+here.
+
+13
+00:00:54,730 --> 00:00:56,160
+Since we want this to be a java class.
+
+14
+00:00:56,160 --> 00:00:58,630
+This is just a basic java class.
+
+15
+00:00:58,630 --> 00:01:02,889
+There is no special interfaces, or class
+that we are inheriting from.
+
+16
+00:01:03,950 --> 00:01:07,840
+Now, let's say that we want to have a
+method that is going
+
+17
+00:01:07,840 --> 00:01:12,490
+to handle requests from clients, in order
+to view a list of contacts.
+
+18
+00:01:12,490 --> 00:01:18,218
+We could simply say, public, contacts,
+
+19
+00:01:18,218 --> 00:01:23,069
+get contacts.
+
+20
+00:01:26,630 --> 00:01:29,850
+And this is just like any other java
+method.
+
+21
+00:01:29,850 --> 00:01:34,360
+We just need to do something, to retrieve
+the contacts.
+
+22
+00:01:40,230 --> 00:01:47,080
+And then, let's say that contacts are
+stored in some variable C.
+
+23
+00:01:47,080 --> 00:01:47,580
+And
+
+24
+00:01:49,800 --> 00:01:56,680
+then we're going to return the contacts,
+so we'll return C.
+
+25
+00:01:56,680 --> 00:02:00,210
+So, this is just a basic Java class, we've
+got a basic Java method.
+
+26
+00:02:00,210 --> 00:02:02,790
+Or, we're going and doing some work.
+
+27
+00:02:02,790 --> 00:02:05,785
+What's really nice is this is, this class
+is clean.
+
+28
+00:02:05,785 --> 00:02:10,200
+It's, it's standard Java, it's not
+polluted by any frameworks.
+
+29
+00:02:10,200 --> 00:02:12,860
+But we need a way to connect it, to
+
+30
+00:02:12,860 --> 00:02:16,710
+the dispatcher servlet, so that the
+dispatcher servlet knows
+
+31
+00:02:16,710 --> 00:02:19,430
+about it, knows which request to route to
+it,
+
+32
+00:02:19,430 --> 00:02:22,640
+and knows which methods to route those
+requests to.
+
+33
+00:02:22,640 --> 00:02:28,709
+The way that we do this in spring, is we
+
+34
+00:02:28,709 --> 00:02:34,980
+add an @ RequestMapping annotation.
+
+35
+00:02:34,980 --> 00:02:40,040
+And what this tells the spring framework,
+is that this is
+
+36
+00:02:40,040 --> 00:02:43,260
+going to be a method, that we want to
+route request to.
+
+37
+00:02:43,260 --> 00:02:46,280
+And we'll talk about what goes into this
+in a second.
+
+38
+00:02:46,280 --> 00:02:51,198
+The other thing we have to do is at the
+top of this class, we have to add an
+
+39
+00:02:51,198 --> 00:02:58,880
+@ controller annotation, so that Spring
+knows that this
+
+40
+00:02:58,880 --> 00:03:02,050
+class, that we want it to serve as a
+controller.
+
+41
+00:03:02,050 --> 00:03:04,640
+Now, what we do in this request mapping,
+is we then
+
+42
+00:03:04,640 --> 00:03:09,890
+specify a path for when we want this thing
+in vogue.
+
+43
+00:03:09,890 --> 00:03:15,420
+For example, we could say /contacts, that
+we want you to route any
+
+44
+00:03:15,420 --> 00:03:21,250
+request to /contacts into this particular
+method.
+
+45
+00:03:21,250 --> 00:03:27,270
+And then, what the dispatcher circuit will
+do, is whenever it sees a request
+
+46
+00:03:27,270 --> 00:03:30,470
+with a /contacts path, it will
+automatically
+
+47
+00:03:30,470 --> 00:03:35,920
+route that request into, this particular
+method.
+
+48
+00:03:35,920 --> 00:03:39,990
+So if we then went and let's say we
+extended our class, and we have another
+
+49
+00:03:39,990 --> 00:03:46,731
+method, we have public, let's say
+
+50
+00:03:46,731 --> 00:03:51,760
+contacts, and then we just call this
+friends, for example.
+
+51
+00:03:51,760 --> 00:03:56,240
+Maybe, we would want a list of contacts
+that we consider to be just our friends.
+
+52
+00:03:57,820 --> 00:04:00,370
+The way that we would tell the dispatcher
+
+53
+00:04:00,370 --> 00:04:01,960
+servlet about this thing is, again, we
+would just
+
+54
+00:04:01,960 --> 00:04:07,373
+add another RequestMapping annotation,
+
+55
+00:04:07,373 --> 00:04:12,170
+and we would map it to a separate path
+from the first one.
+
+56
+00:04:12,170 --> 00:04:14,305
+So maybe this one goes to /friends.
+
+57
+00:04:16,720 --> 00:04:19,920
+So these annotations, the request mapping
+
+58
+00:04:19,920 --> 00:04:23,250
+annotations tell the dispatcher sort of
+what.
+
+59
+00:04:23,250 --> 00:04:28,110
+When you route a request to the contacts
+control object, and
+
+60
+00:04:28,110 --> 00:04:31,380
+which we are saying is a controller with
+this act controller annotation.
+
+61
+00:04:32,490 --> 00:04:38,300
+If it goes to, if the request is for slash
+contacts, it should go in this method.
+
+62
+00:04:38,300 --> 00:04:42,910
+If the request is for slash friends, it
+should be routed to this method.
+
+63
+00:04:42,910 --> 00:04:46,980
+And these methods on these a, on this
+object will then handle
+
+64
+00:04:46,980 --> 00:04:51,210
+the logic for processing those requests,
+and determining what happens with them
+

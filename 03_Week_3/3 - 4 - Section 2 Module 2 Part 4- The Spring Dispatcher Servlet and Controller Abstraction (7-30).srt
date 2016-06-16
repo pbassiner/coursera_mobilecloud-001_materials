@@ -1,0 +1,512 @@
+1
+00:00:01,102 --> 00:00:08,605
+[MUSIC]
+
+2
+00:00:08,605 --> 00:00:11,710
+So servlets are really helpful in building
+cloud base
+
+3
+00:00:11,710 --> 00:00:14,608
+services to talk to mobile devices, but as
+we've
+
+4
+00:00:14,608 --> 00:00:16,954
+seen there's still a lot of work that has
+
+5
+00:00:16,954 --> 00:00:20,470
+to been done when a servlet receives a
+request.
+
+6
+00:00:20,470 --> 00:00:22,300
+In particular, we have to do a lot of
+
+7
+00:00:22,300 --> 00:00:27,880
+data marshalling to extract parameters
+from an HTP request.
+
+8
+00:00:27,880 --> 00:00:30,010
+So we'll typically have doGet.
+
+9
+00:00:30,010 --> 00:00:31,770
+We'll have some request object.
+
+10
+00:00:33,380 --> 00:00:35,780
+And then in our request object we
+
+11
+00:00:35,780 --> 00:00:43,150
+will extract information or params from
+the request.
+
+12
+00:00:43,150 --> 00:00:47,511
+[BLANK_AUDIO]
+
+13
+00:00:47,511 --> 00:00:49,713
+And then we'll do validation on those
+parameters.
+
+14
+00:00:49,713 --> 00:00:59,010
+And then, we'll probably construct some
+java objects that use those params.
+
+15
+00:00:59,010 --> 00:01:06,433
+[BLANK_AUDIO]
+
+16
+00:01:06,433 --> 00:01:09,960
+And then finally we actually get to do
+some work.
+
+17
+00:01:11,430 --> 00:01:14,230
+So there's a lot of overhead that goes
+
+18
+00:01:14,230 --> 00:01:18,620
+into just processing a simple request with
+servlets.
+
+19
+00:01:18,620 --> 00:01:23,700
+All of this overhead here of looking at
+the request,
+
+20
+00:01:23,700 --> 00:01:28,070
+figuring out what's inside of it, figuring
+out if it's the
+
+21
+00:01:28,070 --> 00:01:32,520
+same set of data that the client isn't
+sending anything, malicious
+
+22
+00:01:32,520 --> 00:01:36,840
+isn't sending anything that's malformed,
+and there's not any other problems.
+
+23
+00:01:36,840 --> 00:01:38,890
+We validate that data.
+
+24
+00:01:38,890 --> 00:01:41,465
+And then finally we construct some
+objects.
+
+25
+00:01:41,465 --> 00:01:44,710
+So, do some data marshalling to turn that
+data into some
+
+26
+00:01:44,710 --> 00:01:48,630
+format, some object oriented format that
+we know how to process.
+
+27
+00:01:48,630 --> 00:01:50,160
+And then finally we get to do work.
+
+28
+00:01:50,160 --> 00:01:52,520
+So this is a lot of effort.
+
+29
+00:01:52,520 --> 00:01:56,100
+So one way to handle this is a framework
+called the
+
+30
+00:01:56,100 --> 00:01:59,330
+spring framework, and it provides a
+
+31
+00:01:59,330 --> 00:02:02,240
+specialized servlet within that framewor
+called
+
+32
+00:02:02,240 --> 00:02:06,480
+the dispatcher servlet that can help us to
+simplify a lot
+
+33
+00:02:06,480 --> 00:02:10,190
+of this work here that we have to do over
+and over.
+
+34
+00:02:10,190 --> 00:02:11,860
+Now, they're other frameworks other than
+the
+
+35
+00:02:11,860 --> 00:02:14,520
+Spring Framework that do this type of work
+
+36
+00:02:14,520 --> 00:02:18,600
+for us, but the Spring Framework is one of
+the most popular and widely used.
+
+37
+00:02:18,600 --> 00:02:20,550
+So we're going to talk about it in this
+course.
+
+38
+00:02:21,780 --> 00:02:24,150
+Now what the spring framework gives you is
+it
+
+39
+00:02:24,150 --> 00:02:28,800
+gives us a specialized servlet called the
+dispatcher servlet.
+
+40
+00:02:28,800 --> 00:02:32,926
+[BLANK_AUDIO]
+
+41
+00:02:32,926 --> 00:02:36,904
+And what this servlet does is it allows us
+
+42
+00:02:36,904 --> 00:02:42,640
+to register one or more controllers with
+this thing.
+
+43
+00:02:42,640 --> 00:02:44,920
+So, we have one or more controllers.
+
+44
+00:02:46,350 --> 00:02:54,040
+And again, these are just plain java
+objects that can handle HTP requests.
+
+45
+00:02:54,040 --> 00:02:57,510
+But the wonderful thing about the
+dispatcher servlet in
+
+46
+00:02:57,510 --> 00:03:02,250
+the spring framework, is that it allows us
+to
+
+47
+00:03:02,250 --> 00:03:05,590
+stop writing all of this boilerplate code
+to extract
+
+48
+00:03:05,590 --> 00:03:09,310
+parameters and do things in just right
+standard methods.
+
+49
+00:03:09,310 --> 00:03:14,290
+So our controller can have simple methods
+like, you know, update balance.
+
+50
+00:03:16,310 --> 00:03:19,309
+And what is called an update balance, it
+takes an integer for example.
+
+51
+00:03:20,930 --> 00:03:25,210
+And whenever we send a request, the
+dispatcher servlet can route that
+
+52
+00:03:25,210 --> 00:03:30,320
+request to the appropriate controller,
+just like we do with a web.xml file.
+
+53
+00:03:30,320 --> 00:03:32,690
+There's a separate way of specifying
+routing
+
+54
+00:03:32,690 --> 00:03:35,570
+from the dispatcher servlet to the
+controller.
+
+55
+00:03:35,570 --> 00:03:37,880
+And we can do that a couple of ways, one
+is through
+
+56
+00:03:37,880 --> 00:03:41,829
+an xml file, another is with some Java
+annotations that we'll talk about.
+
+57
+00:03:43,790 --> 00:03:46,780
+And all of those form routing information
+that the
+
+58
+00:03:46,780 --> 00:03:49,590
+dispatcher servlet can use just like the
+web container.
+
+59
+00:03:49,590 --> 00:03:55,010
+So the dispatcher servlet can do a second
+layer of routing after the web container
+
+60
+00:03:55,010 --> 00:03:56,460
+and what it does, is it does
+
+61
+00:03:56,460 --> 00:04:00,500
+routing to individual methods inside of
+the controller.
+
+62
+00:04:00,500 --> 00:04:02,480
+So rather than just having a single
+
+63
+00:04:02,480 --> 00:04:05,500
+doGet method within this controller, let's
+say that
+
+64
+00:04:05,500 --> 00:04:08,400
+handles get requests, we can have specific
+
+65
+00:04:08,400 --> 00:04:12,540
+methods that have arbitrary names like
+update balance
+
+66
+00:04:12,540 --> 00:04:17,880
+and then we can specify that whenever a
+request to a particular path or that meets
+
+67
+00:04:17,880 --> 00:04:23,040
+some series of conditions comes in, it
+should be routed to this specific method.
+
+68
+00:04:24,060 --> 00:04:27,920
+Now we have a lot more routing flexibility
+in the
+
+69
+00:04:27,920 --> 00:04:32,350
+dispatcher servlet than we do in
+traditional you know, servlets.
+
+70
+00:04:32,350 --> 00:04:36,090
+We can do things like look at the
+parameter values and do wild
+
+71
+00:04:36,090 --> 00:04:41,980
+card matching as parameter values or path
+values just like we would in web.xml.
+
+72
+00:04:41,980 --> 00:04:45,760
+And then use those to determine which
+individual method is invoked.
+
+73
+00:04:47,690 --> 00:04:50,060
+So we can do an extra layer of routing
+
+74
+00:04:50,060 --> 00:04:52,810
+in the dispatcher servlet based on not
+only the path
+
+75
+00:04:52,810 --> 00:04:56,440
+of the request, but the parameters, and
+not just to
+
+76
+00:04:56,440 --> 00:05:00,610
+a single servlet, but two specific methods
+within the servlet.
+
+77
+00:05:00,610 --> 00:05:05,990
+So, different paths can invoke arbitrary
+methods within our controllers.
+
+78
+00:05:07,200 --> 00:05:10,720
+So the dispatcher servlet gives us this
+extra bit of routing.
+
+79
+00:05:10,720 --> 00:05:14,750
+But what it also does is when it, before
+it invokes a
+
+80
+00:05:14,750 --> 00:05:20,040
+method, so if we map a particular request
+path, to this particular method.
+
+81
+00:05:21,230 --> 00:05:25,660
+Before it invokes this method, it will
+automatically look
+
+82
+00:05:25,660 --> 00:05:29,350
+at the parameters that that method
+requires and then
+
+83
+00:05:29,350 --> 00:05:33,780
+look at the HTTP request and figure out if
+
+84
+00:05:33,780 --> 00:05:38,190
+it can extract the appropriate parameters
+for this method call.
+
+85
+00:05:39,200 --> 00:05:43,990
+So if for example, we have an int here,
+there's a way to specify that we want this
+
+86
+00:05:43,990 --> 00:05:53,770
+integer of this method let's say,
+account-num parameter in the HTTP request.
+
+87
+00:05:53,770 --> 00:05:57,060
+We can say, we want you to always map the
+account-num
+
+88
+00:05:57,060 --> 00:06:02,840
+parameter in the HTTP request to this
+parameter to the method.
+
+89
+00:06:02,840 --> 00:06:07,595
+And then the dispatcher servlet will
+automatically do all of the work to
+
+90
+00:06:07,595 --> 00:06:12,630
+extract the parameter from the HTP
+request, look at it, make sure that it
+
+91
+00:06:12,630 --> 00:06:20,160
+actually is an integer, and then pass it
+in and invoke this particular method.
+
+92
+00:06:20,160 --> 00:06:24,390
+So the dispatcher servlet can do a lot of
+
+93
+00:06:24,390 --> 00:06:28,710
+this extra work that we've previously
+done, from extracting parameters.
+
+94
+00:06:28,710 --> 00:06:32,000
+The dispatcher servlet will extract them
+based on how we tell
+
+95
+00:06:32,000 --> 00:06:35,510
+it to extract them and map them to the
+individual method parameters.
+
+96
+00:06:35,510 --> 00:06:38,600
+It will automatically do some level of
+validation.
+
+97
+00:06:38,600 --> 00:06:42,520
+And you can give it more validation to do,
+depending on how you configure it.
+
+98
+00:06:42,520 --> 00:06:46,920
+But at the very least it will check that
+what was passed as data in the
+
+99
+00:06:46,920 --> 00:06:50,190
+request for that particular parameter
+actually matches the
+
+100
+00:06:50,190 --> 00:06:53,630
+type that you are expecting in your
+method.
+
+101
+00:06:54,810 --> 00:06:59,400
+And then you can also view actual object
+marshalling and I'll talk more about
+
+102
+00:06:59,400 --> 00:07:03,990
+this later but it can actually extract a
+series of parameters from the request.
+
+103
+00:07:03,990 --> 00:07:09,890
+And automatically marshal them into an
+object that get's passed into this method.
+
+104
+00:07:09,890 --> 00:07:15,300
+So the dispatcher servlet gives us a whole
+bunch of extra routing power, as
+
+105
+00:07:15,300 --> 00:07:21,100
+well as data extraction, marshalling and
+validation, before we actually do work.
+
+106
+00:07:22,180 --> 00:07:27,250
+So it's simplifies our life as developers
+by eliminating all
+
+107
+00:07:27,250 --> 00:07:29,870
+of this boilerplate code that we would
+normally have to write.
+

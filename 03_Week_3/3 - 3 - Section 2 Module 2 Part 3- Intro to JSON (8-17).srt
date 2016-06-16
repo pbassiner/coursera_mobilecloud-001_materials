@@ -1,0 +1,535 @@
+1
+00:00:00,085 --> 00:00:08,229
+[MUSIC]
+
+2
+00:00:08,229 --> 00:00:10,648
+One of the things that we have to consider
+
+3
+00:00:10,648 --> 00:00:14,136
+when we're building a cloud service that's
+going to talk
+
+4
+00:00:14,136 --> 00:00:17,835
+to a mobile device, particularly Android,
+is on the Android
+
+5
+00:00:17,835 --> 00:00:21,057
+side, we're going to have an application
+or an app.
+
+6
+00:00:21,057 --> 00:00:26,640
+That's going to be sending response
+sending request to our servers.
+
+7
+00:00:26,640 --> 00:00:30,430
+So this thing is going to send HTTP
+requests.
+
+8
+00:00:32,210 --> 00:00:37,540
+And each of those requests, is going to
+have an, a body within an HTTP request
+
+9
+00:00:37,540 --> 00:00:44,170
+body, and that request is going to go to
+our cloud service, on the server side.
+
+10
+00:00:44,170 --> 00:00:45,720
+And it's going, to
+
+11
+00:00:48,760 --> 00:00:49,780
+our service.
+
+12
+00:00:51,120 --> 00:00:54,130
+And our service is going to have to read
+
+13
+00:00:54,130 --> 00:01:00,130
+this body, and extract objects out, of
+that body.
+
+14
+00:01:00,130 --> 00:01:03,810
+Because we want to be able to communicate
+from the objects.
+
+15
+00:01:05,360 --> 00:01:09,060
+On the device, which are going to be Java
+objects in our Android app.
+
+16
+00:01:09,060 --> 00:01:11,230
+We're going to have to extract data, turn
+them
+
+17
+00:01:11,230 --> 00:01:13,730
+into a request body, and then we're going
+to
+
+18
+00:01:13,730 --> 00:01:17,470
+have to, on the service side, preferably
+extract those
+
+19
+00:01:17,470 --> 00:01:20,350
+objects that we sent to the service back
+out.
+
+20
+00:01:21,430 --> 00:01:23,470
+And then when the service is done, what
+we're
+
+21
+00:01:23,470 --> 00:01:27,340
+going to want to do, is take the object or
+objects.
+
+22
+00:01:27,340 --> 00:01:31,790
+It's the return from our service's
+invocation, and
+
+23
+00:01:31,790 --> 00:01:34,600
+we're going to want to turn that into a
+response,
+
+24
+00:01:36,930 --> 00:01:42,460
+that has a body attached to it, that's
+going to go back to the device, and then
+
+25
+00:01:42,460 --> 00:01:44,620
+we're going to have to read from that
+body,
+
+26
+00:01:44,620 --> 00:01:46,949
+and try to extract some Java objects from
+it.
+
+27
+00:01:47,950 --> 00:01:52,440
+So one of the important considerations is
+we have to think about, how do we
+
+28
+00:01:52,440 --> 00:01:58,060
+express whenever we go and encode objects
+into a body.
+
+29
+00:01:58,060 --> 00:02:01,050
+How do we represent those objects and
+express them?
+
+30
+00:02:01,050 --> 00:02:04,830
+What is the format that we use to express
+objects
+
+31
+00:02:04,830 --> 00:02:10,209
+in an HTTP request body or in an HTTP
+response body?
+
+32
+00:02:10,209 --> 00:02:15,350
+So, one of the most common formats for
+expressing objects, when you're using the
+
+33
+00:02:15,350 --> 00:02:23,110
+HTTP protocol, is using a a data format
+called the JavaScript Object Notation.
+
+34
+00:02:23,110 --> 00:02:28,628
+And it's simply a way of simply expressing
+objects in
+
+35
+00:02:28,628 --> 00:02:34,180
+textual format, so that they can be sent
+in HTTP bodies of messages,
+
+36
+00:02:34,180 --> 00:02:39,260
+and then on either side, converted back
+into object representations.
+
+37
+00:02:40,860 --> 00:02:44,890
+The JavaScript object notation or JSON, is
+a simple
+
+38
+00:02:44,890 --> 00:02:48,120
+data format, and we express an object as
+follows.
+
+39
+00:02:48,120 --> 00:02:52,820
+We start by having a brace, and then, a
+closing brace, and
+
+40
+00:02:52,820 --> 00:02:57,530
+within the braces, we can express the
+properties, or we can think
+
+41
+00:02:57,530 --> 00:03:02,140
+of them as member variables and values of
+an object, or another
+
+42
+00:03:02,140 --> 00:03:05,640
+way of thinking of it is a set of keys and
+values.
+
+43
+00:03:05,640 --> 00:03:08,952
+So let's say we have in this object, a
+value called,
+
+44
+00:03:08,952 --> 00:03:12,860
+or a key called Name or remember a
+variable called Name.
+
+45
+00:03:12,860 --> 00:03:17,260
+We would then express the mapping of that
+name, to
+
+46
+00:03:19,570 --> 00:03:21,840
+the actual value, as follows.
+
+47
+00:03:22,880 --> 00:03:29,660
+And then, let's say that we wanted to have
+another property in this object.
+
+48
+00:03:29,660 --> 00:03:32,090
+We could go and we could add another one.
+
+49
+00:03:32,090 --> 00:03:37,772
+And we could say, class of MOOC,
+
+50
+00:03:37,772 --> 00:03:43,380
+and then we could say, Coursera.
+
+51
+00:03:43,380 --> 00:03:50,404
+And then if we wanted to have another one,
+we could say, University.
+
+52
+00:03:50,404 --> 00:03:54,442
+[BLANK_AUDIO]
+
+53
+00:03:54,442 --> 00:03:58,901
+And then we could say Vanderbilt or Vandy.
+
+54
+00:03:58,901 --> 00:04:01,995
+And so, we can create a representation of
+an
+
+55
+00:04:01,995 --> 00:04:06,011
+object, by creating the braces, and then
+we simply have
+
+56
+00:04:06,011 --> 00:04:09,106
+a key or a member variable name, followed
+by
+
+57
+00:04:09,106 --> 00:04:13,660
+the value for it, when we're separating by
+a colon.
+
+58
+00:04:13,660 --> 00:04:19,400
+Now, the other interesting thing, is we
+can nest the objects within each other.
+
+59
+00:04:19,400 --> 00:04:24,770
+So for example, maybe we would like to
+express some information
+
+60
+00:04:24,770 --> 00:04:30,250
+about this course as an object, till it
+gets embedded within My Objects.
+
+61
+00:04:30,250 --> 00:04:35,998
+So we might want to say Mobile
+
+62
+00:04:35,998 --> 00:04:43,600
+Cloud, and then we could say, that's also
+going to be an object, embedded within.
+
+63
+00:04:43,600 --> 00:04:45,820
+We see the embedded braces.
+
+64
+00:04:45,820 --> 00:04:48,550
+And then we say, date.
+
+65
+00:04:51,160 --> 00:04:56,400
+And we could have some information on the
+date, and we could say
+
+66
+00:04:56,400 --> 00:05:03,320
+URL, and then have some information on the
+URL for this thing.
+
+67
+00:05:03,320 --> 00:05:06,200
+And so, we can build up and nest objects
+within
+
+68
+00:05:06,200 --> 00:05:09,640
+each other using the j, the JavaScript or
+JSON notation.
+
+69
+00:05:09,640 --> 00:05:11,760
+And it's a very simple format.
+
+70
+00:05:11,760 --> 00:05:14,640
+All we've got are a set of keys or
+
+71
+00:05:14,640 --> 00:05:20,775
+member variable name, colons, and then a
+set of values.
+
+72
+00:05:20,775 --> 00:05:23,190
+Which if they're strings, they're quoted.
+
+73
+00:05:23,190 --> 00:05:25,060
+We can also do numeric values.
+
+74
+00:05:25,060 --> 00:05:28,519
+So if we had another object, that was
+something like
+
+75
+00:05:30,590 --> 00:05:31,160
+Course.
+
+76
+00:05:33,270 --> 00:05:37,790
+And then we said Mobile Cloud.
+
+77
+00:05:37,790 --> 00:05:42,727
+And then we might want to say Enrolled.
+
+78
+00:05:42,727 --> 00:05:47,687
+[BLANK_AUDIO]
+
+79
+00:05:47,687 --> 00:05:51,718
+And we could say 40,000, and that could be
+a valid property.
+
+80
+00:05:51,718 --> 00:05:57,501
+So, we can quickly build up
+representations of objects,
+
+81
+00:05:57,501 --> 00:06:03,402
+in a sort of platform independent way
+using a simple textual
+
+82
+00:06:03,402 --> 00:06:09,800
+format, with JSON, and have those objects
+parsed as strings.
+
+83
+00:06:09,800 --> 00:06:14,500
+In either request bodies or response
+bodies of our HTTP messages.
+
+84
+00:06:15,510 --> 00:06:19,880
+Another thing that we can do, is we can
+have arrays.
+
+85
+00:06:19,880 --> 00:06:24,920
+So, for example, we could have an array
+for dates.
+
+86
+00:06:24,920 --> 00:06:27,210
+Maybe we don't want a one date, but we
+want
+
+87
+00:06:27,210 --> 00:06:30,100
+dates where this is going to be offered,
+in the future.
+
+88
+00:06:30,100 --> 00:06:33,820
+And we could say, we're going to start an
+
+89
+00:06:33,820 --> 00:06:38,580
+array, and we could say, you know, date
+one.
+
+90
+00:06:38,580 --> 00:06:41,760
+We could have whatever value we wanted.
+
+91
+00:06:41,760 --> 00:06:48,189
+Another comma, date two, and then we could
+close this up.
+
+92
+00:06:49,400 --> 00:06:52,400
+And this is very similar to what we have
+above.
+
+93
+00:06:52,400 --> 00:06:55,210
+It's just another value, except in this
+case, rather than
+
+94
+00:06:55,210 --> 00:07:00,250
+our curly braces, we're just using array
+notation, like we would
+
+95
+00:07:00,250 --> 00:07:03,535
+in Java, we're defining sort of an array
+with a,
+
+96
+00:07:03,535 --> 00:07:08,442
+a indexing we're, we're going to define
+the values within that array.
+
+97
+00:07:08,442 --> 00:07:12,190
+And, just, we have values in here, but we
+could
+
+98
+00:07:12,190 --> 00:07:16,430
+just as easily have objects separated by
+commas within this array.
+
+99
+00:07:16,430 --> 00:07:20,080
+And so, we can build up complex
+structures, that we are
+
+100
+00:07:20,080 --> 00:07:23,410
+sending across in HP requests
+
+101
+00:07:23,410 --> 00:07:26,770
+and responses, using JavaScript Object
+Notation.
+
+102
+00:07:26,770 --> 00:07:30,130
+And we'll see this is a very handy format
+to express data
+
+103
+00:07:30,130 --> 00:07:35,950
+in, and to exchange data between the
+mobile device, and the server.
+
+104
+00:07:35,950 --> 00:07:41,420
+Now, some of you may be familiar with XML,
+and say why don't we do this with XML?
+
+105
+00:07:41,420 --> 00:07:46,750
+You could do this with XML, but it's very
+interesting because, JavaScript
+
+106
+00:07:46,750 --> 00:07:51,762
+Object Notation, is much more condensed
+and compact than H, than XML.
+
+107
+00:07:51,762 --> 00:07:55,337
+And so, there's actually been studies that
+have shown
+
+108
+00:07:55,337 --> 00:07:58,988
+that you can measure the difference in
+power consumption
+
+109
+00:07:58,988 --> 00:08:02,638
+on a mobile device, between communicating
+with JSON and
+
+110
+00:08:02,638 --> 00:08:07,677
+your HTTP request and response bodies,
+versus communicating with XML.
+
+111
+00:08:07,677 --> 00:08:11,921
+So, this is a much for efficient, both
+from a power standpoint,
+
+112
+00:08:11,921 --> 00:08:16,870
+parsing standpoint, and sort of ease of
+writing standpoint, than XML is.
+
