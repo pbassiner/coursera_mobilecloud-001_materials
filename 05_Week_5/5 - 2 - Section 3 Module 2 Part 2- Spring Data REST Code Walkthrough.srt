@@ -1,0 +1,527 @@
+1
+00:00:00,187 --> 00:00:08,848
+[MUSIC]
+
+2
+00:00:08,848 --> 00:00:13,841
+To start this next example, it's helpful
+to look back at the previous video service
+
+3
+00:00:13,841 --> 00:00:16,513
+controllers so that we can understand some
+of
+
+4
+00:00:16,513 --> 00:00:20,340
+the inefficiencies in the code that we
+created.
+
+5
+00:00:20,340 --> 00:00:22,810
+In particular, if you look at the video
+
+6
+00:00:22,810 --> 00:00:26,630
+service controller from the video
+controller with JPA example.
+
+7
+00:00:26,630 --> 00:00:32,300
+If we open this controller up, one of the
+things that we'll rapidly see is that
+
+8
+00:00:32,300 --> 00:00:36,120
+we've created this video repository that
+is dynamically
+
+9
+00:00:36,120 --> 00:00:40,060
+provided by Spring and @Autowired into our
+controller.
+
+10
+00:00:40,060 --> 00:00:41,880
+And then most of our controller methods
+
+11
+00:00:41,880 --> 00:00:45,620
+are essentially just delegating to the
+repository.
+
+12
+00:00:45,620 --> 00:00:46,890
+So when somebody wants to add a
+
+13
+00:00:46,890 --> 00:00:51,750
+video, we're simply calling videos.save
+and then returning.
+
+14
+00:00:51,750 --> 00:00:54,740
+When somebody wants to get the list of
+videos, we're simply getting
+
+15
+00:00:54,740 --> 00:00:59,290
+the list of videos and returning it to
+them from the videos.findAll.
+
+16
+00:00:59,290 --> 00:01:02,680
+When somebody wants to find a particular
+video by name, we're
+
+17
+00:01:02,680 --> 00:01:07,870
+simply delegating to the repository and
+asking it to do the work.
+
+18
+00:01:07,870 --> 00:01:14,880
+So, it seems like there should be a way to
+eliminate all of this delegation.
+
+19
+00:01:14,880 --> 00:01:18,100
+Why should we provide all of these
+mappings?
+
+20
+00:01:18,100 --> 00:01:21,610
+Shouldn't there be a way that Spring can
+automatically figure out how to
+
+21
+00:01:21,610 --> 00:01:27,010
+provide all of these services through a
+web and a RESTful interface without us
+
+22
+00:01:27,010 --> 00:01:29,080
+creating a separate controller and
+providing
+
+23
+00:01:29,080 --> 00:01:31,690
+separate methods that are essentially
+going and
+
+24
+00:01:31,690 --> 00:01:33,540
+providing all of the right annotations to
+
+25
+00:01:33,540 --> 00:01:38,740
+delegate to simple methods on the
+repository?
+
+26
+00:01:38,740 --> 00:01:39,950
+Well, luckily there is.
+
+27
+00:01:39,950 --> 00:01:45,720
+As we've discussed, Spring Data REST can
+automatically take a repository
+
+28
+00:01:45,720 --> 00:01:51,210
+and expose it and its various methods
+through a RESTful interface.
+
+29
+00:01:51,210 --> 00:01:56,105
+So it can automatically create a
+controller that will expose a video
+
+30
+00:01:56,105 --> 00:02:01,619
+repository and all of the methods on it
+like save, or findByName, or
+
+31
+00:02:01,619 --> 00:02:07,110
+Delete through a RESTful interface that
+can receive HTTP requests.
+
+32
+00:02:07,110 --> 00:02:09,830
+So we don't even actually have to go and
+create
+
+33
+00:02:09,830 --> 00:02:12,913
+a controller that can delegate it, to, to,
+to it.
+
+34
+00:02:12,913 --> 00:02:17,240
+We can if we want to, but if we don't have
+to if we don't want to.
+
+35
+00:02:17,240 --> 00:02:23,460
+So, the way that we do this is we've take
+our initial video repository
+
+36
+00:02:23,460 --> 00:02:29,520
+and we've added an annotation to it,
+@RepositoryRestResource.
+
+37
+00:02:29,520 --> 00:02:31,990
+And we've provided a path to it, which if
+we go
+
+38
+00:02:31,990 --> 00:02:36,940
+and look at the path, we'll see that that
+path is /video.
+
+39
+00:02:36,940 --> 00:02:43,030
+So what we're telling Spring to do is take
+this repository and expose it
+
+40
+00:02:43,030 --> 00:02:49,510
+as a service, a REST service, that can be
+invoked via HTTP.
+
+41
+00:02:49,510 --> 00:02:55,190
+So if we go and look at all of the methods
+like save and find, in
+
+42
+00:02:55,190 --> 00:03:01,060
+particular putObject or findAll and get a
+list of all of
+
+43
+00:03:01,060 --> 00:03:07,360
+them, what Spring is going to do is
+automatically create paths, request paths,
+
+44
+00:03:07,360 --> 00:03:13,850
+that if an HTTP request is sent to them,
+will invoke those various met, methods.
+
+45
+00:03:13,850 --> 00:03:17,360
+So in this case, if you want to get a list
+of all the videos, you can just send a
+
+46
+00:03:17,360 --> 00:03:23,420
+get request to /video and Spring Data REST
+will automatically
+
+47
+00:03:23,420 --> 00:03:27,970
+invoke the repository's findAll method and
+return all of the videos.
+
+48
+00:03:27,970 --> 00:03:32,980
+Similarly, if you send a post request to
+/video, Spring
+
+49
+00:03:32,980 --> 00:03:36,830
+Data REST will automatically take the body
+of that request,
+
+50
+00:03:36,830 --> 00:03:39,910
+turn it into a video, call the save method
+on
+
+51
+00:03:39,910 --> 00:03:44,470
+the repository and then return an
+appropriate response to the client.
+
+52
+00:03:44,470 --> 00:03:49,550
+So, by adding this simple annotation,
+we've told
+
+53
+00:03:49,550 --> 00:03:54,180
+Spring to go and automatically expose our
+repository
+
+54
+00:03:54,180 --> 00:03:57,100
+using a RESTful interface and create all
+of
+
+55
+00:03:57,100 --> 00:04:01,700
+the infrastructure to allow it to receive
+HTTP requests.
+
+56
+00:04:01,700 --> 00:04:04,500
+Similarly, if we go and look back at our
+
+57
+00:04:04,500 --> 00:04:10,200
+application, we'll see that there's
+essentially nothing new here.
+
+58
+00:04:10,200 --> 00:04:14,260
+All we're doing is create an application.
+
+59
+00:04:14,260 --> 00:04:18,160
+And again, we're not providing an
+implementation of the repository.
+
+60
+00:04:18,160 --> 00:04:22,350
+All we're doing is telling Spring that we
+want to go and start up.
+
+61
+00:04:22,350 --> 00:04:23,910
+Now, what's interesting is if you see
+
+62
+00:04:23,910 --> 00:04:29,234
+in the last version, we had a
+magnum.mobilecloud.video.controller
+
+63
+00:04:29,234 --> 00:04:31,590
+package that had our video service in
+
+64
+00:04:31,590 --> 00:04:34,410
+it, that provided all of these delegate
+methods.
+
+65
+00:04:35,540 --> 00:04:40,920
+In this version of the application, we can
+actually completely eliminate the video
+
+66
+00:04:40,920 --> 00:04:43,990
+service controller because we can simply
+
+67
+00:04:43,990 --> 00:04:47,550
+add this single annotation to our
+repository.
+
+68
+00:04:47,550 --> 00:04:52,200
+And suddenly, it will go and expose this
+entire
+
+69
+00:04:52,200 --> 00:04:57,760
+repository through REST and allow clients
+to send HTTP requests.
+
+70
+00:04:57,760 --> 00:05:01,460
+So we're actually getting more
+functionality than we had before because
+
+71
+00:05:01,460 --> 00:05:04,150
+not only do we have the simple methods to
+add and
+
+72
+00:05:04,150 --> 00:05:08,400
+list, but we also get methods to delete,
+to search them
+
+73
+00:05:08,400 --> 00:05:12,240
+by all kinds of different mechanisms that
+we didn't have before.
+
+74
+00:05:12,240 --> 00:05:16,800
+And we're not even having to write a video
+service controller at all.
+
+75
+00:05:16,800 --> 00:05:19,740
+So, not only have we taken our
+
+76
+00:05:19,740 --> 00:05:24,310
+code and eliminated an entire class, we've
+eliminated
+
+77
+00:05:24,310 --> 00:05:26,090
+complexity from our code because we don't
+
+78
+00:05:26,090 --> 00:05:28,720
+have to write an implementation of a
+controller.
+
+79
+00:05:28,720 --> 00:05:31,110
+We've also got in more functionality of
+
+80
+00:05:31,110 --> 00:05:33,670
+it and we know that it's dynamically
+connected
+
+81
+00:05:33,670 --> 00:05:36,560
+to our database and guarantees that it
+will
+
+82
+00:05:36,560 --> 00:05:39,940
+save things correctly based on what we
+want.
+
+83
+00:05:39,940 --> 00:05:45,090
+So, this simple annotation is providing a
+significant amount of power to us to
+
+84
+00:05:45,090 --> 00:05:49,950
+take a simple repository interface that we
+define and automatically create all of
+
+85
+00:05:49,950 --> 00:05:53,870
+the infrastructure to allow us to save
+videos and delete them and to
+
+86
+00:05:53,870 --> 00:05:59,580
+store them in a database, and to make all
+of that accessible via HTTP.
+
+87
+00:05:59,580 --> 00:06:03,820
+So yet again, this is an example where
+some simple annotations allow us
+
+88
+00:06:03,820 --> 00:06:07,250
+to connect HTTP requests to complex
+
+89
+00:06:07,250 --> 00:06:10,460
+infrastructure that Spring automatically
+generates for us.
+
+90
+00:06:12,030 --> 00:06:15,970
+The other new interesting annotation that
+we'll add is we want to be
+
+91
+00:06:15,970 --> 00:06:20,460
+able to have methods to find by name and
+find by duration.
+
+92
+00:06:20,460 --> 00:06:21,775
+In this case, we've actually added a
+
+93
+00:06:21,775 --> 00:06:25,940
+findByDurationLessThan method, which
+Spring is going to provide an
+
+94
+00:06:25,940 --> 00:06:28,140
+implementation of that will find all
+videos
+
+95
+00:06:28,140 --> 00:06:30,750
+with a duration less than what we provide.
+
+96
+00:06:30,750 --> 00:06:33,000
+But one thing we need to do is tell it how
+to
+
+97
+00:06:33,000 --> 00:06:41,250
+map the parameters from an HTTP request to
+these particular repository methods.
+
+98
+00:06:41,250 --> 00:06:46,080
+So the way that we do that is we add these
+@Param annotations.
+
+99
+00:06:46,080 --> 00:06:49,520
+And what this annotation says is go and
+look at the title
+
+100
+00:06:49,520 --> 00:06:55,620
+parameter, which is the title parameter in
+either of the query stream
+
+101
+00:06:55,620 --> 00:07:01,280
+or whatever, however it's send to the
+server, extract it and provide
+
+102
+00:07:01,280 --> 00:07:05,360
+it as the title that we're searching for
+in this findByName method.
+
+103
+00:07:05,360 --> 00:07:10,520
+Similarly, we're saying go and get the
+duration parameter out of the request.
+
+104
+00:07:10,520 --> 00:07:13,180
+In this case, marked by @Param.
+
+105
+00:07:13,180 --> 00:07:17,070
+And provide it for the duration that we're
+going and searching by in the database.
+
+106
+00:07:18,120 --> 00:07:23,030
+So, again, the more that we leverage the
+features of Spring,
+
+107
+00:07:23,030 --> 00:07:27,070
+the simpler our code becomes, the easier
+it is for us
+
+108
+00:07:27,070 --> 00:07:29,720
+to guarantee that our code is correct
+because Spring goes and
+
+109
+00:07:29,720 --> 00:07:34,690
+generates correct implementations of all
+of these complex functions that we need.
+

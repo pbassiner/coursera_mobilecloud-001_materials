@@ -1,0 +1,344 @@
+1
+00:00:00,000 --> 00:00:08,309
+[MUSIC]
+
+2
+00:00:08,309 --> 00:00:11,304
+A nice thing that Spring Security provides
+for us
+
+3
+00:00:11,304 --> 00:00:14,300
+is the ability to control which of our
+controller
+
+4
+00:00:14,300 --> 00:00:17,442
+methods can be accessed based on the
+client that's
+
+5
+00:00:17,442 --> 00:00:21,710
+sending the requests and the identity of
+that client.
+
+6
+00:00:21,710 --> 00:00:24,720
+So let's say that we have a controller
+like our video controller.
+
+7
+00:00:24,720 --> 00:00:34,000
+So we have public class and I'm going to
+call this VideoService again.
+
+8
+00:00:34,000 --> 00:00:36,880
+And I'm going to leave out the annotation
+for, well, we'll go
+
+9
+00:00:36,880 --> 00:00:39,600
+ahead and put the controller annotation
+here just so we remember it.
+
+10
+00:00:39,600 --> 00:00:41,776
+And I'm going to leave out some of the
+other annotations.
+
+11
+00:00:41,776 --> 00:00:47,548
+So let's say we have a method, like,
+upload.
+
+12
+00:00:47,548 --> 00:00:51,218
+[BLANK_AUDIO]
+
+13
+00:00:51,218 --> 00:00:54,655
+And this takes a video or some other
+information.
+
+14
+00:00:54,655 --> 00:00:57,380
+And this is a sensitive operation.
+
+15
+00:00:58,520 --> 00:01:02,160
+We don't want anyone to be able to upload
+video.
+
+16
+00:01:02,160 --> 00:01:04,980
+If they upload something, we want to know
+their identity
+
+17
+00:01:04,980 --> 00:01:07,340
+and be able to control who can upload and
+
+18
+00:01:07,340 --> 00:01:10,030
+how much they can upload, and other things
+based
+
+19
+00:01:10,030 --> 00:01:14,090
+on the identity of the client that's
+sending the request.
+
+20
+00:01:14,090 --> 00:01:18,512
+So, let's say that we have a series of
+clients up here.
+
+21
+00:01:18,512 --> 00:01:22,316
+[BLANK_AUDIO]
+
+22
+00:01:22,316 --> 00:01:23,980
+And the first one is Bob.
+
+23
+00:01:25,130 --> 00:01:26,550
+The second one is Alice.
+
+24
+00:01:27,870 --> 00:01:32,900
+If we send a request from Bob and it gets
+
+25
+00:01:32,900 --> 00:01:37,132
+routed into this method, we want to do one
+thing.
+
+26
+00:01:37,132 --> 00:01:41,510
+If an, a request comes in from Alice, we
+may want to do a separate thing.
+
+27
+00:01:41,510 --> 00:01:47,470
+So for example, let's say that Alice is
+the administrator of this website.
+
+28
+00:01:47,470 --> 00:01:50,880
+So Alice we might want to have access to
+delete
+
+29
+00:01:50,880 --> 00:01:55,280
+videos, for example, whereas Bob is just a
+normal user.
+
+30
+00:01:55,280 --> 00:01:58,430
+So, we don't want Bob to be able to delete
+videos
+
+31
+00:01:58,430 --> 00:02:02,420
+necessarily, but maybe we want him to be
+able to upload.
+
+32
+00:02:02,420 --> 00:02:05,239
+Alice, similarly, can be thought of as
+also being a user.
+
+33
+00:02:06,360 --> 00:02:10,380
+But Alice is also an admin, so she can do
+more.
+
+34
+00:02:10,380 --> 00:02:12,920
+So one of the things that Spring Security
+provides for
+
+35
+00:02:12,920 --> 00:02:17,640
+us is this ability to associate roles with
+different users.
+
+36
+00:02:17,640 --> 00:02:23,660
+So we can say this user is an admin and a
+user, whereas Bob is just a user.
+
+37
+00:02:23,660 --> 00:02:29,090
+And then Spring will automatically go and
+look at the rules that we provide
+
+38
+00:02:29,090 --> 00:02:34,590
+based on who can invoke different methods
+based on their role.
+
+39
+00:02:36,300 --> 00:02:39,365
+One of the things that we can do with
+
+40
+00:02:39,365 --> 00:02:45,199
+Spring Security is we can add annotations
+like @PreAuthorize.
+
+41
+00:02:45,199 --> 00:02:47,568
+[BLANK_AUDIO]
+
+42
+00:02:47,568 --> 00:02:53,080
+And then we can add some assertion about
+the user that's accessing it.
+
+43
+00:02:53,080 --> 00:02:58,746
+So we can say, hasRole(admin).
+
+44
+00:02:58,746 --> 00:03:02,316
+[BLANK_AUDIO]
+
+45
+00:03:02,316 --> 00:03:09,469
+And what Spring will do is it will check
+that the user that's associated with
+
+46
+00:03:09,469 --> 00:03:16,870
+the client that is sending this request
+has the admin role associated with it.
+
+47
+00:03:16,870 --> 00:03:20,730
+And if it does, it will go ahead and
+invoke the method.
+
+48
+00:03:20,730 --> 00:03:23,580
+If it, if that user does not have the
+admin
+
+49
+00:03:23,580 --> 00:03:27,640
+role associated with it, then it will
+block the request and
+
+50
+00:03:27,640 --> 00:03:32,620
+send back the appropriate HTTP response
+code, like unauthorized or
+
+51
+00:03:32,620 --> 00:03:35,060
+whatever the particular code is that you
+set it up for.
+
+52
+00:03:36,190 --> 00:03:42,340
+So, Spring Security gives you the ability
+to go and annotate your methods and
+
+53
+00:03:42,340 --> 00:03:47,350
+provide assertions on security so that not
+
+54
+00:03:47,350 --> 00:03:49,920
+all clients can access a particular
+method.
+
+55
+00:03:49,920 --> 00:03:55,330
+They can only access a method if they meet
+the security preconditions
+
+56
+00:03:55,330 --> 00:04:00,640
+in the @PreAuthorize and other annotations
+that Spring Security provides.
+
+57
+00:04:00,640 --> 00:04:05,930
+So in this case, anybody that tries to
+send a request to the, that would be
+
+58
+00:04:05,930 --> 00:04:08,280
+routed to the upload method, would have to
+
+59
+00:04:08,280 --> 00:04:13,530
+have a admin role associated with their
+user account.
+
+60
+00:04:13,530 --> 00:04:17,140
+They would also have to log in before they
+send the request.
+
+61
+00:04:17,140 --> 00:04:20,953
+If they send the request and they weren't
+logged in, Spring Security is going to
+
+62
+00:04:20,953 --> 00:04:23,031
+see @PreAuthorized, it is going to say,
+
+63
+00:04:23,031 --> 00:04:25,590
+there's no session established with this
+client.
+
+64
+00:04:25,590 --> 00:04:28,870
+I don't know the user account that's
+associated with this client.
+
+65
+00:04:28,870 --> 00:04:30,680
+And it would send the request back.
+
+66
+00:04:30,680 --> 00:04:34,410
+It's not going to allow that contact,
+request to
+
+67
+00:04:34,410 --> 00:04:37,280
+continue, it's going to send back an HTTP
+response
+
+68
+00:04:37,280 --> 00:04:40,950
+code that indicates that that was an
+unauthorized access,
+
+69
+00:04:40,950 --> 00:04:45,840
+and that probably redirect the client to
+the login page.
+
+70
+00:04:45,840 --> 00:04:51,270
+So, Spring Security can manage this idea
+of deciding which users
+
+71
+00:04:51,270 --> 00:04:56,600
+should have access to which methods in
+your different controllers
+
+72
+00:04:56,600 --> 00:05:01,447
+or your other resources that you create
+like REST-enabled repositories.
+

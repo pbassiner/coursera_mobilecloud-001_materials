@@ -1,0 +1,542 @@
+1
+00:00:00,000 --> 00:00:08,576
+[MUSIC]
+
+2
+00:00:08,576 --> 00:00:12,713
+>> Spring Security can control access to
+the methods in your controllers
+
+3
+00:00:12,713 --> 00:00:16,990
+without you ever having to do anything
+other than annotate those methods
+
+4
+00:00:16,990 --> 00:00:21,338
+with information about the roles or other
+expectations you have about the
+
+5
+00:00:21,338 --> 00:00:26,020
+user accounts associated with the clients
+that are sending you the requests.
+
+6
+00:00:26,020 --> 00:00:29,590
+But there are cases where you would like
+to have information about the user
+
+7
+00:00:30,750 --> 00:00:33,700
+possibly to add information that you're
+persisting
+
+8
+00:00:33,700 --> 00:00:36,070
+in the database or do something else.
+
+9
+00:00:36,070 --> 00:00:37,320
+So, let's take an example.
+
+10
+00:00:37,320 --> 00:00:39,180
+So, let's go to back to our video service
+
+11
+00:00:39,180 --> 00:00:43,460
+and let's say we have our video service
+controller.
+
+12
+00:00:46,200 --> 00:00:53,235
+And this would have all of the nice
+controller annotations, other things, and
+
+13
+00:00:53,235 --> 00:01:00,594
+we have a method in this controller like
+public we'll just call this boolean.
+
+14
+00:01:00,594 --> 00:01:02,663
+[BLANK_AUDIO]
+
+15
+00:01:02,663 --> 00:01:05,866
+Upload video.
+
+16
+00:01:05,866 --> 00:01:07,802
+[BLANK_AUDIO]
+
+17
+00:01:07,802 --> 00:01:10,380
+And there might be a video object or
+something else.
+
+18
+00:01:10,380 --> 00:01:14,920
+But let's just say that it's a, we're
+going to ignore all the other parameters.
+
+19
+00:01:16,200 --> 00:01:21,820
+Now, inside of this upload video method I
+might want to do something
+
+20
+00:01:21,820 --> 00:01:27,620
+like, video v equals new video.
+
+21
+00:01:27,620 --> 00:01:32,150
+And depending on how you are passing all
+of this stuff in you might set
+
+22
+00:01:32,150 --> 00:01:35,740
+some things, and then what I'd really like
+to do, is I, before I persist this thing
+
+23
+00:01:35,740 --> 00:01:43,148
+in the database, I'd like to say setUser
+and pass in a user,
+
+24
+00:01:43,148 --> 00:01:48,580
+or a username or something like that, in
+order to store it in the database.
+
+25
+00:01:48,580 --> 00:01:54,680
+So, now when I'm persisting the object I
+have a notion of who uploaded that video.
+
+26
+00:01:55,710 --> 00:01:59,170
+Now, if Spring Security is handling all of
+this and I've
+
+27
+00:01:59,170 --> 00:02:03,280
+never seen the users, I can't do something
+easy like this.
+
+28
+00:02:03,280 --> 00:02:05,760
+So what we have to do is tell Spring
+Security
+
+29
+00:02:05,760 --> 00:02:09,900
+that it should pass us the information
+about the current user.
+
+30
+00:02:09,900 --> 00:02:12,560
+And the way that we can do that is all we
+have
+
+31
+00:02:12,560 --> 00:02:16,330
+to do is add an additional parameter to
+our methods called principle.
+
+32
+00:02:20,800 --> 00:02:27,579
+And then we can do something like this, we
+can say, string user
+
+33
+00:02:27,579 --> 00:02:33,597
+equals p.getname.
+
+34
+00:02:33,597 --> 00:02:38,100
+And basically what this is doing is
+telling Spring,
+
+35
+00:02:38,100 --> 00:02:41,500
+whenever you invoke this method, we want
+you to pass
+
+36
+00:02:41,500 --> 00:02:47,230
+in the principle, or the current
+authentication the information
+
+37
+00:02:47,230 --> 00:02:50,550
+about the user that's sending the request
+into this method.
+
+38
+00:02:50,550 --> 00:02:53,840
+And so it will pass that into you as an
+object.
+
+39
+00:02:53,840 --> 00:02:56,880
+And there are ways to extract the actual
+object
+
+40
+00:02:56,880 --> 00:02:59,280
+that you would get from a user detail
+service.
+
+41
+00:02:59,280 --> 00:03:01,350
+If you provided your own user detail
+service you
+
+42
+00:03:01,350 --> 00:03:05,210
+can get that user details object out of
+the principal.
+
+43
+00:03:05,210 --> 00:03:09,630
+Or you can just get basic information like
+the name of the principal out of it.
+
+44
+00:03:09,630 --> 00:03:14,200
+And then use that information to
+associate, for example, resources that are
+
+45
+00:03:14,200 --> 00:03:20,250
+being uploaded with the actual user
+account that uploaded that resource.
+
+46
+00:03:20,250 --> 00:03:21,320
+So.
+
+47
+00:03:21,320 --> 00:03:23,850
+Simply by adding an additional parameter,
+and it
+
+48
+00:03:23,850 --> 00:03:26,260
+doesn't matter what the ordering of that
+parameter is,
+
+49
+00:03:26,260 --> 00:03:28,300
+just if you have a principle parameter at
+
+50
+00:03:28,300 --> 00:03:34,300
+all, you can get information about the
+current user.
+
+51
+00:03:35,330 --> 00:03:42,772
+So this parameter is going to be the
+current user account.
+
+52
+00:03:42,772 --> 00:03:47,550
+And if no one is logged in this would
+obviously be null.
+
+53
+00:03:47,550 --> 00:03:50,950
+So, these types of methods where you're
+taking a principle as an
+
+54
+00:03:50,950 --> 00:03:56,690
+argument almost always need @PreAuthorized
+or secured or one of the other
+
+55
+00:03:58,990 --> 00:04:04,340
+annotations to specify some security
+information so that
+
+56
+00:04:04,340 --> 00:04:09,570
+no matter what Spring knows that before
+you call this method, you
+
+57
+00:04:09,570 --> 00:04:11,490
+have to force the person to log in so that
+
+58
+00:04:11,490 --> 00:04:13,950
+Spring can get the principal and provide
+it to you.
+
+59
+00:04:13,950 --> 00:04:15,040
+There's other ways to do it without
+
+60
+00:04:15,040 --> 00:04:18,120
+the annotation in your configuration of
+Spring.
+
+61
+00:04:18,120 --> 00:04:23,160
+You could just say that this is a method
+that requires full authentication.
+
+62
+00:04:23,160 --> 00:04:26,970
+In which case, Spring will always make
+sure that if a client sends a
+
+63
+00:04:26,970 --> 00:04:29,720
+request, that they have to authenticate
+and
+
+64
+00:04:29,720 --> 00:04:32,460
+create a session before this method gets
+invoked.
+
+65
+00:04:32,460 --> 00:04:35,540
+And that way their principle information
+will always be there so that
+
+66
+00:04:35,540 --> 00:04:39,119
+you can find out about the current user
+account that's invoking the method.
+
+67
+00:04:40,760 --> 00:04:44,980
+Although we can get access to the
+principle in our methods, a lot of times
+
+68
+00:04:44,980 --> 00:04:50,360
+we don’t actually need to do that in order
+to provide some more advanced security.
+
+69
+00:04:50,360 --> 00:04:53,860
+So, let’s take an example with the upload
+video.
+
+70
+00:04:53,860 --> 00:04:57,560
+So let’s assume we have this video service
+and the users
+
+71
+00:04:57,560 --> 00:05:00,620
+can go in and post videos that are
+going to be uploaded.
+
+72
+00:05:00,620 --> 00:05:03,030
+There postings in JSON that's being
+converted
+
+73
+00:05:03,030 --> 00:05:07,110
+into a video object by Spring for us.
+
+74
+00:05:07,110 --> 00:05:09,870
+And inside that video object one of the
+fields that
+
+75
+00:05:09,870 --> 00:05:14,860
+we have is some information about the
+owner of that video.
+
+76
+00:05:14,860 --> 00:05:16,765
+Or this could be a delete method where we
+
+77
+00:05:16,765 --> 00:05:19,630
+are going to go and delete a particular
+video.
+
+78
+00:05:19,630 --> 00:05:22,580
+But one of the things that we might want
+to do is enforce the rule that
+
+79
+00:05:22,580 --> 00:05:28,240
+when you upload a video, whoever is listed
+as the owner has to be the user that's
+
+80
+00:05:28,240 --> 00:05:31,210
+currently logged in, because we don't
+somebody to
+
+81
+00:05:31,210 --> 00:05:33,620
+go and upload a video they don't own
+
+82
+00:05:33,620 --> 00:05:35,150
+or to upload a video and then have
+
+83
+00:05:35,150 --> 00:05:38,140
+the owner set to someone other than their
+account.
+
+84
+00:05:38,140 --> 00:05:40,960
+We always want the owner to be associated
+with them.
+
+85
+00:05:41,960 --> 00:05:44,640
+The way that we can enforce this is, in
+Spring
+
+86
+00:05:44,640 --> 00:05:51,960
+we can use a more complex expression in
+our @PreAuthorize.
+
+87
+00:05:51,960 --> 00:05:57,572
+We can actually say, hash video, because v
+is the
+
+88
+00:05:57,572 --> 00:06:03,347
+parameter, .owner equals principal name.
+
+89
+00:06:03,347 --> 00:06:08,243
+And what this is telling Spring is, in
+
+90
+00:06:08,243 --> 00:06:13,139
+order to invoke this method, not only
+
+91
+00:06:13,139 --> 00:06:18,035
+must the client have a current session
+
+92
+00:06:18,035 --> 00:06:23,237
+established, that's associated with
+
+93
+00:06:23,237 --> 00:06:28,439
+a user that's known, but the video that
+
+94
+00:06:28,439 --> 00:06:34,500
+you're sending here, in this case, v.
+
+95
+00:06:34,500 --> 00:06:39,572
+The owner member variable of that video
+down here has to match the name
+
+96
+00:06:39,572 --> 00:06:43,159
+of the current principle, or the
+user-account
+
+97
+00:06:43,159 --> 00:06:48,110
+associated with the client that's sending
+the request.
+
+98
+00:06:48,110 --> 00:06:50,990
+So we're not only restricting this method
+and saying
+
+99
+00:06:50,990 --> 00:06:54,000
+certain users, for example, could have
+access to it.
+
+100
+00:06:54,000 --> 00:06:56,015
+But we can also restrict the format or
+
+101
+00:06:56,015 --> 00:06:58,880
+the requirements in the data that they are
+sending.
+
+102
+00:06:58,880 --> 00:07:02,800
+So, in this case we're creating a
+relationship between the video
+
+103
+00:07:02,800 --> 00:07:07,140
+and its owner and the currently logged in
+user and the name.
+
+104
+00:07:07,140 --> 00:07:14,770
+So this is the username of the client.
+
+105
+00:07:14,770 --> 00:07:17,700
+So whatever client has logged in and
+established a
+
+106
+00:07:17,700 --> 00:07:20,120
+session, this is going to be the username
+of that.
+
+107
+00:07:20,120 --> 00:07:24,200
+And this is going to be data that's coming
+from the user, this video.
+
+108
+00:07:24,200 --> 00:07:29,630
+So this came from the user, or the client.
+
+109
+00:07:30,850 --> 00:07:34,270
+So, we're forcing them to make sure that
+when they upload
+
+110
+00:07:34,270 --> 00:07:39,250
+a video that they are matching the
+ownership to their username.
+
+111
+00:07:39,250 --> 00:07:41,110
+And so, we can have all kinds
+
+112
+00:07:41,110 --> 00:07:46,950
+of sophisticated expressions in these
+@PreAuthorize annotations to
+
+113
+00:07:46,950 --> 00:07:50,320
+control access and control the
+relationship between the
+
+114
+00:07:50,320 --> 00:07:53,900
+data and the user that's sending the
+request.
+

@@ -1,0 +1,816 @@
+1
+00:00:00,101 --> 00:00:08,743
+[MUSIC]
+
+2
+00:00:08,743 --> 00:00:11,696
+Once we've created our video repo, we
+still have
+
+3
+00:00:11,696 --> 00:00:13,804
+to worry about how we expose it to the
+
+4
+00:00:13,804 --> 00:00:16,547
+mobile clients who are going to be sending
+HTTP
+
+5
+00:00:16,547 --> 00:00:20,360
+requests to store videos and to do things
+with it.
+
+6
+00:00:20,360 --> 00:00:22,700
+Now, it may seem fairly straightforward.
+
+7
+00:00:22,700 --> 00:00:25,380
+We could just go and create a Controller,
+and
+
+8
+00:00:27,720 --> 00:00:35,652
+let's say it's our video controller, or
+our video service.
+
+9
+00:00:38,480 --> 00:00:44,690
+And inside of this controller we could go
+and have, the
+
+10
+00:00:44,690 --> 00:00:49,520
+repository, that we had just created,
+automatically wired in by Spring.
+
+11
+00:00:50,750 --> 00:00:54,620
+So, we don't actually even have to define
+it in our configuration.
+
+12
+00:00:54,620 --> 00:00:57,530
+We can allow Spring, to go ahead and find
+it
+
+13
+00:00:57,530 --> 00:01:00,780
+in one of its internal configurations and
+auto wire it in.
+
+14
+00:01:00,780 --> 00:01:07,180
+So we have our VideoRepo, and then we'll
+just call this repo.
+
+15
+00:01:08,930 --> 00:01:14,190
+Now, what we'd want to be able to do is
+allow clients to send videos to store.
+
+16
+00:01:14,190 --> 00:01:21,409
+So the first method we might add would be
+public void save.
+
+17
+00:01:22,710 --> 00:01:23,851
+And we take a video.
+
+18
+00:01:23,851 --> 00:01:27,121
+[BLANK_AUDIO]
+
+19
+00:01:27,121 --> 00:01:31,837
+And then inside of this thing, all we're
+
+20
+00:01:31,837 --> 00:01:36,570
+going to do is say repo.save and the
+video.
+
+21
+00:01:36,570 --> 00:01:39,330
+And we could return a response to the
+client if we wanted.
+
+22
+00:01:39,330 --> 00:01:42,549
+And we'd probably want to go and just put
+a request mapping on this.
+
+23
+00:01:47,890 --> 00:01:53,007
+To something like /video/save.
+
+24
+00:01:53,007 --> 00:01:59,520
+And you can imagine that, and again we
+would need
+
+25
+00:01:59,520 --> 00:02:05,340
+annotations on the parameters, like on the
+video to do the body of the request.
+
+26
+00:02:05,340 --> 00:02:07,430
+We might want to return some type
+
+27
+00:02:07,430 --> 00:02:10,160
+of different status codes depending on
+what happened.
+
+28
+00:02:10,160 --> 00:02:12,330
+But the primary thing that we are going to
+
+29
+00:02:12,330 --> 00:02:14,680
+have is methods over and over that look
+like save.
+
+30
+00:02:14,680 --> 00:02:18,820
+And then we delegate to the repository.
+
+31
+00:02:18,820 --> 00:02:21,410
+And we're probably going to have another
+method
+
+32
+00:02:21,410 --> 00:02:23,944
+for delete, so that people can remove
+videos.
+
+33
+00:02:23,944 --> 00:02:27,615
+[BLANK_AUDIO]
+
+34
+00:02:27,615 --> 00:02:29,080
+And it'll take some data.
+
+35
+00:02:29,080 --> 00:02:35,330
+And then we'll probably have another
+method for searching.
+
+36
+00:02:35,330 --> 00:02:39,330
+So we might have a method that returns a
+list of videos.
+
+37
+00:02:44,110 --> 00:02:46,349
+And we have some findBy, let's say name.
+
+38
+00:02:49,210 --> 00:02:53,050
+And you can imagine that we're going to
+have lots and lots of methods
+
+39
+00:02:53,050 --> 00:02:54,290
+where all of these methods in the
+
+40
+00:02:54,290 --> 00:02:57,560
+controller are just providing a request
+mapping
+
+41
+00:02:57,560 --> 00:03:03,060
+that essentially takes a video and then
+delegates to this video repository that we
+
+42
+00:03:03,060 --> 00:03:07,550
+created, that actually has all the logic
+for storing this data in the database.
+
+43
+00:03:07,550 --> 00:03:09,860
+But it's a lot of work to go and
+
+44
+00:03:09,860 --> 00:03:12,970
+have to individually create each one of
+these methods.
+
+45
+00:03:12,970 --> 00:03:14,090
+It's doing very little work.
+
+46
+00:03:14,090 --> 00:03:17,120
+It's essentially just delegating to the
+repository.
+
+47
+00:03:18,150 --> 00:03:24,670
+Wouldn't it be nice if Spring had a way of
+just automatically exposing our video
+
+48
+00:03:24,670 --> 00:03:31,120
+repository as a service that could be
+accessed via HTTP.
+
+49
+00:03:31,120 --> 00:03:36,160
+So clients could directly talk through
+Spring to this video repository.
+
+50
+00:03:36,160 --> 00:03:40,860
+And we didn't have to write all of this
+code that's very repetitive
+
+51
+00:03:43,230 --> 00:03:45,030
+and isn't really what we want.
+
+52
+00:03:45,030 --> 00:03:48,350
+We'd really like to eliminate this stuff.
+
+53
+00:03:48,350 --> 00:03:54,300
+And simplify, so that we can just write
+the things that matter,
+
+54
+00:03:54,300 --> 00:03:56,670
+our logic that matters, and we can ask
+Spring to go and
+
+55
+00:03:56,670 --> 00:04:00,550
+do repetitive boilerplate things that we
+have to do over and over,
+
+56
+00:04:00,550 --> 00:04:04,910
+like save, delete, and find videos, and
+delegate to the video repository.
+
+57
+00:04:04,910 --> 00:04:10,700
+Luckily, Spring provides a way to do that
+through something called Spring Data Rest.
+
+58
+00:04:10,700 --> 00:04:15,280
+And the basic idea behind this is that we
+can take a repository and we can
+
+59
+00:04:15,280 --> 00:04:18,220
+automatically expose it through a series
+of request
+
+60
+00:04:18,220 --> 00:04:23,130
+mappings like /video or /video and a
+particular property.
+
+61
+00:04:23,130 --> 00:04:25,260
+And we can send different HTTP request
+
+62
+00:04:25,260 --> 00:04:29,990
+methods to take actions on those
+resources, because
+
+63
+00:04:29,990 --> 00:04:33,810
+Spring provides a rest based mechanism
+through Spring
+
+64
+00:04:33,810 --> 00:04:37,740
+Data Rest to interact with a video
+repository.
+
+65
+00:04:37,740 --> 00:04:42,890
+So each of the pieces of data in the
+repository is considered a rest resource,
+
+66
+00:04:42,890 --> 00:04:48,370
+and then the actions like get is
+essentially a retrieval of a resource.
+
+67
+00:04:48,370 --> 00:04:50,889
+Put is the replacement of a resource.
+
+68
+00:04:51,950 --> 00:04:57,860
+Post is the addition of a new ray,
+resource to the list of resources.
+
+69
+00:04:57,860 --> 00:05:00,470
+Delete is the removal of a resource, and
+so
+
+70
+00:05:00,470 --> 00:05:02,990
+Spring Data Rest gives us a way to do
+this.
+
+71
+00:05:04,480 --> 00:05:09,900
+To use Spring Data Rest to make our
+repository videos accessible via
+
+72
+00:05:09,900 --> 00:05:15,680
+HTTP, or to make any other repository of
+data accessible HTTP.
+
+73
+00:05:15,680 --> 00:05:18,650
+We have to make two important but small
+changes.
+
+74
+00:05:18,650 --> 00:05:24,542
+The first one is, on our repository
+interface, we need to add the
+
+75
+00:05:24,542 --> 00:05:34,542
+@RepositoryRestResource annotation.
+
+76
+00:05:36,830 --> 00:05:41,120
+And we're going to add two different
+attributes to this annotation.
+
+77
+00:05:41,120 --> 00:05:47,297
+One of them is going to be the
+
+78
+00:05:47,297 --> 00:05:54,822
+collectionResourceRelation.
+
+79
+00:05:54,822 --> 00:05:57,883
+And we want something like videos, so if
+you
+
+80
+00:05:57,883 --> 00:06:00,961
+have a collection of them how do you name
+it?
+
+81
+00:06:00,961 --> 00:06:04,801
+And then we're going to have the path,
+which is going
+
+82
+00:06:04,801 --> 00:06:08,836
+to be the path that we're assessing this
+stuff with.
+
+83
+00:06:08,836 --> 00:06:14,661
+So, something like video would turn into
+the ability
+
+84
+00:06:14,661 --> 00:06:20,260
+to access this stuff through a request to
+/video.
+
+85
+00:06:20,260 --> 00:06:24,010
+So, the path is determining where this
+thing gets exposed.
+
+86
+00:06:24,010 --> 00:06:26,900
+It's similar to how the request mapping is
+built.
+
+87
+00:06:26,900 --> 00:06:30,860
+It's telling Spring where to expose this
+thing.
+
+88
+00:06:30,860 --> 00:06:33,140
+Now this is the first thing we have to do
+
+89
+00:06:33,140 --> 00:06:38,105
+and we add this this annotation to our
+repository interface.
+
+90
+00:06:38,105 --> 00:06:44,995
+So, we call VideoRepo, and
+
+91
+00:06:44,995 --> 00:06:52,179
+it extended a bunch of stuff.
+
+92
+00:06:52,179 --> 00:06:56,646
+And all we have to do is go and add this
+one annotation to the actual repo,
+
+93
+00:06:56,646 --> 00:07:00,219
+and the interface for it, and Spring will
+automatically
+
+94
+00:07:00,219 --> 00:07:03,057
+know that this is something I need to
+expose.
+
+95
+00:07:03,057 --> 00:07:05,159
+And here is where I need to expose it.
+
+96
+00:07:05,159 --> 00:07:08,505
+And when I'm having multiple instances of
+the resource
+
+97
+00:07:08,505 --> 00:07:11,860
+that I'm returning, here's what I'm going
+to call them.
+
+98
+00:07:11,860 --> 00:07:12,810
+I'm going to call them videos.
+
+99
+00:07:13,850 --> 00:07:15,920
+Now, the second thing we need to do
+
+100
+00:07:15,920 --> 00:07:18,840
+is somewhere we're going to have a
+configuration.
+
+101
+00:07:18,840 --> 00:07:22,570
+So, in some class we've got a
+configuration that
+
+102
+00:07:22,570 --> 00:07:27,500
+we're using to define the components of
+our application.
+
+103
+00:07:27,500 --> 00:07:28,810
+So we're just going to call this,
+
+104
+00:07:31,710 --> 00:07:32,060
+app.
+
+105
+00:07:32,060 --> 00:07:33,700
+We're going to assume it's in the
+Application,
+
+106
+00:07:36,090 --> 00:07:36,590
+class.
+
+107
+00:07:38,700 --> 00:07:41,270
+And we have this configuration that's
+defining
+
+108
+00:07:41,270 --> 00:07:43,400
+all of these different components in our
+application.
+
+109
+00:07:44,430 --> 00:07:47,210
+To enable Spring Data Rest, we need
+
+110
+00:07:47,210 --> 00:07:51,920
+to import its configuration information to
+automatically set
+
+111
+00:07:51,920 --> 00:07:54,910
+up its controller that its using
+internally
+
+112
+00:07:54,910 --> 00:07:58,250
+to route and send requests to our
+repository.
+
+113
+00:07:58,250 --> 00:08:02,770
+So in order to that, we need
+
+114
+00:08:02,770 --> 00:08:07,487
+to import an additional
+
+115
+00:08:07,487 --> 00:08:12,597
+configuration, and it's the
+
+116
+00:08:12,597 --> 00:08:18,899
+RepositoryRestMVC Configuration.
+
+117
+00:08:18,899 --> 00:08:24,572
+[BLANK_AUDIO]
+
+118
+00:08:24,572 --> 00:08:26,702
+This is quite long, it's starting to
+
+119
+00:08:26,702 --> 00:08:29,643
+extend past my writing capabilities on
+this board.
+
+120
+00:08:29,643 --> 00:08:33,970
+But I think I just barely gotten it into
+the video, hopefully.
+
+121
+00:08:33,970 --> 00:08:35,680
+So by adding this one annotation
+
+122
+00:08:35,680 --> 00:08:41,470
+right here, importing the
+RepositoryRestMVC Configuration class.
+
+123
+00:08:41,470 --> 00:08:43,696
+And adding this annotation to
+
+124
+00:08:43,696 --> 00:08:48,418
+our repository interface, the
+RepositoryRestResource, we
+
+125
+00:08:48,418 --> 00:08:53,582
+simply told Spring to go and automatically
+take our repository, and
+
+126
+00:08:53,582 --> 00:08:58,569
+expose it using rest to mobile clients
+through HTTP, or through,
+
+127
+00:08:58,569 --> 00:09:03,044
+to any other client, to a browser based
+client using HTTP.
+
+128
+00:09:03,044 --> 00:09:08,019
+So we can now send, because we've designed
+the path to
+
+129
+00:09:08,019 --> 00:09:12,992
+be video, we can send GET, we can send
+POST, and other
+
+130
+00:09:12,992 --> 00:09:18,400
+requests to this URL in order to
+automatically go and add and
+
+131
+00:09:18,400 --> 00:09:23,949
+remove and change the data that's within
+that repository.
+
+132
+00:09:25,490 --> 00:09:27,910
+After we've created the repository
+interface
+
+133
+00:09:27,910 --> 00:09:30,130
+for our video repository or any other
+
+134
+00:09:30,130 --> 00:09:35,570
+repository to save and retrieve videos or
+other objects that we want to persist,
+
+135
+00:09:36,580 --> 00:09:39,970
+the last thing that we have to do in order
+to enable those
+
+136
+00:09:39,970 --> 00:09:43,530
+repositories, is tell Spring to
+automatically
+
+137
+00:09:43,530 --> 00:09:46,220
+create the implementations of those
+repository interfaces.
+
+138
+00:09:46,220 --> 00:09:52,270
+And the way that we do that is in our
+configuration for the application.
+
+139
+00:09:52,270 --> 00:09:55,240
+So let's assume that we have a
+configuration
+
+140
+00:09:58,720 --> 00:10:02,035
+on a class that we'll call Application,
+
+141
+00:10:02,035 --> 00:10:05,752
+we'll assume it's in the core application
+class.
+
+142
+00:10:09,080 --> 00:10:11,870
+And we have some various components that
+are
+
+143
+00:10:11,870 --> 00:10:15,980
+being defined as beings or otherwise, in
+this configuration.
+
+144
+00:10:15,980 --> 00:10:25,192
+The last thing that we need to do is add
+an annotation @enableJPARepositories.
+
+145
+00:10:25,192 --> 00:10:28,295
+[BLANK_AUDIO]
+
+146
+00:10:28,295 --> 00:10:31,440
+And this is the last key thing that we
+need in order
+
+147
+00:10:31,440 --> 00:10:33,666
+to tell Spring to automatically go
+
+148
+00:10:33,666 --> 00:10:37,970
+and create the implementation of our
+repositories.
+
+149
+00:10:37,970 --> 00:10:42,870
+Spring needs to know that I need to go and
+create those implementations.
+
+150
+00:10:42,870 --> 00:10:47,490
+Now, there's two way that it can discover
+the implementations.
+
+151
+00:10:47,490 --> 00:10:54,290
+The easiest way is we can add
+@ComponentScan,
+
+152
+00:10:54,290 --> 00:11:00,130
+and then some package, like
+
+153
+00:11:00,130 --> 00:11:05,465
+org.mobile, let's say.
+
+154
+00:11:05,465 --> 00:11:09,390
+.data.
+
+155
+00:11:09,390 --> 00:11:15,460
+And let's assume that this is where our
+repository is.
+
+156
+00:11:16,540 --> 00:11:21,540
+By telling Spring to go and do a component
+scan, Spring is automatically going
+
+157
+00:11:21,540 --> 00:11:26,100
+to look at all of the classes in this Java
+package that we've specified.
+
+158
+00:11:26,100 --> 00:11:29,930
+So we're just dispecifying fully qualified
+name of a Java package.
+
+159
+00:11:29,930 --> 00:11:33,643
+And then Spring is going and automatically
+scanning that
+
+160
+00:11:33,643 --> 00:11:37,434
+package and discovering all of the
+interfaces that extend
+
+161
+00:11:37,434 --> 00:11:41,613
+to something like CrudRepository and the
+other different types
+
+162
+00:11:41,613 --> 00:11:45,272
+of data repositories that we would have in
+Spring.
+
+163
+00:11:45,272 --> 00:11:47,898
+And each time it finds one of those
+interfaces,
+
+164
+00:11:47,898 --> 00:11:52,430
+it then automatically goes and creates an
+implementation of it.
+
+165
+00:11:52,430 --> 00:11:57,210
+And then, anywhere where we want to use
+that particular repository, and we've
+
+166
+00:11:57,210 --> 00:12:03,190
+added an, @AutoWired for, for example, the
+video repo.
+
+167
+00:12:03,190 --> 00:12:05,580
+Spring will automatically, after having
+gone through
+
+168
+00:12:05,580 --> 00:12:09,290
+this package, finding the video repo,
+seeing
+
+169
+00:12:09,290 --> 00:12:11,450
+that it's a repository, it will create
+
+170
+00:12:11,450 --> 00:12:15,230
+an implementation of the repository and
+then dynamically
+
+171
+00:12:15,230 --> 00:12:20,270
+find all the places where that repository
+type is referred to with at @AutoWired,
+
+172
+00:12:20,270 --> 00:12:24,790
+and then place that repo implementation
+object
+
+173
+00:12:24,790 --> 00:12:27,650
+into all of those AutoWired variables or
+methods.
+

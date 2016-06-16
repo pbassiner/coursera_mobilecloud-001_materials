@@ -1,0 +1,442 @@
+1
+00:00:00,532 --> 00:00:08,843
+[MUSIC]
+
+2
+00:00:08,843 --> 00:00:12,710
+How do we create this idea
+of a session on top of HTTP?
+
+3
+00:00:12,710 --> 00:00:18,800
+One of the nuts and bolts for a client
+beginning a dialog with a server and
+
+4
+00:00:18,800 --> 00:00:23,400
+being able to continue that dialogue
+across multiple HTTP requests.
+
+5
+00:00:23,400 --> 00:00:26,790
+Because as we remember, the client's
+going to send a request to the server, so
+
+6
+00:00:26,790 --> 00:00:28,080
+let's go ahead and draw this out.
+
+7
+00:00:28,080 --> 00:00:32,390
+And we're going to have our
+mobile device that's our client.
+
+8
+00:00:32,390 --> 00:00:37,540
+And the client's going to send
+a request to the server, and
+
+9
+00:00:37,540 --> 00:00:41,160
+it's going to get a response and
+then it may disconnect.
+
+10
+00:00:41,160 --> 00:00:46,630
+And then it may send another request,
+get a response, and disconnect.
+
+11
+00:00:46,630 --> 00:00:49,930
+So, when we send this second request,
+
+12
+00:00:51,820 --> 00:00:54,220
+let's say this is the first and
+this is the second.
+
+13
+00:00:55,460 --> 00:01:01,010
+How does the server know that this is the
+same client that sent the first request?
+
+14
+00:01:02,340 --> 00:01:06,620
+Well, we could try to do this with things
+like the I.P. address of the client.
+
+15
+00:01:06,620 --> 00:01:09,570
+We can try to say well,
+if they're sending it from the same I.P.
+
+16
+00:01:09,570 --> 00:01:12,120
+address, or
+the same MAC address on the network.
+
+17
+00:01:12,120 --> 00:01:14,459
+And if you don't know what these things
+are, don't worry too much about it.
+
+18
+00:01:15,600 --> 00:01:19,030
+But the problem is all those types
+of identifiers can be spoofed.
+
+19
+00:01:19,030 --> 00:01:22,360
+There's all kinds of tools
+that an attacker could use to
+
+20
+00:01:22,360 --> 00:01:27,340
+send false data to the server about the IP
+address or MAC address, or other things.
+
+21
+00:01:27,340 --> 00:01:29,200
+And other than ways that the,
+
+22
+00:01:29,200 --> 00:01:32,430
+the attacker can try to conceal
+that data from the server.
+
+23
+00:01:33,720 --> 00:01:40,370
+So, how do we know that this second
+request is coming from the same client?
+
+24
+00:01:40,370 --> 00:01:47,520
+Well, the way that we do this with most
+typical web applications is by sending
+
+25
+00:01:47,520 --> 00:01:54,520
+a session cookie back to
+the client with the first request.
+
+26
+00:01:55,710 --> 00:02:00,570
+So, what we'll typically do is have
+a first request that something like slash
+
+27
+00:02:00,570 --> 00:02:09,390
+login, and this will be over HTTPS,
+because we don't anyone to intercept this.
+
+28
+00:02:09,390 --> 00:02:14,840
+And we'll provide, you know,
+the user and the password
+
+29
+00:02:16,380 --> 00:02:20,780
+in the HTTP request,
+maybe as the body or something else.
+
+30
+00:02:20,780 --> 00:02:23,620
+And this'll all be encrypted and
+sent via HTTPS.
+
+31
+00:02:25,370 --> 00:02:27,150
+So the server is going to see this.
+
+32
+00:02:27,150 --> 00:02:29,860
+It's going to validate who that user is.
+
+33
+00:02:29,860 --> 00:02:33,990
+It's going to check their password
+against the password in the database and
+
+34
+00:02:33,990 --> 00:02:35,840
+then it's going to decide whether or
+
+35
+00:02:35,840 --> 00:02:40,540
+not they want to establish a session
+that's associated with this user.
+
+36
+00:02:40,540 --> 00:02:44,530
+So, server may say yes,
+I believe that this is Bob or
+
+37
+00:02:44,530 --> 00:02:47,425
+I believe this is Alice, and
+I've verified their passwords.
+
+38
+00:02:47,425 --> 00:02:51,680
+And so, then the server's
+going to send back a cookie, and
+
+39
+00:02:51,680 --> 00:02:55,950
+remember a cookie is just a little bit of
+data that the server is sending back to
+
+40
+00:02:55,950 --> 00:02:58,350
+the client and asking it to remember.
+
+41
+00:02:59,420 --> 00:03:02,590
+So the server is going to
+send back a session cookie,
+
+42
+00:03:02,590 --> 00:03:06,520
+which is a little bit of data
+that the server is going to
+
+43
+00:03:06,520 --> 00:03:11,430
+use to help re-identify that client in
+its session the next time it connects.
+
+44
+00:03:12,430 --> 00:03:18,180
+And so what'll happen is the second
+request, because the server sent a cookie,
+
+45
+00:03:22,170 --> 00:03:27,490
+the cookie will be sent by the client
+back to the server on the second request.
+
+46
+00:03:27,490 --> 00:03:30,720
+So, a cookie is a piece of information
+that the server wants the client to
+
+47
+00:03:30,720 --> 00:03:31,840
+remember, and
+
+48
+00:03:31,840 --> 00:03:36,506
+wants the client to send with each
+subsequent request back to the server.
+
+49
+00:03:36,506 --> 00:03:42,954
+So, on the server, you can see it's
+going to send this session cookie and
+
+50
+00:03:42,954 --> 00:03:48,320
+it's going to associate this
+session cookie with Bob.
+
+51
+00:03:48,320 --> 00:03:53,092
+So we'll call this cookie one, and
+it will say Bob's cookie is one.
+
+52
+00:03:53,092 --> 00:03:59,480
+And then the session cookie one, when it
+shows back up, it will go and it will say.
+
+53
+00:03:59,480 --> 00:04:00,870
+Whose cookie is cookie 1?
+
+54
+00:04:00,870 --> 00:04:03,570
+And it will say,
+Well that's Bob's cookie, here.
+
+55
+00:04:03,570 --> 00:04:08,930
+And so it knows that the second request
+must be coming from the same person,
+
+56
+00:04:08,930 --> 00:04:12,250
+or the same client,
+that sent the first request.
+
+57
+00:04:12,250 --> 00:04:17,130
+Because that first request had a cookie
+sent back, a session cookie or
+
+58
+00:04:17,130 --> 00:04:19,210
+a little bit of identifying data.
+
+59
+00:04:19,210 --> 00:04:22,480
+The client is providing that bit
+of identifying data again, so
+
+60
+00:04:22,480 --> 00:04:24,790
+now the server can say I know who that is.
+
+61
+00:04:24,790 --> 00:04:29,870
+That's that same client that sent me
+that original login request for Bob.
+
+62
+00:04:29,870 --> 00:04:34,350
+And so I'm going to treat
+this request as if it's Bob.
+
+63
+00:04:34,350 --> 00:04:38,370
+I'm going to give them all of
+the rights and privileges that Bob has.
+
+64
+00:04:38,370 --> 00:04:42,320
+Because previously, they provided me
+with Bob's username and password.
+
+65
+00:04:42,320 --> 00:04:43,810
+And I sent them this cookie back.
+
+66
+00:04:43,810 --> 00:04:46,120
+They provided me that cookie again.
+
+67
+00:04:46,120 --> 00:04:48,980
+So, unless somebody compromised them,
+
+68
+00:04:48,980 --> 00:04:51,810
+I can trust that this is Bob
+sending the same request.
+
+69
+00:04:53,120 --> 00:04:58,580
+Now, this is why it's so important
+that this always be done over HTTPS.
+
+70
+00:04:58,580 --> 00:05:03,020
+At least for cases where there's
+anything consequential and there's data.
+
+71
+00:05:03,020 --> 00:05:06,310
+Or anything consequential that
+Bob can do on the server.
+
+72
+00:05:06,310 --> 00:05:09,640
+Or anything consequential that
+Bob doesn't want exposed,
+
+73
+00:05:09,640 --> 00:05:11,220
+that's his data that lives on the server.
+
+74
+00:05:12,630 --> 00:05:17,250
+So, when we are sending this log-in,
+obviously, the username and
+
+75
+00:05:17,250 --> 00:05:18,780
+password needs to be protected.
+
+76
+00:05:18,780 --> 00:05:20,630
+So that needs to go over HTTPS and
+encrypted.
+
+77
+00:05:21,740 --> 00:05:25,830
+The other reason is we want the response
+to be encrypted because this session
+
+78
+00:05:25,830 --> 00:05:31,400
+cookie then gives whoever holds it
+the ability to tell the server and
+
+79
+00:05:31,400 --> 00:05:34,390
+pretend to the server to
+be a particular client.
+
+80
+00:05:34,390 --> 00:05:36,080
+In this case to be Bob.
+
+81
+00:05:36,080 --> 00:05:40,030
+So if somebody could intercept this
+session cookie, they can then go and
+
+82
+00:05:40,030 --> 00:05:42,750
+provide it to the server and
+impersonate Bob.
+
+83
+00:05:42,750 --> 00:05:45,960
+And get access to his bank accounts or
+whatever else it is.
+
+84
+00:05:45,960 --> 00:05:50,830
+So this is why HTTPS is so
+important when establishing and
+
+85
+00:05:50,830 --> 00:05:56,000
+maintaining sessions, is because we
+want to be able to prove our identity,
+
+86
+00:05:56,000 --> 00:05:59,710
+get back a cookie and then we want to
+be able to provide that same data or
+
+87
+00:05:59,710 --> 00:06:03,440
+proof of identity to the server and
+do it securely.
+
+88
+00:06:03,440 --> 00:06:06,190
+So, this connection also
+has to be over HTTPS.
+
+89
+00:06:07,230 --> 00:06:13,700
+Any time we're sending the session
+cookie we want that data over HTTPS and
+
+90
+00:06:13,700 --> 00:06:17,290
+encrypted because don't want someone
+to be able to intercept this.
+
+91
+00:06:17,290 --> 00:06:19,860
+If somebody can intercept
+the session cookie,
+
+92
+00:06:19,860 --> 00:06:22,660
+they can impersonate the client
+that's logged in with it
+

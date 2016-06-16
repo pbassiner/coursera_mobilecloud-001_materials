@@ -1,0 +1,639 @@
+1
+00:00:00,835 --> 00:00:09,043
+[MUSIC]
+
+2
+00:00:09,043 --> 00:00:12,909
+When we're maintaining a session one of
+the important things is to
+
+3
+00:00:12,909 --> 00:00:17,870
+protect the data that's being sent from
+the mobile client to the server.
+
+4
+00:00:17,870 --> 00:00:18,980
+And especially if we're going to do
+
+5
+00:00:18,980 --> 00:00:21,720
+something like operating a banking app
+that's going
+
+6
+00:00:21,720 --> 00:00:24,500
+to be sending data about the person's
+
+7
+00:00:24,500 --> 00:00:27,720
+account to the server and receiving data,
+rec-,
+
+8
+00:00:27,720 --> 00:00:29,690
+regarding the balances and the
+transactions
+
+9
+00:00:29,690 --> 00:00:32,170
+and other things in the account.
+
+10
+00:00:32,170 --> 00:00:35,740
+It's really important that we protect that
+data in transit.
+
+11
+00:00:35,740 --> 00:00:40,089
+So the very first thing we have to know is
+that if we have, let's say a server.
+
+12
+00:00:41,320 --> 00:00:47,780
+And we have a client, like a mobile
+device, that is talking to it over HTTP.
+
+13
+00:00:49,320 --> 00:00:55,590
+Particularly if you're talking over some
+public WiFi network or something else.
+
+14
+00:00:55,590 --> 00:01:00,320
+All of the data in this request is plain
+text.
+
+15
+00:01:02,580 --> 00:01:05,240
+Or should be plain text by default.
+
+16
+00:01:05,240 --> 00:01:07,210
+And what this means is, is that, if
+there's
+
+17
+00:01:07,210 --> 00:01:11,090
+another attacker, who happens to be
+nearby, or someone who's
+
+18
+00:01:11,090 --> 00:01:13,610
+on the network that can see the traffic
+going
+
+19
+00:01:13,610 --> 00:01:19,050
+by, they can steal everything that's in
+this HTTP request.
+
+20
+00:01:19,050 --> 00:01:24,320
+So, there are all kinds of tools that are
+available that are simple to use tools
+
+21
+00:01:24,320 --> 00:01:29,180
+that attackers can download that can
+readily grab all of your HTTP traffic.
+
+22
+00:01:30,200 --> 00:01:34,750
+So if you ever go and you go to a public
+
+23
+00:01:34,750 --> 00:01:39,010
+coffee shop, let's say, and you log onto
+the WiFi there and
+
+24
+00:01:39,010 --> 00:01:42,470
+you begin browsing web pages and you see
+that the URL for
+
+25
+00:01:42,470 --> 00:01:49,290
+the web page is something like http://,
+this is just plain HTTP.
+
+26
+00:01:49,290 --> 00:01:52,900
+And so what you should be aware of is that
+everything
+
+27
+00:01:52,900 --> 00:01:56,900
+that you send in those requests, what
+pages you're browsing, all
+
+28
+00:01:56,900 --> 00:01:59,980
+of the data returned in those pages,
+anything that you send
+
+29
+00:01:59,980 --> 00:02:05,280
+in the body of your HTTP request or in the
+request parameters.
+
+30
+00:02:05,280 --> 00:02:08,500
+All of that can be intercepted by somebody
+else.
+
+31
+00:02:08,500 --> 00:02:12,000
+So anytime we just see plain old HTTP as
+
+32
+00:02:12,000 --> 00:02:14,770
+the protocol, we need to be aware that
+what
+
+33
+00:02:14,770 --> 00:02:17,500
+we're sending is in no way secure and can
+
+34
+00:02:17,500 --> 00:02:21,150
+very easily be grabbed by someone else in
+the network.
+
+35
+00:02:21,150 --> 00:02:25,800
+Now, that might be somebody else that has
+access to your
+
+36
+00:02:25,800 --> 00:02:28,950
+wireless network or it could be somewhere
+else in the network.
+
+37
+00:02:28,950 --> 00:02:34,610
+So, for example you may be on a WiFi
+network that's secured and you are talking
+
+38
+00:02:34,610 --> 00:02:36,390
+to an access point that nobody else has
+
+39
+00:02:36,390 --> 00:02:40,240
+access to, but once that traffic leaves
+your access
+
+40
+00:02:40,240 --> 00:02:42,620
+point and travels out on to the Internet,
+
+41
+00:02:42,620 --> 00:02:45,860
+anybody who happens to have that traffic
+routed by
+
+42
+00:02:45,860 --> 00:02:50,780
+them could look at it and see what you are
+asking for or what data you're receiving.
+
+43
+00:02:51,820 --> 00:02:57,290
+Now there is a protocol that can stop all
+of this from happening, and that's
+
+44
+00:02:57,290 --> 00:03:02,760
+the HTTPS, or the Hypertext Transfer
+Protocol, the secure version of it.
+
+45
+00:03:02,760 --> 00:03:09,060
+So, whenever you see HTTPS, this is no
+longer plain text, but encrypted.
+
+46
+00:03:11,210 --> 00:03:15,740
+So this is the protocol we want to use
+whenever we're going to send
+
+47
+00:03:15,740 --> 00:03:18,135
+really sensitive data we wouldn't want
+anybody
+
+48
+00:03:18,135 --> 00:03:20,019
+else to be able to view or intercept.
+
+49
+00:03:21,260 --> 00:03:29,040
+Now, HTTPS is based off of a particular
+type of cryptography, or the, the really
+
+50
+00:03:29,040 --> 00:03:30,670
+important piece of it is based off
+
+51
+00:03:30,670 --> 00:03:34,380
+a type of cryptography called public key
+encryption.
+
+52
+00:03:34,380 --> 00:03:40,990
+So, what we do with this, is when you want
+to communicate with the server
+
+53
+00:03:40,990 --> 00:03:46,120
+the server gives your client a special
+encryption key.
+
+54
+00:03:49,850 --> 00:03:54,460
+And whenever you're client needs to go and
+send some
+
+55
+00:03:54,460 --> 00:03:59,930
+data to the server it encrypts all of the
+data that it's sending
+
+56
+00:03:59,930 --> 00:04:05,850
+in a request and uses the key provided by
+the server.
+
+57
+00:04:05,850 --> 00:04:08,500
+And so what this means is, is that
+somebody else that's on
+
+58
+00:04:08,500 --> 00:04:12,000
+the network or someone else that happens
+to see your traffic pass
+
+59
+00:04:12,000 --> 00:04:16,970
+by them, they can intercept it, but
+because it's encrypted, it's more
+
+60
+00:04:16,970 --> 00:04:20,970
+than likely that they can't actually read
+the data that inside of it.
+
+61
+00:04:22,210 --> 00:04:27,470
+One of the questions you may be asking
+yourselves is, if the client goes and asks
+
+62
+00:04:27,470 --> 00:04:32,630
+for the key that it needs to use to
+encrypt the data, how do we prevent
+
+63
+00:04:32,630 --> 00:04:37,665
+somebody else, some attacker that can
+already see the
+
+64
+00:04:37,665 --> 00:04:43,850
+traffic, from producing its own key
+that's.
+
+65
+00:04:43,850 --> 00:04:46,130
+Let's call it the a key or the attacker
+key.
+
+66
+00:04:46,130 --> 00:04:48,900
+And we'll call this r key or the real key.
+
+67
+00:04:48,900 --> 00:04:51,660
+How do we prevent somebody from getting in
+the
+
+68
+00:04:51,660 --> 00:04:54,940
+middle, or performing a man-in-the-middle
+attack, where when the
+
+69
+00:04:54,940 --> 00:04:57,480
+server sends back the key the attacker
+actually actually
+
+70
+00:04:57,480 --> 00:05:01,370
+receives it, passes a different key to the
+client.
+
+71
+00:05:01,370 --> 00:05:04,040
+And then when the client begins to go send
+data it doesn't
+
+72
+00:05:04,040 --> 00:05:08,440
+know it, but it actually begins encrypting
+with a key, sending it
+
+73
+00:05:08,440 --> 00:05:11,070
+to the attacker and then the attacked may
+forward it on or
+
+74
+00:05:11,070 --> 00:05:15,880
+change it by using r key that's actually
+meant for the server.
+
+75
+00:05:15,880 --> 00:05:18,280
+So, we could end up in situations
+
+76
+00:05:18,280 --> 00:05:21,650
+where we have what's called a
+man-in-the-middle attack.
+
+77
+00:05:21,650 --> 00:05:23,890
+Often abbreviated MITM.
+
+78
+00:05:24,940 --> 00:05:31,130
+And, we don't want to end up in a
+situation where the server returns a
+
+79
+00:05:31,130 --> 00:05:33,900
+key that gets intercepted by the attacker
+and
+
+80
+00:05:33,900 --> 00:05:36,160
+then the attacker can substitute a
+different key.
+
+81
+00:05:37,240 --> 00:05:44,040
+So how do we know that this particular key
+that we're getting back is really the key
+
+82
+00:05:44,040 --> 00:05:49,940
+that's associated with that server and the
+one that it wants us to send data with.
+
+83
+00:05:49,940 --> 00:05:54,260
+That's one of the hard challenges that
+HTTPS helps solve for us.
+
+84
+00:05:55,450 --> 00:05:57,870
+So to solve this problem of an
+
+85
+00:05:57,870 --> 00:06:01,810
+attacker potentially intercepting the key
+that is going
+
+86
+00:06:01,810 --> 00:06:03,750
+to be used by the client to encrypt
+
+87
+00:06:03,750 --> 00:06:10,040
+the data, HTTPS relies on public key
+cryptography.
+
+88
+00:06:10,040 --> 00:06:16,220
+Now, the idea behind public key
+cryptography is that we want to be able to
+
+89
+00:06:16,220 --> 00:06:22,640
+have data that we can encrypt with one key
+and only decrypt with a second key.
+
+90
+00:06:22,640 --> 00:06:26,320
+And, the idea behind this is that we can
+share a
+
+91
+00:06:26,320 --> 00:06:29,910
+public key with everybody that we want to
+communicate with us.
+
+92
+00:06:29,910 --> 00:06:33,480
+And if they encrypt data using that public
+key,
+
+93
+00:06:33,480 --> 00:06:37,190
+then it can only be read by our private
+key.
+
+94
+00:06:37,190 --> 00:06:40,530
+And similarly, if we encrypt data with our
+private
+
+95
+00:06:40,530 --> 00:06:45,360
+key the receiver can decrypt it with our
+public key.
+
+96
+00:06:45,360 --> 00:06:47,880
+So if we encrypt data with our private key
+
+97
+00:06:47,880 --> 00:06:50,330
+and the receiver can decrypt it with our
+public key,
+
+98
+00:06:50,330 --> 00:06:51,990
+then they know that it must have come from
+
+99
+00:06:51,990 --> 00:06:55,040
+us or at least somebody that has our
+private key.
+
+100
+00:06:55,040 --> 00:06:59,130
+Similarly, if they encrypt data with our
+public key then only
+
+101
+00:06:59,130 --> 00:07:01,850
+we can read it because only we have our
+private key.
+
+102
+00:07:02,970 --> 00:07:06,080
+So another way of thinking about this is
+an analogy
+
+103
+00:07:06,080 --> 00:07:11,030
+of a mail box, or a lockbox, or a safe.
+
+104
+00:07:12,150 --> 00:07:18,520
+And the idea behind this is if we put data
+into it using the public key,
+
+105
+00:07:18,520 --> 00:07:23,250
+the only way once we lock the lockbox with
+the public key.
+
+106
+00:07:23,250 --> 00:07:28,049
+The only way to unlock it is to use the
+private key.
+
+107
+00:07:28,049 --> 00:07:30,818
+[BLANK_AUDIO]
+
+108
+00:07:30,818 --> 00:07:37,311
+So if we, public locks, private unlocks.
+
+109
+00:07:37,311 --> 00:07:43,497
+Similarly, if we put data in here with the
+private key.
+
+110
+00:07:43,497 --> 00:07:47,068
+[BLANK_AUDIO]
+
+111
+00:07:47,068 --> 00:07:50,380
+So the private key locks the box.
+
+112
+00:07:50,380 --> 00:07:54,710
+The only way to get it out is by using the
+public key,
+
+113
+00:07:57,900 --> 00:07:58,860
+to unlock it.
+
+114
+00:08:00,420 --> 00:08:05,350
+And so what we have is this situation
+where I can put something in the box and
+
+115
+00:08:05,350 --> 00:08:08,870
+lock it, and somebody can take my public
+key
+
+116
+00:08:08,870 --> 00:08:11,480
+and unlock the box to get that data out.
+
+117
+00:08:11,480 --> 00:08:14,050
+And this is basically an identity
+operation.
+
+118
+00:08:14,050 --> 00:08:18,880
+If I can put information into the box and
+you can use my public key to unlock it,
+
+119
+00:08:18,880 --> 00:08:22,650
+you know I must be the person that put
+
+120
+00:08:22,650 --> 00:08:24,310
+that in there, and data that was put in
+there
+
+121
+00:08:24,310 --> 00:08:26,440
+must be from me because if you used my
+
+122
+00:08:26,440 --> 00:08:29,230
+public key to unlock this box, then you
+know that,
+
+123
+00:08:29,230 --> 00:08:31,000
+that means that I was the one that put
+
+124
+00:08:31,000 --> 00:08:33,160
+the data in there because I used my
+private key.
+
+125
+00:08:34,680 --> 00:08:38,280
+Similarly, if somebody uses a public key
+to put that
+
+126
+00:08:38,280 --> 00:08:41,370
+data in there, in the box, they know that
+once they've
+
+127
+00:08:41,370 --> 00:08:44,170
+put that data into the box the only way to
+
+128
+00:08:44,170 --> 00:08:46,670
+get it out is for me to use my private
+key.
+
+129
+00:08:46,670 --> 00:08:49,970
+So, they can have a confirmation or sort
+of
+
+130
+00:08:49,970 --> 00:08:52,790
+a, a, a faith that if they put data into
+
+131
+00:08:52,790 --> 00:08:55,830
+this box, that only the holder of the
+private key
+
+132
+00:08:55,830 --> 00:08:59,110
+can then unlock the box to get the data
+out.
+
+133
+00:08:59,110 --> 00:09:07,330
+And this format is the basis for how HTTPS
+manages to exchange the keys
+
+134
+00:09:07,330 --> 00:09:11,550
+that are used to protect the conversations
+between the clients and the servers.
+

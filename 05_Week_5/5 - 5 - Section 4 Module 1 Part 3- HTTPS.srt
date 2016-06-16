@@ -1,0 +1,908 @@
+1
+00:00:00,004 --> 00:00:08,712
+[MUSIC]
+
+2
+00:00:08,712 --> 00:00:13,940
+Now to use public key cryptography, to
+actually exchange keys securely, we have
+
+3
+00:00:13,940 --> 00:00:19,430
+to get a little bit more complex because
+we have to introduce a third party.
+
+4
+00:00:19,430 --> 00:00:24,280
+And that's going to be our certificate
+authority that we trust.
+
+5
+00:00:24,280 --> 00:00:26,410
+So what we have to do, is that we have
+
+6
+00:00:26,410 --> 00:00:32,060
+to agree on a authority that has a private
+key,
+
+7
+00:00:35,960 --> 00:00:38,060
+that we trust.
+
+8
+00:00:38,060 --> 00:00:40,430
+And so, let's say that I am the client.
+
+9
+00:00:43,250 --> 00:00:47,490
+I have predistributed the public key,
+
+10
+00:00:50,570 --> 00:00:51,890
+for the CA.
+
+11
+00:00:53,550 --> 00:00:57,570
+And similarly, we have a server.
+
+12
+00:00:59,320 --> 00:01:01,360
+And the server has the public key for the
+CA.
+
+13
+00:01:01,360 --> 00:01:04,230
+And so what the server does is it, before
+it gets set
+
+14
+00:01:04,230 --> 00:01:09,490
+up or runs, it goes and says, here is my
+public key.
+
+15
+00:01:13,520 --> 00:01:18,220
+And I would like you to sign or verify
+that this really is mine.
+
+16
+00:01:19,240 --> 00:01:21,621
+And the CA returns a sort of
+
+17
+00:01:21,621 --> 00:01:27,850
+digital signature or certificate
+validating the authenticity.
+
+18
+00:01:27,850 --> 00:01:32,140
+Now rather than going deep into the
+details of how this works,
+
+19
+00:01:32,140 --> 00:01:35,660
+basically what the CA is doing is it's
+using its private key.
+
+20
+00:01:35,660 --> 00:01:41,940
+It's encrypting the server's public key
+and the address, the URL of the server.
+
+21
+00:01:41,940 --> 00:01:48,675
+So if this is foo.com, and it wants to get
+a key, it's going to send
+
+22
+00:01:48,675 --> 00:01:56,990
+foo.com or its domain, and the public key
+to the certificate authority.
+
+23
+00:01:56,990 --> 00:01:59,920
+The certificate authority is going to
+encrypt both
+
+24
+00:01:59,920 --> 00:02:02,650
+of those pieces of data using its private
+key.
+
+25
+00:02:02,650 --> 00:02:05,750
+Or basically, put them into the box using
+its private key.
+
+26
+00:02:05,750 --> 00:02:09,060
+And then it's going to send the box to the
+server.
+
+27
+00:02:10,080 --> 00:02:15,240
+Now, any time the server needs to get its
+public key
+
+28
+00:02:15,240 --> 00:02:19,810
+and the domain that it's running on to a
+client, so
+
+29
+00:02:19,810 --> 00:02:23,670
+that the client can verify the
+authenticity of its certificate or
+
+30
+00:02:23,670 --> 00:02:29,730
+the key, it basically sends, and we're
+going to call this the box.
+
+31
+00:02:29,730 --> 00:02:33,720
+This is really a certificate, but for, to
+keep going with
+
+32
+00:02:33,720 --> 00:02:36,340
+the analogy that we used before, we're
+going to call this the box.
+
+33
+00:02:36,340 --> 00:02:39,180
+So, we sent the public key and the
+
+34
+00:02:39,180 --> 00:02:42,950
+domain, something like foo.com, to the
+certificate authority.
+
+35
+00:02:42,950 --> 00:02:47,180
+The certificate of authority took both of
+those pieces of data and
+
+36
+00:02:47,180 --> 00:02:52,010
+put them into this secure box and locked
+them using its private key.
+
+37
+00:02:52,010 --> 00:02:55,970
+Now, the certificate authority sends them
+both back to the server.
+
+38
+00:02:55,970 --> 00:02:58,030
+It sends the box back to the server.
+
+39
+00:02:59,500 --> 00:03:02,250
+And now whenever the server needs to give
+its
+
+40
+00:03:02,250 --> 00:03:05,920
+key, it to a client to communicate with
+it.
+
+41
+00:03:05,920 --> 00:03:08,720
+In this case, give it its public key.
+
+42
+00:03:08,720 --> 00:03:15,490
+The server sends that box that has the
+public key in it for the server,
+
+43
+00:03:20,470 --> 00:03:25,844
+and the client can guarantee and check
+that nobody has
+
+44
+00:03:25,844 --> 00:03:30,710
+intercepted, and this also has the domain
+by the way.
+
+45
+00:03:30,710 --> 00:03:37,010
+So in this case, it would be food.com, the
+client can use
+
+46
+00:03:37,010 --> 00:03:41,260
+the public key that it already has for the
+certificate authority, once you hit trust.
+
+47
+00:03:41,260 --> 00:03:45,520
+It can unlock the box, take the public key
+out.
+
+48
+00:03:45,520 --> 00:03:51,550
+Look at the domain and say, yes, this
+public key is attached to this domain.
+
+49
+00:03:51,550 --> 00:03:53,535
+And so if it's trying to communicate with
+
+50
+00:03:53,535 --> 00:03:56,225
+foo.com, it can unlock the box and see
+that
+
+51
+00:03:56,225 --> 00:03:58,540
+foo.com is in the box as well as
+
+52
+00:03:58,540 --> 00:04:01,865
+the public key that should be associated
+with foo.com.
+
+53
+00:04:01,865 --> 00:04:06,963
+And then, the client knows I can use that
+public key
+
+54
+00:04:06,963 --> 00:04:12,539
+to communicate with the
+
+55
+00:04:12,539 --> 00:04:20,000
+foo.com server, in order to send it data
+that nobody else can intercept.
+
+56
+00:04:20,000 --> 00:04:22,940
+And essentially, what the client and the
+server do is
+
+57
+00:04:22,940 --> 00:04:27,110
+they use this public key in this initial
+conversation to setup
+
+58
+00:04:27,110 --> 00:04:30,980
+a key in a secure communication channel,
+the public and
+
+59
+00:04:30,980 --> 00:04:33,730
+private keys are not continually used from
+that point of view.
+
+60
+00:04:33,730 --> 00:04:35,950
+They actually are used to set up
+
+61
+00:04:35,950 --> 00:04:39,510
+additional encryption information and
+start a session.
+
+62
+00:04:39,510 --> 00:04:42,320
+But this initial start up of the session
+
+63
+00:04:42,320 --> 00:04:45,310
+is boot strapping is done through public
+key encryption.
+
+64
+00:04:45,310 --> 00:04:50,050
+So this happens one time at the set up of
+the server, so when food.com
+
+65
+00:04:50,050 --> 00:04:55,930
+decides I want to be able to allow my
+clients to connect to me in a secure way,
+
+66
+00:04:55,930 --> 00:04:57,350
+they go and send a request to the
+
+67
+00:04:57,350 --> 00:05:00,420
+certificate authority to get their public
+key attached
+
+68
+00:05:00,420 --> 00:05:02,110
+to their domain and they get that box
+
+69
+00:05:02,110 --> 00:05:06,470
+back or that certificate back from the
+certificate authority.
+
+70
+00:05:06,470 --> 00:05:07,300
+And they do that once.
+
+71
+00:05:07,300 --> 00:05:10,520
+And then whenever any new client comes and
+connects, they just
+
+72
+00:05:10,520 --> 00:05:15,000
+keep sending that box back with their
+public key and their domain.
+
+73
+00:05:15,000 --> 00:05:17,830
+And the client whenever it wants, or
+whenever it
+
+74
+00:05:17,830 --> 00:05:19,570
+gets this thing, because it should be
+doing it every
+
+75
+00:05:19,570 --> 00:05:22,020
+time, can unlock the box with the public
+key to
+
+76
+00:05:22,020 --> 00:05:27,020
+verify that this is the correct public key
+for foo.com.
+
+77
+00:05:27,020 --> 00:05:29,860
+If an attacker gets in the middle here and
+they try
+
+78
+00:05:29,860 --> 00:05:33,400
+to send a different box back to the
+client, when the client
+
+79
+00:05:33,400 --> 00:05:37,690
+tries to go and unlock that other box,
+that the attacker substituted
+
+80
+00:05:37,690 --> 00:05:41,300
+with the public key of the certificate
+authority, it's not going to unlock.
+
+81
+00:05:41,300 --> 00:05:46,750
+And the client will detect, that they
+received a box or
+
+82
+00:05:46,750 --> 00:05:51,100
+a certificate that wasn't the proper one
+from somebody in the middle.
+
+83
+00:05:51,100 --> 00:05:55,780
+So the public and private key system
+allows the client to
+
+84
+00:05:55,780 --> 00:05:59,290
+detect and verify that the key that it's
+about to use
+
+85
+00:05:59,290 --> 00:06:02,900
+to communicate with the server to set up
+this secure session,
+
+86
+00:06:02,900 --> 00:06:07,290
+really is the key that's supposed to be
+associated with that session.
+
+87
+00:06:07,290 --> 00:06:11,820
+And the way it does it, is by using the
+public key of the certificate authority,
+
+88
+00:06:11,820 --> 00:06:15,230
+to make sure that it can unlock the box
+that it's getting back from the server.
+
+89
+00:06:15,230 --> 00:06:18,522
+If it can unlock this box, verify the
+domain,
+
+90
+00:06:18,522 --> 00:06:21,570
+and very, and get the public key out, then
+
+91
+00:06:21,570 --> 00:06:24,170
+it feels trust to encrypt the data with
+the
+
+92
+00:06:24,170 --> 00:06:26,840
+public key that it needs to set up the
+session.
+
+93
+00:06:26,840 --> 00:06:32,770
+And send it with send it encrypted to the
+sever using this public key.
+
+94
+00:06:32,770 --> 00:06:35,480
+And again, once any data that this client
+
+95
+00:06:35,480 --> 00:06:37,780
+sends and encrypts with this public key,
+the
+
+96
+00:06:37,780 --> 00:06:42,390
+only person who's going to be able to read
+it is that server on the other side.
+
+97
+00:06:42,390 --> 00:06:44,430
+Now, I keep saying session over and over,
+
+98
+00:06:44,430 --> 00:06:46,320
+and there can be sessions at multiple
+levels.
+
+99
+00:06:46,320 --> 00:06:48,860
+The key thing to remember here is that.
+
+100
+00:06:48,860 --> 00:06:54,880
+The client and the server are exchanging
+data to establish an encrypted connection.
+
+101
+00:06:54,880 --> 00:06:57,230
+And so, when I'm saying session here, what
+I'm talking about
+
+102
+00:06:57,230 --> 00:07:02,260
+is that ecryp, encrypted con conversation
+between the client and the server.
+
+103
+00:07:02,260 --> 00:07:07,300
+You'll also, typically with HTPS establish
+a session at a higher level, another
+
+104
+00:07:07,300 --> 00:07:10,200
+session which is you application level
+session
+
+105
+00:07:10,200 --> 00:07:11,840
+which will have other information in it.
+
+106
+00:07:11,840 --> 00:07:15,440
+But this lower level secure communication
+is
+
+107
+00:07:15,440 --> 00:07:18,580
+based on this idea of public, private
+keys.
+
+108
+00:07:18,580 --> 00:07:23,610
+And the fact that if I have a private key,
+I can prove my identity
+
+109
+00:07:23,610 --> 00:07:26,170
+by putting some information into a box
+that
+
+110
+00:07:26,170 --> 00:07:28,460
+only you can unlock with my public key.
+
+111
+00:07:28,460 --> 00:07:31,970
+So if you have my public key, you can
+verify that information came
+
+112
+00:07:31,970 --> 00:07:36,110
+from me by seeing if you an unlock the box
+with my public key.
+
+113
+00:07:36,110 --> 00:07:41,530
+Similarly, you can hand off information to
+me by putting it in the box and locking it
+
+114
+00:07:41,530 --> 00:07:46,980
+with my public key, because you know only
+I can unlock that box with my private key.
+
+115
+00:07:46,980 --> 00:07:51,370
+And so using a series of these box
+analogies of locking data into a
+
+116
+00:07:51,370 --> 00:07:55,570
+box with a private key and unlocking it
+with a public key and locking it
+
+117
+00:07:55,570 --> 00:07:58,910
+in with a public key and private key, and
+adding this idea of a
+
+118
+00:07:58,910 --> 00:08:01,170
+certificate authority that we already
+trust and
+
+119
+00:08:01,170 --> 00:08:05,660
+establish some key relationships with on
+our clients.
+
+120
+00:08:05,660 --> 00:08:10,509
+We can dynamically set up and trust our
+encrypted communications.
+
+121
+00:08:11,740 --> 00:08:14,810
+Now unfortunately, sometimes there are
+errors in
+
+122
+00:08:14,810 --> 00:08:16,800
+how these things are implemented, as we've
+
+123
+00:08:16,800 --> 00:08:19,660
+seen from some recent vulnerabilities that
+have
+
+124
+00:08:19,660 --> 00:08:22,720
+been discovered in things like open SSL.
+
+125
+00:08:22,720 --> 00:08:27,147
+But, the fundamental idea for this is a
+sound approach for,
+
+126
+00:08:27,147 --> 00:08:32,870
+you know, using encryption and special
+relationships between these keys to
+
+127
+00:08:32,870 --> 00:08:37,770
+securely establish a conversation between
+the client and server that nobody
+
+128
+00:08:37,770 --> 00:08:41,040
+else can sit in the middle of, and
+intercept data for.
+
+129
+00:08:43,010 --> 00:08:49,510
+When do we want to use HTTPS, or the
+secure variant, instead of HTTP.
+
+130
+00:08:49,510 --> 00:08:54,740
+Well, one way of thinking about this, is
+we can divide our data into two buckets.
+
+131
+00:08:54,740 --> 00:08:58,430
+The first bucket is data that's for
+everyone.
+
+132
+00:08:58,430 --> 00:09:00,730
+There's no restrictions on it.
+
+133
+00:09:00,730 --> 00:09:05,810
+This is the, the free data zone where
+anything that we put into this box,
+
+134
+00:09:07,090 --> 00:09:09,520
+we assume that anybody else can read, so
+
+135
+00:09:09,520 --> 00:09:12,790
+anything in the everyone category anyone
+can read.
+
+136
+00:09:12,790 --> 00:09:13,290
+And
+
+137
+00:09:17,910 --> 00:09:22,930
+anything that we put in the everyone
+category, if we accept a post
+
+138
+00:09:22,930 --> 00:09:27,670
+request or a put request, or a delete
+request, or any of those things.
+
+139
+00:09:27,670 --> 00:09:29,500
+Then potentially anyone,
+
+140
+00:09:32,060 --> 00:09:33,680
+can write.
+
+141
+00:09:33,680 --> 00:09:38,190
+So if we accept those other types of
+request like click post, delete,
+
+142
+00:09:43,290 --> 00:09:45,440
+then anybody can write them too.
+
+143
+00:09:48,640 --> 00:09:51,060
+Now, the second bed of data that we are
+going
+
+144
+00:09:51,060 --> 00:09:56,460
+to talk about is, we are going to call the
+restricted,
+
+145
+00:09:59,380 --> 00:10:05,660
+so if there is even a single person who
+shouldn't have either read or write
+
+146
+00:10:05,660 --> 00:10:12,370
+access to all of the data in here, then we
+need to put it in a restricted box, box.
+
+147
+00:10:12,370 --> 00:10:18,115
+So is there a, any
+
+148
+00:10:18,115 --> 00:10:22,982
+client, that
+
+149
+00:10:22,982 --> 00:10:27,848
+shouldn't
+
+150
+00:10:27,848 --> 00:10:33,690
+read, write, all,
+
+151
+00:10:33,690 --> 00:10:38,080
+of, the, data.
+
+152
+00:10:38,080 --> 00:10:41,130
+Any time that we answer yes to this
+question.
+
+153
+00:10:41,130 --> 00:10:46,230
+If there is a single client that shouldn't
+have access to all the data, or shouldn't
+
+154
+00:10:46,230 --> 00:10:53,700
+have access to write all of the data then
+more than likely we want to use HTTPS.
+
+155
+00:10:53,700 --> 00:10:57,560
+So we think of this a HTTPS communication,
+
+156
+00:10:57,560 --> 00:11:00,950
+and we think of this as HTTP
+communication.
+
+157
+00:11:00,950 --> 00:11:04,050
+So anything that we are doing that is
+
+158
+00:11:04,050 --> 00:11:07,050
+for everybody, we're not trying to hide
+anything.
+
+159
+00:11:07,050 --> 00:11:12,890
+We're not trying to restrict anything then
+HTT pre, HTTP probably makes more sense.
+
+160
+00:11:14,430 --> 00:11:16,800
+If there's any restriction in anyway.
+
+161
+00:11:16,800 --> 00:11:20,530
+Let's say, some of this data is owned by
+one person and some of it is
+
+162
+00:11:20,530 --> 00:11:22,530
+owned by another person and they shouldn't
+have
+
+163
+00:11:22,530 --> 00:11:26,750
+access to each others data, then HTTPS
+makes sense.
+
+164
+00:11:26,750 --> 00:11:30,840
+Or some of the data is public and I can
+get to it, but
+
+165
+00:11:30,840 --> 00:11:36,530
+other parts of the data are private and
+only the administrator can get to them.
+
+166
+00:11:36,530 --> 00:11:41,270
+And where, where, it sort of implies that
+we're going to have HTTPS.
+
+167
+00:11:41,270 --> 00:11:44,740
+Anytime we have something that isn't for
+everyone,
+
+168
+00:11:44,740 --> 00:11:47,650
+anytime we have operations that aren't for
+everyone,
+
+169
+00:11:47,650 --> 00:11:51,860
+so maybe all of our data can be read, but
+only some of it can be written
+
+170
+00:11:51,860 --> 00:11:57,050
+to, like with put post, or delete, and who
+can write to it changes based on
+
+171
+00:11:57,050 --> 00:12:02,250
+what data it is or, certain people can
+write to all of the data but others can't.
+
+172
+00:12:02,250 --> 00:12:05,240
+Anytime we have these restrictions on the
+data, and we have two
+
+173
+00:12:05,240 --> 00:12:09,360
+buckets, the bucket for data for everyone,
+and the bucket that's restricted.
+
+174
+00:12:09,360 --> 00:12:12,730
+Anytime we have the restricted bucket,
+anytime we don't
+
+175
+00:12:12,730 --> 00:12:16,050
+want everyone to have read access, or if
+we're writing
+
+176
+00:12:16,050 --> 00:12:18,880
+data, every time we don't want everyone to
+write
+
+177
+00:12:18,880 --> 00:12:23,150
+access, then we need to switch over and
+use HTTPS.
+
+178
+00:12:23,150 --> 00:12:26,320
+If you're serving up email, you should be
+over
+
+179
+00:12:26,320 --> 00:12:29,570
+a web, you know, browser, you want to use
+HTTPS.
+
+180
+00:12:29,570 --> 00:12:31,970
+If you're returning the person's private
+contact
+
+181
+00:12:31,970 --> 00:12:33,900
+deals, details, you want to up HTTPS.
+
+182
+00:12:34,990 --> 00:12:38,420
+If you're returning the weather, in a
+particular region, you're
+
+183
+00:12:38,420 --> 00:12:42,290
+going to use HTTP, because that's public
+data, nobody cares.
+
+184
+00:12:42,290 --> 00:12:44,210
+So this is how you want to think about
+when you're
+
+185
+00:12:44,210 --> 00:12:47,520
+building your clients, whether or not to
+use HTTPS, or HTTP.
+
+186
+00:12:47,520 --> 00:12:51,450
+Do you want anybody to have access to all
+of the data?
+
+187
+00:12:51,450 --> 00:12:53,480
+And if you are allowing data to be written
+to, do you
+
+188
+00:12:53,480 --> 00:12:57,010
+want anyone to be able to write to all of
+the data?
+
+189
+00:12:57,010 --> 00:12:59,570
+If the answer is no, to any of those
+questions, then
+
+190
+00:12:59,570 --> 00:13:05,760
+HTTPS should be involved somewhere in your
+communication with the server.
+

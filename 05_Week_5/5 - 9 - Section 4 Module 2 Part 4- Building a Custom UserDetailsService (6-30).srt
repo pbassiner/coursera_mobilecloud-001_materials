@@ -1,0 +1,462 @@
+1
+00:00:00,081 --> 00:00:08,315
+[MUSIC]
+
+2
+00:00:08,315 --> 00:00:12,770
+One of the key functions of Spring
+Security is to help determine
+
+3
+00:00:12,770 --> 00:00:18,950
+when particular methods on our controller
+should or should not be invoked.
+
+4
+00:00:18,950 --> 00:00:21,500
+So if we have a controller and we have
+some
+
+5
+00:00:21,500 --> 00:00:25,150
+method, and we're going to call this our
+uploadVideo method again,
+
+6
+00:00:27,460 --> 00:00:32,350
+we need to be able to establish the
+identity of a client, like a mobile
+
+7
+00:00:32,350 --> 00:00:38,870
+device, that's sending an HTTP request, to
+the server.
+
+8
+00:00:38,870 --> 00:00:42,100
+So, if this client's sending the request.
+
+9
+00:00:42,100 --> 00:00:47,140
+We need to have Spring Security sitting
+here so that it can figure
+
+10
+00:00:47,140 --> 00:00:52,360
+out based on the request, who this session
+is who this
+
+11
+00:00:52,360 --> 00:00:57,530
+session that's been created from
+
+12
+00:00:57,530 --> 00:01:00,110
+this client is associated with, which user
+
+13
+00:01:00,110 --> 00:01:03,640
+is associated with this client, and have
+they
+
+14
+00:01:03,640 --> 00:01:05,600
+established a session, have they logged in
+
+15
+00:01:05,600 --> 00:01:08,420
+or done something else to establish a
+session?
+
+16
+00:01:08,420 --> 00:01:12,090
+Now, a really important piece of that is
+if Spring Security is
+
+17
+00:01:12,090 --> 00:01:16,440
+going to look at the request and decide
+whether or not a
+
+18
+00:01:16,440 --> 00:01:20,540
+session exists and if a session does
+exist, who the user account
+
+19
+00:01:20,540 --> 00:01:26,840
+is associated with, Spring Security has to
+know about your user accounts.
+
+20
+00:01:26,840 --> 00:01:28,920
+So the way that Spring Security does that
+
+21
+00:01:28,920 --> 00:01:36,420
+is with something called the User Details
+Service.
+
+22
+00:01:37,940 --> 00:01:41,870
+And this is a simple interface that you
+can implement if you want
+
+23
+00:01:41,870 --> 00:01:46,480
+to create your own user details or some
+way of storing user accounts.
+
+24
+00:01:46,480 --> 00:01:51,601
+It's simply a interface that allows
+
+25
+00:01:51,601 --> 00:01:56,729
+Spring to look up, a user, by name.
+
+26
+00:01:56,729 --> 00:01:59,830
+So, if you think about this.
+
+27
+00:01:59,830 --> 00:02:01,610
+If a client goes and tries to
+
+28
+00:02:01,610 --> 00:02:04,900
+connect to some protected method, like
+uploadVideo, and
+
+29
+00:02:04,900 --> 00:02:07,700
+they haven't established a session, Spring
+is
+
+30
+00:02:07,700 --> 00:02:11,680
+going to redirect that client to some
+log-in mechanism.
+
+31
+00:02:11,680 --> 00:02:15,660
+Typically a form-based log-in for web
+clients.
+
+32
+00:02:15,660 --> 00:02:18,260
+And then the user is going to go and type
+their username
+
+33
+00:02:18,260 --> 00:02:24,140
+and password into that form, and send it
+back to Spring Security.
+
+34
+00:02:24,140 --> 00:02:26,610
+And Spring security is going to go and
+look up, based
+
+35
+00:02:26,610 --> 00:02:32,620
+on the user name, the appropriate
+information about that user's account.
+
+36
+00:02:32,620 --> 00:02:34,990
+So when the user name comes back in,
+
+37
+00:02:37,510 --> 00:02:43,130
+Spring Security is going to call whatever
+user detail service, has been
+
+38
+00:02:43,130 --> 00:02:46,350
+provided to it, and ask it to look up that
+user
+
+39
+00:02:46,350 --> 00:02:49,345
+by the main provided in the look-up form,
+I mean, the
+
+40
+00:02:49,345 --> 00:02:52,870
+log-in form, or whatever mechanism they
+were using to log in.
+
+41
+00:02:52,870 --> 00:02:56,820
+So, Spring needs to know, based on the
+user name,
+
+42
+00:02:56,820 --> 00:03:01,830
+I need to find the account associated with
+that particular user.
+
+43
+00:03:01,830 --> 00:03:05,170
+And then that account information should
+have their password or a
+
+44
+00:03:05,170 --> 00:03:09,040
+hash value of their password or something
+else that Spring Security
+
+45
+00:03:09,040 --> 00:03:13,390
+can go and verify to ensure that the
+person that's trying
+
+46
+00:03:13,390 --> 00:03:17,720
+to log in really is that user associated
+with that account.
+
+47
+00:03:17,720 --> 00:03:20,890
+So, the user detail service is the part
+
+48
+00:03:20,890 --> 00:03:24,240
+of Spring that provides that notion of
+user accounts.
+
+49
+00:03:24,240 --> 00:03:28,910
+So whenever you're trying to log in, and
+this doesn't have to be HTTPS, I mean
+
+50
+00:03:28,910 --> 00:03:32,890
+this does have to be HTTPS but this
+doesn't have to be a form-based log in.
+
+51
+00:03:32,890 --> 00:03:36,970
+This could be something like BASIC
+authentication, which is
+
+52
+00:03:36,970 --> 00:03:41,630
+another way that you can do off, with
+HTTP.
+
+53
+00:03:41,630 --> 00:03:44,080
+Or it could be some other mechanism.
+
+54
+00:03:44,080 --> 00:03:48,460
+But the key thing is, Spring need to know,
+how do I take a username or
+
+55
+00:03:48,460 --> 00:03:52,220
+some other identity, and find the account
+and
+
+56
+00:03:52,220 --> 00:03:56,030
+the information about that account
+associated with that identity.
+
+57
+00:03:56,030 --> 00:03:58,890
+And so it has a name-based lookup
+
+58
+00:03:58,890 --> 00:04:02,520
+mechanism, provided by the User Details
+Service.
+
+59
+00:04:02,520 --> 00:04:05,050
+So if you want to create your own
+mechanism
+
+60
+00:04:05,050 --> 00:04:08,950
+for providing an account information to
+Spring, you
+
+61
+00:04:08,950 --> 00:04:10,400
+need to go and look at the user
+
+62
+00:04:10,400 --> 00:04:14,110
+detail service and implement the user
+detail service.
+
+63
+00:04:14,110 --> 00:04:16,500
+And all this does is, it's an interface
+that has a
+
+64
+00:04:16,500 --> 00:04:21,360
+single method to go and look up a user by
+their name.
+
+65
+00:04:21,360 --> 00:04:25,820
+And you simply return a user details
+object.
+
+66
+00:04:25,820 --> 00:04:29,230
+And this is an object that has some
+important information.
+
+67
+00:04:29,230 --> 00:04:30,740
+One, it has their name.
+
+68
+00:04:31,830 --> 00:04:35,950
+So when you do a look-up, you should get
+back the user details with that same name.
+
+69
+00:04:35,950 --> 00:04:37,760
+It has password information.
+
+70
+00:04:37,760 --> 00:04:42,320
+It has some information about the validity
+of their accounts.
+
+71
+00:04:42,320 --> 00:04:44,290
+So their account isn't locked or anything
+like that.
+
+72
+00:04:44,290 --> 00:04:48,451
+And then finally it has a field in here
+that you'll
+
+73
+00:04:48,451 --> 00:04:54,211
+want to know about which is called the
+list of granted, authorities.
+
+74
+00:04:54,211 --> 00:04:57,975
+[BLANK_AUDIO]
+
+75
+00:04:57,975 --> 00:05:00,260
+And what these granted authorities are.
+
+76
+00:05:01,272 --> 00:05:04,231
+Is if you go and add, like, app
+preauthorize, or
+
+77
+00:05:04,231 --> 00:05:08,330
+something else, into your, on to your
+methods in your controller.
+
+78
+00:05:08,330 --> 00:05:09,170
+So if you say,
+
+79
+00:05:11,780 --> 00:05:16,090
+at preauth, and I'm just going to
+abbreviate this.
+
+80
+00:05:17,180 --> 00:05:20,290
+And you're looking for the role user.
+
+81
+00:05:22,140 --> 00:05:25,060
+And we'd have has role as an expression
+there.
+
+82
+00:05:25,060 --> 00:05:28,940
+Granted authorities, you are basically
+saying granted authorities,
+
+83
+00:05:28,940 --> 00:05:32,120
+one of the entries here, is the user role.
+
+84
+00:05:32,120 --> 00:05:34,960
+So these granted authorities are basically
+different
+
+85
+00:05:36,240 --> 00:05:38,840
+authorities or roles that have been
+associated
+
+86
+00:05:38,840 --> 00:05:40,740
+with this account, that then you can
+
+87
+00:05:40,740 --> 00:05:44,251
+go and check in things like, app
+pre-authorized.
+
+88
+00:05:44,251 --> 00:05:49,160
+So when Spring goes and sees a request,
+it'll automatically handle the
+
+89
+00:05:49,160 --> 00:05:53,970
+login process, talk to your User Details
+Service that you create, find out
+
+90
+00:05:53,970 --> 00:05:57,760
+the appropriate account and then you tell
+it which of these granted authorities
+
+91
+00:05:57,760 --> 00:06:02,540
+or roles that are associated with the
+account are part of that user.
+
+92
+00:06:02,540 --> 00:06:05,420
+So, when a, a request comes in, it can go
+and
+
+93
+00:06:05,420 --> 00:06:09,610
+look at the method that the client is
+trying to invoke.
+
+94
+00:06:09,610 --> 00:06:15,380
+Look up their account and say, does the
+security expression that you're specifying
+
+95
+00:06:15,380 --> 00:06:21,040
+here, like, has role user, match up to the
+granted authorities in the account?
+
+96
+00:06:21,040 --> 00:06:24,940
+So this is a way of, providing sort of
+attributes
+
+97
+00:06:24,940 --> 00:06:30,440
+or information about, what are the
+capabilities of that user's account?
+

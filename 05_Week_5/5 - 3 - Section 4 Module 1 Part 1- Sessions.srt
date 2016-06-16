@@ -1,0 +1,848 @@
+1
+00:00:00,000 --> 00:00:09,026
+[MUSIC]
+
+2
+00:00:09,026 --> 00:00:15,117
+When you have multiple mobile clients
+talking to a web application,
+
+3
+00:00:15,117 --> 00:00:21,430
+which we'll say down here, in a servlet
+within that web application.
+
+4
+00:00:22,510 --> 00:00:29,140
+One of the things you have to think about
+is, how does this server remember
+
+5
+00:00:29,140 --> 00:00:31,750
+all of the information in the state
+related
+
+6
+00:00:31,750 --> 00:00:34,590
+to the particular client that's talking to
+it?
+
+7
+00:00:35,690 --> 00:00:38,180
+So for example, let's say this is our
+
+8
+00:00:38,180 --> 00:00:44,855
+mobile device, and we're writing a banking
+application.
+
+9
+00:00:44,855 --> 00:00:47,400
+And every time the user goes and checks
+
+10
+00:00:47,400 --> 00:00:50,030
+their account balance, one of the things
+we want to
+
+11
+00:00:50,030 --> 00:00:53,410
+make sure of, is that, that mobile device
+has
+
+12
+00:00:53,410 --> 00:00:58,065
+logged in or established its identity with
+this servlet.
+
+13
+00:00:59,370 --> 00:01:05,920
+Now, the way that we do this in HTTP is by
+establishing what's called a session.
+
+14
+00:01:05,920 --> 00:01:09,570
+And basically, this is an ongoing
+communication or
+
+15
+00:01:09,570 --> 00:01:15,070
+dialog between the mobile device and the
+servlet.
+
+16
+00:01:15,070 --> 00:01:19,710
+So, the session is the dialog, or the
+
+17
+00:01:19,710 --> 00:01:26,220
+conversation, between the mobile device
+and the servlet.
+
+18
+00:01:26,220 --> 00:01:30,640
+And a session is where the servlet, or the
+server, keeps
+
+19
+00:01:30,640 --> 00:01:35,730
+track of the state of the conversation,
+what's been said so far?
+
+20
+00:01:35,730 --> 00:01:38,290
+What do I know about this client?
+
+21
+00:01:38,290 --> 00:01:43,080
+What do I want to remember the next time
+that they send me a request?
+
+22
+00:01:43,080 --> 00:01:49,270
+So, what is a session and why is it
+important in terms of talking over HTTP?
+
+23
+00:01:49,270 --> 00:01:54,800
+Well, if you think about the way that this
+mobile device is going to begin talking to
+
+24
+00:01:54,800 --> 00:02:00,490
+the server, is it's going to send a
+request and it’s going to receive
+
+25
+00:02:00,490 --> 00:02:05,290
+some data or some type of response, that’s
+going to be sent back by the server.
+
+26
+00:02:05,290 --> 00:02:06,450
+So, that data will come back.
+
+27
+00:02:06,450 --> 00:02:08,420
+And then later, on it may go on and
+
+28
+00:02:08,420 --> 00:02:11,340
+send another request, and get some more
+data back.
+
+29
+00:02:11,340 --> 00:02:16,336
+And so there’s a connection that gets
+established, some data that gets sent,
+
+30
+00:02:16,336 --> 00:02:21,430
+sent back, and then that mobile device may
+disconnect for some period of time.
+
+31
+00:02:21,430 --> 00:02:26,180
+So for example, you may go into your
+banking application.
+
+32
+00:02:26,180 --> 00:02:29,340
+You may log into your banking application.
+
+33
+00:02:29,340 --> 00:02:35,310
+Now, then your phone is with you, you're
+on a train, or on public transit.
+
+34
+00:02:35,310 --> 00:02:36,670
+You know, we wouldn't want to be texting
+while
+
+35
+00:02:36,670 --> 00:02:38,860
+we're driving, or checking our bank
+account's while we're driving.
+
+36
+00:02:38,860 --> 00:02:40,610
+But maybe, we're on the bus.
+
+37
+00:02:40,610 --> 00:02:45,940
+And suddenly as we're driving along, we
+lose our signal and our connection.
+
+38
+00:02:45,940 --> 00:02:48,070
+And so, the next request that we send in
+order
+
+39
+00:02:48,070 --> 00:02:51,950
+to check our account balance, it doesn't
+have the same connection.
+
+40
+00:02:51,950 --> 00:02:56,060
+It is a completely new HTTP request that's
+being sent
+
+41
+00:02:56,060 --> 00:03:00,980
+to the server and a completely new
+response that we're expecting.
+
+42
+00:03:00,980 --> 00:03:02,810
+So, one of the things that the server has
+to
+
+43
+00:03:02,810 --> 00:03:08,400
+do, is maintain that conversation, even
+though that mobile device
+
+44
+00:03:08,400 --> 00:03:10,980
+was out of contact for some period of
+time, and
+
+45
+00:03:10,980 --> 00:03:15,790
+there was no direct underlying network
+connection to the device.
+
+46
+00:03:15,790 --> 00:03:17,800
+We still want the server to remember that,
+
+47
+00:03:17,800 --> 00:03:21,480
+that conversation, that dialogue with the
+device, was ongoing.
+
+48
+00:03:21,480 --> 00:03:24,930
+And that maybe, that first request was a
+login and the
+
+49
+00:03:24,930 --> 00:03:28,990
+second request is going to be, you know,
+view the account balance.
+
+50
+00:03:29,990 --> 00:03:32,980
+And we still want that person to be able
+to view their account balance.
+
+51
+00:03:32,980 --> 00:03:34,480
+We still that, want that device to be
+
+52
+00:03:34,480 --> 00:03:37,520
+able to access that information, because
+we still
+
+53
+00:03:37,520 --> 00:03:41,170
+trust that session or that communication,
+that dialogue
+
+54
+00:03:41,170 --> 00:03:44,410
+that was ongoing between the device and
+the server.
+
+55
+00:03:45,420 --> 00:03:52,660
+So, sessions are this whole process of
+maintaining a dialogue with a device and
+
+56
+00:03:52,660 --> 00:03:55,810
+maintaining information about that device,
+in a
+
+57
+00:03:55,810 --> 00:04:00,820
+state of the conversation, across multiple
+HTTP requests.
+
+58
+00:04:00,820 --> 00:04:03,802
+So that, if you use one HTTP request to
+log in, and
+
+59
+00:04:03,802 --> 00:04:07,991
+then ten minutes from now you use another
+request to access the account
+
+60
+00:04:07,991 --> 00:04:12,748
+balance, the session and the way that you
+track sessions determines if you'll
+
+61
+00:04:12,748 --> 00:04:17,080
+allow that to go through and you'll
+remember who that mobile client is.
+
+62
+00:04:17,080 --> 00:04:20,680
+Or, if they don't have a session, then
+you'll force them to log in again.
+
+63
+00:04:20,680 --> 00:04:23,585
+But sessions are the way that we maintain
+
+64
+00:04:23,585 --> 00:04:27,955
+and remember those conversations with the
+mobile clients.
+
+65
+00:04:27,955 --> 00:04:32,496
+Now, an important consideration on the
+servlet is, and on the
+
+66
+00:04:32,496 --> 00:04:37,140
+server side are things like, how long do
+we maintain a session?
+
+67
+00:04:37,140 --> 00:04:41,960
+[BLANK_AUDIO]
+
+68
+00:04:41,960 --> 00:04:45,436
+Because, if we maintain a session too
+
+69
+00:04:45,436 --> 00:04:50,333
+long, maybe we're wasting resources on the
+serve.
+
+70
+00:04:50,333 --> 00:04:52,981
+So, every time we begin a conversation, we
+
+71
+00:04:52,981 --> 00:04:56,202
+start a new session, well, that session's
+going to
+
+72
+00:04:56,202 --> 00:04:59,138
+allocate memory on the server, that's
+going to
+
+73
+00:04:59,138 --> 00:05:02,810
+take up resources that aren't available to
+other clients.
+
+74
+00:05:02,810 --> 00:05:06,810
+So, how long we maintain sessions will
+affect the
+
+75
+00:05:06,810 --> 00:05:08,910
+resources that we have to keep on the
+server.
+
+76
+00:05:08,910 --> 00:05:11,510
+It also may have security implications.
+
+77
+00:05:11,510 --> 00:05:14,940
+Maybe we want to force the person to log
+out and log back in every
+
+78
+00:05:14,940 --> 00:05:18,040
+so often, to ensure that, that device
+
+79
+00:05:18,040 --> 00:05:20,190
+hasn't been taken or stolen, or something
+else.
+
+80
+00:05:20,190 --> 00:05:23,351
+So, we have to maintain a bunch of
+information.
+
+81
+00:05:23,351 --> 00:05:25,562
+What information should we maintain?
+
+82
+00:05:25,562 --> 00:05:28,051
+[BLANK_AUDIO]
+
+83
+00:05:28,051 --> 00:05:29,064
+Is in the session?
+
+84
+00:05:29,064 --> 00:05:30,970
+So, what information is in the session?
+
+85
+00:05:32,350 --> 00:05:34,070
+So, what do we care about in this
+
+86
+00:05:34,070 --> 00:05:38,950
+communication dialogue between the server
+and the device?
+
+87
+00:05:38,950 --> 00:05:43,840
+These are all important questions about
+sessions, when we're
+
+88
+00:05:43,840 --> 00:05:48,240
+designing and building a cloud-based
+service to support mobile devices.
+
+89
+00:05:49,300 --> 00:05:54,460
+And then, we typically want to use some
+type of authentication framework, so that
+
+90
+00:05:54,460 --> 00:06:00,370
+we can strongly authenticate and trust
+mobile clients, and
+
+91
+00:06:00,370 --> 00:06:04,550
+associate data with them and ensure that
+if they begin a
+
+92
+00:06:04,550 --> 00:06:10,090
+session, that somebody doesn't come along
+from outside and steal a session.
+
+93
+00:06:11,200 --> 00:06:14,600
+So, we have to worry about and insure that
+once we
+
+94
+00:06:14,600 --> 00:06:18,120
+begin tracking a session, that there's no
+way that somebody can
+
+95
+00:06:18,120 --> 00:06:23,930
+intercept that session data and use it to
+exploit the server
+
+96
+00:06:23,930 --> 00:06:27,760
+in some way, or exploit the client's data
+in some way.
+
+97
+00:06:27,760 --> 00:06:29,555
+So, these are all important
+considerations.
+
+98
+00:06:29,555 --> 00:06:33,640
+So, how do we normally track sessions?
+
+99
+00:06:33,640 --> 00:06:38,850
+Well, the first thing that I, I want to
+emphasize is that you should very
+
+100
+00:06:38,850 --> 00:06:42,520
+rarely reinvent the establishment of
+session and
+
+101
+00:06:42,520 --> 00:06:45,270
+the tracking of sessions in those
+mechanisms.
+
+102
+00:06:45,270 --> 00:06:47,700
+There are many libraries and frameworks
+that are out
+
+103
+00:06:47,700 --> 00:06:51,860
+there that have been battle-hardened, very
+carefully audited for
+
+104
+00:06:51,860 --> 00:06:56,270
+security purposes, and your first thing
+that you should
+
+105
+00:06:56,270 --> 00:06:58,420
+do is go and look for one of those
+libraries.
+
+106
+00:06:58,420 --> 00:07:00,780
+You do not want to reinvent your own
+
+107
+00:07:00,780 --> 00:07:05,390
+authentication mechanisms or session
+mechanisms, wherever possible.
+
+108
+00:07:05,390 --> 00:07:11,110
+Instead, you want to use something that's
+well understood, well tested, and
+
+109
+00:07:11,110 --> 00:07:13,750
+has known security properties and is
+
+110
+00:07:13,750 --> 00:07:19,470
+continually being analyzed for security
+quality.
+
+111
+00:07:19,470 --> 00:07:22,450
+So, go and find a session library first.
+
+112
+00:07:22,450 --> 00:07:23,861
+But just to give you a, a rough idea
+
+113
+00:07:23,861 --> 00:07:27,240
+of how they understand work, there's a
+couple different ways.
+
+114
+00:07:27,240 --> 00:07:32,360
+One is, session libraries normally take
+advantage of sending back to the
+
+115
+00:07:32,360 --> 00:07:37,680
+mobile device, some form of cookie that is
+used to
+
+116
+00:07:39,410 --> 00:07:43,540
+help remember the session for the server.
+
+117
+00:07:43,540 --> 00:07:46,400
+So, when the mobile device is going to
+send a
+
+118
+00:07:46,400 --> 00:07:50,450
+request, it will normally send a cookie,
+with session info.
+
+119
+00:07:54,220 --> 00:07:58,320
+And what session information you send will
+depend upon
+
+120
+00:07:58,320 --> 00:08:01,800
+how sensitive the session is, and how
+paranoid you are.
+
+121
+00:08:01,800 --> 00:08:04,429
+So, the, the very simplest thing is you
+don't
+
+122
+00:08:04,429 --> 00:08:07,934
+want to send anything to the client, other
+than an identifier.
+
+123
+00:08:07,934 --> 00:08:14,477
+So, you store all of the really juicy
+details about the session
+
+124
+00:08:14,477 --> 00:08:21,035
+on the server, so you can have purely
+server-side sessions.
+
+125
+00:08:21,035 --> 00:08:28,138
+And you have no data on the client.
+
+126
+00:08:28,138 --> 00:08:30,015
+So, that's one extreme.
+
+127
+00:08:30,015 --> 00:08:33,547
+At the other extreme, you could have a lot
+of data on
+
+128
+00:08:33,547 --> 00:08:38,980
+the client, and only just store sensitive
+things on the server side.
+
+129
+00:08:38,980 --> 00:08:46,262
+So, you can also have you know, partial
+data on the server.
+
+130
+00:08:46,262 --> 00:08:51,270
+[BLANK_AUDIO]
+
+131
+00:08:51,270 --> 00:08:55,461
+And partial data on the mobile device.
+
+132
+00:08:55,461 --> 00:09:00,328
+[BLANK_AUDIO]
+
+133
+00:09:00,328 --> 00:09:02,980
+So, there's a variety of different setups.
+
+134
+00:09:02,980 --> 00:09:07,010
+The cookie is typically what's used if
+you're going to store some data on
+
+135
+00:09:07,010 --> 00:09:09,090
+the mobile device, typically that will be
+
+136
+00:09:09,090 --> 00:09:12,280
+communicated back to the device through a
+cookie.
+
+137
+00:09:12,280 --> 00:09:16,850
+Now, if you're using a mobile client, you
+can do more than that.
+
+138
+00:09:16,850 --> 00:09:18,960
+You could send back data and have your own
+
+139
+00:09:18,960 --> 00:09:22,600
+protocol built off of HTTP, where you send
+other
+
+140
+00:09:22,600 --> 00:09:24,670
+things back and you just expect the device
+to
+
+141
+00:09:24,670 --> 00:09:26,910
+know how to handle those things and store
+them.
+
+142
+00:09:26,910 --> 00:09:31,249
+Maybe you encode information in the
+headers that are sent in the request.
+
+143
+00:09:32,530 --> 00:09:36,800
+But there's mult, multiple ways that the
+device can store data, or
+
+144
+00:09:36,800 --> 00:09:40,630
+cookies, or other bits of information that
+it then sends to the server.
+
+145
+00:09:40,630 --> 00:09:43,340
+And then whenever the server sees that bit
+of data,
+
+146
+00:09:43,340 --> 00:09:47,200
+it can use it to establish the identity of
+the device.
+
+147
+00:09:47,200 --> 00:09:50,460
+And remember, this is the same device that
+sent the log
+
+148
+00:09:50,460 --> 00:09:55,970
+in request five minutes ago, that's now
+accessing the account data.
+
+149
+00:09:55,970 --> 00:09:59,190
+So, what that bit of data is that the
+mobile device
+
+150
+00:09:59,190 --> 00:10:02,850
+stores, is a little cookie, a little, a
+little bit of
+
+151
+00:10:02,850 --> 00:10:06,890
+information that helps the server figure
+out the identity of that
+
+152
+00:10:06,890 --> 00:10:12,599
+device when it reestablishes communication
+with the server in a later request.
+
+153
+00:10:13,610 --> 00:10:17,620
+So, sessions are the maintenance of the
+conversation, and
+
+154
+00:10:17,620 --> 00:10:21,440
+the state of a conversation, across
+multiple HTTP requests.
+
+155
+00:10:21,440 --> 00:10:25,590
+Cookies are a common way that we store
+information on the mobile device to
+
+156
+00:10:25,590 --> 00:10:31,380
+help the server figure out that this is
+the same person sending multiple requests.
+
+157
+00:10:31,380 --> 00:10:33,919
+Or, the same device sending multiple
+requests, and
+
+158
+00:10:33,919 --> 00:10:37,770
+therefore, it should associate them with
+the same state.
+
+159
+00:10:37,770 --> 00:10:41,190
+But, we can have any type of information
+sent back to
+
+160
+00:10:41,190 --> 00:10:47,120
+the mobile client, in order to help the
+server establish that identity.
+
+161
+00:10:47,120 --> 00:10:51,100
+The most common types of things that get
+sent back to the mobile device
+
+162
+00:10:51,100 --> 00:10:55,000
+are cryptographic tokens, a session ID,
+some
+
+163
+00:10:55,000 --> 00:10:59,130
+form of information that would be very
+hard
+
+164
+00:10:59,130 --> 00:11:04,360
+for the mobile device, or some other
+client, to guess on its own, and send to
+
+165
+00:11:04,360 --> 00:11:09,890
+the server in order to establish a session
+that maybe wasn't his, its own.
+
+166
+00:11:09,890 --> 00:11:14,860
+Or, to confuse the server, and something
+that
+
+167
+00:11:14,860 --> 00:11:18,180
+will be unique across all of the different
+clients.
+
+168
+00:11:18,180 --> 00:11:23,310
+So, we want to create sessions that are
+unique, typically, across each individual
+
+169
+00:11:23,310 --> 00:11:28,980
+client so we can associate state
+information with each individual client.
+
+170
+00:11:28,980 --> 00:11:32,830
+So, this is the concept of a session, and
+the
+
+171
+00:11:32,830 --> 00:11:36,420
+basic idea is, how do we track state when
+we're
+
+172
+00:11:36,420 --> 00:11:40,940
+going to have multiple individual
+conversations or HTTP requests that are
+
+173
+00:11:40,940 --> 00:11:44,670
+going to be sent between the device and
+the server?
+
+174
+00:11:44,670 --> 00:11:46,160
+And we want all of those
+
+175
+00:11:46,160 --> 00:11:48,860
+different requests, conversations, to be
+considered one
+
+176
+00:11:48,860 --> 00:11:53,620
+conversation, one solid session, between
+the mobile
+
+177
+00:11:53,620 --> 00:11:55,860
+device and the server and it's
+communication
+

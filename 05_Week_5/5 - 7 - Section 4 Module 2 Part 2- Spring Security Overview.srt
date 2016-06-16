@@ -1,0 +1,539 @@
+1
+00:00:00,000 --> 00:00:08,414
+[MUSIC]
+
+2
+00:00:08,414 --> 00:00:11,339
+Now, if on your own, you had to go and
+write all
+
+3
+00:00:11,339 --> 00:00:14,039
+of this infrastructure to create sessions
+
+4
+00:00:14,039 --> 00:00:17,440
+and properly protect them and maintain
+them.
+
+5
+00:00:17,440 --> 00:00:20,190
+It'd be really difficult to go and write a
+
+6
+00:00:20,190 --> 00:00:23,810
+cloud service that's using HTTP to talk to
+clients.
+
+7
+00:00:24,820 --> 00:00:28,640
+So, one of the nice things is that Spring
+provides a framework, or an
+
+8
+00:00:28,640 --> 00:00:36,190
+implementation, of sessions on top of HTTP
+that we can use in our applications.
+
+9
+00:00:36,190 --> 00:00:42,267
+So the way this works is we have a client,
+that is talking to, our,
+
+10
+00:00:42,267 --> 00:00:48,580
+dispatcher servlet that Spring is
+providing for us.
+
+11
+00:00:48,580 --> 00:00:50,640
+And remember, we don't normally do
+
+12
+00:00:50,640 --> 00:00:53,407
+anything directly with the dispatcher
+servlet.
+
+13
+00:00:53,407 --> 00:00:57,671
+It's just responsible for going in and
+invoking our controllers.
+
+14
+00:01:01,060 --> 00:01:05,050
+And we may have multiple controllers, so
+we'll just say S here.
+
+15
+00:01:05,050 --> 00:01:06,340
+So we have all of these controllers.
+
+16
+00:01:06,340 --> 00:01:12,060
+So, all of the requests are going through
+this dispatcher servlet.
+
+17
+00:01:12,060 --> 00:01:16,540
+And I'm going to start using https now
+because we're going to emphasize the fact
+
+18
+00:01:16,540 --> 00:01:17,790
+that we want these things to be
+
+19
+00:01:17,790 --> 00:01:20,109
+secure when we're beginning to establish
+sessions.
+
+20
+00:01:21,340 --> 00:01:26,730
+So, when we're talking to our dispatcher
+servlet, and we want to establish a
+
+21
+00:01:26,730 --> 00:01:33,900
+session, there is a framework that we can
+use called Spring Security.
+
+22
+00:01:36,120 --> 00:01:38,819
+And this is part of the Spring framework.
+
+23
+00:01:41,020 --> 00:01:45,070
+And basically what the Spring Security
+framework does is it automatically
+
+24
+00:01:45,070 --> 00:01:51,460
+provides the ability to log in and then
+send session cookies back to the client
+
+25
+00:01:51,460 --> 00:01:59,130
+and then using a filter that's right here,
+in the front of the request.
+
+26
+00:01:59,130 --> 00:02:02,380
+So the filter is basically an object
+that's receiving and looking at the
+
+27
+00:02:02,380 --> 00:02:04,670
+requests as they come in and then
+
+28
+00:02:04,670 --> 00:02:08,890
+checking the data and automatically
+pre-processing them.
+
+29
+00:02:08,890 --> 00:02:12,260
+So, using a filter, what happens is, is
+when the clients
+
+30
+00:02:12,260 --> 00:02:17,060
+send a request, if there is no cookie
+here, and you're
+
+31
+00:02:17,060 --> 00:02:20,070
+sending a request to some controller and
+some method on some
+
+32
+00:02:20,070 --> 00:02:24,000
+controller that's supposed to be
+protected, or associated with the users.
+
+33
+00:02:24,000 --> 00:02:28,440
+So let's say we have a video upload
+controller, and every time
+
+34
+00:02:28,440 --> 00:02:32,800
+somebody uploads a video, we want to know
+the user that uploaded it.
+
+35
+00:02:32,800 --> 00:02:36,220
+Because we're going to track how much
+space they're using up in their account.
+
+36
+00:02:36,220 --> 00:02:39,990
+We want to know which person uploaded
+which video.
+
+37
+00:02:39,990 --> 00:02:43,510
+So we want to force somebody to log in,
+and establish
+
+38
+00:02:43,510 --> 00:02:46,730
+a session, and prove their identity,
+before they upload a video.
+
+39
+00:02:46,730 --> 00:02:49,340
+So, if you go, and your client tries to
+
+40
+00:02:49,340 --> 00:02:53,450
+send a request to that controller to
+upload a video.
+
+41
+00:02:53,450 --> 00:02:55,980
+Basically, Spring Security is going to see
+that you
+
+42
+00:02:55,980 --> 00:03:02,130
+have said, I want slash upload to be
+protected.
+
+43
+00:03:04,300 --> 00:03:09,710
+Or this might be slash video, slash post,
+or whatever the, the URL is.
+
+44
+00:03:09,710 --> 00:03:14,202
+That you may have some set of URLs that
+you want protected.
+
+45
+00:03:14,202 --> 00:03:16,370
+Like I want anything to slash video that's
+
+46
+00:03:16,370 --> 00:03:20,560
+a post to require somebody to log in
+first,
+
+47
+00:03:20,560 --> 00:03:23,700
+so that, in that controller method I can
+see
+
+48
+00:03:23,700 --> 00:03:26,170
+who the person is that's trying to do it.
+
+49
+00:03:26,170 --> 00:03:29,380
+Who's trying to upload the video and in
+order to get
+
+50
+00:03:29,380 --> 00:03:34,760
+access to who, you need to force them to
+establish their identity.
+
+51
+00:03:34,760 --> 00:03:37,740
+So what the Spring Security framework does
+is this
+
+52
+00:03:37,740 --> 00:03:41,670
+filter looks at the incoming request and
+it says, is
+
+53
+00:03:41,670 --> 00:03:45,140
+there any type of session information in
+here that
+
+54
+00:03:45,140 --> 00:03:49,000
+I can use to establish the identity of
+this client?
+
+55
+00:03:49,000 --> 00:03:52,850
+So, it may look at this request that's
+coming in
+
+56
+00:03:52,850 --> 00:03:55,690
+and it may say, oh, I see a session
+cookie.
+
+57
+00:03:55,690 --> 00:03:58,480
+I will go and look up the user associated
+with
+
+58
+00:03:58,480 --> 00:04:02,220
+that session cookie and I will attach it
+to the request.
+
+59
+00:04:02,220 --> 00:04:04,240
+And then when the controller is invoked,
+
+60
+00:04:04,240 --> 00:04:06,739
+the controller will have access to the
+user.
+
+61
+00:04:07,760 --> 00:04:09,730
+So, or it may go in and say there's
+
+62
+00:04:09,730 --> 00:04:14,530
+no data in here that provides information
+about a session.
+
+63
+00:04:14,530 --> 00:04:15,820
+There's no session cookie.
+
+64
+00:04:15,820 --> 00:04:17,680
+There's no other data.
+
+65
+00:04:17,680 --> 00:04:21,780
+I'm going to redirect this client to the
+login page.
+
+66
+00:04:21,780 --> 00:04:23,880
+And then after they log in, it would look
+at the
+
+67
+00:04:23,880 --> 00:04:27,270
+next request and say, oh, there's a
+session cookie here now.
+
+68
+00:04:27,270 --> 00:04:28,949
+I'll allow this request to go forward.
+
+69
+00:04:29,950 --> 00:04:34,720
+So Spring Security is this gatekeeper that
+sits the front
+
+70
+00:04:34,720 --> 00:04:38,180
+and looks at what are you trying to access
+down here.
+
+71
+00:04:38,180 --> 00:04:39,500
+Is the thing that you're trying to
+
+72
+00:04:39,500 --> 00:04:42,870
+access down here something that requires a
+session?
+
+73
+00:04:42,870 --> 00:04:48,780
+That requires an identity of the client
+and then based on that identity, it can
+
+74
+00:04:48,780 --> 00:04:52,740
+make a determination about whether or not
+you should have access to it or not.
+
+75
+00:04:52,740 --> 00:04:55,860
+So Spring Security is this gatekeeper that
+looks at the
+
+76
+00:04:55,860 --> 00:05:02,730
+request, decides the, what the identity is
+of that client.
+
+77
+00:05:02,730 --> 00:05:05,630
+And decides whether or not that client
+should have access
+
+78
+00:05:05,630 --> 00:05:09,740
+to that particular resource or that method
+on that controller.
+
+79
+00:05:09,740 --> 00:05:12,000
+And that's what Spring Security is doing.
+
+80
+00:05:12,000 --> 00:05:15,630
+So, Spring Security can make this
+determination in a number
+
+81
+00:05:15,630 --> 00:05:19,140
+of ways, but as we've seen, it can use
+sessions.
+
+82
+00:05:19,140 --> 00:05:22,295
+So, Spring Security can automatically
+check a request,
+
+83
+00:05:22,295 --> 00:05:25,570
+to see that if it has a session cookie.
+
+84
+00:05:25,570 --> 00:05:30,240
+If it does, it can look up the user
+associated with that session cookie.
+
+85
+00:05:30,240 --> 00:05:34,640
+And then pass the request down, if
+appropriate, to a method and
+
+86
+00:05:34,640 --> 00:05:39,070
+a controller, and the controller can see
+the user associated with the request.
+
+87
+00:05:39,070 --> 00:05:43,560
+If it doesn't have a session cookie, it
+can redirect the client to
+
+88
+00:05:43,560 --> 00:05:48,720
+the login page, and force the client to
+provide a username and password.
+
+89
+00:05:48,720 --> 00:05:51,450
+Which Spring Security will then validate
+against the list of
+
+90
+00:05:51,450 --> 00:05:55,230
+users and then return a session cookie to
+the client.
+
+91
+00:05:55,230 --> 00:05:59,360
+So Spring Security can handle that log in
+aspect as well
+
+92
+00:05:59,360 --> 00:06:03,710
+as the checking of the incoming requests
+once somebody's logged in for
+
+93
+00:06:03,710 --> 00:06:08,280
+session information that it can then use
+to automatically decide which user
+
+94
+00:06:08,280 --> 00:06:12,360
+is sending the request, and forward that
+information on to the controllers.
+
+95
+00:06:12,360 --> 00:06:13,810
+And we're going to talk in detail about
+
+96
+00:06:13,810 --> 00:06:16,070
+how we access the identity information
+from
+
+97
+00:06:16,070 --> 00:06:19,670
+a controller, and how we configure the
+
+98
+00:06:19,670 --> 00:06:25,160
+Spring Security framework to know about
+our users.
+
+99
+00:06:25,160 --> 00:06:27,680
+And using this framework, we don't have to
+worry
+
+100
+00:06:27,680 --> 00:06:30,800
+about, how does the session cookie get
+sent back.
+
+101
+00:06:30,800 --> 00:06:35,810
+How do we remember when a session is
+associated with a particular user?
+
+102
+00:06:35,810 --> 00:06:38,040
+All of that is provided by Spring
+Security.
+
+103
+00:06:38,040 --> 00:06:41,050
+We can customize it, but we can build on
+top of
+
+104
+00:06:41,050 --> 00:06:45,730
+it and just focus on telling Spring
+Security, here are my controllers.
+
+105
+00:06:45,730 --> 00:06:47,810
+These are the methods on my controllers
+that are
+
+106
+00:06:47,810 --> 00:06:51,400
+sensitive, and I want to know the identity
+of the client.
+
+107
+00:06:51,400 --> 00:06:54,870
+Here are the types of clients, and
+identities
+
+108
+00:06:54,870 --> 00:06:57,870
+that I will allow to access different
+methods.
+
+109
+00:06:57,870 --> 00:07:01,570
+All of that type of determination about
+who gets access to
+
+110
+00:07:01,570 --> 00:07:07,140
+different methods and controllers, is
+controlled and guarded by Spring Security.
+
+111
+00:07:07,140 --> 00:07:10,440
+And it does all of the identity
+establishment based on
+
+112
+00:07:10,440 --> 00:07:14,220
+the information in the requests coming in
+from the clients.
+
