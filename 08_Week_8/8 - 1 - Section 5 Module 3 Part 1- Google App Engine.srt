@@ -1,0 +1,821 @@
+1
+00:00:00,170 --> 00:00:08,885
+[MUSIC]
+
+2
+00:00:08,885 --> 00:00:12,085
+We're going to start our discussion
+of deploying to the cloud by
+
+3
+00:00:12,085 --> 00:00:14,120
+talking about platform as a service.
+
+4
+00:00:14,120 --> 00:00:17,770
+And specifically Google App Engine, which
+is one of the most popular platform as
+
+5
+00:00:17,770 --> 00:00:21,460
+a service sets of infrastructure
+that you can deploy your app to.
+
+6
+00:00:22,460 --> 00:00:24,720
+So, when you deploy your app to the cloud,
+
+7
+00:00:24,720 --> 00:00:28,100
+there are a number of common things
+that you need to be successful and
+
+8
+00:00:28,100 --> 00:00:30,870
+to be able to manage and monitor and
+maintain your application.
+
+9
+00:00:31,930 --> 00:00:36,420
+So the first one is, of course, you
+need some web container to run your app.
+
+10
+00:00:37,470 --> 00:00:44,250
+So, you need a web container, and
+you'll have your app inside of it.
+
+11
+00:00:44,250 --> 00:00:47,360
+So you need somewhere
+that your app can live.
+
+12
+00:00:47,360 --> 00:00:49,651
+Someone who will run
+that web container for
+
+13
+00:00:49,651 --> 00:00:51,630
+you and he can keep it up in the cloud.
+
+14
+00:00:52,710 --> 00:00:57,910
+Another thing that you typically need,
+particularly if you're going to have lots
+
+15
+00:00:57,910 --> 00:01:03,140
+of different instances of your app
+running, is you need a load balancer.
+
+16
+00:01:04,330 --> 00:01:08,400
+So, something to receive
+the incoming request.
+
+17
+00:01:08,400 --> 00:01:10,810
+And look at the traffic.
+
+18
+00:01:10,810 --> 00:01:15,540
+So maybe you have other instances
+of either containers or
+
+19
+00:01:15,540 --> 00:01:17,950
+your app on different machines.
+
+20
+00:01:17,950 --> 00:01:22,729
+And the load balancer can decide which
+one should receive a particular request.
+
+21
+00:01:23,750 --> 00:01:27,880
+So, load balancing can be a critical
+component of deploying your
+
+22
+00:01:27,880 --> 00:01:29,590
+application in the cloud.
+
+23
+00:01:29,590 --> 00:01:32,950
+You often typically also,
+as we've seen with spring data,
+
+24
+00:01:32,950 --> 00:01:38,020
+need a database to go and
+store your data into.
+
+25
+00:01:38,020 --> 00:01:40,910
+So, if you're using Spring Data,
+
+26
+00:01:40,910 --> 00:01:45,990
+you may be using a,
+a database that's uses Spring Data JPA.
+
+27
+00:01:45,990 --> 00:01:50,160
+Or you may be using another
+API to get access to it,
+
+28
+00:01:50,160 --> 00:01:53,150
+as we've seen with MongoDB or
+Amazon's DynamoDB.
+
+29
+00:01:54,210 --> 00:01:56,450
+So database is typically
+another consideration.
+
+30
+00:01:57,560 --> 00:02:01,290
+Inevitably, of course, when we
+deploy our application to the cloud,
+
+31
+00:02:01,290 --> 00:02:03,710
+we begin to realize that we
+have bugs of some sort, or
+
+32
+00:02:03,710 --> 00:02:06,880
+we need to monitor our
+application over time.
+
+33
+00:02:06,880 --> 00:02:13,516
+So, we'll need some type of logs or
+a monitoring facility
+
+34
+00:02:13,516 --> 00:02:19,970
+to be able to see what's happening
+with our applications and
+
+35
+00:02:19,970 --> 00:02:25,440
+watch and see if we've introduced
+bugs that we didn't know about, or
+
+36
+00:02:25,440 --> 00:02:29,380
+if it's not performing as well
+as we thought that it would.
+
+37
+00:02:29,380 --> 00:02:33,540
+So all of these are typically, you know,
+critical ingredients to actually going and
+
+38
+00:02:33,540 --> 00:02:35,270
+deploying to the cloud.
+
+39
+00:02:35,270 --> 00:02:38,420
+Now, one of the beautiful things
+about Google App Engine is,
+
+40
+00:02:38,420 --> 00:02:42,280
+is that it provides all of
+this infrastructure for you.
+
+41
+00:02:42,280 --> 00:02:47,660
+And it also allows you to set
+it up with one simple, tool.
+
+42
+00:02:47,660 --> 00:02:54,450
+So, Google App Engine has a deployment
+tool so that you can go and
+
+43
+00:02:54,450 --> 00:03:01,700
+take your app and easily get it
+into all of this infrastructure.
+
+44
+00:03:01,700 --> 00:03:07,000
+So with their deployment tool, you can
+literally do things like to run an update
+
+45
+00:03:07,000 --> 00:03:14,350
+command and Google will push
+your application into the cloud
+
+46
+00:03:15,380 --> 00:03:20,410
+and manage the setup of all of these
+other pieces of infrastructure.
+
+47
+00:03:20,410 --> 00:03:22,670
+It'll automatically get your
+app into that container.
+
+48
+00:03:22,670 --> 00:03:24,770
+Get that container running and
+
+49
+00:03:24,770 --> 00:03:27,900
+then connect it to all of the other
+things that it needs to know about.
+
+50
+00:03:29,360 --> 00:03:33,350
+One of the other nice things about
+Google's infrastructure is that
+
+51
+00:03:33,350 --> 00:03:36,700
+as your load grows on your container,
+on your particular app,
+
+52
+00:03:36,700 --> 00:03:41,090
+Google will automatically
+spin up new instances.
+
+53
+00:03:41,090 --> 00:03:44,360
+It'll automatically begin running
+your application on more and
+
+54
+00:03:44,360 --> 00:03:48,860
+more machines in order to increase
+the amount of load that it can take.
+
+55
+00:03:48,860 --> 00:03:53,320
+And that also may require increasing
+load balance in infrastructure or not.
+
+56
+00:03:53,320 --> 00:03:57,870
+But it will automatically take care
+of that auto scaling capability to
+
+57
+00:03:57,870 --> 00:04:01,370
+make sure that there's enough
+infrastructure provision for
+
+58
+00:04:01,370 --> 00:04:04,900
+your application to be able to support
+the load that it's currently seeing.
+
+59
+00:04:04,900 --> 00:04:09,058
+And at the same time, when that load
+goes away, Google App Engine will
+
+60
+00:04:09,058 --> 00:04:13,995
+automatically shrink the infrastructure
+that's dedicated and allocated to your
+
+61
+00:04:13,995 --> 00:04:18,811
+application in order to reduce the cost
+that you're incurring due to that load.
+
+62
+00:04:18,811 --> 00:04:24,284
+So, Google provides a very nice,
+all-in-one package to building a cloud
+
+63
+00:04:24,284 --> 00:04:29,000
+based application and running it and
+monitoring it very easily.
+
+64
+00:04:30,960 --> 00:04:34,660
+Google's App Engine provides a,
+a number of fantastic facilities for
+
+65
+00:04:34,660 --> 00:04:38,300
+deploying to the cloud, but
+as with any technology, there are pros and
+
+66
+00:04:38,300 --> 00:04:39,920
+cons to using Google App Engine.
+
+67
+00:04:39,920 --> 00:04:43,740
+So let's take a little bit to talk
+about what the pros and cons are.
+
+68
+00:04:44,840 --> 00:04:51,680
+So, the things that you need to be aware
+of and the things that can potentially
+
+69
+00:04:51,680 --> 00:04:55,060
+hurt you down the road if you're not
+aware of them and don't plan accordingly.
+
+70
+00:04:56,070 --> 00:05:00,420
+On the pro side, we've already seen it's
+an all in one platform as a service.
+
+71
+00:05:00,420 --> 00:05:03,320
+So it gives you just
+about every facility from
+
+72
+00:05:03,320 --> 00:05:07,000
+day to days to sending email
+that you could possibly want.
+
+73
+00:05:07,000 --> 00:05:08,658
+It simplifies management.
+
+74
+00:05:08,658 --> 00:05:16,990
+So, and deployment, so you can easily
+get your application up in to the cloud.
+
+75
+00:05:18,290 --> 00:05:21,050
+It auto-scales it, so
+that you're only paying for
+
+76
+00:05:21,050 --> 00:05:26,180
+what you need, and it also sets up
+a lot of the supporting infrastructure,
+
+77
+00:05:26,180 --> 00:05:31,280
+in particular the database that you
+need access to, and scales that for you.
+
+78
+00:05:31,280 --> 00:05:33,840
+So, there's certainly a lot
+of wonderful pros here.
+
+79
+00:05:33,840 --> 00:05:38,290
+Oh, and, and the last one that I should
+also mention is it provides development
+
+80
+00:05:38,290 --> 00:05:43,580
+tools like plugins for Eclipse that
+
+81
+00:05:43,580 --> 00:05:46,310
+can help you get started and up and
+running faster with your application.
+
+82
+00:05:47,600 --> 00:05:52,330
+Some of the cons are, even though Google
+has done a great job of trying to use Java
+
+83
+00:05:52,330 --> 00:05:58,600
+based standards like Servlets and other
+things to provide the API for App Engine,
+
+84
+00:05:58,600 --> 00:06:03,700
+it's still possible, in many cases,
+to end up using their proprietary APIs.
+
+85
+00:06:03,700 --> 00:06:06,590
+So, for example,
+if you want to store a file,
+
+86
+00:06:06,590 --> 00:06:09,510
+you can't do that on App Engine
+due to security restrictions.
+
+87
+00:06:09,510 --> 00:06:13,200
+You can't just save a file
+to disk on App Engine.
+
+88
+00:06:13,200 --> 00:06:16,950
+Now, with Google's newer Compute Engine,
+which is more like infrastructure as
+
+89
+00:06:16,950 --> 00:06:21,990
+a service and it's possible to run
+Google App Engine facilities on
+
+90
+00:06:21,990 --> 00:06:25,190
+top of Google Compute Engine, you can
+begin doing some of these things, but
+
+91
+00:06:25,190 --> 00:06:27,750
+I'm going to talk about
+just Google App Engine,
+
+92
+00:06:27,750 --> 00:06:30,740
+in which case you can't do
+these things as easily.
+
+93
+00:06:30,740 --> 00:06:34,929
+So, one of the cons is if you begin
+using things like the Blobstore,
+
+94
+00:06:34,929 --> 00:06:40,455
+which you would in many cases use in lieu
+of storing data locally on the disc.
+
+95
+00:06:40,455 --> 00:06:46,530
+The Blobstore is equivalent of Amazon S3,
+so if you begin using that,
+
+96
+00:06:46,530 --> 00:06:51,560
+you end up with proprietary APIs
+potentially which would make
+
+97
+00:06:51,560 --> 00:06:56,580
+it hard for you to be able to
+run your application elsewhere.
+
+98
+00:06:58,040 --> 00:07:00,840
+Another challenge is,
+is that although Google has done a good
+
+99
+00:07:00,840 --> 00:07:06,050
+job of using Java standards, is that many
+of the standards that they use are older.
+
+100
+00:07:06,050 --> 00:07:11,000
+So they have, for example,
+an older servlet API as of
+
+101
+00:07:11,000 --> 00:07:15,470
+the time of this video, and
+that can impact you in a number of ways.
+
+102
+00:07:15,470 --> 00:07:18,750
+One of the ways that that
+impacts you is out of the box,
+
+103
+00:07:18,750 --> 00:07:21,730
+Spring Boot can not run
+on Google App Engine.
+
+104
+00:07:21,730 --> 00:07:26,180
+You have to go and do a little bit
+more work to make Spring Boot run.
+
+105
+00:07:26,180 --> 00:07:32,200
+One of those things is you have to create
+a web.xml file, that then uses some,
+
+106
+00:07:32,200 --> 00:07:36,920
+infrastructure in a package called Spring
+Boot Legacy to actually get Spring Boot
+
+107
+00:07:36,920 --> 00:07:40,840
+running, and
+many of the wonderful Spring Data and
+
+108
+00:07:40,840 --> 00:07:46,480
+other libraries that we've used are harder
+to get up and running on App Engine.
+
+109
+00:07:46,480 --> 00:07:49,900
+Because technically, they'll, they'll
+depend on the latest, greatest stuff.
+
+110
+00:07:49,900 --> 00:07:53,470
+And some of these aren't
+necessarily in App Engine, or
+
+111
+00:07:53,470 --> 00:07:56,119
+are hard to get configured
+properly in App Engine.
+
+112
+00:07:57,330 --> 00:08:03,260
+And the example that we're providing in
+the repository, we've actually not used
+
+113
+00:08:03,260 --> 00:08:07,330
+JPA, which is what we've used throughout
+the course, and we've not used Gradle,
+
+114
+00:08:07,330 --> 00:08:13,000
+because Gradle and JPA we've found have
+not been supported as well in App Engine.
+
+115
+00:08:13,000 --> 00:08:16,660
+So we've instead provided examples
+that are using the things that
+
+116
+00:08:16,660 --> 00:08:20,090
+we feel are the best support in
+an App Engine, which is Maven.
+
+117
+00:08:20,090 --> 00:08:23,720
+Which is an alternate build system,
+but very closely related to Grail.
+
+118
+00:08:23,720 --> 00:08:27,458
+And then JDO, which is in
+the Java Data Objects standard,
+
+119
+00:08:27,458 --> 00:08:31,580
+which is different from JPA,
+but also an excellent standard.
+
+120
+00:08:31,580 --> 00:08:33,530
+But not exactly the same.
+
+121
+00:08:33,530 --> 00:08:36,780
+So, one of the things you run into is,
+because you are running on
+
+122
+00:08:36,780 --> 00:08:41,040
+platform based service, you are restricted
+to what versions of libraries or
+
+123
+00:08:41,040 --> 00:08:44,570
+what libraries they support and
+how well they support them,
+
+124
+00:08:44,570 --> 00:08:48,700
+that you may not be able to use
+exactly the tools that you want.
+
+125
+00:08:48,700 --> 00:08:51,570
+So in this case, Spring Boot doesn't
+necessarily fit very well in App Engine.
+
+126
+00:08:54,090 --> 00:08:57,720
+One of the other challenges that
+you can run into is the unique
+
+127
+00:08:57,720 --> 00:09:04,000
+scaling model on App Engine.
+
+128
+00:09:04,000 --> 00:09:09,330
+So, App Engine is very efficient and
+does a great job of
+
+129
+00:09:09,330 --> 00:09:15,100
+trying to aggressively shut down
+your unneeded application instances.
+
+130
+00:09:15,100 --> 00:09:20,780
+But what that means is, is that when
+a request comes in, Google App Engine may,
+
+131
+00:09:20,780 --> 00:09:24,860
+on demand, start a new instance of
+your container and your application,
+
+132
+00:09:24,860 --> 00:09:30,070
+that has to fully be launched before that
+app, that, that, request can be processed.
+
+133
+00:09:31,140 --> 00:09:34,840
+Now, when we've been building
+applications so far, we've been,
+
+134
+00:09:34,840 --> 00:09:40,180
+been building them under the assumption,
+that the start up cost wasn't something or
+
+135
+00:09:40,180 --> 00:09:43,890
+the configuration cost wasn't
+something that we really cared about.
+
+136
+00:09:43,890 --> 00:09:47,170
+We just wanted to get the application
+running and then we assumed that once it
+
+137
+00:09:47,170 --> 00:09:50,150
+was running, it would stay running for
+a long period of time.
+
+138
+00:09:50,150 --> 00:09:51,200
+And so that the start up or
+
+139
+00:09:51,200 --> 00:09:54,630
+configuration cost wasn't something
+that we really cared about.
+
+140
+00:09:54,630 --> 00:09:56,300
+On Google App Engine it matters.
+
+141
+00:09:56,300 --> 00:09:59,890
+Because since App Engine may
+spin up your instance just in
+
+142
+00:09:59,890 --> 00:10:04,740
+time to receive a particular request, it
+means that if you have a long start up or
+
+143
+00:10:04,740 --> 00:10:09,900
+configuration time, it can hurt your
+ability to scale on App Engine and
+
+144
+00:10:09,900 --> 00:10:13,690
+hurt your perceived
+responsiveness to clients.
+
+145
+00:10:13,690 --> 00:10:16,940
+So in those first requests,
+when a new instance is being spun up,
+
+146
+00:10:16,940 --> 00:10:21,690
+you may have clients that see poor
+performance because their requests aren't
+
+147
+00:10:21,690 --> 00:10:26,600
+being served while this infrastructure
+is spinning up and configuring itself.
+
+148
+00:10:27,720 --> 00:10:33,010
+And particular, with Spring,
+all of the APT components scan type work,
+
+149
+00:10:33,010 --> 00:10:35,920
+where Spring automatically
+searches through your class path
+
+150
+00:10:35,920 --> 00:10:39,660
+to try to find the components it needs and
+wire them together.
+
+151
+00:10:39,660 --> 00:10:41,690
+That can be problematic.
+
+152
+00:10:41,690 --> 00:10:44,330
+If you explicitly declare
+things as beings in your
+
+153
+00:10:44,330 --> 00:10:47,300
+configuration file that's
+not a big problem.
+
+154
+00:10:47,300 --> 00:10:51,090
+But if you go and
+scan large parts of the class path,
+
+155
+00:10:51,090 --> 00:10:54,610
+that can be problematic on
+App Engine if you're using Spring.
+
+156
+00:10:54,610 --> 00:10:56,740
+So you have to be aware of that.
+
+157
+00:10:56,740 --> 00:11:00,702
+So, these are some of the key pros and
+cons that you should think about when
+
+158
+00:11:00,702 --> 00:11:03,740
+deciding that Google App Engine
+is right for your application.
+
+159
+00:11:03,740 --> 00:11:08,350
+It's a wonderful platform but
+it always, as any technology warrants,
+
+160
+00:11:08,350 --> 00:11:11,900
+understanding the cons, so
+that you don't go down a path too far and
+
+161
+00:11:11,900 --> 00:11:14,760
+realize there's something that you
+need that you can't get there.
+
+162
+00:11:16,060 --> 00:11:19,740
+One other final parting thing is
+that you need to use anything in
+
+163
+00:11:19,740 --> 00:11:24,850
+particular on the underlying host,
+like you need to install a native library.
+
+164
+00:11:24,850 --> 00:11:28,660
+Or you need to have some other supporting
+service that you access directly on that
+
+165
+00:11:28,660 --> 00:11:32,460
+host, like Open CD,
+if you want to do computer vision.
+
+166
+00:11:32,460 --> 00:11:34,380
+You can't do that directly
+in Google App Engine.
+
+167
+00:11:34,380 --> 00:11:38,040
+You need to go look for something that's
+more infrastructure's the service,
+
+168
+00:11:38,040 --> 00:11:43,360
+like Google Compute Cloud, or
+Amazon's web services and EC2.
+

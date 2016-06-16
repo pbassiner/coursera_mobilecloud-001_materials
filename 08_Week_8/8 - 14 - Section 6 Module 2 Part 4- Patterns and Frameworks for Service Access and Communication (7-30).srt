@@ -1,0 +1,533 @@
+1
+00:00:00,012 --> 00:00:06,668
+Welcome to part four in the module that
+provides a discussion of patterns and
+
+2
+00:00:06,668 --> 00:00:11,338
+frameworks, for service access and
+communication.
+
+3
+00:00:11,338 --> 00:00:17,784
+In previous parts of this module, we first
+talked about some of the limitations, and
+
+4
+00:00:17,784 --> 00:00:21,578
+accidental complexities with the C socket
+API.
+
+5
+00:00:21,578 --> 00:00:25,818
+We then described ways in which the
+wrapper facade pattern can help to
+
+6
+00:00:25,818 --> 00:00:29,580
+alleviate a number of these limitations
+and complexities.
+
+7
+00:00:29,580 --> 00:00:34,011
+We then talked about the ACE socket
+wrapper facades, written in C++, to
+
+8
+00:00:34,011 --> 00:00:37,931
+provide cleaner access to the underlying
+socket mechanisms.
+
+9
+00:00:37,931 --> 00:00:42,215
+And now we're going to provide an example
+that illustrates how to apply these
+
+10
+00:00:42,215 --> 00:00:46,616
+wrapper facades, to a simple iterative web
+client and server application.
+
+11
+00:00:46,616 --> 00:00:49,906
+Here's an overview of what we're going to
+be doing here.
+
+12
+00:00:49,906 --> 00:00:54,672
+We're going to implement a web server and
+a web client, very simple, using iterative
+
+13
+00:00:54,672 --> 00:00:57,509
+mechanisms, so one client connection at a
+time.
+
+14
+00:00:57,509 --> 00:01:02,117
+And we'll start out by creating an ACE
+sock acceptor, which plays the passive
+
+15
+00:01:02,117 --> 00:01:05,039
+role, and it waits for clients to connect
+to it.
+
+16
+00:01:05,040 --> 00:01:09,772
+We'll then create an ACE_SOCK_Connector,
+which plays the active role, and that
+
+17
+00:01:09,772 --> 00:01:14,740
+initiates a connection, and it'll go ahead
+and initiate the connection to the server,
+
+18
+00:01:14,740 --> 00:01:19,363
+and create, an ACE_SOCK_Stream when the
+connection is complete, likewise, the
+
+19
+00:01:19,363 --> 00:01:24,262
+ACE_SOCK_Acceptor will be used to accept
+an incoming connection from the client and
+
+20
+00:01:24,262 --> 00:01:28,545
+create an initialized ACE_SOCK_Stream.
+And both these, when these both
+
+21
+00:01:28,545 --> 00:01:33,237
+ACE_SOCK_Streams have been created and
+initialized, we then go ahead and have
+
+22
+00:01:33,237 --> 00:01:37,997
+them communicate back and forth, sending
+and receiving data in accordance with the
+
+23
+00:01:37,997 --> 00:01:41,479
+http protocol, and they play the, the
+communication role.
+
+24
+00:01:41,479 --> 00:01:44,966
+So those are the keys roles that we're
+going to be describing.
+
+25
+00:01:44,966 --> 00:01:49,193
+So here's an illustration of how we can
+use the ACE_SOCK_Connector for a web
+
+26
+00:01:49,193 --> 00:01:51,692
+client.
+What we're going to do first, is we're
+
+27
+00:01:51,692 --> 00:01:55,352
+going to write a simple main application
+in a C++ program, and we'll process
+
+28
+00:01:55,352 --> 00:01:59,552
+various command line arguments that
+indicate what port number, and what server
+
+29
+00:01:59,552 --> 00:02:02,576
+address, what content we want to be able
+to get, and so on.
+
+30
+00:02:02,576 --> 00:02:06,678
+In this particular case, we're going to be
+defaulting to port 80, because that's the
+
+31
+00:02:06,678 --> 00:02:10,710
+typical port number for a socket, but it
+would be easy to, for a web server, it
+
+32
+00:02:10,710 --> 00:02:14,223
+would be easy to extend that to make it
+work on different ports.
+
+33
+00:02:14,224 --> 00:02:18,490
+We're then going to go ahead and
+instantiate the SOCK_Connector and the
+
+34
+00:02:18,490 --> 00:02:23,424
+SOCK_Stream, and notice how we use traits
+here to make this easy to program, without
+
+35
+00:02:23,424 --> 00:02:28,349
+having to keep track of all those details.
+And then finally, we're going to go ahead
+
+36
+00:02:28,349 --> 00:02:32,875
+and initiate a timed connection, which
+will try for up to ten seconds to get
+
+37
+00:02:32,875 --> 00:02:37,766
+connected to the server, and if for some
+reasons you can't get connected go ahead
+
+38
+00:02:37,766 --> 00:02:40,748
+and fail.
+Assuming it works, what we then do is we
+
+39
+00:02:40,748 --> 00:02:44,857
+write a little code to set up how to send
+a GET request to the server.
+
+40
+00:02:44,857 --> 00:02:49,105
+And the way we going to do this, is we're
+going to use an, iovec, which is a data
+
+41
+00:02:49,105 --> 00:02:54,217
+structure that's is used for gather-write
+scatter read operations, do these things
+
+42
+00:02:54,217 --> 00:02:57,531
+efficiently.
+And we set up the, the get request part of
+
+43
+00:02:57,531 --> 00:03:02,283
+the message part of the message, we pass
+in the path name, and then we pass in kind
+
+44
+00:03:02,283 --> 00:03:06,531
+of the trailer part of the HTTP get
+request header, and when in all those
+
+45
+00:03:06,531 --> 00:03:11,355
+things are put into the iovec, we then go
+ahead and make a send VN call, which sends
+
+46
+00:03:11,355 --> 00:03:14,872
+this vector and will block until the send
+is complete.
+
+47
+00:03:14,872 --> 00:03:19,344
+This is going to perform a blocking send.
+We don't have to do a blocking send here,
+
+48
+00:03:19,344 --> 00:03:23,906
+we could do a time send, but just to show
+you how easy it is to do a blocking send.
+
+49
+00:03:23,906 --> 00:03:27,798
+What we're then going to do, is we're
+going to go into a loop, waiting for the
+
+50
+00:03:27,798 --> 00:03:32,262
+results to come back from the server.
+In this particular case, just to show you
+
+51
+00:03:32,262 --> 00:03:36,402
+the diversity of approaches, we're going
+to implement this using timed receives,
+
+52
+00:03:36,402 --> 00:03:39,941
+and so we'll receive the data coming back
+and we'll do something to it.
+
+53
+00:03:39,941 --> 00:03:43,853
+In this case, we're just going to write it
+to standard output but of course, you
+
+54
+00:03:43,853 --> 00:03:46,031
+could buffer it up, put it some place
+else.
+
+55
+00:03:46,031 --> 00:03:49,976
+So that illustrates the client side, now
+let's take a look at the server side.
+
+56
+00:03:49,976 --> 00:03:54,672
+This is going to illustrate the use of
+ACE_SOCK_Acceptor, and ACE_SOCK_Stream to
+
+57
+00:03:54,672 --> 00:03:59,390
+accept a connection, and then send and
+receive the data to and from the client.
+
+58
+00:03:59,391 --> 00:04:04,834
+Once again, we start again by initializing
+some of the key objectsm we initialize our
+
+59
+00:04:04,834 --> 00:04:07,859
+server address for our web server to be
+port 80.
+
+60
+00:04:07,859 --> 00:04:13,565
+We go ahead and create our acceptor, and
+then we turn around and we say wow we're
+
+61
+00:04:13,565 --> 00:04:17,596
+going to loop forever, accept the next
+connection from a client.
+
+62
+00:04:17,596 --> 00:04:22,158
+And, assuming that this works properly,
+what we get back from that, is a connected
+
+63
+00:04:22,158 --> 00:04:25,691
+ACE_SOCK_Stream.
+And then we turn around and we memory map,
+
+64
+00:04:25,691 --> 00:04:30,241
+the path name that we extract out of that
+stream by using a function called, Get
+
+65
+00:04:30,241 --> 00:04:33,905
+Path Name, that we're not going to talk
+about here in much detail.
+
+66
+00:04:33,905 --> 00:04:38,486
+But you can imagine it would go through
+and find the, the various path name
+
+67
+00:04:38,486 --> 00:04:43,086
+information, from the stream.
+We memory map that, take the pointer that
+
+68
+00:04:43,086 --> 00:04:47,722
+comes back from the memory mapping
+operation, and then we do a transfer to
+
+69
+00:04:47,722 --> 00:04:52,553
+send all end bytes back to the client.
+In this particular case, we're a doing a
+
+70
+00:04:52,553 --> 00:04:57,233
+blocking send, but it would be easy to
+make this a non-blocking send, if we were
+
+71
+00:04:57,233 --> 00:05:01,913
+concerned about flow control, or some
+other kind of malicious activity on the
+
+72
+00:05:01,913 --> 00:05:07,216
+part of clients, jamming up the connection
+and preventing the send from completing.
+
+73
+00:05:07,216 --> 00:05:11,830
+So this particular simple example,
+illustrates how to build a very light
+
+74
+00:05:11,830 --> 00:05:16,889
+weight, illitive, web client and server.
+It alleviates a number of problems we
+
+75
+00:05:16,889 --> 00:05:21,149
+discussed before, with the use of sockets,
+so it's less error prone.
+
+76
+00:05:21,149 --> 00:05:25,871
+As you can see the original C level socket
+code, would not be able to detect the
+
+77
+00:05:25,871 --> 00:05:29,299
+error as we see here, by running it
+through the compiler.
+
+78
+00:05:29,299 --> 00:05:33,849
+In this case, we're reading from a
+acceptor listen mode socket, we're trying
+
+79
+00:05:33,849 --> 00:05:38,427
+to accept on our, on a data mode socket,
+which are not correct things to do.
+
+80
+00:05:38,427 --> 00:05:42,256
+In contrast, you simply can't do that with
+the ACE wrapper facades.
+
+81
+00:05:42,256 --> 00:05:45,881
+You can't do reads on an acceptor, the
+operation isn't supported.
+
+82
+00:05:45,881 --> 00:05:49,906
+You can't try to, accept on a stream, the
+operation isn't supported.
+
+83
+00:05:49,906 --> 00:05:53,863
+So these kinds of silly mistakes are
+caught early on in the life cycle.
+
+84
+00:05:53,863 --> 00:05:58,459
+The other problem we talked about with
+sockets is it's very complex, you have to
+
+85
+00:05:58,459 --> 00:06:02,947
+know a lot about the design, it's not
+clear from looking at the interfaces, what
+
+86
+00:06:02,947 --> 00:06:06,633
+things do what roles.
+In contrast with the wrapper facades, the
+
+87
+00:06:06,633 --> 00:06:11,189
+surface area is done for the design in a
+way where it's fairly straight forward to
+
+88
+00:06:11,189 --> 00:06:15,106
+tell, by looking at the names of the
+classes, what role they play.
+
+89
+00:06:15,106 --> 00:06:19,973
+Whether they're acceptors or connectors,
+which are connection roles, active and
+
+90
+00:06:19,973 --> 00:06:24,527
+passive, whether they're data transfer
+operations and classes like streams,
+
+91
+00:06:24,527 --> 00:06:29,288
+whether they're local domain, local
+sockets versus interdomain, TCPIP sockets,
+
+92
+00:06:29,288 --> 00:06:32,742
+and so on and so forth.
+Those things are, are baked into the
+
+93
+00:06:32,742 --> 00:06:35,436
+design, so it's easy to tell what's going
+on.
+
+94
+00:06:35,436 --> 00:06:39,702
+Other issues we talked about with respect
+to portability and non-uniformity, these
+
+95
+00:06:39,702 --> 00:06:43,482
+issues are also cleaned up, and so as a
+result, much easier to write portable
+
+96
+00:06:43,482 --> 00:06:47,022
+applications, much easier to write
+applications that you can tune and
+
+97
+00:06:47,022 --> 00:06:50,982
+optimize without having to give up the
+platform independent nature, of a lot of
+
+98
+00:06:50,982 --> 00:06:55,636
+code you might be trying to write.
+Naturally, however, we need more than just
+
+99
+00:06:55,636 --> 00:06:59,379
+wrapper facades in order to develop
+effective web servers.
+
+100
+00:06:59,379 --> 00:07:04,005
+So these portablility issues are nice, but
+as we go on to the next modules in this
+
+101
+00:07:04,005 --> 00:07:07,553
+section, we'll see that there's lots more
+space to explore.
+
+102
+00:07:07,553 --> 00:07:11,359
+We have to be able to come more effective
+ways to add concurrency.
+
+103
+00:07:11,359 --> 00:07:16,045
+We also have to be able to add other
+capabilities, that'll make it possible to,
+
+104
+00:07:16,045 --> 00:07:20,869
+to be able to dynamically configure the
+systems out of building block parts, and
+
+105
+00:07:20,869 --> 00:07:25,621
+be able to apply much more sophisticated
+IO mechanisms we might have on certain
+
+106
+00:07:25,621 --> 00:07:28,542
+platforms.
+And so we'll talk about that as we go
+
+107
+00:07:28,542 --> 00:07:29,138
+further.

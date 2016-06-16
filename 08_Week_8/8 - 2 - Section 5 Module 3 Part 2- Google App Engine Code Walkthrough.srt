@@ -1,0 +1,982 @@
+1
+00:00:00,188 --> 00:00:08,813
+[MUSIC]
+
+2
+00:00:08,813 --> 00:00:12,937
+Now that we have a basic understanding
+of the infrastructure provided by
+
+3
+00:00:12,937 --> 00:00:17,060
+Google's platform as a service called
+App Engine, let's take a look at
+
+4
+00:00:17,060 --> 00:00:21,400
+a specific application that uses
+Spring on Google App Engine.
+
+5
+00:00:21,400 --> 00:00:26,518
+But rather than using JPA, the database
+standard that we've been using,
+
+6
+00:00:26,518 --> 00:00:27,630
+we'll use JDO.
+
+7
+00:00:27,630 --> 00:00:30,710
+So let's dive right in here and
+look at some of the code for
+
+8
+00:00:30,710 --> 00:00:32,650
+this example that's now in the repository.
+
+9
+00:00:34,620 --> 00:00:41,050
+If you'll take a look underneath the,
+source video, the video source
+
+10
+00:00:41,050 --> 00:00:46,800
+service app in JDO, project, you'll see
+a number of familiar things very quickly.
+
+11
+00:00:47,810 --> 00:00:49,770
+The first one is an application class.
+
+12
+00:00:49,770 --> 00:00:55,450
+And this is just like we've doing
+with other spring based applications.
+
+13
+00:00:55,450 --> 00:01:01,460
+So in this example, we have a class
+that still exten, extends WebMvc.
+
+14
+00:01:01,460 --> 00:01:07,401
+Configure adapter is still using the
+various annotations like at EnableWebMvc.
+
+15
+00:01:07,401 --> 00:01:09,920
+But one of the differences
+that you'll notice,
+
+16
+00:01:09,920 --> 00:01:13,940
+is that before we were using a main
+method to boot strap Spring.
+
+17
+00:01:14,960 --> 00:01:18,360
+Now in this example,
+we're no longer doing that.
+
+18
+00:01:18,360 --> 00:01:22,340
+Instead, we are just using
+this application class
+
+19
+00:01:22,340 --> 00:01:26,380
+as a configuration object for
+our overall application.
+
+20
+00:01:26,380 --> 00:01:31,810
+So it's not being used to kick off
+an embedded servlet container anymore.
+
+21
+00:01:31,810 --> 00:01:34,570
+It's not being used to kick off Tomcat or
+Jetty.
+
+22
+00:01:34,570 --> 00:01:38,640
+Instead, it's just providing configur,
+configuration information here, so
+
+23
+00:01:38,640 --> 00:01:43,560
+we could have one or more embedded
+beans inside of this application.
+
+24
+00:01:43,560 --> 00:01:47,020
+But we couldn't for example, have the
+beans that we previously had that would
+
+25
+00:01:47,020 --> 00:01:51,930
+configure SSA, SSL on Tomcat,
+so that we could do https.
+
+26
+00:01:53,300 --> 00:01:57,000
+But it still gives us all
+the configuration capabilities.
+
+27
+00:01:57,000 --> 00:02:03,640
+Now, as I mentioned earlier, this App
+Engine Project has to have a web.xml file.
+
+28
+00:02:03,640 --> 00:02:08,200
+And this is because App Engine
+uses an older Servlet API standard
+
+29
+00:02:08,200 --> 00:02:12,730
+that doesn't support some of the automatic
+bootstrapping stuff that we've been
+
+30
+00:02:12,730 --> 00:02:14,040
+doing with Spring Boot.
+
+31
+00:02:14,040 --> 00:02:20,319
+So if you'll go down into the source,
+main, web app, web amp folder, you'll
+
+32
+00:02:20,319 --> 00:02:28,060
+recognize the web.xml file that we talked
+about in earlier examples with Servelts.
+
+33
+00:02:28,060 --> 00:02:33,070
+And we have to have one of these files
+here when we're running on App Engine.
+
+34
+00:02:33,070 --> 00:02:39,620
+And basically, what we use it to do is to
+bootstrap Spring, and get Spring launched
+
+35
+00:02:39,620 --> 00:02:44,250
+so it can go and look at our application
+class and load it as the configuration.
+
+36
+00:02:45,260 --> 00:02:47,220
+So let me show you how
+we go about doing that.
+
+37
+00:02:48,400 --> 00:02:51,570
+The first thing we're going to do is we're
+going to take a look down at the bottom
+
+38
+00:02:51,570 --> 00:02:54,380
+and see the things that
+we're more familiar with.
+
+39
+00:02:54,380 --> 00:02:57,820
+So we see that we're declaring a server,
+a Servlet and
+
+40
+00:02:57,820 --> 00:03:01,920
+we're declaring it to be
+of type dispatcher Servlet.
+
+41
+00:03:01,920 --> 00:03:06,120
+So this is the same dispatcher Servlet
+that we walked about early on when we
+
+42
+00:03:06,120 --> 00:03:11,510
+began introducing Spring is, rather
+than automatically having Spring Boot
+
+43
+00:03:11,510 --> 00:03:16,860
+set up the dispatcher Servlet, we're
+providing a web.xml file that is telling
+
+44
+00:03:16,860 --> 00:03:21,480
+the Servlet container to go and create
+an instance of the dispatcher Servlet.
+
+45
+00:03:22,880 --> 00:03:26,300
+Then a little farther down,
+we're taking that dispatcher Servlet and
+
+46
+00:03:26,300 --> 00:03:29,069
+we're mapping it so
+that it will handle all requests.
+
+47
+00:03:30,180 --> 00:03:34,960
+So what we're doing here is, we're doing
+what Spring Boot normally does for
+
+48
+00:03:34,960 --> 00:03:35,880
+us automatically.
+
+49
+00:03:35,880 --> 00:03:38,710
+It automatically creates
+the dispatcher Servlet for us.
+
+50
+00:03:38,710 --> 00:03:41,950
+It automatically loads it
+into the Servlet container.
+
+51
+00:03:41,950 --> 00:03:44,190
+It normally does all of this for us.
+
+52
+00:03:44,190 --> 00:03:47,780
+But because the Servlet API
+is an older version,
+
+53
+00:03:47,780 --> 00:03:49,500
+it can't do that automatically anymore.
+
+54
+00:03:49,500 --> 00:03:53,270
+So we have to do a little bit of
+manual work to bootstrap this,
+
+55
+00:03:53,270 --> 00:03:57,690
+this spring based application
+that we're developing.
+
+56
+00:03:57,690 --> 00:04:01,778
+Now, the good thing is is that almost all
+of this code is reusable and boiler plate.
+
+57
+00:04:01,778 --> 00:04:05,370
+And you could just copy it over another
+project as long as you get the,
+
+58
+00:04:05,370 --> 00:04:09,540
+any of your specific code, as long
+as you update the package names and
+
+59
+00:04:09,540 --> 00:04:12,269
+class names appropriately,
+you can reuse this over and over.
+
+60
+00:04:13,820 --> 00:04:17,184
+Now we have the other interesting
+files that we should look at,
+
+61
+00:04:17,184 --> 00:04:19,720
+is this AppEngine-web.xml file.
+
+62
+00:04:19,720 --> 00:04:23,780
+And this provides some information
+that App Engine needs to
+
+63
+00:04:23,780 --> 00:04:26,020
+know about your application.
+
+64
+00:04:26,020 --> 00:04:28,650
+Now, you can put all kinds
+of different things in here,
+
+65
+00:04:28,650 --> 00:04:32,860
+but one of the most important
+things that needs to go in
+
+66
+00:04:32,860 --> 00:04:38,120
+here is the application
+identifier that you are given.
+
+67
+00:04:38,120 --> 00:04:43,070
+So, when you go and create
+an application on Google App Engine,
+
+68
+00:04:43,070 --> 00:04:47,980
+it will require you to create
+an identifier for your application.
+
+69
+00:04:47,980 --> 00:04:52,110
+And, once you've created that application
+and you've gotten that identifier,
+
+70
+00:04:52,110 --> 00:04:57,830
+you need to make sure that it shows up
+in your appengine-web.xml file and then
+
+71
+00:04:57,830 --> 00:05:02,957
+you can specify some version information,
+which in this case we're just saying 0-1.
+
+72
+00:05:02,957 --> 00:05:07,650
+But you can provide sort of arbitrary
+versions and naming, which is another nice
+
+73
+00:05:07,650 --> 00:05:10,749
+feature of App Engine is that it will
+track these versions as you deploy them.
+
+74
+00:05:12,590 --> 00:05:16,660
+Now, all of that's a little bit more work,
+but it's not sufficient,
+
+75
+00:05:16,660 --> 00:05:19,550
+significantly different from
+what we've done in the past.
+
+76
+00:05:19,550 --> 00:05:22,410
+If we go and look at our video service and
+
+77
+00:05:22,410 --> 00:05:27,740
+the video service API, it's still
+roughly the same as we saw before.
+
+78
+00:05:27,740 --> 00:05:32,977
+We have a series of Spring Request
+Mappings that are mapping down
+
+79
+00:05:32,977 --> 00:05:35,890
+to methods of a controller.
+
+80
+00:05:35,890 --> 00:05:39,030
+So we have our original
+controller methods for
+
+81
+00:05:39,030 --> 00:05:44,570
+saving a video, for listing the videos,
+and for finding videos by name.
+
+82
+00:05:44,570 --> 00:05:47,780
+So the controller, from its perspective,
+is pretty much the same.
+
+83
+00:05:47,780 --> 00:05:50,321
+There's nothing really that
+changes on Google App Engine.
+
+84
+00:05:51,570 --> 00:05:56,490
+Now, we're providing still
+a repository-like interface where
+
+85
+00:05:56,490 --> 00:05:59,210
+we have a vo, video repository.
+
+86
+00:05:59,210 --> 00:06:04,640
+But it you go and open up the video
+repository, you'll see that
+
+87
+00:06:04,640 --> 00:06:10,330
+it's not actually
+a Spring Data repository.
+
+88
+00:06:10,330 --> 00:06:15,710
+It is a repository that we've
+created to look like Spring Data.
+
+89
+00:06:15,710 --> 00:06:20,790
+In particular, rather than being
+an interface, we've created a class
+
+90
+00:06:20,790 --> 00:06:26,420
+that extends this other class called
+JDO crud repository that we've created.
+
+91
+00:06:26,420 --> 00:06:29,460
+And all we've done is try
+to make our class look like
+
+92
+00:06:29,460 --> 00:06:32,350
+the spring data repositories.
+
+93
+00:06:32,350 --> 00:06:35,730
+Now, we are actually providing
+100% of the implementation here.
+
+94
+00:06:35,730 --> 00:06:36,800
+We're not getting the,
+
+95
+00:06:36,800 --> 00:06:40,970
+the benefit of Spring Data automatically
+creating our repositories for us.
+
+96
+00:06:40,970 --> 00:06:45,990
+But, we are preserving that sort of
+consistent interface that we used before.
+
+97
+00:06:47,010 --> 00:06:53,220
+So let's take a look inside of the JDO
+crud repository and how we use JDO.
+
+98
+00:06:54,880 --> 00:07:00,000
+If we want to save an object, and in
+this case we just have a generic method,
+
+99
+00:07:00,000 --> 00:07:05,340
+where we've used Java Generics
+to parametize this method so
+
+100
+00:07:05,340 --> 00:07:10,110
+we can parametize it for a video or for
+another thing, just like we did before.
+
+101
+00:07:10,110 --> 00:07:14,570
+So if you'll look up, we always had to
+provide the type that we were saving,
+
+102
+00:07:14,570 --> 00:07:16,130
+in this case, T.
+
+103
+00:07:16,130 --> 00:07:20,540
+And then the ID type, just like we
+did with Spring Data repositories.
+
+104
+00:07:20,540 --> 00:07:24,100
+And these methods have actually
+been primarily copied over
+
+105
+00:07:24,100 --> 00:07:27,300
+from the crud repository in Spring Data.
+
+106
+00:07:27,300 --> 00:07:30,220
+We've just provided
+implementations of them in JDO.
+
+107
+00:07:32,030 --> 00:07:37,310
+So, for example, if we want to
+save an instance, an instance, we,
+
+108
+00:07:37,310 --> 00:07:42,600
+have to get an instance of the persistence
+manager, when she is responsible for
+
+109
+00:07:42,600 --> 00:07:46,510
+saving objects to the datastore and
+loading them from the datastore.
+
+110
+00:07:47,720 --> 00:07:48,270
+We can go and
+
+111
+00:07:48,270 --> 00:07:52,430
+look at this PMF class and we'll see
+it's basically a sys, a singleton,
+
+112
+00:07:52,430 --> 00:07:56,930
+to hold on to a single instance of
+the persistence manager factory.
+
+113
+00:07:56,930 --> 00:08:01,900
+And this is just boiler plate code
+that you will see in most JDO based
+
+114
+00:08:01,900 --> 00:08:03,150
+Google App Engine Projects.
+
+115
+00:08:03,150 --> 00:08:08,520
+You will need a, typically have a PMF
+class that has a Singleton instance
+
+116
+00:08:08,520 --> 00:08:12,920
+of the persistence manager factory
+which you use then as we do in
+
+117
+00:08:12,920 --> 00:08:17,660
+this JDO crud repository to get
+persistence managers from the factory.
+
+118
+00:08:18,930 --> 00:08:21,440
+And once you have a persistence manager,
+
+119
+00:08:21,440 --> 00:08:25,710
+in order to save an object,
+all you have to do is say make persistent.
+
+120
+00:08:25,710 --> 00:08:28,560
+And assuming that your
+objects that you're saving,
+
+121
+00:08:29,640 --> 00:08:34,410
+is of a class that's annotated with the
+appropriate annotations for persistence,
+
+122
+00:08:34,410 --> 00:08:37,209
+then the persistence manager will
+automatically store it in the database.
+
+123
+00:08:38,470 --> 00:08:40,030
+Similarly, we can go and
+
+124
+00:08:40,030 --> 00:08:44,530
+do things like look up an instance
+of an object by it's identifier.
+
+125
+00:08:44,530 --> 00:08:47,180
+So again, we get the persistence manager.
+
+126
+00:08:47,180 --> 00:08:51,390
+And then to look up an object, we say get
+object by ID and we pass in the type of
+
+127
+00:08:51,390 --> 00:08:56,539
+the object, which in this case for
+the video repository would be video.class.
+
+128
+00:08:56,539 --> 00:08:59,050
+And then we pass in the ID of the object,
+
+129
+00:08:59,050 --> 00:09:03,880
+which in this case would be a long, which
+is the unique ID of that particular video.
+
+130
+00:09:05,620 --> 00:09:08,960
+We can also go and do queries on objects,
+
+131
+00:09:08,960 --> 00:09:13,580
+like we did with the find
+examples in Spring Data.
+
+132
+00:09:13,580 --> 00:09:17,080
+So for example, if we wanted to create a,
+the equivalent of find by name and
+
+133
+00:09:17,080 --> 00:09:19,339
+actually produce
+the implementation ourselves,
+
+134
+00:09:20,390 --> 00:09:25,100
+we create a persistence manager and
+then we create a new query with that
+
+135
+00:09:25,100 --> 00:09:28,570
+persistence manager across
+all the video objects.
+
+136
+00:09:28,570 --> 00:09:33,870
+So here, we're saying create
+a persistence manager, create a query
+
+137
+00:09:33,870 --> 00:09:38,900
+across all of the video objects that
+have been stored in the database.
+
+138
+00:09:40,460 --> 00:09:42,880
+And then we add a series
+of filters to the query.
+
+139
+00:09:42,880 --> 00:09:48,820
+So we say we only care about the,
+the objects where the name
+
+140
+00:09:48,820 --> 00:09:54,910
+member variable is equal to this
+value N that we're going to provide.
+
+141
+00:09:54,910 --> 00:10:00,570
+And then we declare that
+N is a String Parameter.
+
+142
+00:10:00,570 --> 00:10:03,780
+Now, what, the reason that we're having
+to go through this work step by step in
+
+143
+00:10:03,780 --> 00:10:05,870
+constructing this query,
+is that we're trying,
+
+144
+00:10:05,870 --> 00:10:11,190
+that we're using the infrastructure
+to avoid an, a SQL injection attack.
+
+145
+00:10:11,190 --> 00:10:15,400
+So if we, for example, just appended
+the name that we're searching for
+
+146
+00:10:15,400 --> 00:10:20,360
+to the end of the string, we would leave
+ourselves open to a SQL injection attack.
+
+147
+00:10:20,360 --> 00:10:24,400
+So instead, we create the query and
+we have a place holder for
+
+148
+00:10:24,400 --> 00:10:26,135
+the value we want, which is N.
+
+149
+00:10:27,190 --> 00:10:33,210
+And in the next line, we declare
+that the variable N in our query,
+
+150
+00:10:33,210 --> 00:10:36,260
+in our filter, is of type string.
+
+151
+00:10:36,260 --> 00:10:40,930
+And then when we go down and
+execute the query and pass in the name,
+
+152
+00:10:40,930 --> 00:10:45,260
+the underlying JDO implementation
+can properly escape the name and
+
+153
+00:10:45,260 --> 00:10:49,310
+make sure that we are not susceptible
+to an SQL injection attack.
+
+154
+00:10:50,340 --> 00:10:53,680
+So, the, the use of JDO,
+
+155
+00:10:53,680 --> 00:10:58,860
+we can provide a interface that still
+looks like the Spring Data repositories.
+
+156
+00:10:58,860 --> 00:11:03,630
+Yet rather than having Spring
+automatically create the implementation or
+
+157
+00:11:03,630 --> 00:11:06,630
+provide the implementation
+of the repository for us,
+
+158
+00:11:06,630 --> 00:11:12,120
+we can just provide our own implementation
+of the various methods that we want.
+
+159
+00:11:12,120 --> 00:11:16,170
+And if you go and look through the JDO
+crud repository, you'll very quickly see
+
+160
+00:11:16,170 --> 00:11:21,290
+how you go about querying the repository,
+saving object and deleting objects.
+
+161
+00:11:21,290 --> 00:11:22,830
+It's all fairly self explanatory.
+
+162
+00:11:22,830 --> 00:11:28,350
+And examples are, in the JDO crud
+repository for all the common operations.
+
+163
+00:11:29,440 --> 00:11:34,100
+So now let's take a look at
+the video object and how we change
+
+164
+00:11:34,100 --> 00:11:37,830
+the annotations on it, just like when
+we did when we changed the Mongo DB and
+
+165
+00:11:37,830 --> 00:11:41,560
+when we change to Dynamo DB, we have
+to change the annotations of the video
+
+166
+00:11:41,560 --> 00:11:46,310
+object, in order to make it persistable in
+Google App Engine's big table with JDO.
+
+167
+00:11:46,310 --> 00:11:53,740
+The first thing we have to do is add
+app persistence capable to the class.
+
+168
+00:11:53,740 --> 00:11:56,760
+And this basically flags to JDO that
+
+169
+00:11:56,760 --> 00:12:00,740
+we intend to store this
+class in the database.
+
+170
+00:12:01,900 --> 00:12:08,620
+We then have to define a primary
+key just like we did before.
+
+171
+00:12:08,620 --> 00:12:13,500
+In this case, we are defining a primary
+key and we are saying that we want it
+
+172
+00:12:13,500 --> 00:12:18,430
+to automatically be generated and
+provided by the database infrastructure.
+
+173
+00:12:18,430 --> 00:12:23,120
+So when we save a video, we want
+the database to create the primary key for
+
+174
+00:12:23,120 --> 00:12:25,540
+us and assign it to this member variable.
+
+175
+00:12:25,540 --> 00:12:28,180
+This is the same thing that
+we did in JPA over and over.
+
+176
+00:12:28,180 --> 00:12:30,960
+We're just using a different set of
+annotations to make this happen.
+
+177
+00:12:33,040 --> 00:12:34,550
+We also have to do one other things, and
+
+178
+00:12:34,550 --> 00:12:39,140
+that's for each of the member
+variables that we want to persist.
+
+179
+00:12:39,140 --> 00:12:43,385
+We have to add the at persistent
+annotation to that member variable, so
+
+180
+00:12:43,385 --> 00:12:45,110
+that JDO knows to go and
+
+181
+00:12:45,110 --> 00:12:48,910
+look for that particular member
+variable and save it in the database.
+
+182
+00:12:48,910 --> 00:12:51,820
+Similarly, when we load to the,
+the object or
+
+183
+00:12:51,820 --> 00:12:54,770
+the video out of the database, it needs
+to know when should should the member
+
+184
+00:12:54,770 --> 00:12:57,600
+variables be populated with
+the data that are there.
+
+185
+00:12:58,820 --> 00:13:02,850
+So that's the basics of
+an App Engine Project.
+
+186
+00:13:02,850 --> 00:13:08,900
+We've switched over to JDO
+rather than JPA, and it,
+
+187
+00:13:08,900 --> 00:13:11,080
+it still provides us
+the same capabilities.
+
+188
+00:13:12,330 --> 00:13:16,910
+There's some variations in JDO versus
+JPA and some people prefer JDO,
+
+189
+00:13:16,910 --> 00:13:18,260
+some people prefer JPA.
+
+190
+00:13:18,260 --> 00:13:22,250
+But they give us both the, they both
+give us the same basic capabilities.
+
+191
+00:13:22,250 --> 00:13:27,300
+And we can still do things like have a
+repository like interface that looks like
+
+192
+00:13:27,300 --> 00:13:33,080
+Spring Data even if it isn't directly
+Spring Data, in order to isolate our
+
+193
+00:13:33,080 --> 00:13:38,630
+code from the underlying database logic,
+and provide some ability to change to
+
+194
+00:13:38,630 --> 00:13:43,480
+different repository implementations,
+if we try to, to, to move away from JDO.
+
+195
+00:13:43,480 --> 00:13:47,850
+We still have an application class,
+although it doesn't have a main method.
+
+196
+00:13:47,850 --> 00:13:50,640
+And one of the biggest pieces of work
+that we have to do is we have to
+
+197
+00:13:50,640 --> 00:13:54,610
+have a web.xml file to load
+our dispatcher Servlet,
+
+198
+00:13:54,610 --> 00:13:57,465
+which Spring Boot did automatically for
+us in the past.
+
+199
+00:13:57,465 --> 00:14:02,310
+[COUGH] So we can see that
+Google App Engine, because of
+
+200
+00:14:02,310 --> 00:14:05,880
+being a platform as a service, and some
+restrictions in the libraries that it has,
+
+201
+00:14:05,880 --> 00:14:08,510
+it makes us change our
+application a little bit.
+
+202
+00:14:08,510 --> 00:14:11,030
+But we still have the same
+basic capabilities and
+
+203
+00:14:11,030 --> 00:14:15,550
+we get a lot of other infrastructure
+to support us on App Engine.
+

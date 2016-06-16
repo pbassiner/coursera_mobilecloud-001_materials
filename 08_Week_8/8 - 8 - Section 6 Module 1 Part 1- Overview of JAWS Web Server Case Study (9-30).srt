@@ -1,0 +1,693 @@
+1
+00:00:00,012 --> 00:00:07,446
+Welcome to Part 1 in the module that
+provides an overview of the JAWS web
+
+2
+00:00:07,446 --> 00:00:12,987
+server case study.
+In this part of the module we'll be
+
+3
+00:00:12,987 --> 00:00:20,487
+providing an overview of the
+pattern-orientated design of the JAWS web
+
+4
+00:00:20,487 --> 00:00:23,954
+server.
+Let's first spend a little time talking
+
+5
+00:00:23,954 --> 00:00:28,303
+about what a web server does.
+The goal, of course, of a web server is to
+
+6
+00:00:28,303 --> 00:00:32,881
+download content in a scalable, efficient,
+and robust way, to clients.
+
+7
+00:00:32,881 --> 00:00:38,062
+Now let's kind of walk through some of the
+major elements, architectually, in a web
+
+8
+00:00:38,062 --> 00:00:40,456
+server.
+It starts off with some kind of
+
+9
+00:00:40,456 --> 00:00:45,484
+user-interface control on the client side.
+Either a command line or some kind of
+
+10
+00:00:45,484 --> 00:00:50,584
+dialogue or window view that allows users
+to enter in the urls for the content they
+
+11
+00:00:50,584 --> 00:00:53,005
+want.
+This then works with some kind of
+
+12
+00:00:53,005 --> 00:00:57,519
+requester to convert this into a get
+request or some other type of request
+
+13
+00:00:57,519 --> 00:01:02,802
+that's then sent across the network using.
+The TCP/IP protocol, running through the
+
+14
+00:01:02,802 --> 00:01:06,640
+operating system device drivers and
+networking protocol stacks.
+
+15
+00:01:06,640 --> 00:01:11,126
+And when it comes up on the other side, on
+the server side, there's some kind of
+
+16
+00:01:11,126 --> 00:01:15,816
+event dispatcher component that reads the
+request out of a socket, or some other
+
+17
+00:01:15,816 --> 00:01:19,301
+type of network endpoint.
+Converts it into a get message.
+
+18
+00:01:19,301 --> 00:01:24,655
+And it passes it up to the appropriate
+protocol handler, be it HTTP1.0 or HTTP1.1
+
+19
+00:01:24,655 --> 00:01:30,027
+and so on and that protocol handler does
+its thing understands what the request is
+
+20
+00:01:30,027 --> 00:01:35,241
+for and avails itself for some kind of
+file cache to locate the content required
+
+21
+00:01:35,241 --> 00:01:39,897
+and requested by the client and then to
+pass it back as a stream of data.
+
+22
+00:01:39,897 --> 00:01:44,032
+Through the TCP/IP connection.
+There's of course some kind of parser on
+
+23
+00:01:44,032 --> 00:01:48,724
+the receiver side that reads the request
+and then displays the message in whatever
+
+24
+00:01:48,724 --> 00:01:51,591
+format is designated in the message
+headers.
+
+25
+00:01:51,591 --> 00:01:55,721
+There's a number of requirements we're
+going to focus on in our case study.
+
+26
+00:01:55,721 --> 00:01:59,362
+The first of which is to be able to make
+it possible to support.
+
+27
+00:01:59,363 --> 00:02:02,956
+Multiple operating systems, with different
+capabilities and different
+
+28
+00:02:02,956 --> 00:02:05,709
+characteristics.
+We want to be able to run our server on
+
+29
+00:02:05,709 --> 00:02:09,789
+Windows, different versions of Unix,
+real-time operating systems, and so on and
+
+30
+00:02:09,789 --> 00:02:12,162
+so forth.
+We also want to be able to support many
+
+31
+00:02:12,162 --> 00:02:16,128
+different types of design alternatives.
+We want to be able to support different
+
+32
+00:02:16,128 --> 00:02:19,898
+kinds of concurrency models, different
+kinds of event management, and event
+
+33
+00:02:19,898 --> 00:02:23,338
+synchronization models.
+Different kinds of file caching models,
+
+34
+00:02:23,338 --> 00:02:26,423
+and so on and so forth.
+We'd also like to make sure that we can
+
+35
+00:02:26,423 --> 00:02:30,632
+take maximal advantage of whatever the
+operating system or the hardware provides
+
+36
+00:02:30,632 --> 00:02:33,010
+us.
+If we have multi-core or multi-processor
+
+37
+00:02:33,010 --> 00:02:36,297
+or hardware, we want to make sure that,
+that is taken advantage of.
+
+38
+00:02:36,297 --> 00:02:40,323
+If the operating system supports efficient
+asynchronous I/O we want to make sure
+
+39
+00:02:40,323 --> 00:02:43,864
+that, that works effectively.
+And finally we'd like to be able to make
+
+40
+00:02:43,864 --> 00:02:47,646
+sure that our system is going to be robust
+even in the face of accidental or
+
+41
+00:02:47,646 --> 00:02:49,811
+malicious access.
+By clients.
+
+42
+00:02:49,811 --> 00:02:54,270
+So these, these are some of the
+requirements that will drive and guide the
+
+43
+00:02:54,270 --> 00:02:58,599
+design that we're looking at.
+In order to accomplish this we're going to
+
+44
+00:02:58,599 --> 00:03:03,491
+be focusing on a specific example, which
+is a web server framework called JAWS.
+
+45
+00:03:03,491 --> 00:03:07,937
+Jaws is a pattern oriented web server
+implemented using ACE, and you can
+
+46
+00:03:07,937 --> 00:03:12,735
+download both ACE and JAWS from the UR,
+URL shown at the bottom of this slide.
+
+47
+00:03:12,736 --> 00:03:16,787
+We're going to be focusing in on the
+server portion, and really a key portion
+
+48
+00:03:16,787 --> 00:03:21,015
+of the server architecture for JAWS.
+And let me describe for you briefly what
+
+49
+00:03:21,015 --> 00:03:24,577
+those component elements are.
+The first part we'll talk about.
+
+50
+00:03:24,577 --> 00:03:28,845
+And this will be the bulk of our focus.
+Is on the event dispatcher component.
+
+51
+00:03:28,845 --> 00:03:34,101
+The purpose of the event dispatcher is to
+accept Connections from clients, receive
+
+52
+00:03:34,101 --> 00:03:38,901
+the various get requests using the HTP
+protocol and then perform the various
+
+53
+00:03:38,901 --> 00:03:44,151
+event demultiplexing and concurrency
+processing and synchronization necessary
+
+54
+00:03:44,151 --> 00:03:48,820
+to move the incoming requests up to the
+appropriate protocol handling.
+
+55
+00:03:48,820 --> 00:03:54,208
+The protocol handler then performs the
+various parcing and processing of the HTTP
+
+56
+00:03:54,208 --> 00:03:58,520
+requests and along the way, it leverages
+some kind of file cache.
+
+57
+00:03:58,520 --> 00:04:02,289
+And the file cache is used to make sure
+that we don't have to go to disk for
+
+58
+00:04:02,289 --> 00:04:05,920
+frequently accessed content.
+We want to be able to get this content as
+
+59
+00:04:05,920 --> 00:04:09,957
+quickly as possible out of memory.
+And we'll be using various techniques and
+
+60
+00:04:09,957 --> 00:04:14,111
+tricks like memory mapped files and so on
+in order to maximize the performance of
+
+61
+00:04:14,111 --> 00:04:16,558
+this portion of our web server
+architecture.
+
+62
+00:04:16,559 --> 00:04:19,897
+There's a number of different sources of
+variability in JAWS.
+
+63
+00:04:19,897 --> 00:04:24,187
+And our pattern oriented solution, and the
+frameworks we apply, have to take into
+
+64
+00:04:24,187 --> 00:04:26,736
+account these various sources of
+variability.
+
+65
+00:04:26,736 --> 00:04:29,563
+Try to make them as common and pluggable
+as possible.
+
+66
+00:04:29,563 --> 00:04:33,599
+Some of the different sources of
+variability include different concurrency
+
+67
+00:04:33,599 --> 00:04:35,780
+models.
+Do we use thread per connection?
+
+68
+00:04:35,780 --> 00:04:40,318
+Do we use various thread pool models?
+Do we use a reactive approach, and so on?
+
+69
+00:04:40,318 --> 00:04:43,559
+We'd like to make those as easy to plug
+and play as possible.
+
+70
+00:04:43,559 --> 00:04:47,597
+As another set of variability or what kind
+of caching protocols and caching
+
+71
+00:04:47,597 --> 00:04:50,964
+strategies do we use?
+Do we use least frequently used caching,
+
+72
+00:04:50,964 --> 00:04:54,816
+least recently used caching and so on.
+We'd like to be able to make those
+
+73
+00:04:54,816 --> 00:04:58,222
+pluggable and tuneable for different run
+time environments.
+
+74
+00:04:58,222 --> 00:05:02,006
+Another issue is what type of event the
+multiplexing model has to be used.
+
+75
+00:05:02,006 --> 00:05:06,332
+Synchronous event the multiplexing which
+is very common and UNIX's environments, do
+
+76
+00:05:06,332 --> 00:05:10,292
+we use asynchronous event handling which
+is very common in windows and we want to
+
+77
+00:05:10,292 --> 00:05:14,312
+be able to understand the trade-offs
+between the various approaches to pick the
+
+78
+00:05:14,312 --> 00:05:17,358
+right one for the context in which we
+happen to be executing.
+
+79
+00:05:17,359 --> 00:05:22,267
+Some other sources of variability include
+which transfer protocol are we using.
+
+80
+00:05:22,267 --> 00:05:26,945
+Http 1.0, 1.1 or something else, because
+we could have the protocols be pluggable
+
+81
+00:05:26,945 --> 00:05:29,706
+as well.
+Another source of variability is the
+
+82
+00:05:29,706 --> 00:05:33,033
+operating system API and the transport
+protocol APIs.
+
+83
+00:05:33,033 --> 00:05:37,775
+We'd like to be able to run our, the bulk
+of our web server logic without change
+
+84
+00:05:37,775 --> 00:05:40,766
+Irrespective of the platform we're running
+on.
+
+85
+00:05:40,766 --> 00:05:45,529
+And moreover we'd like to do this in a way
+that maximally leverages key operating
+
+86
+00:05:45,529 --> 00:05:50,215
+system transfer protocol of the hardware
+characteristics, where all, we can,
+
+87
+00:05:50,215 --> 00:05:53,576
+wherever we can.
+Patterns and frameworks are crucial to
+
+88
+00:05:53,576 --> 00:05:56,706
+being able to support Variation-oriented
+design.
+
+89
+00:05:56,706 --> 00:06:01,752
+We had talked about variation-oriented
+design in the overview of patterns portion
+
+90
+00:06:01,752 --> 00:06:06,432
+in section two of the course and here is
+just a quick recap in the context of JAWS
+
+91
+00:06:06,432 --> 00:06:09,888
+and web servers.
+So variation-oriented design is a, is a
+
+92
+00:06:09,888 --> 00:06:14,738
+process or a method that works as follows.
+You start out by understanding a set of
+
+93
+00:06:14,738 --> 00:06:18,371
+patterns and frameworks.
+Look carefully at the patterns and
+
+94
+00:06:18,371 --> 00:06:22,297
+frameworks to understand the benefits and
+applicability and limitations.
+
+95
+00:06:22,297 --> 00:06:26,713
+And armed with this knowledge you're then
+able to perform various kinds of trade off
+
+96
+00:06:26,713 --> 00:06:30,249
+analysis to figure out which pattern and
+framework components.
+
+97
+00:06:30,250 --> 00:06:33,443
+Work most effectively in the context in
+which you're running.
+
+98
+00:06:33,443 --> 00:06:36,447
+And based on this analysis.
+That then guides the design and
+
+99
+00:06:36,447 --> 00:06:39,900
+implementation process.
+Figuring out in a particular environment
+
+100
+00:06:39,900 --> 00:06:43,091
+for a particular set of requirements in a
+particular context.
+
+101
+00:06:43,091 --> 00:06:46,882
+Which of these patterns and frameworks to
+apply, and how to compose them.
+
+102
+00:06:46,882 --> 00:06:50,914
+And of course, we use this knowledge to be
+able to go and help implement and
+
+103
+00:06:50,914 --> 00:06:53,613
+integrate.
+Our solutions leveraging patterns and
+
+104
+00:06:53,613 --> 00:06:57,237
+frameworks wherever possible.
+And this of course is a feedback loop, and
+
+105
+00:06:57,237 --> 00:07:00,477
+it goes back around again as we get
+smarter about the patterns and
+
+106
+00:07:00,477 --> 00:07:04,377
+frameworks,we can do a better job of
+implementing our solution and so on and so
+
+107
+00:07:04,377 --> 00:07:06,581
+forth.
+This is also a good example of where we
+
+108
+00:07:06,581 --> 00:07:10,757
+will be applying throughout this section
+the notions of commonality and variability
+
+109
+00:07:10,757 --> 00:07:14,902
+analysis which had talked about earlier.
+As part of the core for how you design
+
+110
+00:07:14,902 --> 00:07:18,947
+effective object oriented systems.
+Looking for common interfaces that we
+
+111
+00:07:18,947 --> 00:07:22,163
+could have stable reliance upon to build
+our architecture.
+
+112
+00:07:22,163 --> 00:07:26,137
+Looking for places of canonical
+variability, where we could build stable
+
+113
+00:07:26,137 --> 00:07:29,607
+interfaces to variability, making them
+easier to plug and play.
+
+114
+00:07:29,607 --> 00:07:33,311
+And you'll see many, many examples of this
+as we look through JAWS.
+
+115
+00:07:33,312 --> 00:07:38,025
+So to summarize this part of the module,
+JAWS is a pattern oriented, open-source
+
+116
+00:07:38,025 --> 00:07:42,372
+web server that's been optimized for a
+variety of different mechanisms and
+
+117
+00:07:42,372 --> 00:07:46,108
+techniques, that are known to make web
+servers run effienctly.
+
+118
+00:07:46,108 --> 00:07:50,871
+For example, it has a variety of different
+kinds of lightweight concurrency models,
+
+119
+00:07:50,871 --> 00:07:55,561
+using different threading strategies It
+also is used to minimize locking, where we
+
+120
+00:07:55,561 --> 00:07:59,031
+don't have many locks.
+There's really only a handful of locks in
+
+121
+00:07:59,031 --> 00:08:03,378
+the critical path to protect the, the file
+cache when we access it from multiple
+
+122
+00:08:03,378 --> 00:08:05,738
+threads of control from our pool of
+threads.
+
+123
+00:08:05,738 --> 00:08:09,960
+We also apply various file caching and
+memory mapping techniques to avoid having
+
+124
+00:08:09,960 --> 00:08:13,866
+to go to disk when we access very
+frequently ac, frequently utilized and
+
+125
+00:08:13,866 --> 00:08:17,881
+frequently downloaded content.
+We use gather write I/O mechanisms in
+
+126
+00:08:17,881 --> 00:08:22,228
+order to be able to minimize domain
+crossings between user and kernel space
+
+127
+00:08:22,228 --> 00:08:26,506
+and to be able to work around some
+limitations with the various congestion
+
+128
+00:08:26,506 --> 00:08:31,362
+control algorithms like nagle's algorithm.
+We also are clever about minimizing
+
+129
+00:08:31,362 --> 00:08:36,071
+logging by trying to put the logging in
+thread specific storage, pre-compute.
+
+130
+00:08:36,071 --> 00:08:40,200
+Http messages that are common so we don't
+have to build them on the fly.
+
+131
+00:08:40,200 --> 00:08:44,506
+Minimize the number of times we use the
+time system call to get time stamps.
+
+132
+00:08:44,506 --> 00:08:49,480
+And finally, optimize the various settings
+in the transport interface to make sure we
+
+133
+00:08:49,480 --> 00:08:52,805
+can get the maximum Throughput in a given
+environment.
+
+134
+00:08:52,805 --> 00:08:57,134
+If you take a look, you'll find that JAWS
+is available in a couple of different
+
+135
+00:08:57,134 --> 00:09:01,358
+implementations in the ACE release and
+this will give you a chance to look and
+
+136
+00:09:01,358 --> 00:09:05,421
+see how JAWS and it's pattern-oriented
+approaches evolved over time.
+
+137
+00:09:05,421 --> 00:09:10,341
+And if you take a look at the URL at the
+bottom of this slide You'll see a number
+
+138
+00:09:10,341 --> 00:09:15,333
+of papers and more information that
+describes the architecture and pattern
+
+139
+00:09:15,333 --> 00:09:18,016
+oriented design of the JAWS web server.

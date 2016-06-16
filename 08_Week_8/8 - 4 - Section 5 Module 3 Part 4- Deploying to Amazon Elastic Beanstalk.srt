@@ -1,0 +1,1030 @@
+1
+00:00:00,000 --> 00:00:08,727
+[MUSIC]
+
+2
+00:00:08,727 --> 00:00:12,914
+Another platform as a service that
+we're going to talk about is ama,
+
+3
+00:00:12,914 --> 00:00:15,570
+Amazon's Elastic Beanstalk.
+
+4
+00:00:15,570 --> 00:00:19,540
+So Elastic Beanstalk is an interesting
+platform as a service because.
+
+5
+00:00:19,540 --> 00:00:22,130
+It provides many of
+the capabilities that we extept,
+
+6
+00:00:22,130 --> 00:00:24,050
+expect of a platform as a service.
+
+7
+00:00:24,050 --> 00:00:28,180
+So bundling together things like,
+the ability to interact with the database,
+
+8
+00:00:28,180 --> 00:00:30,765
+the ability to automatically
+deploy your application,
+
+9
+00:00:30,765 --> 00:00:35,250
+put it behind the load balancer
+scale it up and down as needed.
+
+10
+00:00:35,250 --> 00:00:37,930
+But it also has some other
+interesting capabilities,
+
+11
+00:00:37,930 --> 00:00:40,790
+because it was built on top
+of Amazon Web Services.
+
+12
+00:00:40,790 --> 00:00:44,830
+And one of those interesting capabilities
+is that you can also take control of
+
+13
+00:00:44,830 --> 00:00:49,600
+lower level details that you typically
+can't do, on other platforms as a service.
+
+14
+00:00:49,600 --> 00:00:54,115
+So for example, on Amazon if you want to
+deploy to your own virtual machine image,
+
+15
+00:00:54,115 --> 00:00:57,620
+then maybe has hardware
+specific features or
+
+16
+00:00:57,620 --> 00:01:00,630
+has some special native libraries
+that you want to access.
+
+17
+00:01:00,630 --> 00:01:02,798
+You can actually do that on Amazon.
+
+18
+00:01:02,798 --> 00:01:06,400
+We're not going to talk about that today,
+but we are going to show you how you take
+
+19
+00:01:06,400 --> 00:01:11,210
+your Spring Boot applications and can take
+them and modify them slightly so that you
+
+20
+00:01:11,210 --> 00:01:15,350
+can quickly upload them to Amazon Elastic
+Beanstalk and have them live in the cloud.
+
+21
+00:01:15,350 --> 00:01:18,730
+So let's walk through an example and
+see how we do this.
+
+22
+00:01:19,960 --> 00:01:25,270
+So, if you'll take a look at the video
+service with Dynamo and DB and
+
+23
+00:01:25,270 --> 00:01:31,200
+Beanstalk, this is an example that's going
+to use Amazon's database called Dynamo,
+
+24
+00:01:31,200 --> 00:01:33,530
+which is a very fast database.
+
+25
+00:01:33,530 --> 00:01:35,409
+As well as their Beanstalk service.
+
+26
+00:01:36,440 --> 00:01:41,210
+And this is an extension of the previous
+Dynamo, application that we saw before.
+
+27
+00:01:41,210 --> 00:01:44,600
+So if you haven't gone and
+set up that Dynamo application and
+
+28
+00:01:44,600 --> 00:01:48,342
+created the DynamoDB tables that
+you'll need, for that application,
+
+29
+00:01:48,342 --> 00:01:52,380
+you want to go ahead and do that first
+before watching this tutorial because this
+
+30
+00:01:52,380 --> 00:01:56,150
+tutorial assumes that you've already
+set up the proper Dynamo tables.
+
+31
+00:01:56,150 --> 00:01:57,570
+To persist video objects.
+
+32
+00:01:59,350 --> 00:02:03,840
+Other than the setup, the of DynamoDB,
+the key thing that's different from
+
+33
+00:02:03,840 --> 00:02:07,010
+the previous Spring Boot
+applications that we've done,
+
+34
+00:02:07,010 --> 00:02:12,820
+are that we have added
+a application servlet initializer.
+
+35
+00:02:12,820 --> 00:02:14,620
+And this is a simple class.
+
+36
+00:02:14,620 --> 00:02:17,800
+That you can reuse over and
+over in your applications,
+
+37
+00:02:17,800 --> 00:02:22,120
+that instead of having the applications
+main method actually go and kick off
+
+38
+00:02:22,120 --> 00:02:27,320
+spring with an embedded servlet container,
+this simply tells a servlet container
+
+39
+00:02:27,320 --> 00:02:32,280
+like Tomcat that's standalone that
+you're deploying this application into.
+
+40
+00:02:32,280 --> 00:02:36,230
+To go and launch and configure
+itself using the application class.
+
+41
+00:02:36,230 --> 00:02:41,330
+So this is very similar to what we saw,
+in previous examples where we
+
+42
+00:02:41,330 --> 00:02:44,250
+used the main method to kick off,
+an embedded container.
+
+43
+00:02:44,250 --> 00:02:47,050
+In this case we've just done
+something slightly different.
+
+44
+00:02:47,050 --> 00:02:50,470
+Since we're going to be running in
+a standalone web application container.
+
+45
+00:02:50,470 --> 00:02:53,760
+So rather than embedding
+Tomcat into our application.
+
+46
+00:02:53,760 --> 00:02:58,270
+We're going to package our application
+into a web application resource or
+
+47
+00:02:58,270 --> 00:02:59,490
+WAR file.
+
+48
+00:02:59,490 --> 00:03:02,100
+And then deploy it into a Tomcat instance.
+
+49
+00:03:03,110 --> 00:03:04,410
+So in order to that,
+
+50
+00:03:04,410 --> 00:03:09,460
+we also have to specify a little bit of
+information to help that Tomcat instance.
+
+51
+00:03:09,460 --> 00:03:14,710
+Bootstrap our code into itself and
+into the container.
+
+52
+00:03:14,710 --> 00:03:20,050
+So we add this simple application servlet,
+initializer class which is going to
+
+53
+00:03:20,050 --> 00:03:23,000
+tell Spring where our
+application configuration is.
+
+54
+00:03:23,000 --> 00:03:26,460
+And it inherits from the Spring Boot
+servlet initializer.
+
+55
+00:03:26,460 --> 00:03:30,210
+Which tells the web application container
+to do and set up a dispatcher servlet and
+
+56
+00:03:30,210 --> 00:03:32,450
+some of those other things,
+that we've seen in the past.
+
+57
+00:03:34,170 --> 00:03:38,853
+One other slight change is in
+the build.gradle file and that's,
+
+58
+00:03:38,853 --> 00:03:44,118
+you want to make sure that you have,
+provided runtime rather than compile or
+
+59
+00:03:44,118 --> 00:03:50,660
+something along the lines of that, for the
+Spring Boot's starter Tomcat dependency.
+
+60
+00:03:50,660 --> 00:03:55,180
+And the reason for this is is is when you
+have provided runtime rather than compile.
+
+61
+00:03:55,180 --> 00:03:59,630
+It tells Spring that it needs to package
+your application into a WAR file.
+
+62
+00:03:59,630 --> 00:04:02,290
+So if you don't have this Spring
+won't necessarily package your
+
+63
+00:04:02,290 --> 00:04:04,430
+application correctly into a WAR file.
+
+64
+00:04:06,250 --> 00:04:10,920
+Luckily, the Spring Boot plug in for
+our gradle files will automatically build
+
+65
+00:04:10,920 --> 00:04:14,830
+the war file that we need in order
+to go and deploy our application.
+
+66
+00:04:14,830 --> 00:04:17,390
+To Amazon Elastic Beanstalk.
+
+67
+00:04:17,390 --> 00:04:20,721
+So to do that, we're going to go ahead and
+first just Delete our bill directories, so
+
+68
+00:04:20,721 --> 00:04:22,210
+that we can see that this is working.
+
+69
+00:04:23,520 --> 00:04:27,680
+And then we're going to run
+the build.gradle file using
+
+70
+00:04:27,680 --> 00:04:28,870
+the Task Quick Launcher.
+
+71
+00:04:28,870 --> 00:04:32,420
+And we're going to, just going to
+run the build target, or tasks.
+
+72
+00:04:34,180 --> 00:04:35,950
+And we'll see that this is going to go and
+run.
+
+73
+00:04:35,950 --> 00:04:40,280
+And it was going to package all of our
+application together with Spring Boot and
+
+74
+00:04:40,280 --> 00:04:44,320
+the needed dependencies, into a library
+that's underneath the build folder.
+
+75
+00:04:44,320 --> 00:04:47,040
+And then you want to look in libs.
+
+76
+00:04:47,040 --> 00:04:52,340
+And then it's going to be the video
+service Amazon Beanstalk 1.1.war.
+
+77
+00:04:52,340 --> 00:04:55,340
+And, you can change this to
+whatever you want inside of
+
+78
+00:04:55,340 --> 00:04:58,075
+your build.gradle file by
+simply going to baseName.
+
+79
+00:04:59,220 --> 00:05:01,670
+And then, changing that to something else.
+
+80
+00:05:01,670 --> 00:05:02,910
+And then changing the version.
+
+81
+00:05:02,910 --> 00:05:07,190
+So, for example, if we go and
+increment our version number to 1.2,
+
+82
+00:05:07,190 --> 00:05:12,370
+we can simply rerun,
+the Task Quick Launcher with build.
+
+83
+00:05:13,520 --> 00:05:16,150
+And it will go a rebuild the chart,
+the WAR file for
+
+84
+00:05:16,150 --> 00:05:18,630
+us, using the new name inversion.
+
+85
+00:05:18,630 --> 00:05:22,040
+And we see that we've got the new
+WAR that's been constructed.
+
+86
+00:05:22,040 --> 00:05:26,380
+So these WAR files are what we're going to
+be deploying to Amazon Elastic Beanstalk.
+
+87
+00:05:27,750 --> 00:05:32,400
+Se let's switch over to Amazon's
+Elastic Beanstalk's, Web console and
+
+88
+00:05:32,400 --> 00:05:34,370
+start the deployment process.
+
+89
+00:05:34,370 --> 00:05:38,850
+Amazon actually also has an entire clips
+tool suite and set of command line tools,
+
+90
+00:05:38,850 --> 00:05:43,230
+but we're going to do everything through
+the web based console, for this demo.
+
+91
+00:05:43,230 --> 00:05:45,880
+So, first, we're going to go
+to Create a New Application.
+
+92
+00:05:45,880 --> 00:05:51,989
+We're going to call this
+mobilecloud14_demo.
+
+93
+00:05:51,989 --> 00:05:57,660
+We're going to create the application,
+the Environment here is we're going to
+
+94
+00:05:57,660 --> 00:06:00,940
+make this a web server because we're
+running a web application container and
+
+95
+00:06:00,940 --> 00:06:04,140
+we expect this thing to receive,
+HTTP requests.
+
+96
+00:06:04,140 --> 00:06:08,490
+For the platform we're going to
+choose Tomcat which is
+
+97
+00:06:08,490 --> 00:06:14,030
+a Java application server, it's a web
+application container that we can use.
+
+98
+00:06:14,030 --> 00:06:17,600
+And we're going to go ahead and,
+keep the Environment type the same.
+
+99
+00:06:17,600 --> 00:06:21,960
+That is, it's going to have a load
+balancing and autoscaling by default.
+
+100
+00:06:21,960 --> 00:06:23,580
+So we'll go ahead and
+click through to Next.
+
+101
+00:06:24,890 --> 00:06:27,680
+And the next part is where we're
+going to select our WAR file.
+
+102
+00:06:28,680 --> 00:06:32,970
+So we're going to choose the file,
+and then.
+
+103
+00:06:34,500 --> 00:06:38,010
+Inside of our build directory lives WAR,
+
+104
+00:06:38,010 --> 00:06:40,300
+we're going to choose the WAR
+file that we just created.
+
+105
+00:06:40,300 --> 00:06:44,360
+And we'll just simply hit Next, and
+
+106
+00:06:44,360 --> 00:06:51,020
+this is going to upload our entire
+application, to Amazon Elastic Beanstalk.
+
+107
+00:06:51,020 --> 00:06:53,652
+So that our WAR file can
+be deployed into the cloud.
+
+108
+00:06:53,652 --> 00:06:58,580
+We've now got a identifier for
+
+109
+00:06:58,580 --> 00:07:02,805
+our application and what we're going to
+see is that we get this identifier
+
+110
+00:07:02,805 --> 00:07:08,930
+.elasticbeanstalk.com as a URL that we
+can use to access, our application.
+
+111
+00:07:10,150 --> 00:07:13,770
+We're not going to create any
+additional relational databases for
+
+112
+00:07:13,770 --> 00:07:17,490
+this application because we're
+going to be using DynamoDB instead.
+
+113
+00:07:17,490 --> 00:07:18,710
+So we don't have to worry about that.
+
+114
+00:07:20,410 --> 00:07:23,490
+We're going to just stick with
+the default instance, the t1 micro.
+
+115
+00:07:23,490 --> 00:07:26,460
+But if you wanted to select one
+of Amazon's other server types as
+
+116
+00:07:26,460 --> 00:07:29,550
+your default type, you could do that here.
+
+117
+00:07:29,550 --> 00:07:32,960
+You could also select a SSH
+key pair that you had
+
+118
+00:07:32,960 --> 00:07:38,630
+created through Amazon if you wanted to
+be able to SSH into your applications.
+
+119
+00:07:38,630 --> 00:07:42,350
+The nice things about Spring Boot
+applications is they include,
+
+120
+00:07:42,350 --> 00:07:46,208
+a health checking URL so by default your,
+
+121
+00:07:46,208 --> 00:07:52,630
+your Spring Boot application has a URL
+called slash help that if a request is to,
+
+122
+00:07:52,630 --> 00:07:57,000
+sent to it and the application
+is running it will return OK.
+
+123
+00:07:57,000 --> 00:07:58,990
+Now this is important because.
+
+124
+00:07:58,990 --> 00:08:03,410
+Amazon's load balancers need to know
+when a node fails for some reason, or
+
+125
+00:08:03,410 --> 00:08:08,390
+some error has occurred, so that they can
+go and either shut that instance down and
+
+126
+00:08:08,390 --> 00:08:12,300
+replace it with a new one, or take that
+into account in the load balancing.
+
+127
+00:08:12,300 --> 00:08:15,000
+So this health check URL
+is going to be used by
+
+128
+00:08:15,000 --> 00:08:19,700
+the underlying autoscaling infrastructure
+and the load balancing el, infrastructure.
+
+129
+00:08:19,700 --> 00:08:20,730
+And we don't have to do anything.
+
+130
+00:08:20,730 --> 00:08:22,230
+We get that for free with Spring Boot.
+
+131
+00:08:23,810 --> 00:08:26,950
+We're going to go ahead and keep
+everything else, all of the other defaults
+
+132
+00:08:26,950 --> 00:08:30,250
+the same, and we're just going to
+click through to the next screen.
+
+133
+00:08:30,250 --> 00:08:34,320
+We don't have any specific Environment
+Tags, so we're going to skip through this.
+
+134
+00:08:35,350 --> 00:08:38,900
+And, now we can go and
+launch, our application.
+
+135
+00:08:40,040 --> 00:08:45,210
+Now, this application actually requires,
+some command line parame,
+
+136
+00:08:45,210 --> 00:08:49,250
+parameters, some properties to be
+provided to the virtual machine.
+
+137
+00:08:49,250 --> 00:08:51,780
+And, by default,
+they are not being provided.
+
+138
+00:08:51,780 --> 00:08:57,920
+So one of the things that you need to do,
+is go to the Configuration section.
+
+139
+00:08:57,920 --> 00:08:59,760
+And then under Software Configuration,
+
+140
+00:08:59,760 --> 00:09:04,320
+we can decide parameters that we would
+like to be passed, to our application.
+
+141
+00:09:04,320 --> 00:09:08,710
+So, if you remember, when,
+we wanted to launch our application,
+
+142
+00:09:08,710 --> 00:09:15,400
+we had to specify in the run configuration
+clips, dash d and a parameter name.
+
+143
+00:09:15,400 --> 00:09:18,300
+And we had a series of those
+that we had to specify.
+
+144
+00:09:18,300 --> 00:09:24,070
+So, if you go to the application,
+these were the dash d parameters,
+
+145
+00:09:24,070 --> 00:09:25,800
+that we were passing it in.
+
+146
+00:09:25,800 --> 00:09:29,270
+So we would have dash d,
+AWS access key id.
+
+147
+00:09:29,270 --> 00:09:33,160
+We had a slightly different naming for
+it in the other examples, but
+
+148
+00:09:33,160 --> 00:09:36,850
+in this one we're going to
+use Amazon's identifiers for
+
+149
+00:09:36,850 --> 00:09:39,790
+those properties that we can
+pass on the command line.
+
+150
+00:09:39,790 --> 00:09:43,080
+In this case, AWS access key id.
+
+151
+00:09:43,080 --> 00:09:44,540
+And AWS secret key.
+
+152
+00:09:45,690 --> 00:09:50,730
+And, we will provide those properties
+right here, in the configuration.
+
+153
+00:09:51,930 --> 00:09:54,020
+Once we have provided those properties,
+
+154
+00:09:54,020 --> 00:09:58,350
+they'll automatically be passed to our
+instance when we launch it, and so
+
+155
+00:09:58,350 --> 00:10:01,570
+you can go ahead and provide those
+properties, and then hit Save.
+
+156
+00:10:03,160 --> 00:10:07,980
+We're going to go back to the Dashboard,
+and we see that Amazon is in the process
+
+157
+00:10:07,980 --> 00:10:11,040
+of launching our application, which is
+going to take a little bit of time.
+
+158
+00:10:12,250 --> 00:10:15,130
+While Amazon is going ahead and
+launching our application,
+
+159
+00:10:15,130 --> 00:10:17,910
+let's take a look at some of the other
+features that we have available to us.
+
+160
+00:10:18,932 --> 00:10:24,610
+As an a, a, app engine server,
+we can go and we can get the request Logs.
+
+161
+00:10:24,610 --> 00:10:26,832
+And get, information about the server.
+
+162
+00:10:26,832 --> 00:10:29,075
+In this case,
+our server hasn't launched yet, so
+
+163
+00:10:29,075 --> 00:10:31,710
+there's no logs that
+are available to us yet.
+
+164
+00:10:31,710 --> 00:10:34,720
+But once the server is launched,
+we'll be able to grab the logs.
+
+165
+00:10:35,890 --> 00:10:42,550
+We can go and monitor our server and check
+its health once it's actually launched.
+
+166
+00:10:42,550 --> 00:10:47,090
+We can also look for events related
+to the startup, of the application.
+
+167
+00:10:47,090 --> 00:10:51,170
+In this case we can see that Amazon's in
+the process of creating an autoscaling
+
+168
+00:10:51,170 --> 00:10:55,770
+configuration so that as load on
+our system increases, Amazon will
+
+169
+00:10:55,770 --> 00:11:01,260
+automatically go and deploy new instances
+of our application in a virtual machine.
+
+170
+00:11:01,260 --> 00:11:05,002
+And automatically start Tomcat and
+pass all of the correct parameters and
+
+171
+00:11:05,002 --> 00:11:05,855
+WAR files to it.
+
+172
+00:11:05,855 --> 00:11:10,939
+We can also set Alarms, for example,
+when something interesting happens that we
+
+173
+00:11:10,939 --> 00:11:15,800
+want to know about, like the load gets
+too high or response time gets too long.
+
+174
+00:11:15,800 --> 00:11:17,590
+We can set those types of things in Alarm.
+
+175
+00:11:19,060 --> 00:11:24,470
+So this is the basic infrastructure
+that Amazon Elastic Beanstalk gives you.
+
+176
+00:11:24,470 --> 00:11:27,610
+You can also go do in much
+richer configuration, but
+
+177
+00:11:27,610 --> 00:11:31,410
+we're not going to get into those deeper
+details, but this is a very simple way,
+
+178
+00:11:31,410 --> 00:11:35,320
+of getting a Spring Boot application
+up and running in the cloud.
+
+179
+00:11:36,440 --> 00:11:40,420
+Now that our application has switched over
+to green, saying that it's healthy and
+
+180
+00:11:40,420 --> 00:11:42,620
+it's running in the Amazon's cloud.
+
+181
+00:11:42,620 --> 00:11:43,630
+We can actually go and
+
+182
+00:11:43,630 --> 00:11:48,150
+access its URL at elasticbeansalk.com,
+to see that it's running.
+
+183
+00:11:48,150 --> 00:11:51,190
+And in this case we've got our
+video service now running, and
+
+184
+00:11:51,190 --> 00:11:55,150
+it's reporting back to us,
+that it has a slash video URL.
+
+185
+00:11:55,150 --> 00:11:59,620
+So, that's it and that's all it
+took to go from our WAR file,
+
+186
+00:11:59,620 --> 00:12:02,460
+clicking through a few simple
+screens on Amazon's cloud to
+
+187
+00:12:02,460 --> 00:12:06,080
+actually deploy the WAR file
+into Elastic Beanstalk.
+
+188
+00:12:06,080 --> 00:12:10,410
+And, at this point, it's helpful to
+understand that we've actually set up
+
+189
+00:12:10,410 --> 00:12:12,390
+quite a bit of complicated infrastructure.
+
+190
+00:12:12,390 --> 00:12:16,040
+We've got a load balancer,
+that's been set up by Amazon.
+
+191
+00:12:17,950 --> 00:12:20,740
+It's now routing requests, to one or
+
+192
+00:12:20,740 --> 00:12:26,560
+more virtual machines,
+that have been set up in Amazon's cloud.
+
+193
+00:12:26,560 --> 00:12:32,610
+Each virtual machine has Tomcat
+running on it, Tomcat 7.
+
+194
+00:12:32,610 --> 00:12:34,950
+With our app inside of it.
+
+195
+00:12:34,950 --> 00:12:43,581
+We then got our app talking
+to Amazon's Dynamo database.
+
+196
+00:12:47,280 --> 00:12:53,990
+And anytime that the load gets too high on
+our application, Amazon will automatically
+
+197
+00:12:53,990 --> 00:13:00,390
+go and autoscale,
+our application to increase or
+
+198
+00:13:00,390 --> 00:13:04,630
+decrease the number of virtual machines,
+that are needed to handle the traffic.
+
+199
+00:13:04,630 --> 00:13:05,720
+So if it sees that the.
+
+200
+00:13:07,470 --> 00:13:10,580
+The CPU utilization on a particular
+virtual machine is getting too high or
+
+201
+00:13:10,580 --> 00:13:11,970
+some other trigger that we've set,
+
+202
+00:13:11,970 --> 00:13:17,100
+it will automatically allocate new virtual
+machines, launch our application in them.
+
+203
+00:13:17,100 --> 00:13:21,080
+And then when the, the CPU utilization or
+other metrics get too low,
+
+204
+00:13:21,080 --> 00:13:24,450
+it will automatically take away
+virtual machines as needed.
+
+205
+00:13:24,450 --> 00:13:28,070
+So, with a very simple bit of work,
+we now have.
+
+206
+00:13:28,070 --> 00:13:32,703
+An application,
+that can receive requests to
+
+207
+00:13:32,703 --> 00:13:37,853
+a URL at Elastic Beanstalk
+that was created for us.
+
+208
+00:13:37,853 --> 00:13:42,300
+And, we can then route those requests
+across multiple virtual machines,
+
+209
+00:13:42,300 --> 00:13:45,680
+that'll each start and
+run our application.
+
+210
+00:13:45,680 --> 00:13:48,510
+Each of those can be connected
+to Dynamo's database.
+
+211
+00:13:48,510 --> 00:13:53,180
+We also have access to all of the logs,
+for these virtual machines and
+
+212
+00:13:53,180 --> 00:13:55,710
+these Tomcat instances as they're running.
+
+213
+00:13:55,710 --> 00:14:00,530
+So, using Spring Boot,
+packaging our code into a WAR file and
+
+214
+00:14:00,530 --> 00:14:04,670
+then deploying it to Amazon's Elastic
+Beanstalk is a very straightforward and
+
+215
+00:14:04,670 --> 00:14:07,640
+simple process, to get your
+application running in the cloud.
+

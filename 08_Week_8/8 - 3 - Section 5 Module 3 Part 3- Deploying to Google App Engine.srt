@@ -1,0 +1,681 @@
+1
+00:00:00,000 --> 00:00:08,331
+[MUSIC]
+
+2
+00:00:08,331 --> 00:00:10,797
+Now that we've walked
+through this application,
+
+3
+00:00:10,797 --> 00:00:14,730
+let's actually look at deploying it
+to the cloud in Google App Engine.
+
+4
+00:00:14,730 --> 00:00:18,160
+And the tools that are available up
+to us to monitor the application,
+
+5
+00:00:18,160 --> 00:00:19,880
+the infrastructure support.
+
+6
+00:00:19,880 --> 00:00:23,510
+That we can use and, and look at,
+once it's actually up and
+
+7
+00:00:23,510 --> 00:00:24,550
+running inside of the cloud.
+
+8
+00:00:25,680 --> 00:00:31,760
+So the first thing we're going to do, is
+we're going to use the palm file to go and
+
+9
+00:00:31,760 --> 00:00:36,870
+run one of Google App Engine's tools that
+it provides, to upload it to the cloud.
+
+10
+00:00:36,870 --> 00:00:39,750
+So we're going to run
+the app engine update target.
+
+11
+00:00:39,750 --> 00:00:43,790
+That's in our maven build,
+and what this is going to do,
+
+12
+00:00:43,790 --> 00:00:48,090
+is it's going to go and
+build our application, package it,
+
+13
+00:00:48,090 --> 00:00:52,570
+and then use Google's tools,
+to automatically upload it to the cloud.
+
+14
+00:00:52,570 --> 00:00:56,490
+As we can see, it tells us that it's
+deploying a new version to the cloud.
+
+15
+00:00:56,490 --> 00:00:57,390
+Right now.
+
+16
+00:00:57,390 --> 00:01:02,320
+And in a second this will be completely
+uploaded to Google servers, and running.
+
+17
+00:01:02,320 --> 00:01:04,426
+So, this build is finished.
+
+18
+00:01:04,426 --> 00:01:07,750
+It's finished our,
+uploading our application in the cloud and
+
+19
+00:01:07,750 --> 00:01:13,550
+now we can go, to the Google App Engine
+console, to look at our application and
+
+20
+00:01:13,550 --> 00:01:14,690
+see some information about it.
+
+21
+00:01:15,740 --> 00:01:18,460
+One of the first things that's worth doing
+is going and looking at the versions.
+
+22
+00:01:20,830 --> 00:01:21,880
+The screen.
+
+23
+00:01:21,880 --> 00:01:27,640
+And what this shows us is we can see
+that we just deployed version 0-1.
+
+24
+00:01:27,640 --> 00:01:33,160
+Which, if you remember,
+in our App Engine web file.
+
+25
+00:01:33,160 --> 00:01:37,360
+The version tag, which we used right here,
+that's what it's referring to.
+
+26
+00:01:37,360 --> 00:01:40,370
+So every time we change this tag,
+that will be
+
+27
+00:01:40,370 --> 00:01:45,300
+trapped in the versions on the versions
+screen, of the App Engine console.
+
+28
+00:01:45,300 --> 00:01:47,170
+We can also decide that we want to go and
+
+29
+00:01:47,170 --> 00:01:51,370
+look at this version by clicking on
+a link, and it will load this version up.
+
+30
+00:01:51,370 --> 00:01:54,079
+And you can see that it's taking
+a little while to start our application.
+
+31
+00:01:55,140 --> 00:01:57,640
+But, in a minute,
+it will pull up the application, and
+
+32
+00:01:57,640 --> 00:01:58,740
+we would have access to it.
+
+33
+00:01:59,945 --> 00:02:02,370
+We can also go and
+make this the default inset.
+
+34
+00:02:02,370 --> 00:02:04,400
+So one of the nice things is is that,
+
+35
+00:02:04,400 --> 00:02:09,790
+we can control which of the versions
+is actually receiving, the request.
+
+36
+00:02:09,790 --> 00:02:12,780
+So now that this other version is up,
+we can go, for
+
+37
+00:02:12,780 --> 00:02:15,790
+example, and hit the slash video.
+
+38
+00:02:15,790 --> 00:02:19,270
+URL, and
+in a second here when it finishes loading,
+
+39
+00:02:19,270 --> 00:02:25,670
+we'll probably get an error related to
+one or more well, actually we, it worked.
+
+40
+00:02:25,670 --> 00:02:28,170
+So we got a list of the videos,
+and currently there are no videos.
+
+41
+00:02:29,620 --> 00:02:31,580
+Now, if we had multiple versions and
+
+42
+00:02:31,580 --> 00:02:34,170
+we wanted one of them to
+receive all of the traffic.
+
+43
+00:02:34,170 --> 00:02:37,530
+We could use the Make Default
+button to set the version that we
+
+44
+00:02:37,530 --> 00:02:39,700
+wanted to be receiving the traffic.
+
+45
+00:02:39,700 --> 00:02:43,420
+So one of the nice things is we
+can deploy different versions, and
+
+46
+00:02:43,420 --> 00:02:45,430
+then once we've deployed a new version,
+
+47
+00:02:45,430 --> 00:02:48,290
+we can test it first before we
+actually go and switch over.
+
+48
+00:02:48,290 --> 00:02:53,540
+So for example,
+if we wanted to update the version to 1-1.
+
+49
+00:02:53,540 --> 00:02:57,840
+We could then, rerun the build.
+
+50
+00:02:57,840 --> 00:03:00,966
+So we're going to do
+App Engine update again.
+
+51
+00:03:00,966 --> 00:03:05,140
+We could rerun that.
+
+52
+00:03:05,140 --> 00:03:07,810
+And, the App Engine tools
+are going to be used to
+
+53
+00:03:07,810 --> 00:03:11,930
+automatically upload our new application.
+
+54
+00:03:11,930 --> 00:03:15,890
+Two ap and gen and
+increment the version for us.
+
+55
+00:03:15,890 --> 00:03:20,370
+Now we'll go back and check back on
+this in a second to see, the result.
+
+56
+00:03:21,480 --> 00:03:22,230
+We have another a, a,
+
+57
+00:03:22,230 --> 00:03:25,100
+a number of other interesting things
+some of which we won't go into.
+
+58
+00:03:25,100 --> 00:03:27,259
+Like Cron jobs and Task Queues.
+
+59
+00:03:28,842 --> 00:03:32,440
+Another important thing that
+we have is access to Logs.
+
+60
+00:03:32,440 --> 00:03:33,940
+So we can go and look at and
+
+61
+00:03:33,940 --> 00:03:38,890
+see the requests that are coming into all
+of our instances across Google's cloud.
+
+62
+00:03:38,890 --> 00:03:42,978
+So in this case we can see, our request
+to slash a video that we sent out
+
+63
+00:03:42,978 --> 00:03:47,790
+a minute ago, and we can see some warnings
+that are here that may be helpful to us.
+
+64
+00:03:48,910 --> 00:03:54,000
+For example, in this case we can
+see a series of warnings related to
+
+65
+00:03:55,410 --> 00:03:58,170
+our request slash video, and but
+
+66
+00:03:58,170 --> 00:04:01,950
+potentially warnings related to just
+the startup of our application.
+
+67
+00:04:01,950 --> 00:04:03,120
+We can also see time.
+
+68
+00:04:03,120 --> 00:04:06,470
+So we can see that our very first request,
+took quite a long time.
+
+69
+00:04:06,470 --> 00:04:09,478
+It took almost ten seconds to startup.
+
+70
+00:04:09,478 --> 00:04:12,054
+The instance and startup spring, so
+
+71
+00:04:12,054 --> 00:04:16,420
+this is, we can also see our second
+request also took, 8 seconds.
+
+72
+00:04:16,420 --> 00:04:17,050
+We went back and
+
+73
+00:04:17,050 --> 00:04:20,780
+we refreshed this, it should be a lot
+faster, nearly instantaneous, and
+
+74
+00:04:20,780 --> 00:04:25,930
+then if we refresh the logs, we'll see the
+second request took only 47 milliseconds.
+
+75
+00:04:25,930 --> 00:04:26,760
+Hm.
+
+76
+00:04:26,760 --> 00:04:30,206
+So this is that, that thing that I talked
+about that you have to be aware of,
+
+77
+00:04:30,206 --> 00:04:31,560
+and that is.
+
+78
+00:04:31,560 --> 00:04:33,160
+When App Engine goes and
+
+79
+00:04:33,160 --> 00:04:36,860
+starts up a new instance of your
+application it can take a long time.
+
+80
+00:04:36,860 --> 00:04:39,530
+In this case it took over 8 seconds, but
+
+81
+00:04:39,530 --> 00:04:43,140
+then the subsequent request
+only took 47 milliseconds.
+
+82
+00:04:43,140 --> 00:04:47,430
+So, you have to be aware that app engine
+starts up application instances on
+
+83
+00:04:47,430 --> 00:04:50,670
+demand and that can affect performance.
+
+84
+00:04:50,670 --> 00:04:52,500
+We can also look at the data store.
+
+85
+00:04:52,500 --> 00:04:56,910
+And, we've not actually created
+anything of interest yet.
+
+86
+00:04:56,910 --> 00:04:59,160
+We haven't stored any data.
+
+87
+00:04:59,160 --> 00:05:03,940
+But if we wi, begin storing actual
+individual videos, we could go and
+
+88
+00:05:03,940 --> 00:05:07,630
+look at the data store, and
+look at what we've stored in it.
+
+89
+00:05:07,630 --> 00:05:10,660
+One of the other nice
+capabilities is we can see.
+
+90
+00:05:10,660 --> 00:05:15,480
+How much, of Google's resources we're
+using and very quickly calculate our bill.
+
+91
+00:05:15,480 --> 00:05:18,780
+So this shows us, all of
+the information about our application.
+
+92
+00:05:18,780 --> 00:05:24,080
+So, we've sent a total of four
+requests to this application.
+
+93
+00:05:24,080 --> 00:05:28,670
+And we've used up very little
+of our quota on various things.
+
+94
+00:05:28,670 --> 00:05:30,060
+We've used up a little bit of the.
+
+95
+00:05:30,060 --> 00:05:32,330
+The code and static file storage.
+
+96
+00:05:32,330 --> 00:05:36,280
+But, overall we haven't used u a lot
+of the resources available to us.
+
+97
+00:05:36,280 --> 00:05:39,670
+And this resource page also
+gives you an idea of the breadth
+
+98
+00:05:39,670 --> 00:05:42,540
+of capabilities available to
+you on Google App Engine.
+
+99
+00:05:44,590 --> 00:05:47,370
+There are number of other features of
+
+100
+00:05:47,370 --> 00:05:49,460
+App Engine that we're not
+going to go into [COUGH].
+
+101
+00:05:49,460 --> 00:05:52,430
+Things like the Blobstore or
+full text search.
+
+102
+00:05:52,430 --> 00:05:57,040
+All of these are really powerful
+capabilities, that are hard to set up and
+
+103
+00:05:57,040 --> 00:06:00,070
+maintain and scale properly on your own.
+
+104
+00:06:00,070 --> 00:06:04,000
+So having a platform as a service that
+bundles all of these things together for
+
+105
+00:06:04,000 --> 00:06:06,060
+you, can be really powerful.
+
+106
+00:06:06,060 --> 00:06:10,700
+Even something as simple as capturing
+all the log data across all of your
+
+107
+00:06:10,700 --> 00:06:15,500
+application instances, and providing one
+centralized console for you to view it.
+
+108
+00:06:15,500 --> 00:06:17,570
+Is a huge time saver.
+
+109
+00:06:17,570 --> 00:06:21,245
+You, there are other ways to do this
+on your own, you can use things like
+
+110
+00:06:21,245 --> 00:06:27,510
+Logstash, which is a fantastic tool, for
+capturing logs from Java applications and
+
+111
+00:06:27,510 --> 00:06:31,920
+other applications and Graphite to
+view those logs in a web-based format.
+
+112
+00:06:31,920 --> 00:06:35,706
+But, not having to set those up
+yourselves and maintain them, is a,
+
+113
+00:06:35,706 --> 00:06:41,450
+is a significant time saver when you're
+using something like Google App Engine.
+
+114
+00:06:41,450 --> 00:06:42,040
+If we go back and
+
+115
+00:06:42,040 --> 00:06:46,550
+look at the versions again, we'll see
+that we've deployed our new 1-1 version.
+
+116
+00:06:46,550 --> 00:06:49,760
+It's not currently the default
+being used to serve traffic.
+
+117
+00:06:49,760 --> 00:06:53,150
+And if we wanted to go and swap over,
+after we had tested our new version, and
+
+118
+00:06:53,150 --> 00:06:55,810
+make it the default,
+we'd just swap it over.
+
+119
+00:06:55,810 --> 00:07:01,260
+So, Google has really thought through
+a lot of the, the features that you need
+
+120
+00:07:01,260 --> 00:07:08,120
+as a developer, to maintain and
+manage a very complex application,
+
+121
+00:07:08,120 --> 00:07:11,690
+that's running on distributed
+infrastructure, in Google's cloud.
+
+122
+00:07:11,690 --> 00:07:13,780
+And they provide a really nice.
+
+123
+00:07:13,780 --> 00:07:18,045
+simplified, unified interface to all
+of these really powerful capabilities,
+
+124
+00:07:18,045 --> 00:07:20,380
+in their platform as a service.
+
+125
+00:07:20,380 --> 00:07:22,960
+So, if your a single developer and
+
+126
+00:07:22,960 --> 00:07:27,460
+you can fit your application within the
+constraints that they, they in place on it
+
+127
+00:07:27,460 --> 00:07:32,810
+to run in their platform,
+you can take advantage of significant.
+
+128
+00:07:32,810 --> 00:07:38,790
+Time and complexity and, and,
+and operation effort savings.
+
+129
+00:07:38,790 --> 00:07:40,780
+That, that, that are really substantial.
+
+130
+00:07:40,780 --> 00:07:44,060
+So, if you can use,
+an App Engine like model for
+
+131
+00:07:44,060 --> 00:07:48,437
+your application, and if your libraries
+and other things that you want to use,
+
+132
+00:07:48,437 --> 00:07:52,420
+fit into their model, it's a,
+a significant time saver.
+
+133
+00:07:52,420 --> 00:07:54,870
+When you're actually going and
+trying to run and
+
+134
+00:07:54,870 --> 00:07:57,290
+maintain a very complicated application.
+
+135
+00:07:57,290 --> 00:08:01,625
+There are lots of other great platforms
+as a service, there are things like
+
+136
+00:08:01,625 --> 00:08:07,840
+Kuroko Amazon has Elastic Beanstalk, lots
+of fantastic infrastructures as service,
+
+137
+00:08:07,840 --> 00:08:13,220
+platform, I mean, platform as a service
+providers, that you can go and
+
+138
+00:08:13,220 --> 00:08:16,470
+use, and so it's definitely worth
+taking an advantage of them.
+
+139
+00:08:16,470 --> 00:08:19,664
+We've given you a taste of Google App
+Engine, and its platform as a service.
+
+140
+00:08:19,664 --> 00:08:23,600
+But there are lots of others that
+provide similar capabilities.
+
+141
+00:08:23,600 --> 00:08:27,710
+And platform as a service
+simplifies your operations and
+
+142
+00:08:27,710 --> 00:08:32,300
+deployment as a, a single developer or
+a small company.
+
+143
+00:08:32,300 --> 00:08:35,860
+So that's one of the great advantages
+of platform as a service is.
+
+144
+00:08:35,860 --> 00:08:41,390
+Simplifying all of these complex
+deployment and operational aspects,
+
+145
+00:08:41,390 --> 00:08:46,060
+of running a cloud in
+someone else's data center.
+

@@ -1,0 +1,748 @@
+1
+00:00:00,012 --> 00:00:07,628
+Welcome to part one of the module that
+describes patterns and frameworks for
+
+2
+00:00:07,628 --> 00:00:15,352
+service access and communication.
+In this part of the module, we're going to
+
+3
+00:00:15,352 --> 00:00:20,361
+summarize many of the accidental
+complexities.
+
+4
+00:00:20,361 --> 00:00:24,945
+That are associated with the sockets API.
+If you go back to section one of the
+
+5
+00:00:24,945 --> 00:00:29,489
+course, we have a whole module that
+describes operating system programming
+
+6
+00:00:29,489 --> 00:00:32,784
+mechanisms.
+And there's further discussion about the
+
+7
+00:00:32,784 --> 00:00:36,773
+various capabilities in sockets.
+We'll start with a brief recap.
+
+8
+00:00:36,773 --> 00:00:41,519
+And then we'll give a critique of some of
+the limitations and accidental
+
+9
+00:00:41,519 --> 00:00:44,770
+complexities associated with the sockets
+API.
+
+10
+00:00:44,770 --> 00:00:51,024
+Sockets were originally developed as a sea
+level programming interface to the TCPIP
+
+11
+00:00:51,024 --> 00:00:57,060
+protocol suite in so called BSD UNIX.
+And, even though we're going to provide a
+
+12
+00:00:57,060 --> 00:01:00,627
+somewhat thorough critique of the sockets
+API.
+
+13
+00:01:00,627 --> 00:01:03,204
+I want to emphasize.
+[inaudible].
+
+14
+00:01:03,204 --> 00:01:08,592
+That sockets played a transformational
+role in allowing the internet revolution
+
+15
+00:01:08,592 --> 00:01:11,786
+to occur.
+If we hadn't had a way to program TCPIP,
+
+16
+00:01:11,786 --> 00:01:15,968
+as conveniently and as portably and
+ubiquitously as sockets.
+
+17
+00:01:15,968 --> 00:01:20,277
+We might not have many of the things we
+take for granted today.
+
+18
+00:01:20,278 --> 00:01:25,841
+As proof of this, sockets are available on
+almost all operating system platforms
+
+19
+00:01:25,841 --> 00:01:29,066
+today.
+The socket API has roughly two dozen or so
+
+20
+00:01:29,066 --> 00:01:34,833
+functions in it, give or take as, as more
+sophisticated protocol capabilities have
+
+21
+00:01:34,833 --> 00:01:39,889
+come online, things like IP version six,
+the API has expanded a little bit but
+
+22
+00:01:39,889 --> 00:01:44,318
+those are the basic Two dozen or so
+methods that we'll, we'll see.
+
+23
+00:01:44,318 --> 00:01:49,049
+You can take a look at this URL to find
+out more information about the socket API,
+
+24
+00:01:49,049 --> 00:01:52,245
+and there's lots of good books on the
+subject as well.
+
+25
+00:01:52,245 --> 00:01:55,528
+A socket, is essentially an end point of
+communication.
+
+26
+00:01:55,528 --> 00:02:00,224
+What that means is it's a, a user level
+integer, or handle of some kind, sometimes
+
+27
+00:02:00,224 --> 00:02:02,859
+implemented as a pointer on some
+platforms.
+
+28
+00:02:02,859 --> 00:02:07,419
+It provides Access into some kernel
+maintained data structures and those data
+
+29
+00:02:07,419 --> 00:02:12,249
+structures keep track of the state of the
+protocol machine like buffer information
+
+30
+00:02:12,249 --> 00:02:16,803
+that goes in and out of the protocol stack
+and are used to set various options and
+
+31
+00:02:16,803 --> 00:02:21,426
+other mechanisms to control the way in
+which the protocols work and communicate
+
+32
+00:02:21,426 --> 00:02:25,914
+between various end points.
+Most commonly, a socket can be bound to
+
+33
+00:02:25,914 --> 00:02:29,872
+local and remote addresses.
+We do this in order to be able to
+
+34
+00:02:29,872 --> 00:02:34,991
+communicate via protocols like TCPIP using
+port numbers and IP addresses.
+
+35
+00:02:34,991 --> 00:02:39,771
+And we also typically use sockets as a way
+to carry out some kind of reliable
+
+36
+00:02:39,771 --> 00:02:44,735
+bidirectional byte stream communication
+between senders and receivers.
+
+37
+00:02:44,735 --> 00:02:49,991
+So for example, if you go to my website,
+you'll be using sockets typically in your
+
+38
+00:02:49,991 --> 00:02:55,166
+browser and those'll be accessing sockets
+running somewhere, in the cloud, in the
+
+39
+00:02:55,166 --> 00:03:00,049
+web server, in the data center that serves
+the web pages for my, my home site.
+
+40
+00:03:00,050 --> 00:03:04,570
+With those details as background, now
+let's go ahead and kind of look carefully
+
+41
+00:03:04,570 --> 00:03:08,568
+at what's going on with sockets.
+There are lots and lots of accidental
+
+42
+00:03:08,568 --> 00:03:11,875
+complexities in this particular
+programming interface.
+
+43
+00:03:11,875 --> 00:03:16,437
+One of the main problems is it's not very
+well structured, it's not very uniform,
+
+44
+00:03:16,437 --> 00:03:20,653
+and it's not very portable, even though
+its widely available on different
+
+45
+00:03:20,653 --> 00:03:22,768
+operating platforms.
+[inaudible].
+
+46
+00:03:22,768 --> 00:03:26,273
+Some of the issues here are the, the API,
+itself, is rather linear.
+
+47
+00:03:26,273 --> 00:03:29,483
+It's not hierarchical.
+It's hard to tell by looking at the list
+
+48
+00:03:29,483 --> 00:03:32,861
+of two dozen functions.
+Which ones play which roles in connection
+
+49
+00:03:32,861 --> 00:03:37,050
+establishment, passively or actively.
+Which one played different roles in terms
+
+50
+00:03:37,050 --> 00:03:39,463
+of communication, once things are
+connected.
+
+51
+00:03:39,463 --> 00:03:42,345
+There's not even really any consistency
+with the names.
+
+52
+00:03:42,345 --> 00:03:45,439
+There's no common prefix, for example, to
+tell at a glance.
+
+53
+00:03:45,439 --> 00:03:47,970
+This function is part of the sockets
+interface.
+
+54
+00:03:47,970 --> 00:03:52,566
+Some other problems.
+It's not very portable and it's also error
+
+55
+00:03:52,566 --> 00:03:56,374
+prone in addition.
+The function names and semantics tend to
+
+56
+00:03:56,374 --> 00:04:00,769
+differ on different platforms.
+For example on POSIX platforms, send and
+
+57
+00:04:00,769 --> 00:04:04,343
+receive can be used both for file IO and
+socket, network IO.
+
+58
+00:04:04,343 --> 00:04:08,266
+On Windows it can only be used for the
+network IO, not the file IO.
+
+59
+00:04:08,266 --> 00:04:13,261
+You have to use different calls for that.
+Likewise some old versions of real time
+
+60
+00:04:13,261 --> 00:04:18,021
+operating systems Were a little quirky and
+if you didn't pass in an actual address
+
+61
+00:04:18,021 --> 00:04:21,053
+parameter to the accept call, they would
+crash.
+
+62
+00:04:21,054 --> 00:04:25,984
+On more civilized operating systems like
+Windows and Linux and Unix you don't have
+
+63
+00:04:25,984 --> 00:04:29,475
+to worry about that.
+It'll, it'll handle that case correctly.
+
+64
+00:04:29,475 --> 00:04:34,181
+Some other problems, there's issues with
+the way which we represent socket handles.
+
+65
+00:04:34,181 --> 00:04:37,953
+Sometimes, on some platforms, they're
+represented as integers.
+
+66
+00:04:37,954 --> 00:04:40,726
+On other platforms they're represented as
+pointers.
+
+67
+00:04:40,726 --> 00:04:43,111
+This can be confusing this can be
+non-portable.
+
+68
+00:04:43,111 --> 00:04:46,597
+And one of the other challenges you
+sometimes run in to is that different
+
+69
+00:04:46,597 --> 00:04:50,657
+platforms put different socket functions
+and data structures in different header
+
+70
+00:04:50,657 --> 00:04:53,947
+files which means you have portability
+issues to work around.
+
+71
+00:04:53,948 --> 00:04:58,484
+There are yet some other problems.
+There's issues of type safety because
+
+72
+00:04:58,484 --> 00:05:03,380
+we're using these low level I/O handles
+like pointers or ints, these issues where
+
+73
+00:05:03,380 --> 00:05:08,204
+the compiler can't tell you at compile
+time that you're using various functions
+
+74
+00:05:08,204 --> 00:05:11,798
+in the wrong way.
+For example, there's nothing to stop you
+
+75
+00:05:11,798 --> 00:05:15,224
+from trying to make an accept call On a
+data mode socket.
+
+76
+00:05:15,224 --> 00:05:19,652
+Likewise, there's nothing to try to stop
+you from doing a read or a write call on a
+
+77
+00:05:19,652 --> 00:05:22,415
+listen mode socket.
+Bot of which are incorrect.
+
+78
+00:05:22,415 --> 00:05:25,288
+But your compiler can't catch that at
+compile time.
+
+79
+00:05:25,288 --> 00:05:29,775
+There's also a fairly steep learning curve
+to try to make sense out of the APIs.
+
+80
+00:05:29,776 --> 00:05:34,169
+There's a bunch of different capabilities
+for address families, and protocol
+
+81
+00:05:34,169 --> 00:05:37,172
+families.
+They're fairly consistent in terms of
+
+82
+00:05:37,172 --> 00:05:41,592
+always going together but you have to keep
+in mind which world you're dealing with
+
+83
+00:05:41,592 --> 00:05:43,576
+them.
+Am I dealing with a protocol?
+
+84
+00:05:43,576 --> 00:05:47,586
+Am I dealing with an address family and
+it's complicated and error prone?
+
+85
+00:05:47,586 --> 00:05:52,142
+Another set of problems arise when you
+start to use some of the options for less
+
+86
+00:05:52,142 --> 00:05:57,392
+frequently accessed functions, things like
+multitasking Broadcasting, asynchronous
+
+87
+00:05:57,392 --> 00:06:01,802
+I/O, nonblocking I/O, urgent data
+delivery, these are confusing, they use
+
+88
+00:06:01,802 --> 00:06:06,142
+ioctal and various socket option
+parameters, they're not very portable,
+
+89
+00:06:06,142 --> 00:06:10,032
+hard to understand and so on.
+There's a lot more of other very
+
+90
+00:06:10,032 --> 00:06:13,256
+low-level, tedious and error-prone Prone
+details.
+
+91
+00:06:13,256 --> 00:06:17,686
+Forgetting to set the port numbers in to
+network byte order is a common one.
+
+92
+00:06:17,686 --> 00:06:22,172
+Forgetting to zero out a socket outer
+address structure before you use it in a
+
+93
+00:06:22,172 --> 00:06:25,024
+bind call or connect call is another
+problem.
+
+94
+00:06:25,024 --> 00:06:28,188
+Omitting.
+Calling certain functions, like forgetting
+
+95
+00:06:28,188 --> 00:06:30,501
+to call listen before you try to call
+accept.
+
+96
+00:06:30,501 --> 00:06:35,082
+Having mismatches between the protocol and
+address families because they're decoupled
+
+97
+00:06:35,082 --> 00:06:37,670
+and separated in terms of their API
+capabilities.
+
+98
+00:06:37,670 --> 00:06:40,232
+These are all very common problems with
+sockets.
+
+99
+00:06:40,232 --> 00:06:44,392
+To make this a little bit more concrete,
+let me give you some examples of problems
+
+100
+00:06:44,392 --> 00:06:47,340
+I've run across when writing sockets over
+the years.
+
+101
+00:06:47,340 --> 00:06:51,226
+Most of these problems, by the way, will
+not be detected by your compiler.
+
+102
+00:06:51,226 --> 00:06:54,797
+So here's a little piece of code, it's,
+it's an echo server example.
+
+103
+00:06:54,798 --> 00:06:58,799
+There can be differences in header files,
+they might not all occur in the same
+
+104
+00:06:58,799 --> 00:07:01,872
+place, so you'll have to deal with
+ifdefing them somehow.
+
+105
+00:07:01,873 --> 00:07:05,208
+It's easy to forget to zero out the socket
+address structure.
+
+106
+00:07:05,209 --> 00:07:09,592
+In which case, you'll have little garbage
+values in the[UNKNOWN] portions between
+
+107
+00:07:09,592 --> 00:07:13,057
+the fields and the structure, which will
+cause various problems.
+
+108
+00:07:13,058 --> 00:07:17,364
+Here we're using a non-portable data type,
+we're using and ent, which won't work on
+
+109
+00:07:17,364 --> 00:07:20,803
+Windows because sockets aren't really ents
+on Windows platform.
+
+110
+00:07:20,803 --> 00:07:25,165
+Here's a case where we're making a call to
+the factory function socket But we're
+
+111
+00:07:25,165 --> 00:07:29,326
+passing in socket D gram instead of the
+sock stream that we intended to use.
+
+112
+00:07:29,326 --> 00:07:33,031
+We're now using a check for a non-portable
+error return value.
+
+113
+00:07:33,031 --> 00:07:37,166
+Checking to see whether the result back
+was minus 1, which is incorrect.
+
+114
+00:07:37,167 --> 00:07:40,832
+We have a mismatch between the protocol
+and the address family.
+
+115
+00:07:40,832 --> 00:07:43,587
+We use.
+The protocol family of UNIX domain but the
+
+116
+00:07:43,587 --> 00:07:47,602
+address family of the internet domain.
+That will be caught by the compiler.
+
+117
+00:07:47,602 --> 00:07:51,793
+We may have the, the port number on the
+wrong byte order depending on what kind of
+
+118
+00:07:51,793 --> 00:07:55,900
+hardware platform we're running on.
+In this particular case, we forgot to zero
+
+119
+00:07:55,900 --> 00:07:59,865
+out the address structure and now we're
+passing it to bind which will cause all
+
+120
+00:07:59,865 --> 00:08:03,790
+kinds of strange behaviors.
+We forgot to call the listen function call
+
+121
+00:08:03,790 --> 00:08:07,356
+before we call accept.
+We're calling accept on a socket that's
+
+122
+00:08:07,356 --> 00:08:11,232
+been set into the, the sock_dgram
+communication type, which is very
+
+123
+00:08:11,232 --> 00:08:14,994
+confusing and subtle.
+We're ending up reading from the wrong
+
+124
+00:08:14,994 --> 00:08:17,877
+handle here.
+We want to be reading from a data mode
+
+125
+00:08:17,877 --> 00:08:20,695
+handle.
+But instead, we're reading from a listen
+
+126
+00:08:20,695 --> 00:08:23,842
+mode handle.
+And the final problem here is that there
+
+127
+00:08:23,842 --> 00:08:28,392
+is no guarantee that n bytes will be
+written when we do a write operation due
+
+128
+00:08:28,392 --> 00:08:31,130
+to the issues of short writes and short
+reads.
+
+129
+00:08:31,130 --> 00:08:35,826
+So, how do I know all these problems?
+Because, after many years of programming
+
+130
+00:08:35,826 --> 00:08:40,218
+at the socket API in C, I probably
+stumbled upon each of these at least once
+
+131
+00:08:40,218 --> 00:08:44,525
+and along they way it convinced me there
+must be a better way to Program.
+
+132
+00:08:44,525 --> 00:08:49,406
+So to summarize this particular part of
+the module, the native socket API has a
+
+133
+00:08:49,406 --> 00:08:53,355
+number of problems.
+It's tedious, it's error prone, it's not
+
+134
+00:08:53,355 --> 00:08:56,792
+portable.
+It's not very uniform, which means there's
+
+135
+00:08:56,792 --> 00:09:01,266
+more work for you as a developer.
+These analysis we're doing here, have
+
+136
+00:09:01,266 --> 00:09:05,616
+focused on sockets, because that's the
+emphasis of the course, which is on
+
+137
+00:09:05,616 --> 00:09:09,122
+communication.
+But, but be aware that you can apply more
+
+138
+00:09:09,122 --> 00:09:13,514
+or less the same critique to, To many,
+many other parts of native operating
+
+139
+00:09:13,514 --> 00:09:17,048
+system APIs written in C.
+The process and thread management
+
+140
+00:09:17,048 --> 00:09:21,604
+portions, the dynamic linking portions,
+various things having to do with memory
+
+141
+00:09:21,604 --> 00:09:26,160
+management and virtual memory management,
+other types of IPC mechanisms, and so
+
+142
+00:09:26,160 --> 00:09:28,873
+forth and so on.
+If you take a look at the URL at the
+
+143
+00:09:28,873 --> 00:09:33,295
+bottom of the slide Here's an article I
+wrote about over 20 years ago, describing
+
+144
+00:09:33,295 --> 00:09:36,301
+some of these issues.
+And they're still relevant today.
+
+145
+00:09:36,301 --> 00:09:40,207
+One of the main thing that's happened over
+time is that people have begun to use
+
+146
+00:09:40,207 --> 00:09:43,337
+higher level languages.
+And higher level abstractions like
+
+147
+00:09:43,337 --> 00:09:46,166
+middleware, to abstract away from lots of
+these issues.
+
+148
+00:09:46,166 --> 00:09:49,331
+And that's a good thing because it puts us
+in much a better shape.
+
+149
+00:09:49,331 --> 00:09:55,604
+To write concurrent and network software.
+That will be correct, easier to maintain,
+
+150
+00:09:55,604 --> 00:09:58,794
+and easier to port to different platforms.

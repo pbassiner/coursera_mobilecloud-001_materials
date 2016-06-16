@@ -1,0 +1,739 @@
+1
+00:00:00,012 --> 00:00:06,732
+Welcome to part three in the module that
+provide a discussion of patterns and
+
+2
+00:00:06,732 --> 00:00:11,237
+frameworks for sevice access and
+communication.
+
+3
+00:00:11,237 --> 00:00:17,072
+In previous parts of this module we
+summerized the accidentl complexities With
+
+4
+00:00:17,072 --> 00:00:22,656
+the sea level programming interfaces
+available on most operating systems.
+
+5
+00:00:22,656 --> 00:00:27,212
+We then talked about how we can apply the
+wrapper facade pattern to alleviate a
+
+6
+00:00:27,212 --> 00:00:31,309
+number of these complexities.
+We're now going to spend a little time
+
+7
+00:00:31,309 --> 00:00:35,485
+describing the ACE C++ socket wrapper
+facades, which are open source
+
+8
+00:00:35,485 --> 00:00:40,597
+encapsulations of the underlying socket
+functions that run port-ably on many, many
+
+9
+00:00:40,597 --> 00:00:44,972
+different operating systems.
+The ACE socket wrapper facades define a
+
+10
+00:00:44,972 --> 00:00:49,644
+set of C++ classes that work together to
+address some of the limitations with
+
+11
+00:00:49,644 --> 00:00:52,538
+sockets.
+They define building blocks for higher
+
+12
+00:00:52,538 --> 00:00:57,298
+level of abstractions, you can plug and
+play these different wrapper facades for
+
+13
+00:00:57,298 --> 00:01:01,978
+sockets or what various types of sockets.
+Other kinds of interprocess communication
+
+14
+00:01:01,978 --> 00:01:04,778
+mechanisms.
+Using parameterized types or inheritance.
+
+15
+00:01:04,778 --> 00:01:08,324
+And make it easy to build and plug and
+play these larger constructs out of
+
+16
+00:01:08,324 --> 00:01:11,206
+smaller pieces.
+You can also simplify common use cases.
+
+17
+00:01:11,206 --> 00:01:15,112
+If you take a look at the normal socket
+interface it causes, there's a number of
+
+18
+00:01:15,112 --> 00:01:19,072
+different functions that have to be called
+in order to set up a socket in passive
+
+19
+00:01:19,072 --> 00:01:22,330
+mode or active mode.
+We can do those things in one fell swoop
+
+20
+00:01:22,330 --> 00:01:26,625
+with a single call by using abstraction.
+This, the wrapper facades that ACE
+
+21
+00:01:26,625 --> 00:01:30,981
+provides are also more type safe, you just
+can't do certain types of error prone
+
+22
+00:01:30,981 --> 00:01:34,486
+operations that you might do with the low
+level C interfaces.
+
+23
+00:01:34,486 --> 00:01:38,584
+And finally, we can also provide
+portability to many different operating
+
+24
+00:01:38,584 --> 00:01:42,940
+systems, whereas before we'd have to
+wrestle with those types of issues in each
+
+25
+00:01:42,940 --> 00:01:47,337
+of our applications 1 at a time.
+These classes of course are designed with
+
+26
+00:01:47,337 --> 00:01:51,961
+the wrapper facade pattern in mind.
+And that'll help to explain and justify
+
+27
+00:01:51,961 --> 00:01:56,828
+and document some of the design deciscions
+we have here that we'll be covering.
+
+28
+00:01:56,828 --> 00:02:01,725
+There's a number of different classes that
+are part of the C++ wrapper facades in
+
+29
+00:02:01,725 --> 00:02:04,823
+ACE.
+One of the classes is called ACE_INET_Addr
+
+30
+00:02:04,823 --> 00:02:10,219
+and that provides an encapsulation of the
+internet domain addressing functions and
+
+31
+00:02:10,219 --> 00:02:12,775
+data.
+We also have something called an
+
+32
+00:02:12,775 --> 00:02:18,165
+ACE_SOCK_Stream, which is the primary unit
+that's used to communicate sending and
+
+33
+00:02:18,165 --> 00:02:21,602
+receiving data across connections between
+peers.
+
+34
+00:02:21,602 --> 00:02:26,472
+There's also a factory called an
+ACE_SOCK_Connector that's used to connect
+
+35
+00:02:26,472 --> 00:02:31,113
+an ACE_SOCK_Stream with a remote server so
+it can begin to communicate.
+
+36
+00:02:31,113 --> 00:02:36,089
+And then finally we have another factory
+that's called the ACE_SOCK_Connector and
+
+37
+00:02:36,089 --> 00:02:39,781
+that's used to passively accept
+connections and initialize a
+
+38
+00:02:39,781 --> 00:02:44,183
+ACE_SOCK_Stream so it can carry out
+communication, interaction with its
+
+39
+00:02:44,183 --> 00:02:47,060
+connected peer.
+Take a look at this URL for more
+
+40
+00:02:47,060 --> 00:02:50,798
+information about how these various
+classes work together.
+
+41
+00:02:50,799 --> 00:02:55,732
+You take a look at the socket wrappers of
+ACE, you'll see that they're intentionally
+
+42
+00:02:55,732 --> 00:03:00,352
+designed to be much more clearly aligned
+with the various design dimensions of
+
+43
+00:03:00,352 --> 00:03:03,540
+programming both local and remote
+communication.
+
+44
+00:03:03,540 --> 00:03:07,155
+We're going to talk through some of those
+dimensions here.
+
+45
+00:03:07,156 --> 00:03:10,938
+One of the dimensions is the type of
+communications service.
+
+46
+00:03:10,938 --> 00:03:13,701
+Are we using datagrams?
+Are we using streams?
+
+47
+00:03:13,701 --> 00:03:16,496
+Are using something odd called a connected
+datagram.
+
+48
+00:03:16,496 --> 00:03:20,470
+These kinds of things are factored away
+into the manner in which we design the
+
+49
+00:03:20,470 --> 00:03:23,166
+classes.
+Another key theme here is connection role
+
+50
+00:03:23,166 --> 00:03:26,865
+versus communication role.
+There's a pair of connection roles, active
+
+51
+00:03:26,865 --> 00:03:31,153
+connections, passive connections.
+And then you have communication that takes
+
+52
+00:03:31,153 --> 00:03:35,358
+place once things are, are connected.
+Once again, these things are baked into
+
+53
+00:03:35,358 --> 00:03:38,716
+the design of the classes.
+Yet another role is the communication
+
+54
+00:03:38,716 --> 00:03:41,233
+domain.
+Is it Internet domain, which is meant to
+
+55
+00:03:41,233 --> 00:03:45,387
+use TCP/IP across address spaces, across
+networks or across hosts on different
+
+56
+00:03:45,387 --> 00:03:49,665
+networks or is it intended to be used for
+local domain, local communication, local
+
+57
+00:03:49,665 --> 00:03:52,472
+sockets, the so-called Unix domain
+communication?
+
+58
+00:03:52,472 --> 00:03:58,328
+Where the processes reside on the same
+host machine, but they run in different
+
+59
+00:03:58,328 --> 00:04:01,762
+processes.
+So the nice part about the wrapper facades
+
+60
+00:04:01,762 --> 00:04:06,242
+is that by using the wrapper facade
+pattern, ACE is able to encapsulate these
+
+61
+00:04:06,242 --> 00:04:11,216
+different types, roles, and communication
+domains in the object oriented design.
+
+62
+00:04:11,216 --> 00:04:15,562
+It's easy to tell at a glance by looking
+at the names of the, The classes, what
+
+63
+00:04:15,562 --> 00:04:18,834
+role they play in the overall
+communication paradigm.
+
+64
+00:04:18,834 --> 00:04:23,325
+As a simple example of this, if you take a
+look at the wrapper facades you'll see
+
+65
+00:04:23,325 --> 00:04:27,741
+that we have a set of classes that are
+called the SOCK classes and these are the
+
+66
+00:04:27,741 --> 00:04:30,871
+ones that embody the internet
+communication domain.
+
+67
+00:04:30,871 --> 00:04:34,610
+There's a separate set of classes called
+the LSOCK classes.
+
+68
+00:04:34,610 --> 00:04:37,972
+And they embody the local body or UNIX
+main communication.
+
+69
+00:04:37,972 --> 00:04:42,668
+And it's easy again, to tell at a glance,
+how these different classes work just by
+
+70
+00:04:42,668 --> 00:04:46,304
+reading the names.
+Ace also provides many wrapper facades for
+
+71
+00:04:46,304 --> 00:04:50,720
+other kinds of communication that are not
+as common, but are very popular and
+
+72
+00:04:50,720 --> 00:04:55,205
+powerful for things like broadcast,
+multicast, and various kinds of unicast
+
+73
+00:04:55,205 --> 00:05:00,412
+mechanisms for data-grams as well.
+So let's talk a bit about the classes, and
+
+74
+00:05:00,412 --> 00:05:03,440
+we'll talk a bit more about the class
+design.
+
+75
+00:05:03,440 --> 00:05:08,423
+One of the key classes you use when you
+program with a socket wrappers is, the
+
+76
+00:05:08,423 --> 00:05:12,857
+ACE_SOCK_Stream Class.
+And this class essentially encapsulates
+
+77
+00:05:12,857 --> 00:05:18,150
+data transfer between connected piers.
+It has methods in there that allow you to
+
+78
+00:05:18,150 --> 00:05:23,364
+send and receive up to N bytes of data, as
+well as exactly N Bytes of data so no more
+
+79
+00:05:23,364 --> 00:05:26,409
+confusion with short reads and short
+writes.
+
+80
+00:05:26,409 --> 00:05:31,151
+It supports scatter, read, and gather
+write operations which allow you to do
+
+81
+00:05:31,151 --> 00:05:35,517
+very efficient domain crossing
+interactions to send groups of data or
+
+82
+00:05:35,517 --> 00:05:40,298
+receive groups of data in one fell swoop.
+And it also makes it easy to perform
+
+83
+00:05:40,298 --> 00:05:43,368
+blocking.
+...nonblocking and timed I/O with a very
+
+84
+00:05:43,368 --> 00:05:47,276
+simple, similar interface.
+Another capability you'll see throughout
+
+85
+00:05:47,276 --> 00:05:51,756
+all the different wrappers in ACE is the
+concept of c-plus-plus traits, which makes
+
+86
+00:05:51,756 --> 00:05:55,980
+it much easier to provide generic
+programming, providing generic algorithms
+
+87
+00:05:55,980 --> 00:05:59,966
+and generic containers and using the
+traits in, in interesting ways.
+
+88
+00:05:59,967 --> 00:06:04,917
+In this particular case, you see this...
+(End of transcription.) Ace sock stream
+
+89
+00:06:04,917 --> 00:06:08,521
+has something that's called a PEER ADDR
+which is a trait.
+
+90
+00:06:08,521 --> 00:06:13,416
+Just a little digression on traits.
+Traits are powerful design pattern that
+
+91
+00:06:13,416 --> 00:06:18,309
+are applied to C++, used very commonly in
+the C++ standard template library.
+
+92
+00:06:18,309 --> 00:06:23,255
+And they're used to be able to allow
+classes to indicate explicitly what their
+
+93
+00:06:23,255 --> 00:06:26,785
+dependencies are on other classes.
+In a generic way.
+
+94
+00:06:26,785 --> 00:06:31,975
+So, for example, all the inner process
+communication wrapper facades in ACE
+
+95
+00:06:31,975 --> 00:06:35,770
+define various traits, like peer Addr and
+peer stream.
+
+96
+00:06:35,770 --> 00:06:40,816
+And those things are then mapped to the
+appropriate specific dependency on
+
+97
+00:06:40,816 --> 00:06:46,047
+specific classes in that particular.
+Wrapper for such family, for example here
+
+98
+00:06:46,047 --> 00:06:50,187
+is an illustration how we can have the
+same trade name for both the socket
+
+99
+00:06:50,187 --> 00:06:55,017
+wrappers as well as the TLI wrapper which
+is another kind of wrapper around a kind
+
+100
+00:06:55,017 --> 00:06:59,571
+of IPC metalets and you commonly find on
+many Linux platforms and notice how all
+
+101
+00:06:59,571 --> 00:07:04,194
+classes now also they've got periators
+that those map the different kinds of The
+
+102
+00:07:04,194 --> 00:07:07,716
+use of traits makes it easy to write
+generic algorithms.
+
+103
+00:07:07,716 --> 00:07:10,581
+It makes it easier to write generic
+containers.
+
+104
+00:07:10,581 --> 00:07:15,344
+And therefore, as, as powerful a mechanism
+that you'll find used throughout the
+
+105
+00:07:15,344 --> 00:07:19,806
+generic programming paradigm in C++.
+If you take a look at this URL, you'll
+
+106
+00:07:19,806 --> 00:07:23,354
+find out more information about traits and
+trait classes.
+
+107
+00:07:23,354 --> 00:07:26,878
+So now going back onto our discussion
+about the, the ACE.
+
+108
+00:07:26,879 --> 00:07:30,207
+Abstractions.
+So, we have ACE SOCK stream that's used
+
+109
+00:07:30,207 --> 00:07:33,054
+for communication once things are
+connected.
+
+110
+00:07:33,054 --> 00:07:37,805
+But we first have to connect things in
+order to be able to get the communication
+
+111
+00:07:37,805 --> 00:07:40,695
+to flow.
+To do this, we have a factory called the
+
+112
+00:07:40,695 --> 00:07:44,080
+ACE SOCK Connecter.
+And this factor is used to actively
+
+113
+00:07:44,080 --> 00:07:47,619
+establish a new end point of communication
+by allowing.
+
+114
+00:07:47,620 --> 00:07:51,636
+A client, typically, to connect to a
+particular address.
+
+115
+00:07:51,636 --> 00:07:57,251
+And this connection establishment can be
+done either blocking or non-blocking or in
+
+116
+00:07:57,251 --> 00:08:00,767
+a timed manner.
+And once the connection is actually
+
+117
+00:08:00,767 --> 00:08:06,287
+successfully established, what you get as
+a result is an initialize and connected
+
+118
+00:08:06,287 --> 00:08:10,701
+ACE sock stream, which can then be used to
+send or receive the data.
+
+119
+00:08:10,701 --> 00:08:13,695
+That's the active side of the connection
+role.
+
+120
+00:08:13,695 --> 00:08:17,620
+These again, use traits.
+Just as we used for the sock stream.
+
+121
+00:08:17,620 --> 00:08:22,397
+The passive side is done with another
+class, called the ACE sock acceptor.
+
+122
+00:08:22,397 --> 00:08:27,419
+The ace sock accepter is the part that
+waits to lsiten for connections to come in
+
+123
+00:08:27,419 --> 00:08:30,757
+froma ctive clients.
+And the way this work, is it.
+
+124
+00:08:30,758 --> 00:08:33,700
+Waits to connect, waits for the connect to
+show up.
+
+125
+00:08:33,700 --> 00:08:38,260
+And when the connect shows up, the accept
+function returns and what you've got back
+
+126
+00:08:38,260 --> 00:08:41,480
+is a connected and initialized
+ACE_SOCK_Stream object.
+
+127
+00:08:41,480 --> 00:08:45,707
+And that ACE_SOCK_Stream object can then
+be used to send and receive data in
+
+128
+00:08:45,707 --> 00:08:50,397
+whatever application or service oriented
+protocol we're using, without having to
+
+129
+00:08:50,397 --> 00:08:54,744
+worry about how it got connected in the
+first place, be it active or passive.
+
+130
+00:08:54,745 --> 00:09:01,162
+You can do these accept operations both in
+or, in blocking, non-blocking and timed
+
+131
+00:09:01,162 --> 00:09:04,547
+manner.
+Again, we can also use mechanisms using
+
+132
+00:09:04,547 --> 00:09:10,191
+traits to be able to plug and play these
+different IPC capabilities for higher
+
+133
+00:09:10,191 --> 00:09:13,823
+level components.
+So to summarize this particular
+
+134
+00:09:13,823 --> 00:09:17,257
+discussion.
+Unfortunately, the socket API has a bit of
+
+135
+00:09:17,257 --> 00:09:21,576
+a confusing asymmetry between connection
+roles and the socket modes.
+
+136
+00:09:21,577 --> 00:09:26,091
+For example, here's a, a problem that
+could arise when you're programming
+
+137
+00:09:26,091 --> 00:09:31,132
+sockets: There's nothing to stop you from
+calling the socket factory, getting back a
+
+138
+00:09:31,132 --> 00:09:34,835
+socket and then accidentally calling send
+on that socket.
+
+139
+00:09:34,836 --> 00:09:38,772
+Before you connect it, the API won't
+prevent you from doing that.
+
+140
+00:09:38,772 --> 00:09:43,538
+Likewise, there's nothing to stop you from
+getting a socket and then accepting on
+
+141
+00:09:43,538 --> 00:09:48,088
+that socket and then trying to do a read
+on the listen mode socket, which is also
+
+142
+00:09:48,088 --> 00:09:51,185
+incorrect.
+But there's nothing that the API can do to
+
+143
+00:09:51,185 --> 00:09:55,172
+make those things go away.
+So, one of the nice things about the a
+
+144
+00:09:55,172 --> 00:10:00,242
+socket wrapper facades is that they make
+it impossible to makes these kinds of
+
+145
+00:10:00,242 --> 00:10:03,617
+mistakes.
+You can't do things in the wrong order.
+
+146
+00:10:03,617 --> 00:10:08,531
+You can't accidentally try to do an accept
+call on a data mode sock stream.
+
+147
+00:10:08,531 --> 00:10:13,520
+You can't do a read and write call on a
+listen mode sock acceptor, and so on.
+
+148
+00:10:13,520 --> 00:10:18,281
+And so these kind of things are, are
+minimized in, in your, design.

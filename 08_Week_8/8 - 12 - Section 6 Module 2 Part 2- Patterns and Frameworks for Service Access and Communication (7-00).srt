@@ -1,0 +1,503 @@
+1
+00:00:00,012 --> 00:00:04,318
+Hello.
+And welcome to Part Two in the module that
+
+2
+00:00:04,318 --> 00:00:11,268
+talks about patterns and frameworks for
+service access and communication.
+
+3
+00:00:11,268 --> 00:00:17,862
+In the previous part of this module, we
+summarized some of the accidental
+
+4
+00:00:17,862 --> 00:00:24,397
+complexities with the C-level socket API.
+In this part of the module we're going to
+
+5
+00:00:24,397 --> 00:00:29,690
+describe how the Wrapper Facade pattern
+can help to alleviate these accidental
+
+6
+00:00:29,690 --> 00:00:32,142
+complexities.
+So what's the problem?
+
+7
+00:00:32,142 --> 00:00:36,976
+If we're trying to build a web server or
+any other kind of networked application we
+
+8
+00:00:36,976 --> 00:00:40,803
+often have to access very, various
+operating system services.
+
+9
+00:00:40,803 --> 00:00:45,919
+Services for communication, both local and
+remote communication, concurrency, both
+
+10
+00:00:45,919 --> 00:00:51,246
+processes and threads, synchronization.
+Various kinds of memory management, and so
+
+11
+00:00:51,246 --> 00:00:54,799
+on, and file access.
+The problem here is that programming
+
+12
+00:00:54,799 --> 00:00:59,909
+directly to the low level operating system
+interfaces exposed by the OS, written in
+
+13
+00:00:59,909 --> 00:01:03,970
+C, usually, is a tedious and error prone
+and non portable ordeal.
+
+14
+00:01:03,970 --> 00:01:08,587
+So, how are we going to get around this?
+We're going to be applying the Wrapper
+
+15
+00:01:08,587 --> 00:01:12,992
+Facade pattern.
+To avoid having to access these low-level
+
+16
+00:01:12,992 --> 00:01:17,274
+APIs directly.
+The wrapper facade pattern encapsulates
+
+17
+00:01:17,274 --> 00:01:22,994
+the data and functions provided by the
+existing C APIs with more concise, more
+
+18
+00:01:22,994 --> 00:01:29,111
+robust, portable, maintainable, and more
+cohesive object-oriented classes.
+
+19
+00:01:29,111 --> 00:01:32,104
+Take a look at the interface that's shown
+down here.
+
+20
+00:01:32,104 --> 00:01:35,892
+The structure was shown.
+You'll see that, rather than accessing the
+
+21
+00:01:35,892 --> 00:01:39,525
+functions directly, which is the classic
+way we would do things.
+
+22
+00:01:39,525 --> 00:01:44,349
+Instead, we have our applications, our web
+server accessing those functions through a
+
+23
+00:01:44,349 --> 00:01:47,828
+class wrapper facade.
+And that wrapper facade exposes a number
+
+24
+00:01:47,828 --> 00:01:51,225
+of different methods.
+And those methods then access the low
+
+25
+00:01:51,225 --> 00:01:54,206
+level functions.
+But they do it in a way that won't expose
+
+26
+00:01:54,206 --> 00:01:58,112
+those details, and the accidental
+complexities of using the c level API's
+
+27
+00:01:58,112 --> 00:02:01,713
+directly to the application code.
+If you take a look at the dynamic
+
+28
+00:02:01,713 --> 00:02:04,737
+interactions.
+If you're a client, if you're a webserver
+
+29
+00:02:04,737 --> 00:02:07,046
+for example.
+And you invoke an operation on
+
+30
+00:02:07,046 --> 00:02:10,630
+the[UNKNOWN] facade.
+Then under the hood, it turns around and
+
+31
+00:02:10,630 --> 00:02:13,741
+makes a call to one or more system
+functions to do its job.
+
+32
+00:02:13,741 --> 00:02:18,163
+And it would typically stash away whatever
+data types have to be passed to those low
+
+33
+00:02:18,163 --> 00:02:22,387
+level functions and keep them as part of
+the private state of the wrapper facade
+
+34
+00:02:22,387 --> 00:02:24,806
+object.
+At first glance, the structure and
+
+35
+00:02:24,806 --> 00:02:29,096
+dynamics of this pattern look familiar.
+They look a bit like the bridge pattern,
+
+36
+00:02:29,096 --> 00:02:33,191
+they look a bit like The, very other
+patterns from, from the Gang of Four book
+
+37
+00:02:33,191 --> 00:02:36,156
+like proxy but there are some important
+differences.
+
+38
+00:02:36,156 --> 00:02:38,856
+The main difference is their typically
+light weight.
+
+39
+00:02:38,856 --> 00:02:42,822
+There is no interaction that's going on he
+would do it with bridge and there is no
+
+40
+00:02:42,822 --> 00:02:45,721
+conversion and transformation its going on
+with proxy.
+
+41
+00:02:45,721 --> 00:02:50,108
+So you can keep them very thin.
+And lightweight, not adding much overhead.
+
+42
+00:02:50,108 --> 00:02:54,800
+In fact you can often inline the wrapper
+facades to make the overhead evaporate
+
+43
+00:02:54,800 --> 00:02:57,859
+altogether.
+You can take a look at the POSA two book
+
+44
+00:02:57,859 --> 00:03:02,656
+for descriptions about wrapper facade.
+You can also take a look at the various
+
+45
+00:03:02,656 --> 00:03:07,036
+ACE books for examples of how to do this
+in ACE or you can take a look at this
+
+46
+00:03:07,036 --> 00:03:11,754
+paper listed at the bottom of the URL.
+For information about wrapper facades.
+
+47
+00:03:11,754 --> 00:03:15,911
+So let's talk about how we might apply the
+wrapper facade pattern to JAWS.
+
+48
+00:03:15,911 --> 00:03:20,272
+So what we'll do here is we'll use this
+for any time we're going to access system
+
+49
+00:03:20,272 --> 00:03:24,187
+programming interfaces.
+Instead of accessing them directly, we're
+
+50
+00:03:24,187 --> 00:03:28,345
+going to access them through the various
+wrapper facades defined by the ACE
+
+51
+00:03:28,345 --> 00:03:32,486
+communication environment.
+And just as one simple example, here's an
+
+52
+00:03:32,486 --> 00:03:36,518
+example of how JAWS might use the ACE
+thread mutex, which is a wrapper facade
+
+53
+00:03:36,518 --> 00:03:40,678
+around the low-level synchronization
+mechanisms for mutual exclusion that
+
+54
+00:03:40,678 --> 00:03:43,426
+you'll find on various operating
+environments.
+
+55
+00:03:43,426 --> 00:03:46,126
+This one illustrates the mapping to
+Solaris threads.
+
+56
+00:03:46,126 --> 00:03:49,912
+It's easy to do this to map it to Pozex P
+threads or Windows threads or various
+
+57
+00:03:49,912 --> 00:03:54,232
+other kinds of mechanisms you might find
+on real-time operating system environments
+
+58
+00:03:54,232 --> 00:03:57,306
+and so on.
+(End of transcription.) In practice, JAWS
+
+59
+00:03:57,306 --> 00:04:00,396
+is going to use lots more stuff that we
+would find in ACE.
+
+60
+00:04:00,396 --> 00:04:04,818
+All the other wrapper facades for other
+types of OS services it encapsulates
+
+61
+00:04:04,818 --> 00:04:07,851
+behind an object oriented programming
+interface.
+
+62
+00:04:07,851 --> 00:04:11,271
+So what are some of the benefits of using
+wrapper facades?
+
+63
+00:04:11,271 --> 00:04:16,389
+Well, first and foremost, we can provide a
+much more type-safe interface, rather than
+
+64
+00:04:16,389 --> 00:04:21,026
+to use these low level functions and low
+level data that are ints, or pointers.
+
+65
+00:04:21,026 --> 00:04:25,652
+We can use classes with strongly typed
+interfaces, which means that A lot of the
+
+66
+00:04:25,652 --> 00:04:29,577
+problems and, and error conditions just
+disappear all together.
+
+67
+00:04:29,577 --> 00:04:34,108
+We can also make things more portable.
+A wrapper facade is a great layer to also
+
+68
+00:04:34,108 --> 00:04:38,060
+abstract a way from operating system
+diversity and heterogeneity.
+
+69
+00:04:38,060 --> 00:04:41,754
+So you don't have to be, be whole into the
+particular syntactic.
+
+70
+00:04:41,755 --> 00:04:46,630
+Mechanisms that Windows uses verses Linux
+or verses TeXWorks, you can make those
+
+71
+00:04:46,630 --> 00:04:50,411
+thing pluggable and commoditize the
+operating system layer.
+
+72
+00:04:50,411 --> 00:04:55,032
+Yet another capability you get by using
+Wrapper Facades is you end up with more
+
+73
+00:04:55,032 --> 00:05:00,073
+modular and reusable components that can
+be cohesively integrated together to form
+
+74
+00:05:00,073 --> 00:05:04,802
+higher layer units of abstraction.
+By using things like inheritance or
+
+75
+00:05:04,802 --> 00:05:08,920
+parameterized types to build upon the
+existing capabilities.
+
+76
+00:05:08,920 --> 00:05:14,308
+There are of course some limitations with
+the Wrapper Facade approach anytime you
+
+77
+00:05:14,308 --> 00:05:18,760
+try to provide a portability veneer.
+Something that abstracts away from the
+
+78
+00:05:18,760 --> 00:05:22,736
+particulars of any particular platform or
+any particular operating system you have
+
+79
+00:05:22,736 --> 00:05:26,264
+to be careful that you don't reduce the
+capability and the functionality by
+
+80
+00:05:26,264 --> 00:05:29,307
+reducing certain things that aren't
+available everywhere.
+
+81
+00:05:29,307 --> 00:05:33,603
+For example there are certain capabilities
+that you have on certain platforms with
+
+82
+00:05:33,603 --> 00:05:37,443
+respect to certain locking mechanisms and
+if you try to come up with a wrapper
+
+83
+00:05:37,443 --> 00:05:41,763
+facade that's the Intersection of all the
+portable capabilities of all the operating
+
+84
+00:05:41,763 --> 00:05:45,392
+systems, then certain things, by their
+very nature, would be left out.
+
+85
+00:05:45,392 --> 00:05:49,302
+In those cases, you might choose to do
+some emulation of one synchronization
+
+86
+00:05:49,302 --> 00:05:53,206
+mechanism in terms of other ones that are
+more portable, in order to provide a
+
+87
+00:05:53,206 --> 00:05:57,066
+consistent wrapper facade facility on all
+the operating environments.
+
+88
+00:05:57,066 --> 00:06:01,622
+Another potential limitation with wrapper
+facade is performance degradation.
+
+89
+00:06:01,622 --> 00:06:06,050
+If you're not careful and you have large,
+layered calls and indirection in your
+
+90
+00:06:06,050 --> 00:06:09,802
+implementation, then you can take
+something that looks simple and
+
+91
+00:06:09,802 --> 00:06:12,913
+lightweight and turn it into a heavyweight
+mechanism.
+
+92
+00:06:12,913 --> 00:06:17,341
+Which is one reason why we typically
+recommend not using patterns like proxy or
+
+93
+00:06:17,341 --> 00:06:20,194
+bridge.
+When you're trying to build abstraction
+
+94
+00:06:20,194 --> 00:06:22,687
+layers.
+But instead, sticking with something
+
+95
+00:06:22,687 --> 00:06:27,061
+lightweigth like, wrapper facade.
+Yet another potential problem, programming
+
+96
+00:06:27,061 --> 00:06:31,733
+language and compiler limitations if your,
+if your operating environment, if your
+
+97
+00:06:31,733 --> 00:06:35,381
+language doesn't have a way to map
+conveniently and efficiently to C
+
+98
+00:06:35,381 --> 00:06:38,743
+functions, then wrapper facades may be
+hard to, to enable.
+
+99
+00:06:38,744 --> 00:06:44,612
+Fortunately, almost all languages these
+days have call outs to see, so you can
+
+100
+00:06:44,612 --> 00:06:50,508
+find ways to encapsulate the low level
+services behind higher level objects and
+
+101
+00:06:50,508 --> 00:06:51,980
+class interfaces.

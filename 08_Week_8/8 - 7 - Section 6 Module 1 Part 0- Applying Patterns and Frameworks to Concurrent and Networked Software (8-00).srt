@@ -1,0 +1,553 @@
+1
+00:00:00,880 --> 00:00:05,993
+Hello and welcome to section three of the
+course.
+
+2
+00:00:05,993 --> 00:00:13,382
+This section will build upon the material
+we covered in the earlier parts, in order
+
+3
+00:00:13,382 --> 00:00:20,658
+to be able to demonstrate, how to apply
+Patterns and frameworks to concurrent and
+
+4
+00:00:20,658 --> 00:00:24,837
+network software.
+In section one of the course, we focused
+
+5
+00:00:24,837 --> 00:00:29,877
+on the concepts, mechanisms, layers, and
+design dimensions of concurrent network
+
+6
+00:00:29,877 --> 00:00:33,254
+software.
+Focusing primarily on the operating system
+
+7
+00:00:33,254 --> 00:00:36,111
+and host infrastructure middle Lower
+layers.
+
+8
+00:00:36,111 --> 00:00:40,809
+Section two of the course presented an
+introduction to patterns and frameworks,
+
+9
+00:00:40,809 --> 00:00:45,225
+focusing on concepts and relationships,
+relationships between patterns,
+
+10
+00:00:45,225 --> 00:00:48,146
+relationships between patterns and
+frameworks.
+
+11
+00:00:48,146 --> 00:00:53,262
+As well as covering the concepts of scope,
+commonality, and variability analysis, and
+
+12
+00:00:53,262 --> 00:00:56,594
+variation oriented design.
+Throughout the section.
+
+13
+00:00:56,594 --> 00:01:01,783
+This section then goes ahead and goes into
+more detail illustrating, by example, the
+
+14
+00:01:01,783 --> 00:01:06,610
+application of patterns and frameworks to
+particular examples of the course.
+
+15
+00:01:06,610 --> 00:01:11,726
+This particular section has seven modules
+and I'll give you a quick overview of each
+
+16
+00:01:11,726 --> 00:01:16,360
+of them in this overview section.
+The first module we'll be focusing on the
+
+17
+00:01:16,360 --> 00:01:20,662
+case study that we'll use as a running
+example throughout the section.
+
+18
+00:01:20,662 --> 00:01:24,786
+This case study focuses on applying
+patterns and pattern languages,
+
+19
+00:01:24,786 --> 00:01:29,188
+predominantly from the posted two book
+with some help from the gang of four
+
+20
+00:01:29,188 --> 00:01:33,933
+patterns, together with a variety of
+different object oriented frameworks.
+
+21
+00:01:33,933 --> 00:01:38,959
+From the adaptive communication
+environment, or ACE, in the context of the
+
+22
+00:01:38,959 --> 00:01:42,770
+Jaws web server.
+Jaws is an open source web server that's
+
+23
+00:01:42,770 --> 00:01:47,810
+bundled with the opensource ACE toolkit
+and that will allow you to be able to
+
+24
+00:01:47,810 --> 00:01:51,581
+follow along, see how the patterns are
+reaffied in code.
+
+25
+00:01:51,581 --> 00:01:56,813
+See how different interpretations of
+patterns can be implemented in different
+
+26
+00:01:56,813 --> 00:01:59,812
+ways.
+Using the various frameworks that come as
+
+27
+00:01:59,812 --> 00:02:02,854
+part of ACE.
+From that point onwards, we'll then be
+
+28
+00:02:02,854 --> 00:02:07,753
+demonstrating the application of patterns
+and frameworks to various aspects and
+
+29
+00:02:07,753 --> 00:02:11,096
+areas in Jaws.
+We're going to start out by discussing
+
+30
+00:02:11,096 --> 00:02:15,653
+various patterns and components For
+service access and communication.
+
+31
+00:02:15,653 --> 00:02:20,404
+Here, we'll be focusing on the wrapper
+facade pattern which encapsulates the
+
+32
+00:02:20,404 --> 00:02:25,660
+tedious error prone and nonportable system
+programming interfaces written in C with
+
+33
+00:02:25,660 --> 00:02:30,522
+much more portable, modular and reusable
+object oriented class interfaces.
+
+34
+00:02:30,522 --> 00:02:35,826
+And we'll demonstrate a simple example of
+a web server implemented using wrapper
+
+35
+00:02:35,826 --> 00:02:39,933
+facades in ACE and Java.
+The next section will present patterns and
+
+36
+00:02:39,933 --> 00:02:44,903
+frameworks related to synchronous event
+handling, connection establishment, and
+
+37
+00:02:44,903 --> 00:02:48,924
+service initialization.
+Here we be focusing on several patterns
+
+38
+00:02:48,924 --> 00:02:53,681
+will be focusing on the reactor pattern,
+which is a pattern for decoupling event
+
+39
+00:02:53,681 --> 00:02:57,333
+handling concerns and the acceptor
+connector patterns.
+
+40
+00:02:57,334 --> 00:03:01,641
+Pattern, which is a pattern that relates
+to decoupling connection establishment
+
+41
+00:03:01,641 --> 00:03:05,789
+service initialization from the actual
+protocols conducted after services are
+
+42
+00:03:05,789 --> 00:03:08,844
+initialized.
+We'll be illustrating how these patterns
+
+43
+00:03:08,844 --> 00:03:12,812
+can be implemented using various
+frameworks that are part of ACE, including
+
+44
+00:03:12,812 --> 00:03:16,256
+the reactor framework and the acceptor
+connector framework.
+
+45
+00:03:16,256 --> 00:03:21,677
+Next we'll be describing patterns for
+service activation and configuration.
+
+46
+00:03:21,677 --> 00:03:27,029
+The idea here is to be able to compose
+applications and services out of building
+
+47
+00:03:27,029 --> 00:03:31,751
+block parts, building block objects,
+components and subservices.
+
+48
+00:03:31,751 --> 00:03:35,966
+That can be brought at installation time
+or even at run time.
+
+49
+00:03:35,966 --> 00:03:40,366
+In order to be able to customize your
+software for its particular environment.
+
+50
+00:03:40,366 --> 00:03:44,922
+Here we'll be talking about the component
+configurator pattern, which is a pattern
+
+51
+00:03:44,922 --> 00:03:49,147
+that's used to be able to decouple the
+various elements in the software system
+
+52
+00:03:49,147 --> 00:03:53,632
+from the time at which they're composed
+together and the activator pattern, which
+
+53
+00:03:53,632 --> 00:03:57,678
+is used to be able to launch.
+Various services or servers on demand in
+
+54
+00:03:57,678 --> 00:04:02,151
+response to incoming client requests.
+We'll also be illustrating how these
+
+55
+00:04:02,151 --> 00:04:07,050
+patterns can be realized in the context of
+the ACE service configuration framework,
+
+56
+00:04:07,050 --> 00:04:11,535
+which basically leverages off of some of
+the ACE reactor framework and the ACE
+
+57
+00:04:11,535 --> 00:04:15,516
+receptor framework and acceptor connector
+frameworks as well.
+
+58
+00:04:15,516 --> 00:04:19,740
+Next, we'll move our attention towards
+patterns for concurrency and
+
+59
+00:04:19,740 --> 00:04:23,241
+synchronization.
+Here we'll be exploring a wide variety of
+
+60
+00:04:23,241 --> 00:04:26,810
+different patterns.
+We'll be exploring patterns like active
+
+61
+00:04:26,810 --> 00:04:31,434
+object which decouples the thread that
+invokes an operation from the thread that
+
+62
+00:04:31,434 --> 00:04:34,404
+runs it.
+And we'll be combining active object with
+
+63
+00:04:34,404 --> 00:04:37,149
+reactor.
+And monitor object in order to be able to
+
+64
+00:04:37,149 --> 00:04:41,456
+form more complex patterns like Half-Sync,
+Half-Async, which allows pools of threads
+
+65
+00:04:41,456 --> 00:04:45,466
+to run at a more scalable manner, taking
+advantage of multiple CPUs and cores.
+
+66
+00:04:45,466 --> 00:04:49,300
+We'll also be talking about various
+alternative concurrency designs, such as
+
+67
+00:04:49,300 --> 00:04:53,070
+the Leader/Followers pattern, which is
+more predictable and efficient than
+
+68
+00:04:53,070 --> 00:04:56,516
+Half-Sync/Half-Async.
+But perhaps not as scalable in some
+
+69
+00:04:56,516 --> 00:04:59,599
+environments.
+Along the way we'll also be talking about
+
+70
+00:04:59,599 --> 00:05:04,345
+the various patterns for synchronization.
+Things like scope blocking, synchronize
+
+71
+00:05:04,345 --> 00:05:09,025
+blocking, thread safe interface, and the
+double chock, double checked optimization
+
+72
+00:05:09,025 --> 00:05:12,011
+pattern.
+And naturally we'll be illustrating how to
+
+73
+00:05:12,011 --> 00:05:16,184
+apply these various patterns in the
+context of a number of ACE frameworks.
+
+74
+00:05:16,184 --> 00:05:20,532
+Including the ACE task framework which is
+used to provide various concurrence
+
+75
+00:05:20,532 --> 00:05:24,887
+capabilities and how that combines with
+the ACE reactor and acceptor connector
+
+76
+00:05:24,887 --> 00:05:29,362
+frameworks that we've talked about before.
+The final section to pres, pres, to
+
+77
+00:05:29,362 --> 00:05:33,640
+presenting the patterns and frameworks
+will focus on the Proactor pattern.
+
+78
+00:05:33,640 --> 00:05:37,117
+This is pattern that relates to
+asynchronous event handling.
+
+79
+00:05:37,117 --> 00:05:41,215
+Proactor is a pattern that allows multiple
+operations to run asynchronously,
+
+80
+00:05:41,215 --> 00:05:44,495
+leveraging operating system support for
+asynchronous I/O.
+
+81
+00:05:44,495 --> 00:05:48,597
+Allowing you to be able to get very
+scalable communication without having to
+
+82
+00:05:48,597 --> 00:05:52,457
+use a large number of threads.
+And along the way we'll also be describing
+
+83
+00:05:52,457 --> 00:05:56,489
+the asynchronous completion token pattern,
+which is a pattern often used in
+
+84
+00:05:56,489 --> 00:06:00,196
+conjunction with proactor to be able to
+efficiently demultiplex.
+
+85
+00:06:00,196 --> 00:06:03,151
+Completion results to the handlers of
+those results.
+
+86
+00:06:03,151 --> 00:06:07,447
+Naturally, we'll also be illustrating the
+application of this pattern, in the
+
+87
+00:06:07,447 --> 00:06:11,086
+context of one of the ace frameworks, the
+ace proactor framework.
+
+88
+00:06:11,086 --> 00:06:15,439
+And we'll be illustrating how this
+framework can be used to make it possible
+
+89
+00:06:15,439 --> 00:06:19,786
+to run our web server, in a very
+high-performance way, on Windows platforms
+
+90
+00:06:19,786 --> 00:06:24,133
+leveraging Windows asynchronous I/O
+operations and capabilities such as
+
+91
+00:06:24,133 --> 00:06:29,065
+overlapped I/O and I/O completion ports.
+We'll finally wrap up this section with a
+
+92
+00:06:29,065 --> 00:06:33,965
+discussion of the benefits and limitations
+of applying patterns and frameworks to
+
+93
+00:06:33,965 --> 00:06:38,141
+concurrent networked software.
+We'll talk about various trade-offs,
+
+94
+00:06:38,141 --> 00:06:42,697
+trade-offs between learning curve and
+complexity on one hand, and productivity
+
+95
+00:06:42,697 --> 00:06:45,649
+boosts on the other.
+We'll talk about various issues of
+
+96
+00:06:45,649 --> 00:06:49,679
+extensibility and flexibility on the one
+hand, versus some of the inevitable
+
+97
+00:06:49,679 --> 00:06:54,143
+performance implications, and overheads,
+and indirections that come from applying
+
+98
+00:06:54,143 --> 00:06:58,325
+these more advance techniques.
+We'll also talk about trade-offs between
+
+99
+00:06:58,325 --> 00:07:02,405
+building or acquiring frameworks versus
+buying them in various ways.
+
+100
+00:07:02,405 --> 00:07:06,506
+And then we'll also be discussing
+throughout issues related to testing and
+
+101
+00:07:06,506 --> 00:07:10,519
+debugging of pattern oriented frameworks
+and component based systems.
+
+102
+00:07:10,519 --> 00:07:14,865
+Because those tend to be more tricky if
+you don't understand the way the various
+
+103
+00:07:14,865 --> 00:07:19,785
+pieces throughout this section we'll be
+going into a tremendous amount of detail.
+
+104
+00:07:19,785 --> 00:07:24,889
+We'll be looking at lots of code examples.
+Most of the code examples will be in C++.
+
+105
+00:07:24,890 --> 00:07:29,580
+We will also be demonstrating examples in
+Java to illustrate the generality and
+
+106
+00:07:29,580 --> 00:07:34,456
+applicability of these patterns and
+frameworks in a multiplicity of languages.
+
+107
+00:07:34,456 --> 00:07:37,659
+So if you're feeling a little rusty with
+these languages.
+
+108
+00:07:37,659 --> 00:07:42,221
+If you don't have a lot of background in
+object oriented programming, now is a good
+
+109
+00:07:42,221 --> 00:07:46,911
+time to avail yourself of the resources on
+the web to learn about these languages, to
+
+110
+00:07:46,911 --> 00:07:51,467
+learn about the design techniques, so you
+can get the most out of the material that
+
+111
+00:07:51,467 --> 00:07:52,925
+we cover in this section.

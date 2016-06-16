@@ -1,0 +1,759 @@
+1
+00:00:00,012 --> 00:00:06,552
+Welcome to Part 3 in the module that
+provides and overview of the JAWS Web
+
+2
+00:00:06,552 --> 00:00:11,495
+Server Case Study.
+In previous parts of this module, we
+
+3
+00:00:11,495 --> 00:00:18,157
+started by describing the pattern
+orientated JAWS Web Server Case Study.
+
+4
+00:00:18,157 --> 00:00:24,013
+And then we described the patterns we use
+in order to be able to rationalize and
+
+5
+00:00:24,013 --> 00:00:28,156
+guide and document, the design of the JAWS
+Web Server.
+
+6
+00:00:28,156 --> 00:00:33,656
+In this part of the module, we're going to
+present a pattern language for the JAWS
+
+7
+00:00:33,656 --> 00:00:38,856
+Web Server and explore various alternative
+passe through that language.
+
+8
+00:00:38,856 --> 00:00:43,362
+Just to recap a bit, if you go back to
+section two of the course we had a long
+
+9
+00:00:43,362 --> 00:00:47,965
+discussion about pattern languages.
+But to recap that briefly, a pattern
+
+10
+00:00:47,965 --> 00:00:52,793
+language is basically a group of related
+patterns that provide a vocabulary and a
+
+11
+00:00:52,793 --> 00:00:57,408
+process for the orderly resolution of
+certain types of challenges that arise
+
+12
+00:00:57,408 --> 00:01:00,426
+when you build software in a particular
+context.
+
+13
+00:01:00,426 --> 00:01:04,722
+If you take a look at this Wikipedia link,
+you'll find other examples of pattern
+
+14
+00:01:04,722 --> 00:01:07,266
+languages that go above and beyond
+software.
+
+15
+00:01:07,266 --> 00:01:11,895
+In the particular context in which, which
+we're discussing, the patterns in our
+
+16
+00:01:11,895 --> 00:01:16,035
+pattern language will be used to build
+upon each other to help generate a
+
+17
+00:01:16,035 --> 00:01:20,934
+software architecture, and allows us to be
+able to walk through and navigate the soft
+
+18
+00:01:20,934 --> 00:01:25,902
+architecture, to successive progressions
+of design decisions, transformations of
+
+19
+00:01:25,902 --> 00:01:29,766
+the design, and most importantly,
+different ways of going through
+
+20
+00:01:29,766 --> 00:01:33,981
+alternative paths through the pattern
+language and the design space.
+
+21
+00:01:33,981 --> 00:01:37,887
+So let's take a look at a number of the
+different paths we'll be exploring
+
+22
+00:01:37,887 --> 00:01:42,109
+throughout the rest of this section.
+Here's a high level view of the pattern
+
+23
+00:01:42,109 --> 00:01:46,018
+language for the JAWS Web Server.
+And as you can see, it includes all the
+
+24
+00:01:46,018 --> 00:01:49,913
+patterns that we have summarized in the
+previous part of the module.
+
+25
+00:01:49,914 --> 00:01:53,488
+Things like wrapper facade, reactor,
+acceptor connector, and so on.
+
+26
+00:01:53,488 --> 00:01:56,945
+I'm not going to recap these here because
+we've already covered them.
+
+27
+00:01:56,945 --> 00:02:00,733
+If you need to go back and rewatch that
+section to get a overview of what they
+
+28
+00:02:00,733 --> 00:02:04,495
+mean, please do so at this point.
+This particular pattern language for JAWS
+
+29
+00:02:04,495 --> 00:02:08,691
+is also not intended to be comprehensive.
+There are other patterns you might have to
+
+30
+00:02:08,691 --> 00:02:11,538
+do in order to be able to port this to
+other environments.
+
+31
+00:02:11,538 --> 00:02:15,352
+There are other patterns you would apply
+to do other parts of building a web server
+
+32
+00:02:15,352 --> 00:02:19,216
+and of course if you build a large scale
+and concurrent and network software system
+
+33
+00:02:19,216 --> 00:02:22,800
+there will be many other patterns you'll
+have to deal with in order to address
+
+34
+00:02:22,800 --> 00:02:25,403
+other requirements and environmental
+constraints.
+
+35
+00:02:25,403 --> 00:02:28,695
+But we'll focus primarily on the parts
+that relate to the event dispatcher
+
+36
+00:02:28,695 --> 00:02:32,087
+portion, because that where a lot of the
+interesting concurrent and network
+
+37
+00:02:32,087 --> 00:02:35,316
+programming issues arise.
+The first path through our pattern
+
+38
+00:02:35,316 --> 00:02:38,978
+language looks like this.
+We use the wrapper facade pattern in order
+
+39
+00:02:38,978 --> 00:02:43,138
+to be able to provide a portability veneer
+on top of whatever operating system
+
+40
+00:02:43,138 --> 00:02:47,042
+platform we happen to want to run on, be
+it different versions of WIndows,
+
+41
+00:02:47,042 --> 00:02:51,458
+different versions of Unix, different real
+time operating systems and so on and so
+
+42
+00:02:51,458 --> 00:02:54,972
+forth.
+We then apply the reactor pattern in order
+
+43
+00:02:54,972 --> 00:02:59,892
+to be able to handle the arrival of events
+from multiple sources of events.
+
+44
+00:02:59,892 --> 00:03:04,818
+Multiple clients, connection events, data
+events, and so on and so forth.
+
+45
+00:03:04,818 --> 00:03:09,972
+And then we apply the acceptor connector
+pattern in order to be able to decouple
+
+46
+00:03:09,972 --> 00:03:13,982
+the event arrival from the connection
+establishment logic.
+
+47
+00:03:13,983 --> 00:03:19,612
+These service initialization logic and
+finally a logic of actually processing the
+
+48
+00:03:19,612 --> 00:03:24,536
+various types of HTTP requests that are
+send from clients to the server.
+
+49
+00:03:24,536 --> 00:03:30,625
+This particular solution is very straight
+forward its going to be reasonably east to
+
+50
+00:03:30,625 --> 00:03:34,471
+implement it's reactive.
+Unfortunately, as we'll see it's not
+
+51
+00:03:34,471 --> 00:03:39,086
+particularly scalable and that's because
+there's only one thread of control that's
+
+52
+00:03:39,086 --> 00:03:41,869
+running.
+And so all the different clients have to
+
+53
+00:03:41,869 --> 00:03:44,832
+be multiplexed and queued up behind that
+one thread.
+
+54
+00:03:44,832 --> 00:03:49,665
+Which could become a bottleneck, obviously
+in a large scale production environment.
+
+55
+00:03:49,665 --> 00:03:54,803
+The next path through the pattern language
+we'll explore, keeps the wrapper facade,
+
+56
+00:03:54,803 --> 00:03:59,276
+reactor, and acceptor connector patterns,
+but then it adds a couple of more
+
+57
+00:03:59,276 --> 00:04:02,556
+patterns.
+It adds component configurator, to make it
+
+58
+00:04:02,556 --> 00:04:05,360
+possible to be able to dynamically
+configure.
+
+59
+00:04:05,360 --> 00:04:09,670
+The choice of particular implementation
+details for our web server, at late
+
+60
+00:04:09,670 --> 00:04:12,908
+binding time, at installation time, or
+even at run time.
+
+61
+00:04:12,908 --> 00:04:17,537
+And we can do this for a whole variety of
+different purposes, we could add different
+
+62
+00:04:17,537 --> 00:04:20,605
+services.
+We could change cashing protocols, and so
+
+63
+00:04:20,605 --> 00:04:23,374
+on and so forth.
+And then we're also going to apply
+
+64
+00:04:23,374 --> 00:04:28,029
+something called the activator pattern.
+Which is not in the POSTA2 book, but is a
+
+65
+00:04:28,029 --> 00:04:32,644
+pattern that is closely related to the
+patterns in the host 2 book and we'll use
+
+66
+00:04:32,644 --> 00:04:37,259
+the activator pattern in order to launch
+the web server process on demand when
+
+67
+00:04:37,259 --> 00:04:41,495
+client requests come along.
+So this solution is still fairly simple,
+
+68
+00:04:41,495 --> 00:04:45,743
+it's reactive, it's more flexible because
+we can do late binding of the
+
+69
+00:04:45,743 --> 00:04:50,915
+implementation details of our server.
+And by using activator, it allows use to
+
+70
+00:04:50,915 --> 00:04:55,548
+have coarse grain scalability, basically,
+process per request.
+
+71
+00:04:55,548 --> 00:05:01,294
+The next approach we're going to apply is
+going to keep wrapper facade, reactor, and
+
+72
+00:05:01,294 --> 00:05:05,290
+acceptor connector.
+But now we're going to add in the active
+
+73
+00:05:05,290 --> 00:05:08,613
+object pattern.
+And we're going to use this in order to
+
+74
+00:05:08,613 --> 00:05:13,098
+have a pool of threads that we can run so
+that each connection that comes in will
+
+75
+00:05:13,098 --> 00:05:15,867
+have one thread dedicated to that
+connection.
+
+76
+00:05:15,867 --> 00:05:19,033
+By doing this, we keep some of the
+benefits from before.
+
+77
+00:05:19,033 --> 00:05:23,980
+It's, it's still fairly simple to develop.
+We now have multithreaded concurrency and
+
+78
+00:05:23,980 --> 00:05:28,362
+we'll also be able to get a finer level
+granularity of scalability by using.
+
+79
+00:05:28,362 --> 00:05:32,958
+The thread per connection approach we'll
+see as we go forward, forward though.
+
+80
+00:05:32,958 --> 00:05:35,862
+That thread per connection does have some
+limitations.
+
+81
+00:05:35,862 --> 00:05:39,739
+If you have lots and lots of clients that
+are pounding away on your server.
+
+82
+00:05:39,739 --> 00:05:43,771
+Allocating a thread per connection can
+become prohibitively expensive, with
+
+83
+00:05:43,771 --> 00:05:46,737
+respect to resources allocated in the
+operating system.
+
+84
+00:05:46,737 --> 00:05:50,108
+And unless you're willing to go out and
+dedicate a lot of memory.
+
+85
+00:05:50,108 --> 00:05:53,374
+And a lot of horsepower from a processing
+point of view.
+
+86
+00:05:53,375 --> 00:05:57,511
+You might not want to use thread per
+connection in all circumstances.
+
+87
+00:05:57,511 --> 00:06:02,067
+So for situations where that doesn't
+apply, we'll then talk about yet another
+
+88
+00:06:02,067 --> 00:06:04,951
+path through our pattern language design
+space.
+
+89
+00:06:04,951 --> 00:06:09,377
+This path will use wrapper facade,
+reactor, and acceptor connector, as we've
+
+90
+00:06:09,377 --> 00:06:21,168
+done before.
+But now we're going to apply a number of
+
+91
+00:06:21,168 --> 00:06:33,966
+other patterns to process requests.
+We'll use the monitor object in order to
+
+92
+00:06:33,966 --> 00:06:38,254
+be able to synchronize access to a thread
+safe queue of requests that sit between
+
+93
+00:06:38,254 --> 00:06:42,158
+the reactive portion and the various
+active object portions running the
+
+94
+00:06:42,158 --> 00:06:45,014
+separate threads.
+And then we'll also get a chance to
+
+95
+00:06:45,014 --> 00:06:47,694
+explore a number of synchronization
+patterns.
+
+96
+00:06:47,695 --> 00:06:52,553
+Things like strategized locking, scoped
+locking, thread safe interface and so on
+
+97
+00:06:52,553 --> 00:06:57,176
+in order to make it easier to synchronize
+access under the various conditions in
+
+98
+00:06:57,176 --> 00:06:59,886
+which we're applying our web server
+solution.
+
+99
+00:06:59,886 --> 00:07:04,860
+This approach is concurrent much more
+nicely scalable in, in bounded scalability
+
+100
+00:07:04,860 --> 00:07:09,677
+tends to work better in, under heavy loads
+for example, The downside is that it's a
+
+101
+00:07:09,677 --> 00:07:13,825
+little bit less predictable, because
+you're allocating memory, you're passing
+
+102
+00:07:13,825 --> 00:07:17,973
+memory between different threads, there's
+synchronization overhead, context
+
+103
+00:07:17,973 --> 00:07:20,989
+switching overhead, data movement
+overhead, and so on.
+
+104
+00:07:20,989 --> 00:07:25,685
+And so in some situations, especially for
+small request, this might not be the right
+
+105
+00:07:25,685 --> 00:07:29,839
+Way to do the web server concurrency
+architecture to address that issue of
+
+106
+00:07:29,839 --> 00:07:34,445
+course we'll apply another set of patterns
+in our pattern language design space.
+
+107
+00:07:34,445 --> 00:07:38,543
+In this particular case, we're going to
+keep the wrapper facade but now we're
+
+108
+00:07:38,543 --> 00:07:42,449
+going to skip over reactor.
+And instead apply something called the
+
+109
+00:07:42,449 --> 00:07:46,865
+leader followers pattern which is
+essentially a more powerful, a more tight
+
+110
+00:07:46,865 --> 00:07:51,281
+threaded reactor that allows a pool of
+threads to take turns getting the next
+
+111
+00:07:51,281 --> 00:07:54,150
+request from a set of end points of
+request input.
+
+112
+00:07:54,150 --> 00:07:58,836
+And that this particular approach compared
+to the previous approach tends to be more
+
+113
+00:07:58,836 --> 00:08:02,928
+efficient and more predictable because
+there's less context switching,
+
+114
+00:08:02,928 --> 00:08:07,063
+synchronization, and data movement.
+And you also if you play your cards right,
+
+115
+00:08:07,063 --> 00:08:09,331
+don't need as much dynamic memory
+allocation.
+
+116
+00:08:09,331 --> 00:08:12,586
+The thread in which the message is
+received is the thread in which the
+
+117
+00:08:12,586 --> 00:08:15,506
+message is processed.
+We'll still continue to use acceptor
+
+118
+00:08:15,506 --> 00:08:19,211
+connector with this pattern and other
+things will look very much the same, but
+
+119
+00:08:19,211 --> 00:08:22,423
+it'll have other properties.
+It'll be more predictable than
+
+120
+00:08:22,423 --> 00:08:26,118
+Half-Sync/Half-Async.
+Then we'll take yet another path through
+
+121
+00:08:26,118 --> 00:08:29,646
+our pattern language.
+This time, we're going to be exploring the
+
+122
+00:08:29,646 --> 00:08:33,577
+space of Asynchronous I/O.
+We'll keep using wrapper facade to get our
+
+123
+00:08:33,577 --> 00:08:37,951
+portability, but now we're going to be
+applying something called the Proactor.
+
+124
+00:08:37,951 --> 00:08:42,087
+The proactor pattern is a pattern that
+allows operations to be invoked
+
+125
+00:08:42,087 --> 00:08:46,847
+asynchronously and is also operations
+complete than the proactor will dispatch
+
+126
+00:08:46,847 --> 00:08:51,379
+the completion of the operations just so
+called Completion Event Handlers.
+
+127
+00:08:51,379 --> 00:08:55,933
+And they are responsible for figuring out
+what happened and then doing the next
+
+128
+00:08:55,933 --> 00:09:00,763
+thing which usually involves spotting
+additional asynchronous operations, when
+
+129
+00:09:00,763 --> 00:09:05,455
+we talk about proactor we'll also talk
+about, but asynchronous completion token
+
+130
+00:09:05,455 --> 00:09:10,147
+which is a pattern that's used to very
+efficiently demultiplex event completion
+
+131
+00:09:10,147 --> 00:09:14,718
+with event completion handlers.
+This particular approach is concurrent,
+
+132
+00:09:14,718 --> 00:09:19,755
+asynchronous, fairly simple to implement
+once you have the implementation framework
+
+133
+00:09:19,755 --> 00:09:23,688
+for proactor, it's very scalable on
+operating systems that support
+
+134
+00:09:23,688 --> 00:09:27,107
+Asynchronous I/O.
+But unfortunately, not all operating
+
+135
+00:09:27,107 --> 00:09:30,551
+systems support these capabilities across
+the board.
+
+136
+00:09:30,551 --> 00:09:34,201
+Windows tends to support them very well.
+Some versions of UNIX do.
+
+137
+00:09:34,201 --> 00:09:38,418
+Other operating systems tend not to.
+So there's some portability issues with
+
+138
+00:09:38,418 --> 00:09:41,266
+this particular path through our pattern
+language.
+
+139
+00:09:41,266 --> 00:09:45,153
+So, to summarize this section.
+The pattern language that we'll be
+
+140
+00:09:45,153 --> 00:09:49,224
+discussing here will allow us to be able
+to navigate through the design
+
+141
+00:09:49,224 --> 00:09:53,404
+alternatives in a systematic way.
+It'll help us to document what we do.
+
+142
+00:09:53,404 --> 00:09:57,895
+It'll help us to explain to other people
+the reasons why we chose certain paths
+
+143
+00:09:57,895 --> 00:10:01,638
+through the design space.
+And we're fortunate that most of the
+
+144
+00:10:01,638 --> 00:10:06,894
+patterns that we're describing here have
+direct corollary framework realizations in
+
+145
+00:10:06,894 --> 00:10:09,952
+the adaptive communication environment in
+ACE.
+
+146
+00:10:09,952 --> 00:10:14,782
+And that will make it very simple for us
+to take the patterns and implement them in
+
+147
+00:10:14,782 --> 00:10:19,822
+a reasonable way, based on the open source
+capabilities and frameworks and wrapper
+
+148
+00:10:19,822 --> 00:10:24,910
+facades and other components in ACE.
+And that will allow us to be able to build
+
+149
+00:10:24,910 --> 00:10:30,305
+JAWS, which is our web server, out of
+reasonable pieces, that are open source,
+
+150
+00:10:30,305 --> 00:10:35,617
+that are pattern oriented, that have
+direct realization in frameworks that
+
+151
+00:10:35,617 --> 00:10:39,436
+codify the design principles and pattern
+languages.
+
+152
+00:10:39,436 --> 00:10:43,860
+Take a look at this URL to find out more
+information about ACE.

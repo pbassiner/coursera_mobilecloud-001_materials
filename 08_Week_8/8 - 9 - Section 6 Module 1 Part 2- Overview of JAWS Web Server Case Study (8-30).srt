@@ -1,0 +1,619 @@
+1
+00:00:00,012 --> 00:00:05,432
+.
+Hello, and welcome to Part 2 of the module
+
+2
+00:00:05,432 --> 00:00:11,404
+that provides an overview of the JAWS Web
+Server Case Study.
+
+3
+00:00:11,404 --> 00:00:18,110
+In the previous part of this module, we
+described the pattern-oriented JAWS Web
+
+4
+00:00:18,110 --> 00:00:21,597
+Server Case Study.
+Now, we'll turn our attention to
+
+5
+00:00:21,597 --> 00:00:26,153
+describing some of the key patterns that
+make up the pattern-oriented design of
+
+6
+00:00:26,153 --> 00:00:30,998
+that web server, focusing primarily on the
+portions called the event dispatcher.
+
+7
+00:00:30,998 --> 00:00:35,694
+Naturally, these patterns could be applied
+to many other kinds of servers and other
+
+8
+00:00:35,694 --> 00:00:38,702
+types of concurrent and networked
+applications.
+
+9
+00:00:38,702 --> 00:00:43,622
+All the patterns we'll be describing here,
+with one exception, come from the
+
+10
+00:00:43,622 --> 00:00:48,872
+Pattern-Oriented Software Architecture
+Volume 2 book, which focuses on patterns
+
+11
+00:00:48,872 --> 00:00:54,012
+for concurrent and distributed objects.
+The first set of patterns we will talk
+
+12
+00:00:54,012 --> 00:00:58,226
+about can be grouped into service, access
+and configuration.
+
+13
+00:00:58,226 --> 00:01:03,850
+These patterns are intended to effectively
+design and configure application access to
+
+14
+00:01:03,850 --> 00:01:08,522
+interfaces and implementations of evolving
+services and components.
+
+15
+00:01:08,522 --> 00:01:13,208
+We'll also talk about a number of patterns
+related to event handling, which is
+
+16
+00:01:13,208 --> 00:01:18,445
+intended to simplify the development of
+flexible and efficient event-driven apps.
+
+17
+00:01:18,445 --> 00:01:20,839
+We'll also talk about concurrency
+patterns.
+
+18
+00:01:20,839 --> 00:01:25,741
+These patterns are intended to enhance the
+design and performance of multi- threaded
+
+19
+00:01:25,741 --> 00:01:29,937
+concurrent and network software.
+And finally, we'll talk about patterns
+
+20
+00:01:29,937 --> 00:01:33,957
+that are grouped according to
+synchronization, and these patterns are
+
+21
+00:01:33,957 --> 00:01:38,781
+intended to provide flexible solutions to
+common problems related to synchronizing
+
+22
+00:01:38,781 --> 00:01:41,946
+concurrent software.
+If you take a look at the POSA2 book,
+
+23
+00:01:41,946 --> 00:01:44,251
+you'll see that there are 17 patterns in
+all.
+
+24
+00:01:44,251 --> 00:01:48,094
+And we'll be covering 14 of these patterns
+in this discussion.
+
+25
+00:01:48,094 --> 00:01:52,723
+You can find out more about POSA2 and the
+other POSA volumes here at the website at
+
+26
+00:01:52,723 --> 00:01:55,974
+the bottom of the slide.
+So let's talk about the different
+
+27
+00:01:55,974 --> 00:02:00,459
+challenges we face when developing JAWS,
+and we'll discuss some of the patterns we
+
+28
+00:02:00,459 --> 00:02:05,502
+can apply to address those challenges.
+The first set of challenges we're going to
+
+29
+00:02:05,502 --> 00:02:10,312
+deal with have to do with trying to
+encapsulate the tedious, error-prone, and
+
+30
+00:02:10,312 --> 00:02:14,659
+non-portable C level interfaces.
+And to do this we'll be applying the
+
+31
+00:02:14,659 --> 00:02:18,307
+wrapper facade pattern.
+Wrapper facade is used to provide
+
+32
+00:02:18,307 --> 00:02:22,829
+object-oriented class and object
+interfaces to these low-level C APIs.
+
+33
+00:02:22,830 --> 00:02:27,327
+Next, we'll talk about ways of being able
+to decouple event de-multiplexing,
+
+34
+00:02:27,327 --> 00:02:31,950
+connector establishment and service
+initialization from the actual protocol
+
+35
+00:02:31,950 --> 00:02:36,780
+processing we're doing with our web server
+to send and receive various get requests
+
+36
+00:02:36,780 --> 00:02:39,871
+and post requests and other types of HTTP
+requests.
+
+37
+00:02:39,871 --> 00:02:44,449
+In this particular case, we'll be talking
+about some event handling patterns.
+
+38
+00:02:44,449 --> 00:02:48,487
+We'll be talking about the reactor
+pattern, which is a pattern for being able
+
+39
+00:02:48,487 --> 00:02:52,519
+to separate the low level arrival of
+incoming events from the dispatching of
+
+40
+00:02:52,519 --> 00:02:56,717
+those events to appropriate handlers.
+We'll also be talking about the acceptor
+
+41
+00:02:56,717 --> 00:03:00,987
+connector pattern which is a pattern for
+decoupling connection establishment and
+
+42
+00:03:00,987 --> 00:03:03,873
+service initialization from protocol
+processing.
+
+43
+00:03:03,874 --> 00:03:08,220
+After this, we'll start dealing with
+issues of scaling up the performance of
+
+44
+00:03:08,220 --> 00:03:12,106
+our web server, in order to be able to
+take advantage of multi-core and
+
+45
+00:03:12,106 --> 00:03:16,229
+multi-processor platforms.
+To do this, we'll apply the active object
+
+46
+00:03:16,229 --> 00:03:20,588
+and half sync, half async patterns.
+These patterns allow us to have pools of
+
+47
+00:03:20,588 --> 00:03:24,521
+threads that can be mapped to the
+underlying hardware resources and
+
+48
+00:03:24,521 --> 00:03:29,271
+operating system abstractions much more
+scalably, and much more efficiently.
+
+49
+00:03:29,271 --> 00:03:33,876
+As we talk about half sync half a sync,
+and we talk about active object, one of
+
+50
+00:03:33,876 --> 00:03:38,402
+the things we'll have to do is provide a
+way to have access to a synchronized
+
+51
+00:03:38,402 --> 00:03:42,915
+request queue that can be put and get by
+multiple threads concurrently.
+
+52
+00:03:42,915 --> 00:03:46,693
+In order to do this, we'll apply the
+monitor object pattern.
+
+53
+00:03:46,693 --> 00:03:51,582
+This pattern ensures that only one thread
+of control is active within the state of a
+
+54
+00:03:51,582 --> 00:03:55,759
+particular object at a time.
+We'll next discuss an alternative pattern
+
+55
+00:03:55,759 --> 00:03:59,025
+for concurrency.
+This pattern is meant to make this, the
+
+56
+00:03:59,025 --> 00:04:03,925
+concurrent processing more efficient and
+more predictable relative to half sync,
+
+57
+00:04:03,925 --> 00:04:08,723
+half async, and the use of active object.
+This pattern is called leader followers,
+
+58
+00:04:08,723 --> 00:04:13,346
+and it gives us another way to allocate
+and manage pools of threads that has lower
+
+59
+00:04:13,346 --> 00:04:17,835
+overhead and less context which
+synchronization, data movement and so on.
+
+60
+00:04:17,835 --> 00:04:22,329
+Well then, we kind of switch gears and
+talk about asynchronous ways of handling
+
+61
+00:04:22,329 --> 00:04:25,463
+events using something called the proactor
+pattern.
+
+62
+00:04:25,463 --> 00:04:29,815
+The proactor pattern makes it possible to
+be able to leverage the underlying
+
+63
+00:04:29,815 --> 00:04:34,235
+asynchronous iO operations that are
+available on certain operating systems
+
+64
+00:04:34,235 --> 00:04:38,851
+that can give you tremendous performance
+boost without using lots of threads.
+
+65
+00:04:38,851 --> 00:04:43,549
+Next, we'll talk about a variation and an
+enhancement to proactor, which makes it
+
+66
+00:04:43,549 --> 00:04:48,655
+possible to de-multiplex and dispatch the
+completion of asynchronous operations when
+
+67
+00:04:48,655 --> 00:04:52,484
+they're finished.
+Next, we'll talk about ways of being able
+
+68
+00:04:52,484 --> 00:04:57,594
+to make our web server more flexible, more
+configurable, more configurable late in
+
+69
+00:04:57,594 --> 00:05:01,504
+the design cycle at installation time, or
+even during run time.
+
+70
+00:05:01,504 --> 00:05:05,183
+Being able to bring in different services
+and small parts.
+
+71
+00:05:05,184 --> 00:05:09,168
+Being able to link in different
+implementations of the web server that are
+
+72
+00:05:09,168 --> 00:05:12,153
+tuned for the particular context in which
+it's running.
+
+73
+00:05:12,153 --> 00:05:16,319
+To do this, we'll apply the component
+configurator pattern, which makes its
+
+74
+00:05:16,319 --> 00:05:20,804
+possible to dynamically link in various
+pieces of an application or service later
+
+75
+00:05:20,804 --> 00:05:24,455
+on in the life cycle.
+We'll also next talk about a pattern that
+
+76
+00:05:24,455 --> 00:05:28,632
+does not appear in the POSA2 book.
+This pattern actually is briefly
+
+77
+00:05:28,632 --> 00:05:33,304
+summarized in the POSA4 book, and also
+appears in a paper that you can get from
+
+78
+00:05:33,304 --> 00:05:36,313
+my website.
+This pattern is dealing with ways of
+
+79
+00:05:36,313 --> 00:05:40,735
+trying to minimize the utilization of
+resources when clients are not actively
+
+80
+00:05:40,735 --> 00:05:45,226
+accessing those resources, and the pattern
+is called the activator pattern.
+
+81
+00:05:45,226 --> 00:05:49,110
+And we'll talk about this pattern and
+illustrate how to apply it to JAWS.
+
+82
+00:05:49,110 --> 00:05:53,739
+The remaining set of patterns we deal with
+here focus on synchronization, which is
+
+83
+00:05:53,739 --> 00:05:56,742
+somewhat narrower in scope, but no less
+important.
+
+84
+00:05:56,743 --> 00:06:00,970
+One of the patterns we'll talk about is a
+way of being able to take the components
+
+85
+00:06:00,970 --> 00:06:05,065
+you develop, that are meant to be used
+from different concurrency models, and
+
+86
+00:06:05,065 --> 00:06:09,097
+allow the locking behavior to be
+strategized, by us the strategized locking
+
+87
+00:06:09,097 --> 00:06:12,106
+pattern.
+So you can plug and play different locking
+
+88
+00:06:12,106 --> 00:06:16,462
+mechanisms that are tailored for the
+particular use cases in which a component
+
+89
+00:06:16,462 --> 00:06:19,186
+appears.
+A helper pattern that makes strategized
+
+90
+00:06:19,186 --> 00:06:23,666
+locking and other synchronization type of
+activities easier to deal with is called
+
+91
+00:06:23,666 --> 00:06:27,890
+scope locking, which ensures that locks
+are acquired on entrance to a scope and
+
+92
+00:06:27,890 --> 00:06:31,951
+released automatically, irrespective of
+how a thread leaves that scope.
+
+93
+00:06:31,951 --> 00:06:36,572
+The final pattern we'll talk about in this
+set is a way that we go and enhance the
+
+94
+00:06:36,572 --> 00:06:41,542
+use of strategized locking by ensuring
+that components that have been genericized
+
+95
+00:06:41,542 --> 00:06:46,441
+and strategized with respect to their
+synchronization properties, can do this in
+
+96
+00:06:46,441 --> 00:06:50,541
+a very lightweight manner using the thread
+safe interface pattern.
+
+97
+00:06:50,541 --> 00:06:55,032
+These patterns, as you'll see, will give
+us the ability to be able to do various
+
+98
+00:06:55,032 --> 00:06:59,931
+kinds of things, make the system easier to
+work with and able to port to a much wider
+
+99
+00:06:59,931 --> 00:07:04,286
+range of platforms when we combine them
+with various types of frameworks.
+
+100
+00:07:04,286 --> 00:07:08,982
+So to summarize this particular section,
+the POSA2 patterns direct developers
+
+101
+00:07:08,982 --> 00:07:13,952
+towards strategic architecture design and
+programming elements of concurrent and
+
+102
+00:07:13,952 --> 00:07:17,041
+network software.
+If you focus on the strategic elements
+
+103
+00:07:17,041 --> 00:07:20,823
+effectively in your solutions, then it
+helps to resolve many of the vexing
+
+104
+00:07:20,823 --> 00:07:25,288
+accidental and inherent complexities that
+would otherwise plague your solutions.
+
+105
+00:07:25,288 --> 00:07:29,198
+We'll see that these patterns can be
+applied to many other things besides web
+
+106
+00:07:29,198 --> 00:07:33,129
+servers, but this allows us to be very
+concrete in what we're focusing on.
+
+107
+00:07:33,129 --> 00:07:38,249
+Another thing we'll do with the POSA
+patterns is we'll make it possible to be
+
+108
+00:07:38,249 --> 00:07:43,779
+able to direct developers away from the
+unhealthy preoccupation with the low level
+
+109
+00:07:43,779 --> 00:07:47,759
+concurrent and networking operating system
+mechanisms.
+
+110
+00:07:47,760 --> 00:07:52,222
+It's always important to have a solid
+grasp of how to do these kinds of low
+
+111
+00:07:52,222 --> 00:07:55,156
+level concurrency and networking
+mechanisms.
+
+112
+00:07:55,156 --> 00:07:58,615
+But keep in mind that these are primarily
+tactical in nature.
+
+113
+00:07:58,615 --> 00:08:02,491
+If you get the architecture right, that's
+the most important thing.
+
+114
+00:08:02,491 --> 00:08:06,202
+If you are an expert at programming p
+threads or sockets, but the architecture
+
+115
+00:08:06,202 --> 00:08:09,850
+of your solution doesn't work, doesn't
+scale, isn't correct, isn't going to be
+
+116
+00:08:09,850 --> 00:08:13,840
+able to deal with performance issues and
+reliability and security issues, then all
+
+117
+00:08:13,840 --> 00:08:16,305
+the great programming in the world won't
+save you.
+
+118
+00:08:16,305 --> 00:08:19,555
+Naturally, it's important to have both a
+strategic and tactical grasp.
+
+119
+00:08:19,555 --> 00:08:23,627
+And we'll focus on those kinds of things
+throughout this discussion.
+
+120
+00:08:23,627 --> 00:08:28,595
+Finally, by combining the POSA2 patterns
+with patterns from the Gang of 4 book, the
+
+121
+00:08:28,595 --> 00:08:33,635
+POSA4 book, other volumes of other books
+and other sources of material on patterns,
+
+122
+00:08:33,635 --> 00:08:38,099
+it will allow us to be able to develop
+much more powerful and comprehensive
+
+123
+00:08:38,099 --> 00:08:41,649
+pattern languages.
+And we'll look at a number of those
+
+124
+00:08:41,649 --> 00:08:44,926
+examples as we go through the rest of this
+section.
